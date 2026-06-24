@@ -1,0 +1,17 @@
+{
+  "name": "Darjana Designer House",
+  "short_name": "Darjana",
+  "description": "Made-to-order Indian occasion wear from Bihar Sharif.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090909",
+  "theme_color": "#090909",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

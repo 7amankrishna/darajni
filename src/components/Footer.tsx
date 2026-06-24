@@ -1,115 +1,53 @@
-import { WHATSAPP_NUMBER } from "../data/designs";
+import { Link } from "react-router-dom";
+import { siteConfig, whatsappLink } from "../config/site";
 
-interface FooterProps {
-  onNavClick: (section: string) => void;
-}
-
-export default function Footer({ onNavClick }: FooterProps) {
+export default function Footer() {
   return (
-    <footer className="bg-[#050505] border-t border-white/5 px-4 sm:px-6 lg:px-8 py-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a96e] to-[#8B6914] flex items-center justify-center">
-                <span className="text-white font-serif text-lg font-bold">D</span>
-              </div>
-              <div>
-                <h2
-                  className="text-white text-2xl tracking-[0.15em] leading-none"
-                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                >
-                  DARJANA
-                </h2>
-                <p
-                  className="text-[#c9a96e] text-[8px] tracking-[0.35em] uppercase"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  Designer House
-                </p>
-              </div>
-            </div>
-            <p
-              className="text-white/35 text-sm leading-relaxed font-light"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
-              Handcrafted designer dresses for the modern Indian woman. 
-              Bridal, festive & everyday luxury — delivered pan India.
-            </p>
-          </div>
+    <footer className="border-t border-white/8 bg-[#060606] py-14">
+      <div className="section-shell grid gap-10 md:grid-cols-[1.4fr_0.7fr_0.9fr]">
+        <div>
+          <p className="font-display text-3xl tracking-[0.12em]">DARJANA</p>
+          <p className="mt-4 max-w-md text-sm leading-7 text-white/45">
+            Thoughtful Indian occasion wear, made to order from Bihar Sharif and delivered
+            across India.
+          </p>
+          <p className="mt-4 text-xs text-white/35">
+            {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
+          </p>
+        </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4
-              className="text-[#c9a96e] text-[9px] tracking-[0.4em] uppercase mb-5"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              Quick Links
-            </h4>
-            <div className="space-y-3">
-              {[
-                { label: "Home", id: "home" },
-                { label: "Collection", id: "collection" },
-                { label: "About Us", id: "about" },
-                { label: "Contact & Orders", id: "contact" },
-              ].map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => onNavClick(link.id)}
-                  className="block text-white/35 text-xs tracking-[0.15em] uppercase hover:text-[#c9a96e] transition-colors duration-300 cursor-pointer"
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
+        <div>
+          <p className="eyebrow mb-4">Explore</p>
+          <div className="flex flex-col gap-3 text-sm text-white/50">
+            <a href="/#collection" className="hover:text-[#dfc084]">Collection</a>
+            <a href="/#about" className="hover:text-[#dfc084]">Our story</a>
+            <Link to="/dashboard" className="hover:text-[#dfc084]">Customer dashboard</Link>
           </div>
+        </div>
 
-          {/* Contact */}
-          <div>
-            <h4
-              className="text-[#c9a96e] text-[9px] tracking-[0.4em] uppercase mb-5"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              Order & Enquiries
-            </h4>
+        <div>
+          <p className="eyebrow mb-4">Order & support</p>
+          <div className="flex flex-col gap-3 text-sm text-white/50">
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello Darjana! I'd like to enquire about your collection.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 text-[#25D366] text-sm mb-4 hover:text-[#25D366]/80 transition-colors group"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
+              href={whatsappLink("Hello Darjana! I would like to know more about your collection.")}
+              target={siteConfig.whatsappNumber ? "_blank" : undefined}
+              rel="noreferrer"
+              className="hover:text-[#72df99]"
             >
-              <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              WhatsApp Us to Order
+              WhatsApp enquiry
             </a>
-            <p
-              className="text-white/30 text-[11px] leading-relaxed"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              Available Mon – Sat<br />10:00 AM – 8:00 PM IST<br />Pan India Delivery Available
-            </p>
+            <a href={`mailto:${siteConfig.email}`} className="hover:text-[#dfc084]">
+              {siteConfig.email}
+            </a>
+            <div className="flex gap-4 pt-2">
+              <Link to="/privacy" className="text-xs hover:text-white">Privacy</Link>
+              <Link to="/terms" className="text-xs hover:text-white">Terms</Link>
+            </div>
           </div>
         </div>
-
-        {/* Bottom */}
-        <div className="border-t border-white/8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p
-            className="text-white/20 text-[10px] tracking-[0.15em]"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            © {new Date().getFullYear()} Darjana Designer House. All rights reserved.
-          </p>
-          <p
-            className="text-white/20 text-[10px] tracking-[0.15em]"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            Made with ♥ in India
-          </p>
-        </div>
+      </div>
+      <div className="section-shell mt-10 border-t border-white/8 pt-6 text-xs text-white/30">
+        © {new Date().getFullYear()} Darjana Designer House. Made in Bihar, delivered Pan India.
       </div>
     </footer>
   );

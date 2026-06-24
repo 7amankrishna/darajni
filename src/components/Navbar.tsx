@@ -1,110 +1,99 @@
 import { useState } from "react";
-import { useAdmin } from "../context/AdminContext";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-interface NavbarProps {
-  onAdminClick: () => void;
-  activeSection: string;
-  onNavClick: (section: string) => void;
-}
+const sectionLinks = [
+  { label: "Collection", href: "/#collection" },
+  { label: "Our Story", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
+];
 
-export default function Navbar({ onAdminClick, activeSection, onNavClick }: NavbarProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { isAdminMode } = useAdmin();
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+  const { user, profile, isAdmin } = useAuth();
+  const location = useLocation();
 
-  const navLinks = [
-    { label: "Home", id: "home" },
-    { label: "Collection", id: "collection" },
-    { label: "About", id: "about" },
-    { label: "Contact", id: "contact" },
-  ];
+  const close = () => setOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#c9a96e]/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavClick("home")}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c9a96e] to-[#8B6914] flex items-center justify-center shadow-lg shadow-[#c9a96e]/30">
-              <span className="text-white font-serif text-lg font-bold">D</span>
-            </div>
-            <div>
-              <h1
-                className="text-white font-serif text-2xl tracking-[0.15em] leading-none"
-                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-              >
-                DARJANA
-              </h1>
-              <p className="text-[#c9a96e] text-[9px] tracking-[0.35em] uppercase font-light" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                Designer House
-              </p>
-            </div>
-          </div>
+    <header className="sticky top-0 z-50 border-b border-white/8 bg-[#090909]/92 backdrop-blur-xl">
+      <nav className="section-shell flex h-[74px] items-center justify-between" aria-label="Main navigation">
+        <Link to="/" onClick={close} className="flex items-center gap-3" aria-label="Darjana home">
+          <span className="grid h-10 w-10 place-items-center rounded-full border border-[#caaa70]/60 bg-[#caaa70]/10 font-display text-xl text-[#e5c88f]">
+            D
+          </span>
+          <span>
+            <span className="font-display block text-[1.55rem] leading-none tracking-[0.13em]">
+              DARJANA
+            </span>
+            <span className="mt-1 block text-[0.52rem] font-bold uppercase tracking-[0.28em] text-[#caaa70]">
+              Designer House
+            </span>
+          </span>
+        </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => onNavClick(link.id)}
-                className={`text-xs tracking-[0.2em] uppercase font-medium transition-colors duration-300 cursor-pointer ${
-                  activeSection === link.id ? "text-[#c9a96e]" : "text-white/70 hover:text-[#c9a96e]"
-                }`}
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                {link.label}
-              </button>
-            ))}
-            <button
-              onClick={onAdminClick}
-              className={`text-xs tracking-[0.2em] uppercase px-4 py-2 border transition-all duration-300 cursor-pointer ${
-                isAdminMode
-                  ? "border-[#c9a96e] text-[#c9a96e] bg-[#c9a96e]/10"
-                  : "border-white/20 text-white/40 hover:border-[#c9a96e]/50 hover:text-white/60"
-              }`}
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              {isAdminMode ? "✦ Admin" : "Admin"}
-            </button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-white/80 hover:text-[#c9a96e] transition-colors p-2"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <div className="w-6 flex flex-col gap-1.5">
-              <span className={`block h-px bg-current transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-              <span className={`block h-px bg-current transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block h-px bg-current transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="md:hidden bg-[#0a0a0a] border-t border-[#c9a96e]/20 px-6 py-6 space-y-4">
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => { onNavClick(link.id); setMenuOpen(false); }}
-              className={`block w-full text-left text-xs tracking-[0.2em] uppercase font-medium py-2 transition-colors ${
-                activeSection === link.id ? "text-[#c9a96e]" : "text-white/70"
-              }`}
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
+        <div className="hidden items-center gap-7 md:flex">
+          {sectionLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60 transition hover:text-[#e0c083]"
             >
               {link.label}
-            </button>
+            </a>
           ))}
-          <button
-            onClick={() => { onAdminClick(); setMenuOpen(false); }}
-            className="block w-full text-left text-xs tracking-[0.2em] uppercase font-medium py-2 text-white/40"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
-          >
-            Admin Panel
-          </button>
+          {user ? (
+            <NavLink
+              to={isAdmin ? "/admin" : "/dashboard"}
+              className="secondary-button !min-h-9 !px-4 !py-2"
+            >
+              {isAdmin ? "Admin" : profile?.fullName.split(" ")[0] || "Account"}
+            </NavLink>
+          ) : (
+            <NavLink to="/login" className="secondary-button !min-h-9 !px-4 !py-2">
+              Sign in
+            </NavLink>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="grid h-11 w-11 place-items-center rounded-full border border-white/10 md:hidden"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-label="Toggle navigation"
+        >
+          <span className="text-xl">{open ? "×" : "☰"}</span>
+        </button>
+      </nav>
+
+      {open && (
+        <div className="border-t border-white/8 bg-[#0c0c0b] px-5 py-5 md:hidden">
+          <div className="flex flex-col gap-1">
+            <Link to="/" onClick={close} className="rounded-lg px-3 py-3 text-sm text-white/75">
+              Home
+            </Link>
+            {sectionLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={close}
+                className="rounded-lg px-3 py-3 text-sm text-white/75"
+              >
+                {link.label}
+              </a>
+            ))}
+            <Link
+              to={user ? (isAdmin ? "/admin" : "/dashboard") : "/login"}
+              state={!user && location.pathname !== "/" ? { from: location.pathname } : undefined}
+              onClick={close}
+              className="mt-2 primary-button"
+            >
+              {user ? (isAdmin ? "Admin dashboard" : "My dashboard") : "Sign in"}
+            </Link>
+          </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 }

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+
+Sitemap: https://darjana.vercel.app/sitemap.xml
