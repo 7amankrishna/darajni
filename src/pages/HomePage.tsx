@@ -32,7 +32,7 @@ export default function HomePage() {
       {
         "@context": "https://schema.org",
         "@type": "ItemList",
-        name: "Darjana designer collection",
+        name: "DARAJNI designer collection",
         itemListElement: designs.slice(0, 12).map((design, index) => ({
           "@type": "ListItem",
           position: index + 1,

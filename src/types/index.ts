@@ -1,12 +1,40 @@
 export type UserRole = "user" | "admin";
 export type ReviewStatus = "pending" | "approved" | "rejected";
+export type AccountStatus = "active" | "warned" | "restricted" | "blocked";
 
 export interface Profile {
   id: string;
   email: string;
   fullName: string;
   role: UserRole;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  accountStatus: AccountStatus;
+  moderationMessage: string | null;
   createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProfileInput {
+  fullName: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  isSystem: boolean;
+  createdAt: string;
 }
 
 export interface Design {
@@ -45,12 +73,3 @@ export interface ReviewInput {
   rating: number;
   comment: string;
 }
-
-export type Category =
-  | "All"
-  | "Lehenga"
-  | "Anarkali"
-  | "Saree"
-  | "Gown"
-  | "Sharara"
-  | "Kurti";

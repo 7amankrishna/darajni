@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import BrandLogo from "./BrandLogo";
 
 const sectionLinks = [
   { label: "Collection", href: "/#collection" },
@@ -18,13 +19,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[#090909]/92 backdrop-blur-xl">
       <nav className="section-shell flex h-[74px] items-center justify-between" aria-label="Main navigation">
-        <Link to="/" onClick={close} className="flex items-center gap-3" aria-label="Darjana home">
-          <span className="grid h-10 w-10 place-items-center rounded-full border border-[#caaa70]/60 bg-[#caaa70]/10 font-display text-xl text-[#e5c88f]">
-            D
-          </span>
+        <Link to="/" onClick={close} className="flex items-center gap-3" aria-label="DARAJNI home">
+          <BrandLogo className="h-11 w-11 border border-[#caaa70]/35" priority />
           <span>
             <span className="font-display block text-[1.55rem] leading-none tracking-[0.13em]">
-              DARJANA
+              DARAJNI
             </span>
             <span className="mt-1 block text-[0.52rem] font-bold uppercase tracking-[0.28em] text-[#caaa70]">
               Designer House

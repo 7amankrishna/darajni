@@ -7,27 +7,28 @@ import {
   useMemo,
   useState,
 } from "react";
-import { designs as seedDesigns } from "../data/designs";
 import { supabase } from "../lib/supabase";
-import { Design } from "../types";
+import { Category, Design } from "../types";
 
 type DesignDraft = Omit<Design, "id" | "createdAt" | "updatedAt">;
 
 interface CatalogContextValue {
   designs: Design[];
+  categories: Category[];
   loading: boolean;
   error: string | null;
   createDesign: (draft: DesignDraft) => Promise<string | null>;
   updateDesign: (id: string, draft: DesignDraft) => Promise<string | null>;
   deleteDesign: (id: string) => Promise<string | null>;
+  createCategory: (name: string) => Promise<string | null>;
+  deleteCategory: (id: string) => Promise<string | null>;
   uploadImage: (file: File) => Promise<{ url?: string; error?: string }>;
-  refreshDesigns: () => Promise<void>;
+  refreshCatalog: () => Promise<void>;
 }
 
 const CatalogContext = createContext<CatalogContextValue | undefined>(undefined);
-const DEMO_PRODUCTS_KEY = "darjana_demo_products";
 
-function fromRow(row: Record<string, unknown>): Design {
+function fromProductRow(row: Record<string, unknown>): Design {
   return {
     id: String(row.id),
     name: String(row.name),
@@ -46,7 +47,17 @@ function fromRow(row: Record<string, unknown>): Design {
   };
 }
 
-function toRow(draft: DesignDraft) {
+function fromCategoryRow(row: Record<string, unknown>): Category {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    slug: String(row.slug),
+    isSystem: Boolean(row.is_system),
+    createdAt: String(row.created_at),
+  };
+}
+
+function toProductRow(draft: DesignDraft) {
   return {
     name: draft.name,
     slug: draft.slug,
@@ -62,119 +73,128 @@ function toRow(draft: DesignDraft) {
   };
 }
 
-function readDemoProducts() {
-  try {
-    const saved = localStorage.getItem(DEMO_PRODUCTS_KEY);
-    return saved ? (JSON.parse(saved) as Design[]) : seedDesigns;
-  } catch {
-    return seedDesigns;
-  }
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshDesigns = useCallback(async () => {
+  const refreshCatalog = useCallback(async () => {
     setLoading(true);
     setError(null);
     if (!supabase) {
-      setDesigns(readDemoProducts());
+      setDesigns([]);
+      setCategories([]);
+      setError("Supabase deployment configuration is required.");
       setLoading(false);
       return;
     }
 
-    const { data, error: queryError } = await supabase
-      .from("products")
-      .select("*")
-      .order("featured", { ascending: false })
-      .order("created_at", { ascending: false });
+    const [productResult, categoryResult] = await Promise.all([
+      supabase
+        .from("products")
+        .select("*")
+        .order("featured", { ascending: false })
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("categories")
+        .select("id, name, slug, is_system, created_at")
+        .order("is_system", { ascending: false })
+        .order("name", { ascending: true }),
+    ]);
+
+    const queryError = productResult.error || categoryResult.error;
     if (queryError) {
       setError(queryError.message);
-      setDesigns(seedDesigns);
+      setDesigns([]);
+      setCategories([]);
     } else {
-      setDesigns((data || []).map((row) => fromRow(row)));
+      setDesigns((productResult.data || []).map((row) => fromProductRow(row)));
+      setCategories((categoryResult.data || []).map((row) => fromCategoryRow(row)));
     }
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    void refreshDesigns();
-  }, [refreshDesigns]);
-
-  const persistDemo = (next: Design[]) => {
-    setDesigns(next);
-    localStorage.setItem(DEMO_PRODUCTS_KEY, JSON.stringify(next));
-  };
+    void refreshCatalog();
+  }, [refreshCatalog]);
 
   const createDesign = useCallback(
     async (draft: DesignDraft) => {
-      if (!supabase) {
-        persistDemo([
-          { ...draft, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
-          ...designs,
-        ]);
-        return null;
-      }
-      const { error: insertError } = await supabase.from("products").insert(toRow(draft));
+      if (!supabase) return "Supabase deployment configuration is required.";
+      const { error: insertError } = await supabase.from("products").insert(toProductRow(draft));
       if (insertError) return insertError.message;
-      await refreshDesigns();
+      await refreshCatalog();
       return null;
     },
-    [designs, refreshDesigns],
+    [refreshCatalog],
   );
 
   const updateDesign = useCallback(
     async (id: string, draft: DesignDraft) => {
-      if (!supabase) {
-        persistDemo(
-          designs.map((design) =>
-            design.id === id
-              ? { ...design, ...draft, updatedAt: new Date().toISOString() }
-              : design,
-          ),
-        );
-        return null;
-      }
+      if (!supabase) return "Supabase deployment configuration is required.";
       const { error: updateError } = await supabase
         .from("products")
-        .update(toRow(draft))
+        .update(toProductRow(draft))
         .eq("id", id);
       if (updateError) return updateError.message;
-      await refreshDesigns();
+      await refreshCatalog();
       return null;
     },
-    [designs, refreshDesigns],
+    [refreshCatalog],
   );
 
   const deleteDesign = useCallback(
     async (id: string) => {
-      if (!supabase) {
-        persistDemo(designs.filter((design) => design.id !== id));
-        return null;
-      }
+      if (!supabase) return "Supabase deployment configuration is required.";
       const { error: deleteError } = await supabase.from("products").delete().eq("id", id);
       if (deleteError) return deleteError.message;
-      await refreshDesigns();
+      await refreshCatalog();
       return null;
     },
-    [designs, refreshDesigns],
+    [refreshCatalog],
+  );
+
+  const createCategory = useCallback(
+    async (name: string) => {
+      if (!supabase) return "Supabase deployment configuration is required.";
+      const normalizedName = name.trim();
+      if (normalizedName.length < 2) return "Category name must be at least 2 characters.";
+      const { error: insertError } = await supabase.from("categories").insert({
+        name: normalizedName,
+        slug: slugify(normalizedName),
+        is_system: false,
+      });
+      if (insertError) return insertError.message;
+      await refreshCatalog();
+      return null;
+    },
+    [refreshCatalog],
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      if (!supabase) return "Supabase deployment configuration is required.";
+      const { error: deleteError } = await supabase.from("categories").delete().eq("id", id);
+      if (deleteError) return deleteError.message;
+      await refreshCatalog();
+      return null;
+    },
+    [refreshCatalog],
   );
 
   const uploadImage = useCallback(async (file: File) => {
+    if (!supabase) return { error: "Supabase deployment configuration is required." };
     if (!file.type.startsWith("image/")) return { error: "Choose a valid image file." };
     if (file.size > 5 * 1024 * 1024) return { error: "Image must be smaller than 5 MB." };
-
-    if (!supabase) {
-      const url = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = () => reject(new Error("Could not read image."));
-        reader.readAsDataURL(file);
-      });
-      return { url };
-    }
 
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${extension}`;
@@ -189,21 +209,27 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       designs,
+      categories,
       loading,
       error,
       createDesign,
       updateDesign,
       deleteDesign,
+      createCategory,
+      deleteCategory,
       uploadImage,
-      refreshDesigns,
+      refreshCatalog,
     }),
     [
+      categories,
+      createCategory,
       createDesign,
+      deleteCategory,
       deleteDesign,
       designs,
       error,
       loading,
-      refreshDesigns,
+      refreshCatalog,
       updateDesign,
       uploadImage,
     ],

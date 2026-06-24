@@ -1,10 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import Seo from "../components/Seo";
 import { useAuth } from "../context/AuthContext";
 
 export default function AuthPage() {
-  const { user, isAdmin, isDemoMode, signIn, signUp } = useAuth();
+  const { user, isAdmin, signIn, signUp } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -12,12 +12,13 @@ export default function AuthPage() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const requestedPath = (location.state as { from?: string } | null)?.from;
 
   useEffect(() => setMessage(""), [mode]);
 
-  if (user) return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
+  if (user) {
+    return <Navigate to={requestedPath || (isAdmin ? "/admin" : "/dashboard")} replace />;
+  }
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -32,8 +33,6 @@ export default function AuthPage() {
       setMessage(result.error);
     } else if (result.message) {
       setMessage(result.message);
-    } else {
-      navigate(requestedPath || (email.toLowerCase() === "admin@darjana.local" ? "/admin" : "/dashboard"));
     }
   };
 
@@ -41,7 +40,7 @@ export default function AuthPage() {
     <main className="grid min-h-[calc(100svh-74px)] place-items-center px-3 py-12">
       <Seo title={mode === "signin" ? "Sign in" : "Create account"} path="/login" noIndex />
       <div className="glass-panel w-full max-w-md p-6 sm:p-9">
-        <p className="eyebrow">{mode === "signin" ? "Welcome back" : "Join Darjana"}</p>
+        <p className="eyebrow">{mode === "signin" ? "Welcome back" : "Join DARAJNI"}</p>
         <h1 className="font-display mt-3 text-4xl">
           {mode === "signin" ? "Sign in to your account" : "Create your customer account"}
         </h1>
@@ -106,14 +105,6 @@ export default function AuthPage() {
         >
           {mode === "signin" ? "New here? Create an account" : "Already registered? Sign in"}
         </button>
-
-        {isDemoMode && (
-          <div className="mt-6 rounded-xl border border-sky-400/20 bg-sky-400/5 p-4 text-xs leading-6 text-sky-100/65">
-            <strong className="text-sky-100">Local demo mode</strong><br />
-            Admin: admin@darjana.local / admin123<br />
-            Customer accounts can be created with any test email.
-          </div>
-        )}
       </div>
     </main>
   );

@@ -67,14 +67,14 @@ export default function ProductPage() {
   }
 
   const orderLink = whatsappLink(
-    `Hello Darjana! I am interested in ${design.name} (${formatPrice(design.price)} onwards). Please share availability, customisation and delivery details.`,
+    `Hello DARAJNI! I am interested in ${design.name} (${formatPrice(design.price)} onwards). Please share availability, customisation and delivery details.`,
   );
 
   return (
     <main className="py-6 sm:py-10">
       <Seo
         title={`${design.name} – ${design.category}`}
-        description={`${design.name} by Darjana Designer House in Bihar Sharif. ${design.fabric}. Custom sizing and Pan-India delivery available.`}
+        description={`${design.name} by DARAJNI Designer House in Bihar Sharif. ${design.fabric}. Custom sizing and Pan-India delivery available.`}
         path={`/design/${design.slug}`}
         jsonLd={structuredData}
       />

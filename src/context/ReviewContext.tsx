@@ -10,7 +10,6 @@ import {
 import { supabase } from "../lib/supabase";
 import { Review, ReviewInput, ReviewStatus } from "../types";
 import { useAuth } from "./AuthContext";
-import { useCatalog } from "./CatalogContext";
 
 interface ReviewContextValue {
   approvedReviews: Review[];
@@ -29,14 +28,13 @@ interface ReviewContextValue {
 }
 
 const ReviewContext = createContext<ReviewContextValue | undefined>(undefined);
-const DEMO_REVIEWS_KEY = "darjana_demo_reviews";
 
 function fromRow(row: Record<string, unknown>): Review {
   const product = row.products as { name?: string } | null;
   return {
     id: String(row.id),
     productId: String(row.product_id),
-    productName: product?.name || String(row.product_name || "Design"),
+    productName: product?.name || "Design",
     userId: String(row.user_id),
     authorName: String(row.author_name || "Customer"),
     rating: Number(row.rating),
@@ -48,17 +46,21 @@ function fromRow(row: Record<string, unknown>): Review {
   };
 }
 
-function readDemoReviews(): Review[] {
-  try {
-    return JSON.parse(localStorage.getItem(DEMO_REVIEWS_KEY) || "[]") as Review[];
-  } catch {
-    return [];
+function friendlyReviewError(message: string) {
+  if (message.includes("Review posting is disabled")) {
+    return "Your account cannot submit or edit reviews. Check the private account notice in your dashboard.";
   }
+  if (message.includes("Review rate limit reached")) {
+    return "You have reached the review limit. Please wait 24 hours before submitting another review.";
+  }
+  if (message.toLowerCase().includes("row-level security")) {
+    return "Your account is not permitted to perform this review action.";
+  }
+  return message;
 }
 
 export function ReviewProvider({ children }: { children: ReactNode }) {
   const { user, profile, isAdmin } = useAuth();
-  const { designs } = useCatalog();
   const [approvedReviews, setApprovedReviews] = useState<Review[]>([]);
   const [myReviews, setMyReviews] = useState<Review[]>([]);
   const [adminReviews, setAdminReviews] = useState<Review[]>([]);
@@ -67,10 +69,9 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
   const refreshReviews = useCallback(async () => {
     setLoading(true);
     if (!supabase) {
-      const all = readDemoReviews();
-      setApprovedReviews(all.filter((review) => review.status === "approved"));
-      setMyReviews(user ? all.filter((review) => review.userId === user.id) : []);
-      setAdminReviews(isAdmin ? all : []);
+      setApprovedReviews([]);
+      setMyReviews([]);
+      setAdminReviews([]);
       setLoading(false);
       return;
     }
@@ -94,11 +95,7 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
           .order("created_at", { ascending: false })
       : null;
 
-    const [approved, mine, all] = await Promise.all([
-      approvedQuery,
-      mineQuery,
-      adminQuery,
-    ]);
+    const [approved, mine, all] = await Promise.all([approvedQuery, mineQuery, adminQuery]);
     setApprovedReviews((approved.data || []).map((row) => fromRow(row)));
     setMyReviews((mine?.data || []).map((row) => fromRow(row)));
     setAdminReviews((all?.data || []).map((row) => fromRow(row)));
@@ -109,41 +106,14 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
     void refreshReviews();
   }, [refreshReviews]);
 
-  const writeDemo = (reviews: Review[]) => {
-    localStorage.setItem(DEMO_REVIEWS_KEY, JSON.stringify(reviews));
-    void refreshReviews();
-  };
-
   const submitReview = useCallback(
     async ({ productId, rating, comment }: ReviewInput) => {
-      if (!user || !profile) return "Please sign in before leaving a review.";
+      if (!supabase || !user || !profile) return "Please sign in before leaving a review.";
+      if (!["active", "warned"].includes(profile.accountStatus)) {
+        return "Your account cannot currently submit reviews. Check your dashboard notice.";
+      }
       if (rating < 1 || rating > 5) return "Choose a rating from 1 to 5.";
       if (comment.trim().length < 10) return "Please write at least 10 characters.";
-
-      if (!supabase) {
-        const current = readDemoReviews();
-        if (current.some((review) => review.userId === user.id && review.productId === productId)) {
-          return "You have already reviewed this design. Manage it from your dashboard.";
-        }
-        const productName = designs.find((design) => design.id === productId)?.name || "Design";
-        writeDemo([
-          {
-            id: crypto.randomUUID(),
-            productId,
-            productName,
-            userId: user.id,
-            authorName: profile.fullName,
-            rating,
-            comment: comment.trim(),
-            status: "pending",
-            moderationNote: null,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          ...current,
-        ]);
-        return null;
-      }
 
       const { error } = await supabase.from("reviews").insert({
         product_id: productId,
@@ -154,35 +124,21 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
       if (error?.code === "23505") {
         return "You have already reviewed this design. Manage it from your dashboard.";
       }
-      if (error) return error.message;
+      if (error) return friendlyReviewError(error.message);
       await refreshReviews();
       return null;
     },
-    [designs, profile, refreshReviews, user],
+    [profile, refreshReviews, user],
   );
 
   const updateMyReview = useCallback(
     async (id: string, rating: number, comment: string) => {
-      if (!user) return "Please sign in.";
-      if (comment.trim().length < 10) return "Please write at least 10 characters.";
-      if (!supabase) {
-        writeDemo(
-          readDemoReviews().map((review) =>
-            review.id === id && review.userId === user.id
-              ? {
-                  ...review,
-                  rating,
-                  comment: comment.trim(),
-                  status: "pending",
-                  moderationNote: null,
-                  updatedAt: new Date().toISOString(),
-                }
-              : review,
-          ),
-        );
-        return null;
+      if (!supabase || !user || !profile) return "Please sign in.";
+      if (!["active", "warned"].includes(profile.accountStatus)) {
+        return "Your account cannot currently edit reviews.";
       }
-      const { error } = await supabase
+      if (comment.trim().length < 10) return "Please write at least 10 characters.";
+      const { data, error } = await supabase
         .from("reviews")
         .update({
           rating,
@@ -191,7 +147,21 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
           moderation_note: null,
         })
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
+      if (error) return friendlyReviewError(error.message);
+      if (!data) return "Your account is not permitted to edit this review.";
+      await refreshReviews();
+      return null;
+    },
+    [profile, refreshReviews, user],
+  );
+
+  const deleteReview = useCallback(
+    async (id: string) => {
+      if (!supabase || !user) return "Please sign in.";
+      const { error } = await supabase.from("reviews").delete().eq("id", id);
       if (error) return error.message;
       await refreshReviews();
       return null;
@@ -199,43 +169,9 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
     [refreshReviews, user],
   );
 
-  const deleteReview = useCallback(
-    async (id: string) => {
-      if (!user) return "Please sign in.";
-      if (!supabase) {
-        writeDemo(
-          readDemoReviews().filter(
-            (review) => review.id !== id || (!isAdmin && review.userId !== user.id),
-          ),
-        );
-        return null;
-      }
-      const { error } = await supabase.from("reviews").delete().eq("id", id);
-      if (error) return error.message;
-      await refreshReviews();
-      return null;
-    },
-    [isAdmin, refreshReviews, user],
-  );
-
   const moderateReview = useCallback(
     async (id: string, status: "approved" | "rejected", note: string) => {
-      if (!isAdmin) return "Administrator access is required.";
-      if (!supabase) {
-        writeDemo(
-          readDemoReviews().map((review) =>
-            review.id === id
-              ? {
-                  ...review,
-                  status,
-                  moderationNote: note.trim() || null,
-                  updatedAt: new Date().toISOString(),
-                }
-              : review,
-          ),
-        );
-        return null;
-      }
+      if (!supabase || !isAdmin) return "Administrator access is required.";
       const { error } = await supabase
         .from("reviews")
         .update({ status, moderation_note: note.trim() || null })

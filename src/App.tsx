@@ -9,6 +9,8 @@ import {
 } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import AccountNotice from "./components/AccountNotice";
+import ConfigurationRequired from "./components/ConfigurationRequired";
 import ProtectedRoute from "./components/ProtectedRoute";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 import { AuthProvider } from "./context/AuthContext";
@@ -21,6 +23,7 @@ import LegalPage from "./pages/LegalPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProductPage from "./pages/ProductPage";
 import UserDashboard from "./pages/UserDashboard";
+import { isSupabaseConfigured } from "./lib/supabase";
 
 function RouteEffects() {
   const { pathname, hash } = useLocation();
@@ -41,6 +44,7 @@ function SiteLayout() {
     <>
       <RouteEffects />
       <Navbar />
+      <AccountNotice />
       <Outlet />
       <Footer />
       <WhatsAppFloat />
@@ -49,6 +53,14 @@ function SiteLayout() {
 }
 
 export default function App() {
+  if (!isSupabaseConfigured) {
+    return (
+      <HelmetProvider>
+        <ConfigurationRequired />
+      </HelmetProvider>
+    );
+  }
+
   return (
     <HelmetProvider>
       <BrowserRouter>

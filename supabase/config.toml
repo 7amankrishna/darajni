@@ -1,4 +1,4 @@
-project_id = "darjana"
+project_id = "darajni"
 
 [api]
 enabled = true
@@ -18,7 +18,7 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://localhost:5173"
-additional_redirect_urls = ["https://darjana.vercel.app"]
+additional_redirect_urls = ["https://darajni.vercel.app"]
 
 [storage]
 enabled = true

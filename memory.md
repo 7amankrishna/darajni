@@ -1,364 +1,202 @@
-# Darjana project memory
+# DARAJNI project memory
 
-This file is the persistent technical map for the repository. Read it before changing
-architecture, authentication, reviews, deployment or SEO.
+## Brand facts
 
-## 1. Product identity and non-negotiable facts
+- Public name: **DARAJNI Designer House**
+- Slogan: **Dont just wear Clothes. WEAR CONFIDENCE.**
+- Location: Bihar Sharif, Bihar 803111
+- Delivery: Pan India
+- Logo source: root-level `logo.png`, bundled by `BrandLogo.tsx`
+- Do not add unverified customer counts, years, delivery times or response times.
 
-- Public brand name: **Darjana Designer House**
-- Repository name: `darjani` (the repo spelling differs from the public brand)
-- Base location: Bihar Sharif, Bihar, India
-- Postal code: 803111
-- Delivery scope: Pan India
-- Brand stage: new brand
-- Do not add unverified claims such as years in business, customer counts, artisan counts,
-  delivery times or response times.
-- Prices are presented as starting prices. The final quote is confirmed after sizing and
-  customisation.
-- The actual WhatsApp number, support email and final domain are deployment configuration,
-  not hardcoded business claims.
+## Runtime rule
 
-## 2. Technology
+There is no local account, product or review fallback. `App.tsx` checks
+`isSupabaseConfigured`; without both Supabase environment variables, only
+`ConfigurationRequired.tsx` is rendered.
 
-- React 19
-- TypeScript with strict checking
-- Vite 7
-- Tailwind CSS 4 through `@tailwindcss/vite`
-- React Router for public and protected routes
-- React Helmet Async for route metadata and JSON-LD
-- Supabase Auth, Postgres, Row Level Security and Storage
+## Stack
+
+- React 19, TypeScript, Vite 7 and Tailwind CSS 4
+- React Router and React Helmet Async
+- Supabase Auth, Postgres, RLS and Storage
 - Vercel static deployment with SPA rewrites
 
-No server-role credential is used in the frontend. The browser uses only the Supabase
-publishable/anon key and relies on RLS for authorization.
-
-## 3. Repository structure
+## Important files
 
 ```text
-.
-├── .env.example
-│   └── Template for all public Vite environment variables.
-├── .gitignore
-│   └── Excludes dependencies, builds, secrets, Vercel state and logs.
-├── README.md
-│   └── Setup, Supabase migration, administrator creation and Vercel deployment.
-├── memory.md
-│   └── This complete maintenance map.
-├── index.html
-│   └── Static fallback title/meta, social tags, fonts, favicon and web manifest.
-├── package.json
-│   └── Scripts, runtime packages, build packages and secure esbuild override.
-├── package-lock.json
-│   └── Reproducible npm dependency lock.
-├── tsconfig.json
-│   └── Strict browser TypeScript configuration and `@/*` alias.
-├── vercel.json
-│   ├── Vite build/output settings
-│   ├── SPA route fallback to `index.html`
-│   ├── Security headers
-│   └── Immutable cache headers for built assets
-├── vite.config.ts
-│   ├── React and Tailwind plugins
-│   ├── `@` path alias
-│   └── Separate React, Supabase and SEO vendor chunks
-├── public/
-│   ├── favicon.svg
-│   │   └── Gold-on-black Darjana “D” favicon.
-│   ├── og-cover.svg
-│   │   └── 1200×630 social sharing artwork.
-│   ├── robots.txt
-│   │   └── Allows public pages and blocks login/dashboard/admin crawling.
-│   ├── site.webmanifest
-│   │   └── Installable-site name, colors and icon.
-│   └── sitemap.xml
-│       └── Home, legal and starter product URLs.
-├── supabase/
-│   ├── config.toml
-│   │   └── Local Supabase ports, auth URLs and 5 MB Storage limit.
-│   └── migrations/
-│       └── 20260624000000_initial_schema.sql
-│           ├── Database enum types and tables
-│           ├── Triggers and helper functions
-│           ├── RLS policies and grants
-│           ├── Storage bucket and policies
-│           └── Starter products
-└── src/
-    ├── main.tsx
-    │   └── React DOM entry point with StrictMode.
-    ├── App.tsx
-    │   ├── Provider order
-    │   ├── BrowserRouter and route table
-    │   ├── Shared navbar/footer/WhatsApp button
-    │   └── Hash and route scroll handling
-    ├── index.css
-    │   ├── Tailwind import
-    │   ├── Color/font tokens
-    │   ├── Reusable buttons, fields, panels and status pills
-    │   ├── Responsive shell sizing
-    │   └── Reduced-motion accessibility behavior
-    ├── vite-env.d.ts
-    │   └── Type declarations for all `VITE_*` values.
-    ├── config/
-    │   └── site.ts
-    │       ├── Central brand/location/contact configuration
-    │       ├── Indian currency formatting
-    │       └── Safe WhatsApp-link generation
-    ├── lib/
-    │   └── supabase.ts
-    │       ├── Detects whether Supabase variables exist
-    │       └── Creates the persistent browser client only when configured
-    ├── types/
-    │   └── index.ts
-    │       └── Profile, Design, Review, status, role and input contracts.
-    ├── data/
-    │   └── designs.ts
-    │       ├── Browser demo-mode starter products
-    │       └── Product category list
-    ├── context/
-    │   ├── AuthContext.tsx
-    │   │   ├── Supabase session/profile lifecycle
-    │   │   ├── Sign in, sign up and sign out
-    │   │   ├── Role derivation
-    │   │   └── Browser-only demo account/session fallback
-    │   ├── CatalogContext.tsx
-    │   │   ├── Public product loading
-    │   │   ├── Admin create/update/delete
-    │   │   ├── Supabase row mapping
-    │   │   ├── Storage image upload
-    │   │   └── Browser localStorage fallback
-    │   └── ReviewContext.tsx
-    │       ├── Approved public review loading
-    │       ├── Current user's review loading
-    │       ├── Administrator review queue loading
-    │       ├── Submit/edit/delete actions
-    │       ├── Approve/reject moderation actions
-    │       └── Browser localStorage fallback
-    ├── components/
-    │   ├── About.tsx
-    │   │   └── Honest new-brand story, location and trust principles.
-    │   ├── Collection.tsx
-    │   │   └── Search, category filtering, loading/error/empty states and grid.
-    │   ├── Contact.tsx
-    │   │   └── Location, delivery scope, contact values and WhatsApp intents.
-    │   ├── DesignCard.tsx
-    │   │   └── Product image, price, approved rating, detail link and enquiry.
-    │   ├── Footer.tsx
-    │   │   └── Brand summary, route links, contact and legal links.
-    │   ├── Hero.tsx
-    │   │   └── Mobile-first opening, Bihar Sharif message and primary actions.
-    │   ├── Navbar.tsx
-    │   │   └── Responsive navigation and role-aware account destination.
-    │   ├── ProtectedRoute.tsx
-    │   │   └── Authentication gate plus optional administrator-role gate.
-    │   ├── RatingStars.tsx
-    │   │   └── Read-only or interactive accessible 1–5 star control.
-    │   ├── ReviewSection.tsx
-    │   │   ├── Approved review list
-    │   │   ├── Sign-in prompt
-    │   │   ├── One-review-per-product handling
-    │   │   └── Pending-moderation explanation and form
-    │   ├── Seo.tsx
-    │   │   └── Route title, description, canonical, robots, social tags and JSON-LD.
-    │   └── WhatsAppFloat.tsx
-    │       └── Appears only when a WhatsApp number is configured.
-    └── pages/
-        ├── HomePage.tsx
-        │   ├── Storefront section composition
-        │   ├── ClothingStore structured data
-        │   └── Product ItemList structured data
-        ├── ProductPage.tsx
-        │   ├── Indexable `/design/:slug` detail route
-        │   ├── Product/Offer/AggregateRating JSON-LD
-        │   ├── Gallery, product details and enquiry
-        │   └── Product review section
-        ├── AuthPage.tsx
-        │   └── Customer registration/sign-in and demo credentials.
-        ├── UserDashboard.tsx
-        │   ├── Review totals
-        │   ├── Pending/approved/rejected visibility
-        │   ├── Moderator-note visibility
-        │   ├── Edit unpublished reviews
-        │   └── Delete own reviews
-        ├── AdminDashboard.tsx
-        │   ├── Product and review statistics
-        │   ├── Product table and editor
-        │   ├── Image URL and Storage uploads
-        │   ├── Review queue and status filters
-        │   ├── Approval/rejection with moderation notes
-        │   └── Permanent review deletion
-        ├── LegalPage.tsx
-        │   └── Privacy and terms content.
-        └── NotFoundPage.tsx
-            └── Branded 404 route.
+logo.png
+  Custom DARAJNI sewing emblem.
+
+src/App.tsx
+  Provider order, route table, configuration gate and shared layout.
+
+src/config/site.ts
+  Brand, slogan, Bihar Sharif location, public URL, email and WhatsApp configuration.
+
+src/context/AuthContext.tsx
+  Supabase session/profile loading, profile updates, admin user directory and account moderation.
+
+src/context/CatalogContext.tsx
+  Products, database categories, product CRUD, category CRUD and image uploads.
+
+src/context/ReviewContext.tsx
+  Public/owner/admin review queries and review/moderation actions.
+
+src/components/BrandLogo.tsx
+  Imports and displays the root logo asset.
+
+src/components/AccountNotice.tsx
+  Shows private warning, restriction or block messages to the signed-in user.
+
+src/components/ConfigurationRequired.tsx
+  The only rendered screen when Supabase deployment variables are missing.
+
+src/components/DesignCard.tsx
+  Product summary with touch swipe, arrows and image dots on the storefront.
+
+src/components/ReviewSection.tsx
+  Published reviews and the account-status-aware review form.
+
+src/pages/UserDashboard.tsx
+  Customer profile editor, moderation notice and review history.
+
+src/pages/AdminDashboard.tsx
+  Reviews, products, categories and users tabs.
+
+supabase/migrations/20260624000000_initial_schema.sql
+  Complete schema for new deployments.
+
+supabase/migrations/20260625000000_live_accounts_categories.sql
+  Upgrade path for an installation created from the earlier schema.
 ```
 
-## 4. Route map
+## Provider order
 
-| Route | Audience | Search indexing | Purpose |
-|---|---|---:|---|
-| `/` | Public | Yes | Storefront, collection, brand story and contact |
-| `/design/:slug` | Public | Yes | Individual product landing and reviews |
-| `/login` | Public | No | Registration and sign-in |
-| `/dashboard` | Authenticated customer | No | Own review history and moderation transparency |
-| `/admin` | Administrator only | No | Product management and review moderation |
-| `/privacy` | Public | Yes | Privacy information |
-| `/terms` | Public | Yes | Use, product and review terms |
-| `*` | Public | No | Not-found response |
+1. `AuthProvider`
+2. `CatalogProvider`
+3. `ReviewProvider`
 
-Protected routes do not provide authorization by themselves. Supabase RLS remains the actual
-data security boundary.
+`ReviewProvider` depends on authenticated profile status. Do not reorder these providers.
 
-## 5. Provider and data flow
-
-Provider order in `App.tsx` is important:
-
-1. `AuthProvider` creates the user/profile/role state.
-2. `CatalogProvider` loads products independently of sign-in.
-3. `ReviewProvider` consumes both auth and catalog state.
-4. Router pages consume all three.
-
-Changing this order can break review ownership, demo product names or administrator loading.
-
-### Product flow
-
-1. Public browser loads `products` ordered by featured status and creation time.
-2. If Supabase is unavailable because variables are absent, the demo seed is read from
-   `localStorage`, then from `src/data/designs.ts`.
-3. Admin create/update/delete calls RLS-protected Supabase operations.
-4. Uploads go to the public `product-images` bucket. Only admins may write.
-5. Public product cards link to stable slug pages.
-
-### Review flow
-
-1. Signed-in customer submits rating + comment.
-2. Database default and policy force `pending`.
-3. Public queries can see only `approved` reviews.
-4. The author can see their own review in any state.
-5. Admin can see all reviews.
-6. Approval publishes the review.
-7. Rejection requires a useful note in the UI; the note remains private to owner/admin under
-   RLS because rejected reviews are not public.
-8. Editing a rejected or pending review resets it to `pending` and clears the old note.
-9. Approved reviews are immutable to the customer in the UI and policy, but can be deleted.
-10. Unique `(product_id, user_id)` prevents duplicate reviews for one product.
-
-## 6. Database details and security invariants
+## Database
 
 ### `profiles`
 
-- Primary key equals `auth.users.id`.
-- Created automatically after account creation.
-- Stores email, full name and `user`/`admin` role.
-- Customer may read/update their profile; admin may read/update all.
-- `protect_profile_role` blocks non-admin role escalation.
+Stores:
+
+- Identity: email, full name and role
+- Contact: phone
+- Address: two address lines, city, state and postal code
+- Moderation: `account_status`, private message, moderator and moderation timestamp
+
+Account statuses:
+
+- `active`
+- `warned`
+- `restricted`
+- `blocked`
+
+Customers can update only their own basic details. A trigger prevents changes to email, role and
+moderation fields. Blocked customers cannot update their profile.
+
+### `categories`
+
+- Fixed categories are inserted by migration.
+- Admins may create custom categories.
+- Fixed categories are protected from deletion.
+- Used custom categories are protected from deletion.
+- Product inserts/updates must reference an existing category name.
 
 ### `products`
 
-- UUID primary key and unique SEO slug.
-- Positive numeric INR starting price.
-- At least one image.
-- Publicly readable.
-- Insert/update/delete restricted to `is_admin()`.
+- Publicly readable
+- Admin-only create/update/delete
+- Positive starting price
+- At least one image
+- Unique SEO slug
 
 ### `reviews`
 
-- UUID primary key.
-- Cascades when product or profile is deleted.
-- Rating constrained to 1–5.
-- Comment constrained to 10–1000 characters.
-- Moderation note constrained to 500 characters.
-- Author name is copied by a trigger from the profile, preventing browser spoofing.
-- Customer-update trigger protects owner/product/author fields, forces pending and clears the
-  prior moderation note.
+- One review per user/product
+- Rating 1–5
+- Comment length 10–1000
+- Public sees only approved reviews
+- Owner sees all of their own reviews
+- Admin sees all reviews
+- Editing returns a review to pending and clears the old moderation note
+- `restricted` and `blocked` users cannot insert or edit reviews
+- New review insert trigger allows no more than three reviews per user in 24 hours
 
 ### Storage
 
 - Bucket: `product-images`
 - Public reads
-- Admin-only inserts, updates and deletes
-- Maximum file size: 5 MB
-- Allowed types: JPEG, PNG, WebP and GIF
+- Admin-only writes
+- 5 MB maximum
+- JPEG, PNG, WebP and GIF
 
-## 7. Demo mode
+## Admin user moderation
 
-Demo mode is active only when either Supabase URL or anon key is missing.
+The Users tab displays profile, phone and address data. Admin actions:
 
-Local storage keys:
+- Private warning: changes status to `warned` and displays the message throughout the account UI
+- Restrict: changes status to `restricted`; RLS disables review insert/update
+- Block: changes status to `blocked`; protected customer dashboard is replaced by a blocked screen
+- Restore: changes status to `active` and clears the private message
 
-- `darjana_demo_accounts`
-- `darjana_demo_session`
-- `darjana_demo_products`
-- `darjana_demo_reviews`
+Administrator accounts cannot be moderated from the UI.
 
-Built-in demo admin:
+## Categories in the UI
 
-- Email: `admin@darjana.local`
-- Password: `admin123`
+- `Collection.tsx` loads fixed and custom categories from Supabase.
+- `AdminDashboard.tsx` provides category creation/deletion.
+- Product forms use the same database category list.
+- A category must exist before a product can be created.
 
-This is intentionally a local testing convenience, not production authentication. Once both
-Supabase variables exist, demo mode and its credentials are ignored.
+## Product image behavior
 
-## 8. Environment configuration
+- Admin can add multiple image URLs or upload multiple files one at a time.
+- Product cards support touch swipe, previous/next arrows and direct image dots.
+- Clicking the image or Details link still opens the product route.
+- Product pages keep the full thumbnail gallery.
 
-| Variable | Required in production | Usage |
-|---|---:|---|
-| `VITE_SITE_URL` | Yes | Canonicals, structured-data URLs and brand base URL |
-| `VITE_SUPABASE_URL` | Yes | Supabase browser client |
-| `VITE_SUPABASE_ANON_KEY` | Yes | Public Supabase key governed by RLS |
-| `VITE_WHATSAPP_NUMBER` | Recommended | Digits-only WhatsApp enquiry links |
-| `VITE_CONTACT_EMAIL` | Yes | Footer, contact and legal support address |
+## Routes
 
-All `VITE_*` values are public at build time. Never place secret/service credentials there.
+| Route | Access | Purpose |
+|---|---|---|
+| `/` | Public | Storefront |
+| `/design/:slug` | Public | Product details and reviews |
+| `/login` | Public | Account sign-in/registration |
+| `/dashboard` | Customer | Profile and reviews; blocked users see block screen |
+| `/admin` | Admin | Products, categories, reviews and users |
+| `/privacy` | Public | Privacy policy |
+| `/terms` | Public | Terms |
 
-## 9. SEO implementation
+## Environment variables
 
-- Static fallback metadata exists in `index.html`.
-- Route-specific metadata is generated by `Seo.tsx`.
-- Canonical URLs use `VITE_SITE_URL`.
-- Home emits `ClothingStore` and `ItemList` JSON-LD.
-- Product pages emit `Product` and `Offer` JSON-LD.
-- `AggregateRating` is emitted only when actual approved reviews exist.
-- Location is represented as Bihar Sharif, Bihar 803111, India.
-- `robots.txt` blocks private utility routes.
-- `sitemap.xml` contains public starter routes.
-- Admin-created products immediately receive indexable page URLs and internal links, but their
-  slugs should also be added to the static sitemap until sitemap generation is automated.
-- If the domain changes, update `VITE_SITE_URL`, `robots.txt`, and every `<loc>` in
-  `sitemap.xml`.
-- The social preview is currently SVG. A final owned 1200×630 JPG/PNG can replace it for
-  maximum social-platform compatibility.
+| Variable | Purpose |
+|---|---|
+| `VITE_SITE_URL` | Canonical and structured-data base URL |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Public key governed by RLS |
+| `VITE_WHATSAPP_NUMBER` | Digits-only WhatsApp number |
+| `VITE_CONTACT_EMAIL` | Public support email |
 
-## 10. Responsive and accessibility behavior
+All `VITE_*` values are public. Never expose the service-role key.
 
-- Layout shell narrows from 32 px total side space to 20 px on small screens.
-- Navbar collapses below the medium breakpoint.
-- Category filters horizontally scroll instead of wrapping into cramped rows.
-- Catalog moves from one to two to three columns.
-- Product and dashboard layouts stack on mobile.
-- Buttons and inputs use roughly 44–46 px minimum touch targets.
-- Product dialogs were replaced by full routes, avoiding cramped mobile overlays.
-- Focus-visible outlines are globally enabled.
-- Images have product-oriented alternative text; decorative thumbnails use empty alt text.
-- Reduced-motion preference disables long transitions and smooth scrolling.
-- Color is not the only review-status signal; text labels remain visible.
+## SEO
 
-## 11. Deployment sequence
+- Route metadata: `Seo.tsx`
+- Home: ClothingStore and ItemList JSON-LD
+- Product routes: Product/Offer and real AggregateRating JSON-LD
+- Private routes are noindex and disallowed in `robots.txt`
+- Static sitemap contains home and legal pages only.
+- Product URLs are generated from database slugs. Add an automated sitemap endpoint if all
+  product URLs need automatic sitemap inclusion.
+- Update sitemap/robots when the final domain changes.
 
-1. Create Supabase project.
-2. Run the SQL migration.
-3. Configure Supabase Site URL and redirect URLs.
-4. Add local environment values.
-5. Register the owner account.
-6. Promote the owner profile to admin with SQL.
-7. Verify product create/edit/delete, image upload and review moderation.
-8. Import GitHub repository into Vercel.
-9. Add Vercel environment variables.
-10. Deploy.
-11. Add the deployed domain to Supabase redirect URLs.
-12. Update sitemap/robots if the final domain differs from `darjana.vercel.app`.
-13. Submit sitemap to Google Search Console.
-
-## 12. Checks before every release
+## Release checks
 
 ```bash
 npm install
@@ -368,31 +206,16 @@ npm audit
 git diff --check
 ```
 
-Manual production checks:
+Manual checks:
 
-- Registration confirmation email and redirect
-- Customer login/logout
-- Admin login/logout and role protection
-- Product CRUD
-- Image upload under and over 5 MB
-- One-review-per-product enforcement
-- Pending review hidden publicly
-- Approval visible publicly
-- Rejection note visible only to reviewer/admin
-- Customer edit returns review to pending
-- Product URL works on direct refresh
-- WhatsApp opens the configured number
-- Mobile navbar, filters, tables and product page at 320–390 px width
-- Canonical URL and JSON-LD use the final domain
-
-## 13. Known launch-time tasks
-
-- Replace placeholder support email.
-- Add the real WhatsApp number.
-- Confirm the final brand spelling before printing or domain purchase.
-- Replace stock/demo product images with owned or properly licensed brand photography.
-- Confirm all prices, fabrics and descriptions.
-- Replace static social SVG with final campaign artwork if desired.
-- Update sitemap whenever new products are created, until automated sitemap generation is
-  added.
-- Review privacy/terms text with appropriate legal counsel for the actual sales process.
+- Missing Supabase variables show only the configuration screen
+- Registration, confirmation, sign-in and sign-out
+- Profile update
+- Admin user directory and all four account statuses
+- Restricted user cannot create or edit reviews
+- Fourth new review within 24 hours is rejected by the database
+- Fixed/custom category behavior
+- Product CRUD and multi-image upload
+- Card arrows, dots and touch swipe
+- Direct product-route refresh
+- Mobile layouts at 320–390 px

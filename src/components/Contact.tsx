@@ -1,9 +1,9 @@
 import { siteConfig, whatsappLink } from "../config/site";
 
 const enquiries = [
-  ["Collection help", "Hello Darjana! Please help me choose from your collection."],
-  ["Bridal enquiry", "Hello Darjana! I am looking for a bridal outfit and would like guidance."],
-  ["Custom sizing", "Hello Darjana! I would like to discuss custom sizing for an outfit."],
+  ["Collection help", "Hello DARAJNI! Please help me choose from your collection."],
+  ["Bridal enquiry", "Hello DARAJNI! I am looking for a bridal outfit and would like guidance."],
+  ["Custom sizing", "Hello DARAJNI! I would like to discuss custom sizing for an outfit."],
 ];
 
 export default function Contact() {

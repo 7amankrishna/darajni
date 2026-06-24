@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { useCatalog } from "../context/CatalogContext";
-import { categories } from "../data/designs";
 import DesignCard from "./DesignCard";
 
 export default function Collection() {
-  const { designs, loading, error } = useCatalog();
+  const { designs, categories, loading, error } = useCatalog();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
@@ -21,13 +20,14 @@ export default function Collection() {
       return categoryMatches && searchMatches;
     });
   }, [activeCategory, designs, search]);
+  const categoryNames = ["All", ...categories.map((category) => category.name)];
 
   return (
     <section id="collection" className="py-20 sm:py-28">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
           <div>
-            <p className="eyebrow">The first Darjana edit</p>
+            <p className="eyebrow">The DARAJNI edit</p>
             <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">Find your silhouette</h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/48">
               Browse by style or search by occasion, fabric and detail. Prices are starting
@@ -46,7 +46,7 @@ export default function Collection() {
         </div>
 
         <div className="-mx-2 mt-9 flex gap-2 overflow-x-auto px-2 pb-3 [scrollbar-width:none]">
-          {categories.map((category) => (
+          {categoryNames.map((category) => (
             <button
               type="button"
               key={category}
@@ -64,7 +64,7 @@ export default function Collection() {
 
         {error && (
           <p className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-sm text-amber-100/70">
-            The live catalog could not be reached, so the starter collection is being shown.
+            The live catalog could not be reached. Please try again shortly.
           </p>
         )}
 
@@ -82,17 +82,21 @@ export default function Collection() {
           </div>
         ) : (
           <div className="mt-8 rounded-2xl border border-dashed border-white/12 py-20 text-center">
-            <p className="font-display text-3xl text-white/55">No matching designs yet</p>
-            <button
-              type="button"
-              className="secondary-button mt-6"
-              onClick={() => {
-                setSearch("");
-                setActiveCategory("All");
-              }}
-            >
-              Clear filters
-            </button>
+            <p className="font-display text-3xl text-white/55">
+              {designs.length ? "No matching designs" : "The collection is being curated"}
+            </p>
+            {designs.length > 0 && (
+              <button
+                type="button"
+                className="secondary-button mt-6"
+                onClick={() => {
+                  setSearch("");
+                  setActiveCategory("All");
+                }}
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </div>

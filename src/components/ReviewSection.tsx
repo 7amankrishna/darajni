@@ -6,7 +6,7 @@ import { Design } from "../types";
 import RatingStars from "./RatingStars";
 
 export default function ReviewSection({ design }: { design: Design }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { approvedReviews, myReviews, submitReview } = useReviews();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -15,6 +15,7 @@ export default function ReviewSection({ design }: { design: Design }) {
 
   const publicReviews = approvedReviews.filter((review) => review.productId === design.id);
   const ownReview = myReviews.find((review) => review.productId === design.id);
+  const reviewsEnabled = ["active", "warned"].includes(profile?.accountStatus || "");
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -43,9 +44,19 @@ export default function ReviewSection({ design }: { design: Design }) {
           </p>
 
           {!user ? (
-            <Link to="/login" state={{ from: "/" }} className="primary-button mt-6">
+            <Link to="/login" state={{ from: `/design/${design.slug}` }} className="primary-button mt-6">
               Sign in to review
             </Link>
+          ) : !reviewsEnabled ? (
+            <div className="mt-6 rounded-xl border border-orange-400/20 bg-orange-400/7 p-4">
+              <p className="text-sm font-semibold text-orange-100">Review activity disabled</p>
+              <p className="mt-2 text-xs leading-6 text-orange-100/60">
+                {profile?.moderationMessage || "Open your dashboard for account details."}
+              </p>
+              <Link to="/dashboard" className="secondary-button mt-4">
+                Open dashboard
+              </Link>
+            </div>
           ) : ownReview ? (
             <div className="mt-6 rounded-xl border border-white/10 p-4">
               <p className="text-sm text-white/65">You have already reviewed this design.</p>

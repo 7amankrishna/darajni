@@ -1,26 +1,25 @@
 import { siteConfig, whatsappLink } from "../config/site";
+import BrandLogo from "./BrandLogo";
 
 export default function Hero() {
   const enquiryLink = whatsappLink(
-    "Hello Darjana! I would like help choosing an outfit from your collection.",
+    "Hello DARAJNI! I would like help choosing an outfit from your collection.",
   );
 
   return (
     <section id="home" className="relative isolate min-h-[calc(100svh-74px)] overflow-hidden">
-      <img
-        src="https://images.pexels.com/photos/37628619/pexels-photo-37628619.jpeg?auto=compress&cs=tinysrgb&fit=crop&w=1800"
-        alt="Indian occasion wear by Darjana Designer House"
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-[55%_25%]"
-        fetchPriority="high"
-      />
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,7,7,.97)_0%,rgba(7,7,7,.82)_45%,rgba(7,7,7,.36)_100%)] max-md:bg-[linear-gradient(0deg,rgba(7,7,7,.98)_0%,rgba(7,7,7,.72)_65%,rgba(7,7,7,.38)_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_78%_42%,rgba(202,170,112,.2),transparent_28rem),linear-gradient(135deg,#080808_0%,#12100c_58%,#080808_100%)]" />
+      <div className="absolute -right-28 top-1/2 -z-10 hidden -translate-y-1/2 opacity-55 lg:block">
+        <BrandLogo className="h-[42rem] w-[42rem] border border-[#caaa70]/15 shadow-[0_0_120px_rgba(202,170,112,.12)]" priority />
+      </div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,7,7,.98)_0%,rgba(7,7,7,.82)_52%,rgba(7,7,7,.18)_100%)]" />
 
       <div className="section-shell flex min-h-[calc(100svh-74px)] items-end pb-14 pt-20 md:items-center md:py-20">
         <div className="max-w-3xl">
           <p className="eyebrow">Crafted in Bihar Sharif · Delivered Pan India</p>
           <h1 className="font-display mt-6 text-[clamp(3.5rem,9vw,7.8rem)] font-medium leading-[0.82] tracking-[-0.035em]">
-            Occasion wear,
-            <span className="mt-2 block italic text-[#d8b879]">made personal.</span>
+            Dont just wear Clothes.
+            <span className="mt-2 block italic text-[#d8b879]">WEAR CONFIDENCE.</span>
           </h1>
           <p className="mt-7 max-w-xl text-base leading-8 text-white/67 md:text-lg">
             Discover made-to-order lehengas, sarees, anarkalis and gowns with custom sizing,
