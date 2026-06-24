@@ -7,6 +7,11 @@ import {
   useMemo,
   useState,
 } from "react";
+import {
+  MAX_IMAGE_SOURCE_BYTES,
+  optimizeImage,
+  OptimizedImage,
+} from "../lib/imageCompression";
 import { supabase } from "../lib/supabase";
 import { Category, Design } from "../types";
 
@@ -22,7 +27,9 @@ interface CatalogContextValue {
   deleteDesign: (id: string) => Promise<string | null>;
   createCategory: (name: string) => Promise<string | null>;
   deleteCategory: (id: string) => Promise<string | null>;
-  uploadImage: (file: File) => Promise<{ url?: string; error?: string }>;
+  uploadImage: (
+    file: File,
+  ) => Promise<{ url?: string; error?: string; optimization?: OptimizedImage }>;
   refreshCatalog: () => Promise<void>;
 }
 
@@ -194,16 +201,39 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const uploadImage = useCallback(async (file: File) => {
     if (!supabase) return { error: "Supabase deployment configuration is required." };
     if (!file.type.startsWith("image/")) return { error: "Choose a valid image file." };
-    if (file.size > 5 * 1024 * 1024) return { error: "Image must be smaller than 5 MB." };
+    if (file.size > MAX_IMAGE_SOURCE_BYTES) {
+      return { error: "The original image must be smaller than 25 MB." };
+    }
 
-    const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    let optimization: OptimizedImage;
+    try {
+      optimization = await optimizeImage(file);
+    } catch (compressionError) {
+      return {
+        error:
+          compressionError instanceof Error
+            ? compressionError.message
+            : "The image could not be optimized.",
+      };
+    }
+
+    const extensionByType: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+    };
+    const extension = extensionByType[optimization.file.type] || "webp";
     const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from("product-images")
-      .upload(path, file, { cacheControl: "3600", upsert: false });
+      .upload(path, optimization.file, {
+        cacheControl: "31536000",
+        contentType: optimization.file.type,
+        upsert: false,
+      });
     if (uploadError) return { error: uploadError.message };
     const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    return { url: data.publicUrl };
+    return { url: data.publicUrl, optimization };
   }, []);
 
   const value = useMemo(

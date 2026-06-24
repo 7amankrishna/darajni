@@ -94,6 +94,8 @@ export default function ProductPage() {
                 <img
                   src={design.images[activeImage]}
                   alt={`${design.name}, image ${activeImage + 1}`}
+                  fetchPriority="high"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -108,7 +110,13 @@ export default function ProductPage() {
                         activeImage === index ? "border-[#caaa70]" : "border-transparent"
                       }`}
                     >
-                      <img src={image} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={image}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

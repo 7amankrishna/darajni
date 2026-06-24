@@ -5,6 +5,7 @@ import { formatPrice } from "../config/site";
 import { useAuth } from "../context/AuthContext";
 import { useCatalog } from "../context/CatalogContext";
 import { useReviews } from "../context/ReviewContext";
+import { IMAGE_UPLOAD_ACCEPT } from "../lib/imageCompression";
 import { AccountStatus, Design, ReviewStatus } from "../types";
 
 type DesignDraft = Omit<Design, "id" | "createdAt" | "updatedAt">;
@@ -64,6 +65,7 @@ function ProductForm({
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadSummary, setUploadSummary] = useState("");
 
   useEffect(() => {
     if (!draft.category && categories[0]) {
@@ -86,10 +88,27 @@ function ProductForm({
     if (!file) return;
     setUploading(true);
     setMessage("");
+    setUploadSummary("");
     const result = await uploadImage(file);
     setUploading(false);
     if (result.error) setMessage(result.error);
-    if (result.url) field("images", [...draft.images, result.url]);
+    if (result.url) {
+      field("images", [...draft.images, result.url]);
+      if (result.optimization) {
+        const savedPercent = Math.max(
+          0,
+          Math.round(
+            (1 - result.optimization.optimizedBytes / result.optimization.originalBytes) * 100,
+          ),
+        );
+        const sizeKb = Math.max(1, Math.round(result.optimization.optimizedBytes / 1024));
+        setUploadSummary(
+          result.optimization.wasCompressed
+            ? `Optimized to ${result.optimization.width}×${result.optimization.height} WebP (${sizeKb} KB, ${savedPercent}% smaller).`
+            : `This image was already optimized (${sizeKb} KB).`,
+        );
+      }
+    }
     event.target.value = "";
   };
 
@@ -213,13 +232,22 @@ function ProductForm({
               />
               <button type="button" onClick={addImageUrl} className="secondary-button">Add URL</button>
               <label className="secondary-button cursor-pointer">
-                {uploading ? "Uploading…" : "Upload image"}
-                <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+                {uploading ? "Optimizing…" : "Upload image"}
+                <input
+                  type="file"
+                  accept={IMAGE_UPLOAD_ACCEPT}
+                  onChange={handleUpload}
+                  className="hidden"
+                  disabled={uploading}
+                />
               </label>
             </div>
             <p className="mt-2 text-xs text-white/32">
-              Add multiple images so customers can swipe through them on the collection page.
+              JPG, PNG, and WebP files up to 25 MB are automatically resized and compressed before upload.
             </p>
+            {uploadSummary && (
+              <p className="mt-2 text-xs text-emerald-300/75">{uploadSummary}</p>
+            )}
             <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
               {draft.images.map((image) => (
                 <div key={image} className="relative h-28 w-24 shrink-0 overflow-hidden rounded-lg border border-white/10">

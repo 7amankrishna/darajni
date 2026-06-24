@@ -16,7 +16,7 @@ delivery support.
 - User safety controls: private warning, review restriction and account blocking
 - Server-enforced limit of three new reviews per account in 24 hours
 - Admin user directory with contact/address details
-- Product CRUD and Supabase Storage image uploads
+- Product CRUD and automatic image resizing/WebP compression before Supabase Storage uploads
 - Row Level Security for profiles, categories, products, reviews and images
 - SEO metadata, JSON-LD, sitemap, robots file and legal pages
 - Vercel SPA routing and security headers
@@ -53,9 +53,11 @@ Alternatively, run the migration files in timestamp order through Supabase SQL E
 
 1. `supabase/migrations/20260624000000_initial_schema.sql`
 2. `supabase/migrations/20260625000000_live_accounts_categories.sql`
+3. `supabase/migrations/20260625010000_optimized_product_images.sql`
 
-The second migration upgrades an earlier installation, removes the previously supplied sample
-catalog records, and adds categories, profile details, user moderation and review rate limits.
+The later migrations upgrade an earlier installation, remove the previously supplied sample
+catalog records, add categories, profile details, user moderation and review rate limits, and
+enforce the optimized product-image upload limit.
 
 In **Authentication → URL Configuration**, set the production site URL and add:
 

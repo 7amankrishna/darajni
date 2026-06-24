@@ -59,6 +59,7 @@ export default function DesignCard({ design }: { design: Design }) {
             src={design.images[imageIndex]}
             alt={`${design.name} by DARAJNI Designer House, view ${imageIndex + 1}`}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
