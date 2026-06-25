@@ -21,6 +21,17 @@ The existing catalog, authentication, reviews, and admin UI remain available as
 client-side feature modules while later phases replace the data model and ordering
 flow. WhatsApp ordering will be removed during the storefront and checkout phases.
 
+The Phase 2 commerce migration has been generated and locally validated:
+
+- Normalized categories and products with inventory, sizes, discounts, and images
+- Guest orders, immutable order items, archive records, admins, and store settings
+- No customer profile or avatar table
+- Admin-only order access and public tracking through an order ID plus phone RPC
+- Product-image-only storage with administrator writes
+
+The migration is not applied automatically. Review
+`supabase/PHASE_2_SCHEMA.md` and explicitly approve execution first.
+
 ## Directory structure
 
 ```text
