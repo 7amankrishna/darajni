@@ -6,62 +6,65 @@
 - Slogan: **Dont just wear Clothes. WEAR CONFIDENCE.**
 - Location: Bihar Sharif, Bihar 803111
 - Delivery: Pan India
-- Logo source: root-level `logo.webp`, bundled by `BrandLogo.tsx`
+- Logo source: `public/logo.webp`, rendered by `BrandLogo.tsx`
 - Do not add unverified customer counts, years, delivery times or response times.
 
 ## Runtime rule
 
-There is no local account, product or review fallback. `App.tsx` checks
-`isSupabaseConfigured`; without both Supabase environment variables, only
-`ConfigurationRequired.tsx` is rendered.
+There is no local account, product or review fallback. `components/layout/site-shell.tsx`
+checks `isSupabaseConfigured`; without both public Supabase environment variables,
+only `ConfigurationRequired.tsx` is rendered.
 
 ## Stack
 
-- React 19, TypeScript, Vite 7 and Tailwind CSS 4
-- React Router and React Helmet Async
+- Next.js 15 App Router, React 19, TypeScript and Tailwind CSS 4
+- shadcn/ui primitives, Radix UI and next-themes
 - Supabase Auth, Postgres, RLS and Storage
-- Vercel static deployment with SPA rewrites
+- Vercel Next.js deployment
 
 ## Important files
 
 ```text
-logo.webp
+public/logo.webp
   Optimized custom DARAJNI sewing emblem.
 
-src/App.tsx
-  Provider order, route table, configuration gate and shared layout.
+app/layout.tsx
+  Root metadata and shared site shell.
 
-src/config/site.ts
+config/site.ts
   Brand, slogan, Bihar Sharif location, public URL, email and WhatsApp configuration.
 
-src/context/AuthContext.tsx
+context/AuthContext.tsx
   Supabase session/profile loading, profile updates, admin user directory and account moderation.
 
-src/context/CatalogContext.tsx
+context/CatalogContext.tsx
   Products, database categories, product CRUD, category CRUD and image uploads.
 
-src/context/ReviewContext.tsx
+context/ReviewContext.tsx
   Public/owner/admin review queries and review/moderation actions.
 
-src/components/BrandLogo.tsx
-  Imports and displays the root logo asset.
+lib/supabase/client.ts and lib/supabase/server.ts
+  Browser and cookie-aware server Supabase clients.
 
-src/components/AccountNotice.tsx
+components/BrandLogo.tsx
+  Displays the public logo asset through Next Image.
+
+components/AccountNotice.tsx
   Shows private warning, restriction or block messages to the signed-in user.
 
-src/components/ConfigurationRequired.tsx
+components/ConfigurationRequired.tsx
   The only rendered screen when Supabase deployment variables are missing.
 
-src/components/DesignCard.tsx
+components/DesignCard.tsx
   Product summary with touch swipe, arrows and image dots on the storefront.
 
-src/components/ReviewSection.tsx
+components/ReviewSection.tsx
   Published reviews and the account-status-aware review form.
 
-src/pages/UserDashboard.tsx
+components/screens/UserDashboard.tsx
   Customer profile editor, moderation notice and review history.
 
-src/pages/AdminDashboard.tsx
+components/screens/AdminDashboard.tsx
   Reviews, products, categories and users tabs.
 
 supabase/migrations/20260624000000_initial_schema.sql
@@ -133,8 +136,8 @@ moderation fields. Blocked customers cannot update their profile.
 - Bucket: `product-images`
 - Public reads
 - Admin-only writes
-- 5 MB maximum
-- JPEG, PNG, WebP and GIF
+- 2 MiB maximum
+- JPEG, PNG and WebP
 
 ## Admin user moderation
 
@@ -166,7 +169,7 @@ Administrator accounts cannot be moderated from the UI.
 | Route | Access | Purpose |
 |---|---|---|
 | `/` | Public | Storefront |
-| `/design/:slug` | Public | Product details and reviews |
+| `/design/[slug]` | Public | Product details and reviews |
 | `/login` | Public | Account sign-in/registration |
 | `/dashboard` | Customer | Profile and reviews; blocked users see block screen |
 | `/admin` | Admin | Products, categories, reviews and users |
@@ -177,17 +180,18 @@ Administrator accounts cannot be moderated from the UI.
 
 | Variable | Purpose |
 |---|---|
-| `VITE_SITE_URL` | Canonical and structured-data base URL |
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Public key governed by RLS |
-| `VITE_WHATSAPP_NUMBER` | Digits-only WhatsApp number |
-| `VITE_CONTACT_EMAIL` | Public support email |
+| `NEXT_PUBLIC_SITE_URL` | Canonical and structured-data base URL |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public key governed by RLS |
+| `NEXT_PUBLIC_DESIGNER_SUPPORT_WHATSAPP` | Dress designer support number |
+| `NEXT_PUBLIC_DEVELOPER_SUPPORT_WHATSAPP` | Website support number |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Public support email |
 
-All `VITE_*` values are public. Never expose the service-role key.
+All `NEXT_PUBLIC_*` values are public. Never expose service-role or payment secrets.
 
 ## SEO
 
-- Route metadata: `Seo.tsx`
+- Route metadata: native App Router `metadata` exports
 - Home: ClothingStore and ItemList JSON-LD
 - Product routes: Product/Offer and real AggregateRating JSON-LD
 - Private routes are noindex and disallowed in `robots.txt`

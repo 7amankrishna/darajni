@@ -17,7 +17,7 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
+site_url = "http://localhost:3000"
 additional_redirect_urls = ["https://darajni.in"]
 
 [storage]

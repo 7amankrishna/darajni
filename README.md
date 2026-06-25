@@ -2,106 +2,70 @@
 
 > Dont just wear Clothes. WEAR CONFIDENCE.
 
-Production storefront for DARAJNI, based in Bihar Sharif, Bihar 803111, with Pan-India
-delivery support.
+DARAJNI is being rebuilt as a production e-commerce platform using Next.js 15,
+TypeScript, Tailwind CSS, shadcn/ui, and Supabase.
 
-## Features
+## Current milestone
 
-- Responsive storefront with swipeable product-card galleries
-- Database-backed fixed and administrator-created categories
-- Supabase email/password authentication
-- Customer profile editing: name, phone number and delivery address
-- Separate customer and administrator dashboards
-- Transparent ratings/reviews with pending, approved and rejected states
-- User safety controls: private warning, review restriction and account blocking
-- Server-enforced limit of three new reviews per account in 24 hours
-- Admin user directory with contact/address details
-- Product CRUD and automatic image resizing/WebP compression before Supabase Storage uploads
-- Row Level Security for profiles, categories, products, reviews and images
-- SEO metadata, JSON-LD, sitemap, robots file and legal pages
-- Vercel SPA routing and security headers
+Phase 1 is complete:
 
-## No local fallback data
+- Next.js 15 App Router replaces the previous Vite SPA entrypoint
+- TypeScript and Tailwind CSS 4 are configured
+- shadcn/ui aliases and core primitives are installed
+- Supabase browser and server client boundaries are available
+- App Router metadata, loading, error, and not-found states are configured
+- Vercel is configured for the Next.js framework
+- Environment placeholders cover Supabase, Razorpay, rate limiting, and support
 
-The application has no local accounts, product records or review records. If Supabase
-credentials are absent, it shows a deployment-configuration screen. All usable data must come
-from a deployed Supabase project.
+The existing catalog, authentication, reviews, and admin UI remain available as
+client-side feature modules while later phases replace the data model and ordering
+flow. WhatsApp ordering will be removed during the storefront and checkout phases.
 
-## Environment variables
+## Directory structure
+
+```text
+app/
+  admin/                 Admin route
+  dashboard/             Customer account route
+  design/[slug]/         Product route
+  login/                 Authentication route
+  privacy/ and terms/    Legal routes
+  layout.tsx             Root metadata and site shell
+  loading.tsx            Route loading state
+  error.tsx              Recoverable error boundary
+
+actions/                 Server Actions, grouped by feature
+components/
+  layout/                Shared application shell
+  ui/                    shadcn/ui primitives
+lib/
+  supabase/client.ts     Browser Supabase client
+  supabase/server.ts     Cookie-aware server client
+  utils.ts               Shared class-name helper
+types/                   Shared domain types
+components/screens/      Existing feature screens retained during phased migration
+context/                 Client-side auth, catalog, and review providers
+supabase/                 Local Supabase config and SQL migrations
+public/                   Static brand and metadata assets
+```
+
+## Environment
+
+Copy `.env.example` to `.env.local` and add project credentials.
 
 ```dotenv
-VITE_SITE_URL=https://your-domain.example
-VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_ANON_KEY
-VITE_WHATSAPP_NUMBER=91XXXXXXXXXX
-VITE_CONTACT_EMAIL=hello@your-domain.example
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
+RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_KEY_SECRET
+RAZORPAY_WEBHOOK_SECRET=YOUR_RAZORPAY_WEBHOOK_SECRET
 ```
 
-Never put a Supabase service-role key in a `VITE_` variable.
-
-## Supabase setup
-
-For a new project:
-
-```bash
-supabase login
-supabase link --project-ref YOUR_PROJECT_REF
-supabase db push
-```
-
-Alternatively, run the migration files in timestamp order through Supabase SQL Editor:
-
-1. `supabase/migrations/20260624000000_initial_schema.sql`
-2. `supabase/migrations/20260625000000_live_accounts_categories.sql`
-3. `supabase/migrations/20260625010000_optimized_product_images.sql`
-
-The later migrations upgrade an earlier installation, remove the previously supplied sample
-catalog records, add categories, profile details, user moderation and review rate limits, and
-enforce the optimized product-image upload limit.
-
-In **Authentication → URL Configuration**, set the production site URL and add:
-
-- Your production URL
-- `http://localhost:5173` when local development is required
-
-Create the owner account through the site, then promote it:
-
-```sql
-update public.profiles
-set role = 'admin'
-where email = 'owner@example.com';
-```
-
-Sign out and back in. The account will then open the administrator dashboard.
-
-## User moderation states
-
-- `active`: normal account access
-- `warned`: a private warning is shown; reviews remain enabled
-- `restricted`: profile/dashboard remain available, but review creation and editing are disabled
-- `blocked`: account dashboard access is disabled; public browsing remains possible
-
-These rules are enforced in both the UI and Supabase RLS/triggers. An administrator must add a
-private explanation when applying any state other than `active`.
-
-## Categories
-
-The database creates fixed categories: Lehenga, Anarkali, Saree, Gown, Sharara and Kurti.
-Administrators can add custom categories. Fixed categories cannot be deleted. A custom category
-cannot be deleted while products still use it.
-
-## Deploy to Vercel
-
-1. Import the GitHub repository into Vercel.
-2. Add all environment variables from `.env.example`.
-3. Deploy. Vercel uses `npm run build` and outputs `dist`.
-4. Add the deployed URL to Supabase Authentication redirect URLs.
-5. If using a custom domain:
-
-   - Update `VITE_SITE_URL`
-   - Replace the domain in `public/robots.txt` and `public/sitemap.xml`
-   - Redeploy
-   - Submit `/sitemap.xml` in Google Search Console
+Never expose `SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, or webhook
+secrets through a `NEXT_PUBLIC_` variable.
 
 ## Commands
 
@@ -110,7 +74,29 @@ npm install
 npm run dev
 npm run typecheck
 npm run build
+npm start
 npm run audit
 ```
 
-The full architecture and maintenance guide is in [memory.md](./memory.md).
+Local development runs at `http://localhost:3000`.
+
+## Supabase
+
+No database migration is run automatically by the application setup. Migration
+files in `supabase/migrations` must be reviewed and explicitly approved before
+being applied.
+
+When a schema is approved:
+
+```bash
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
+```
+
+## Deployment
+
+1. Import the repository into Vercel.
+2. Add the variables from `.env.example`.
+3. Deploy using the detected Next.js framework settings.
+4. Add the production and preview domains to Supabase Auth redirect URLs.

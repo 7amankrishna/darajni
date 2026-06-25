@@ -1,0 +1,51 @@
+import type { Metadata, Viewport } from "next";
+
+import { SiteShell } from "@/components/layout/site-shell";
+import { siteConfig } from "@/config/site";
+
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.siteUrl),
+  title: {
+    default: `${siteConfig.name} | Wear Confidence`,
+    template: `%s | ${siteConfig.shortName}`,
+  },
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} | Wear Confidence`,
+    description: siteConfig.description,
+    images: ["/og-cover.svg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: ["/og-cover.svg"],
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#090909",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en-IN" suppressHydrationWarning>
+      <body>
+        <SiteShell>{children}</SiteShell>
+      </body>
+    </html>
+  );
+}
