@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { createOrderAccessToken } from "@/lib/security/order-token";
+import {
+  createOrderAccessToken,
+  isOrderAccessConfigured,
+} from "@/lib/security/order-token";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { getClientIp, isSameOrigin } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
@@ -59,6 +62,14 @@ export async function POST(request: Request) {
         status: 429,
         headers: { "Retry-After": String(limit.retryAfter) },
       },
+    );
+  }
+
+  if (!isOrderAccessConfigured()) {
+    console.error("Checkout blocked: ORDER_ACCESS_SECRET is not configured.");
+    return NextResponse.json(
+      { error: "Order access security is not configured." },
+      { status: 503 },
     );
   }
 

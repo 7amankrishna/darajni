@@ -15,6 +15,10 @@ function getSecret() {
   );
 }
 
+export function isOrderAccessConfigured() {
+  return Boolean(getSecret());
+}
+
 function sign(value: string, secret: string) {
   return createHmac("sha256", secret).update(value).digest("base64url");
 }
