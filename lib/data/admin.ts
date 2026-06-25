@@ -1,0 +1,215 @@
+import "server-only";
+
+import { requireAdminPage } from "@/lib/auth/admin";
+import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import type { AdminDashboardData, AdminOrder } from "@/types/admin";
+import type { Category, Product, StoreSettings } from "@/types/commerce";
+
+function mapCategory(row: Record<string, unknown>): Category {
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    slug: String(row.slug),
+    isSystem: Boolean(row.is_system),
+  };
+}
+
+function mapProduct(row: Record<string, unknown>): Product {
+  const relation = row.categories;
+  const categoryRow = Array.isArray(relation) ? relation[0] : relation;
+  return {
+    id: String(row.id),
+    name: String(row.name),
+    slug: String(row.slug),
+    description: String(row.description),
+    fabric: String(row.fabric),
+    sizes: Array.isArray(row.size) ? row.size.map(String) : [],
+    stock: Number(row.stock),
+    price: Number(row.price),
+    discount: Number(row.discount),
+    images: Array.isArray(row.images) ? row.images.map(String) : [],
+    category: mapCategory(categoryRow as Record<string, unknown>),
+    isFeatured: Boolean(row.is_featured),
+    isActive: Boolean(row.is_active),
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  };
+}
+
+function mapOrder(row: Record<string, unknown>): AdminOrder {
+  const items = Array.isArray(row.order_items) ? row.order_items : [];
+  return {
+    id: String(row.id),
+    orderNumber: String(row.order_number),
+    customerName: String(row.customer_name),
+    phone: String(row.phone),
+    address: String(row.address),
+    city: String(row.city),
+    state: String(row.state),
+    pincode: String(row.pincode),
+    landmark: row.landmark ? String(row.landmark) : null,
+    email: row.email ? String(row.email) : null,
+    subtotal: Number(row.subtotal),
+    shippingFee: Number(row.shipping_fee),
+    taxAmount: Number(row.tax_amount),
+    total: Number(row.total),
+    paymentMethod: row.payment_method as AdminOrder["paymentMethod"],
+    paymentStatus: row.payment_status as AdminOrder["paymentStatus"],
+    status: row.status as AdminOrder["status"],
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+    items: items.map((item) => {
+      const value = item as Record<string, unknown>;
+      return {
+        id: String(value.id),
+        productId: String(value.product_id),
+        productName: String(value.product_name_at_time),
+        selectedSize: String(value.selected_size),
+        quantity: Number(value.quantity),
+        priceAtTime: Number(value.price_at_time),
+        lineTotal: Number(value.line_total),
+      };
+    }),
+  };
+}
+
+const INDIA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+function startOfToday() {
+  const indiaNow = new Date(Date.now() + INDIA_OFFSET_MS);
+  indiaNow.setUTCHours(0, 0, 0, 0);
+  return new Date(indiaNow.getTime() - INDIA_OFFSET_MS);
+}
+
+function startOfWeek() {
+  const date = startOfToday();
+  const indiaDate = new Date(date.getTime() + INDIA_OFFSET_MS);
+  const day = indiaDate.getUTCDay();
+  indiaDate.setUTCDate(indiaDate.getUTCDate() - (day === 0 ? 6 : day - 1));
+  return new Date(indiaDate.getTime() - INDIA_OFFSET_MS);
+}
+
+export async function getAdminDashboardData(): Promise<AdminDashboardData> {
+  await requireAdminPage();
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) throw new Error("Supabase service role is not configured.");
+
+  const [ordersResult, productsResult, categoriesResult, settingsResult] =
+    await Promise.all([
+      supabase
+        .from("orders")
+        .select(
+          "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
+        )
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("products")
+        .select(
+          "*, categories!products_category_id_fkey(id, name, slug, is_system)",
+        )
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("categories")
+        .select("id, name, slug, is_system")
+        .order("name"),
+      supabase
+        .from("settings")
+        .select(
+          "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number",
+        )
+        .eq("id", true)
+        .single(),
+    ]);
+
+  const error =
+    ordersResult.error ||
+    productsResult.error ||
+    categoriesResult.error ||
+    settingsResult.error;
+  if (error) throw new Error(error.message);
+
+  const orders = (ordersResult.data ?? []).map((row) =>
+    mapOrder(row as unknown as Record<string, unknown>),
+  );
+  const products = (productsResult.data ?? []).map((row) =>
+    mapProduct(row as unknown as Record<string, unknown>),
+  );
+  const categories = (categoriesResult.data ?? []).map((row) =>
+    mapCategory(row as Record<string, unknown>),
+  );
+  const settingsRow = settingsResult.data;
+  const settings: StoreSettings = {
+    shippingCharge: Number(settingsRow.shipping_charge),
+    codEnabled: Boolean(settingsRow.cod_enabled),
+    taxRate: Number(settingsRow.tax_rate),
+    developerSupportNumber: String(
+      settingsRow.developer_support_number || "",
+    ),
+    designerSupportNumber: String(settingsRow.designer_support_number || ""),
+  };
+
+  const today = startOfToday().getTime();
+  const week = startOfWeek().getTime();
+  const completed = orders.filter((order) => order.status !== "cancelled");
+  const daily = completed.filter(
+    (order) => new Date(order.createdAt).getTime() >= today,
+  );
+  const weekly = completed.filter(
+    (order) => new Date(order.createdAt).getTime() >= week,
+  );
+  const productTotals = new Map<
+    string,
+    { productId: string; name: string; quantity: number; revenue: number }
+  >();
+  for (const order of completed) {
+    for (const item of order.items) {
+      const current = productTotals.get(item.productId) ?? {
+        productId: item.productId,
+        name: item.productName,
+        quantity: 0,
+        revenue: 0,
+      };
+      current.quantity += item.quantity;
+      current.revenue += item.lineTotal;
+      productTotals.set(item.productId, current);
+    }
+  }
+
+  return {
+    orders,
+    products,
+    categories,
+    settings,
+    analytics: {
+      dailyOrders: daily.length,
+      weeklyOrders: weekly.length,
+      dailyRevenue: daily.reduce((sum, order) => sum + order.total, 0),
+      weeklyRevenue: weekly.reduce((sum, order) => sum + order.total, 0),
+      activeOrders: orders.filter(
+        (order) => !["delivered", "cancelled"].includes(order.status),
+      ).length,
+      lowStock: products
+        .filter((product) => product.isActive && product.stock <= 5)
+        .sort((a, b) => a.stock - b.stock)
+        .slice(0, 10),
+      topProducts: [...productTotals.values()]
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5),
+    },
+  };
+}
+
+export async function getAdminOrder(orderId: string): Promise<AdminOrder | null> {
+  await requireAdminPage();
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
+    )
+    .eq("id", orderId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return mapOrder(data as unknown as Record<string, unknown>);
+}

@@ -211,3 +211,30 @@ select.field option {
     transition-duration: 0.01ms !important;
   }
 }
+
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  body > header,
+  body > footer,
+  header.sticky,
+  footer.border-t {
+    display: none !important;
+  }
+
+  .print-page {
+    min-height: auto !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
+}

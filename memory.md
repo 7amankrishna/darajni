@@ -27,6 +27,9 @@
   order ID and matching phone number.
 - Order success links use a short-lived HMAC token.
 - Product images are the only assets stored in Supabase Storage.
+- Every admin page and API verifies both a Supabase Auth session and membership
+  in `admin_users`.
+- Admin mutations use same-origin checks and server-only service-role access.
 - Applying SQL migrations always requires explicit user confirmation.
 
 ## Important paths
@@ -50,6 +53,12 @@ lib/security/
 components/cart/cart-provider.tsx
   Persistent local guest cart.
 
+components/admin/
+  Order management, product CRUD, analytics, settings and print documents.
+
+lib/auth/admin.ts
+  Verified Supabase Auth plus `admin_users` authorization.
+
 supabase/migrations/20260625020000_ecommerce_core.sql
   Normalized products, orders, items, archives, admins, settings, RLS, storage.
 
@@ -68,6 +77,10 @@ supabase/migrations/20260625030000_checkout_functions.sql
 | `/order/success` | Signed private order summary |
 | `/track` | Order ID and phone tracking |
 | `/support` | Developer and designer support |
+| `/admin/login` | Administrator authentication |
+| `/admin` | Orders, products, analytics and settings |
+| `/admin/orders/[id]/invoice` | A4 invoice with prices |
+| `/admin/orders/[id]/packing-slip` | A4 packing slip without prices |
 | `/privacy`, `/terms` | Legal pages |
 
 ## Release checks

@@ -17,6 +17,8 @@ CSS, shadcn/ui, Supabase PostgreSQL, Supabase Storage, and Razorpay.
 - Separate website and dress-designer support contacts
 - WhatsApp restricted to support; ordering happens only through checkout
 - Product-image-only Supabase Storage policies
+- Supabase-authenticated administrator dashboard
+- Order status workflow, analytics, product CRUD, settings and A4 printing
 
 ## Architecture
 
@@ -29,13 +31,16 @@ app/
   design/[slug]/         Server-rendered product details
   order/success/         Signed private order summary
   support/ track/        Customer support and tracking
+  admin/                 Authenticated operations dashboard and print routes
 
 components/
+  admin/                 Orders, products, analytics, settings and print UI
   cart/ checkout/        Client cart state and checkout UI
   order/ product/        Commerce UI modules
   layout/ ui/            Shared shell and shadcn primitives
 
 lib/
+  auth/                  Verified admin session helpers
   data/                  Cached server queries
   security/              Rate limits, request checks, signed order tokens
   supabase/              Browser, server, and service-role clients
@@ -92,6 +97,12 @@ supabase db push
 
 The Phase 2 and Phase 3 commerce migrations must be applied before the new
 storefront can read products or accept orders.
+
+## Administrator access
+
+Create the administrator as a Supabase Auth user, then add its UUID to
+`public.admin_users` as documented in `supabase/PHASE_2_SCHEMA.md`. The secure
+sign-in page is `/admin/login`.
 
 ## Razorpay webhook
 
