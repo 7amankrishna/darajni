@@ -6,7 +6,7 @@ export const siteConfig = {
   slogan: "Dont just wear Clothes. WEAR CONFIDENCE.",
   description:
     "DARAJNI creates made-to-order Indian occasion wear in Bihar Sharif, Bihar, with custom sizing and Pan-India delivery.",
-  siteUrl: (import.meta.env.VITE_SITE_URL || "https://darajni.vercel.app").replace(/\/$/, ""),
+  siteUrl: (import.meta.env.VITE_SITE_URL || "https://darajni.in").replace(/\/$/, ""),
   whatsappNumber: configuredWhatsApp || "",
   email: import.meta.env.VITE_CONTACT_EMAIL || "hello@darajni.in",
   locality: "Bihar Sharif",

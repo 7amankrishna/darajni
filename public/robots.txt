@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /login
 
-Sitemap: https://darajni.vercel.app/sitemap.xml
+Sitemap: https://darajni.in/sitemap.xml

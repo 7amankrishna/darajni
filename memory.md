@@ -6,7 +6,7 @@
 - Slogan: **Dont just wear Clothes. WEAR CONFIDENCE.**
 - Location: Bihar Sharif, Bihar 803111
 - Delivery: Pan India
-- Logo source: root-level `logo.png`, bundled by `BrandLogo.tsx`
+- Logo source: root-level `logo.webp`, bundled by `BrandLogo.tsx`
 - Do not add unverified customer counts, years, delivery times or response times.
 
 ## Runtime rule
@@ -25,8 +25,8 @@ There is no local account, product or review fallback. `App.tsx` checks
 ## Important files
 
 ```text
-logo.png
-  Custom DARAJNI sewing emblem.
+logo.webp
+  Optimized custom DARAJNI sewing emblem.
 
 src/App.tsx
   Provider order, route table, configuration gate and shared layout.

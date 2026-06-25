@@ -1,4 +1,4 @@
-import logoUrl from "../../logo.png";
+import logoUrl from "../../logo.webp";
 
 export default function BrandLogo({
   className = "h-12 w-12",
