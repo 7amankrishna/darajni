@@ -1,11 +1,8 @@
-import { siteConfig, whatsappLink } from "../config/site";
+import Link from "next/link";
+
 import BrandLogo from "./BrandLogo";
 
 export default function Hero() {
-  const enquiryLink = whatsappLink(
-    "Hello DARAJNI! I would like help choosing an outfit from your collection.",
-  );
-
   return (
     <section id="home" className="relative isolate min-h-[calc(100svh-74px)] overflow-hidden">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_78%_42%,rgba(202,170,112,.2),transparent_28rem),linear-gradient(135deg,#080808_0%,#12100c_58%,#080808_100%)]" />
@@ -22,29 +19,24 @@ export default function Hero() {
             <span className="mt-2 block italic text-[#d8b879]">WEAR CONFIDENCE.</span>
           </h1>
           <p className="mt-7 max-w-xl text-base leading-8 text-white/67 md:text-lg">
-            Discover made-to-order lehengas, sarees, anarkalis and gowns with custom sizing,
-            clear order guidance and delivery across India.
+            Discover premium lehengas, sarees, anarkalis and gowns with clear
+            pricing, secure checkout and delivery across India.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <a href="#collection" className="primary-button sm:min-w-48">
               Explore collection
             </a>
-            <a
-              href={enquiryLink}
-              target={siteConfig.whatsappNumber ? "_blank" : undefined}
-              rel="noreferrer"
-              className="secondary-button sm:min-w-48"
-            >
-              {siteConfig.whatsappNumber ? "Chat on WhatsApp" : "View contact details"}
-            </a>
+            <Link href="/track" className="secondary-button sm:min-w-48">
+              Track an order
+            </Link>
           </div>
 
           <div className="mt-12 grid max-w-2xl grid-cols-3 divide-x divide-white/12 border-y border-white/12 py-5">
             {[
-              ["Made to order", "Thoughtful finishing"],
-              ["Custom sizing", "Fit guidance included"],
-              ["Pan India", "Delivery support"],
+              ["Secure checkout", "COD and Razorpay"],
+              ["Guest ordering", "No account required"],
+              ["Pan India", "Tracked fulfilment"],
             ].map(([title, detail]) => (
               <div key={title} className="px-3 first:pl-0 sm:px-6">
                 <p className="font-display text-lg text-[#e2c48b] sm:text-2xl">{title}</p>

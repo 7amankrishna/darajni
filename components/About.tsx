@@ -30,17 +30,17 @@ export default function About() {
             that feels like their own.
           </p>
           <p className="mt-5 text-base leading-8 text-white/58">
-            Because we are a new brand, trust matters more than inflated numbers. Product
-            reviews are tied to customer accounts, published only after moderation, and every
-            customer can see exactly whether their review is pending, approved or rejected.
+            Trust is built through clear prices, secure online checkout and
+            useful order updates. You can shop without creating an account and
+            track every order with its order ID and matching phone number.
           </p>
 
           <div className="mt-9 grid gap-3 sm:grid-cols-2">
             {[
-              ["Clear pricing", "Starting prices are shown before you enquire."],
-              ["Custom fit", "Sizing conversations happen before production."],
-              ["Review transparency", "Moderation status stays visible to the reviewer."],
-              ["Nationwide support", "Order assistance for deliveries across India."],
+              ["Clear pricing", "The checkout price matches the product listing."],
+              ["Guest checkout", "Place an order without creating an account."],
+              ["Order tracking", "Follow fulfilment with your order ID and phone."],
+              ["Nationwide support", "Delivery and product support across India."],
             ].map(([title, text]) => (
               <div key={title} className="rounded-xl border border-white/8 bg-white/[0.025] p-5">
                 <p className="font-display text-xl text-[#dfc48e]">{title}</p>

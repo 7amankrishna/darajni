@@ -226,6 +226,37 @@ export interface Database {
           updated_at: string;
         }[];
       };
+      create_checkout_order: {
+        Args: {
+          p_customer: Json;
+          p_items: Json;
+          p_payment_method: PaymentMethod;
+        };
+        Returns: {
+          order_id: string;
+          order_number: string;
+          subtotal: number;
+          shipping_fee: number;
+          tax_amount: number;
+          total: number;
+          status: OrderStatus;
+        }[];
+      };
+      cancel_order_reservation: {
+        Args: {
+          p_order_id: string;
+          p_payment_failed?: boolean;
+        };
+        Returns: undefined;
+      };
+      confirm_razorpay_payment: {
+        Args: {
+          p_order_id: string;
+          p_razorpay_order_id: string;
+          p_razorpay_payment_id: string;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       order_status: OrderStatus;

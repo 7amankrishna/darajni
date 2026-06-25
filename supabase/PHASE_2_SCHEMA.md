@@ -22,8 +22,9 @@ stored only on the order for which it is required.
 - Orders and order items are not directly readable or writable by anonymous users.
 - Guest checkout will use a validated server action with the server-only service
   role in Phase 3.
-- Tracking uses the `track_order(order_reference, phone)` RPC and returns only
-  status metadata after both values match.
+- The rate-limited application tracking route calls the server-only
+  `track_order(order_reference, phone)` RPC. Direct anonymous RPC access is
+  denied, and only status metadata is returned after both values match.
 - Authenticated administrators are identified only through `admin_users`.
 - Product image reads are public; writes are restricted to administrators.
 - The bucket accepts JPEG, PNG, and WebP files up to 2 MiB.

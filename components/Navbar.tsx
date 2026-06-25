@@ -1,29 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { Menu, ShoppingBag, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
-import BrandLogo from "./BrandLogo";
+import { useState } from "react";
 
-const sectionLinks = [
-  { label: "Collection", href: "/#collection" },
-  { label: "Our Story", href: "/#about" },
-  { label: "Contact", href: "/#contact" },
+import BrandLogo from "@/components/BrandLogo";
+import { useCart } from "@/components/cart/cart-provider";
+
+const links = [
+  { label: "Shop", href: "/#collection" },
+  { label: "Track order", href: "/track" },
+  { label: "Support", href: "/support" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { user, profile, isAdmin } = useAuth();
-  const pathname = usePathname() || "/";
-
-  const close = () => setOpen(false);
+  const { itemCount } = useCart();
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[#090909]/92 backdrop-blur-xl">
-      <nav className="section-shell flex h-[74px] items-center justify-between" aria-label="Main navigation">
-        <Link href="/" onClick={close} className="flex items-center gap-3" aria-label="DARAJNI home">
-          <BrandLogo className="h-11 w-11 border border-[#caaa70]/35" priority />
+      <nav
+        className="section-shell flex h-[74px] items-center justify-between"
+        aria-label="Main navigation"
+      >
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          className="flex items-center gap-3"
+          aria-label="DARAJNI home"
+        >
+          <BrandLogo
+            className="h-11 w-11 border border-[#caaa70]/35"
+            priority
+          />
           <span>
             <span className="font-display block text-[1.55rem] leading-none tracking-[0.13em]">
               DARAJNI
@@ -35,73 +44,80 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-7 md:flex">
-          {sectionLinks.map((link) => (
-            <a
+          {links.map((link) => (
+            <Link
               key={link.href}
               href={link.href}
               className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60 transition hover:text-[#e0c083]"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          {user ? (
-            <Link
-              href={isAdmin ? "/admin" : "/dashboard"}
-              className="secondary-button !min-h-9 !px-4 !py-2"
-            >
-              {isAdmin ? "Admin" : profile?.fullName.split(" ")[0] || "Account"}
-            </Link>
-          ) : (
-            <Link
-              href={pathname === "/" ? "/login" : `/login?next=${encodeURIComponent(pathname)}`}
-              className="secondary-button !min-h-9 !px-4 !py-2"
-            >
-              Sign in
-            </Link>
-          )}
+          <Link
+            href="/cart"
+            className="relative grid h-10 w-10 place-items-center rounded-full border border-[#caaa70]/45 text-[#e4c58c] transition hover:bg-[#caaa70]/10"
+            aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-[#caaa70] px-1 text-[0.6rem] font-bold text-black">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
+          </Link>
         </div>
 
-        <button
-          type="button"
-          className="grid h-11 w-11 place-items-center rounded-full border border-white/10 md:hidden"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-label="Toggle navigation"
-        >
-          <span className="text-xl">{open ? "×" : "☰"}</span>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <Link
+            href="/cart"
+            className="relative grid h-11 w-11 place-items-center rounded-full border border-white/10"
+            aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-[#caaa70] px-1 text-[0.6rem] font-bold text-black">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
+          </Link>
+          <button
+            type="button"
+            className="grid h-11 w-11 place-items-center rounded-full border border-white/10"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+            aria-label="Toggle navigation"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </nav>
 
       {open && (
         <div className="border-t border-white/8 bg-[#0c0c0b] px-5 py-5 md:hidden">
           <div className="flex flex-col gap-1">
-            <Link href="/" onClick={close} className="rounded-lg px-3 py-3 text-sm text-white/75">
+            <Link
+              href="/"
+              onClick={() => setOpen(false)}
+              className="rounded-lg px-3 py-3 text-sm text-white/75"
+            >
               Home
             </Link>
-            {sectionLinks.map((link) => (
-              <a
+            {links.map((link) => (
+              <Link
                 key={link.href}
                 href={link.href}
-                onClick={close}
+                onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-3 text-sm text-white/75"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <Link
-              href={
-                user
-                  ? isAdmin
-                    ? "/admin"
-                    : "/dashboard"
-                  : pathname === "/"
-                    ? "/login"
-                    : `/login?next=${encodeURIComponent(pathname)}`
-              }
-              onClick={close}
-              className="mt-2 primary-button"
+              href="/cart"
+              onClick={() => setOpen(false)}
+              className="primary-button mt-2"
             >
-              {user ? (isAdmin ? "Admin dashboard" : "My dashboard") : "Sign in"}
+              View cart {itemCount > 0 ? `(${itemCount})` : ""}
             </Link>
           </div>
         </div>

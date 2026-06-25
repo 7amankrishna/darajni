@@ -213,10 +213,28 @@ begin
 end;
 $$;
 
+create or replace function public.protect_system_category_flag()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+begin
+  if new.is_system is distinct from old.is_system then
+    raise exception 'The fixed-category flag cannot be changed';
+  end if;
+  return new;
+end;
+$$;
+
 drop trigger if exists categories_protect_system_delete on public.categories;
 create trigger categories_protect_system_delete
   before delete on public.categories
   for each row execute procedure public.protect_system_category_delete();
+
+drop trigger if exists categories_protect_system_flag on public.categories;
+create trigger categories_protect_system_flag
+  before update of is_system on public.categories
+  for each row execute procedure public.protect_system_category_flag();
 
 create sequence if not exists public.order_number_seq;
 
@@ -232,6 +250,9 @@ as $$
     '-' ||
     lpad(nextval('public.order_number_seq')::text, 6, '0');
 $$;
+
+revoke all on function public.generate_order_number() from public;
+grant execute on function public.generate_order_number() to service_role;
 
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
@@ -412,8 +433,7 @@ as $$
 $$;
 
 revoke all on function public.track_order(text, text) from public;
-grant execute on function public.track_order(text, text)
-  to anon, authenticated, service_role;
+grant execute on function public.track_order(text, text) to service_role;
 
 alter table public.admin_users enable row level security;
 alter table public.categories enable row level security;

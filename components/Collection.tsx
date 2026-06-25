@@ -1,26 +1,55 @@
-import { useMemo, useState } from "react";
-import { useCatalog } from "../context/CatalogContext";
-import DesignCard from "./DesignCard";
+"use client";
 
-export default function Collection() {
-  const { designs, categories, loading, error } = useCatalog();
-  const [activeCategory, setActiveCategory] = useState("All");
+import { Search, SlidersHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
+
+import DesignCard from "@/components/DesignCard";
+import type { Category, Product } from "@/types/commerce";
+
+type SortOption = "newest" | "price-low" | "price-high";
+
+export default function Collection({
+  products,
+  categories,
+}: {
+  products: Product[];
+  categories: Category[];
+}) {
+  const [activeCategory, setActiveCategory] = useState("all");
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<SortOption>("newest");
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return designs.filter((design) => {
-      const categoryMatches = activeCategory === "All" || design.category === activeCategory;
+    const result = products.filter((product) => {
+      const categoryMatches =
+        activeCategory === "all" || product.category.slug === activeCategory;
       const searchMatches =
         !term ||
-        [design.name, design.fabric, design.category, ...design.tags]
+        [
+          product.name,
+          product.fabric,
+          product.category.name,
+          product.description,
+          ...product.sizes,
+        ]
           .join(" ")
           .toLowerCase()
           .includes(term);
-      return categoryMatches && searchMatches;
+      return (
+        categoryMatches &&
+        searchMatches &&
+        (!inStockOnly || product.stock > 0)
+      );
     });
-  }, [activeCategory, designs, search]);
-  const categoryNames = ["All", ...categories.map((category) => category.name)];
+
+    return result.sort((a, b) => {
+      if (sort === "price-low") return a.price - b.price;
+      if (sort === "price-high") return b.price - a.price;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [activeCategory, inStockOnly, products, search, sort]);
 
   return (
     <section id="collection" className="py-20 sm:py-28">
@@ -28,70 +57,91 @@ export default function Collection() {
         <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
           <div>
             <p className="eyebrow">The DARAJNI edit</p>
-            <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">Find your silhouette</h2>
+            <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
+              Find your silhouette
+            </h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/48">
-              Browse by style or search by occasion, fabric and detail. Prices are starting
-              prices and final quotes depend on customisation.
+              Search by style, fabric, category or size. Every displayed price
+              is the price used at checkout.
             </p>
           </div>
           <label className="relative block w-full lg:max-w-sm">
             <span className="sr-only">Search collection</span>
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search styles, fabrics, occasions…"
-              className="field !rounded-full !pl-5"
+              placeholder="Search products…"
+              className="field !rounded-full !pl-11"
             />
           </label>
         </div>
 
         <div className="-mx-2 mt-9 flex gap-2 overflow-x-auto px-2 pb-3 [scrollbar-width:none]">
-          {categoryNames.map((category) => (
+          {[{ name: "All", slug: "all" }, ...categories].map((category) => (
             <button
               type="button"
-              key={category}
-              onClick={() => setActiveCategory(category)}
+              key={category.slug}
+              onClick={() => setActiveCategory(category.slug)}
               className={`min-h-10 shrink-0 rounded-full border px-5 text-xs font-semibold transition ${
-                category === activeCategory
+                category.slug === activeCategory
                   ? "border-[#caaa70] bg-[#caaa70] text-[#151006]"
                   : "border-white/10 text-white/55 hover:border-[#caaa70]/45"
               }`}
             >
-              {category}
+              {category.name}
             </button>
           ))}
         </div>
 
-        {error && (
-          <p className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 text-sm text-amber-100/70">
-            The live catalog could not be reached. Please try again shortly.
-          </p>
-        )}
-
-        {loading ? (
-          <div className="grid gap-5 pt-10 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="aspect-[3/4] animate-pulse rounded-2xl bg-white/5" />
-            ))}
+        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-xs text-white/45">
+            <SlidersHorizontal className="h-4 w-4" />
+            {filtered.length} product{filtered.length === 1 ? "" : "s"}
           </div>
-        ) : filtered.length ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="flex items-center gap-2 text-xs text-white/55">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(event) => setInStockOnly(event.target.checked)}
+                className="accent-[#caaa70]"
+              />
+              In stock only
+            </label>
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value as SortOption)}
+              className="field !min-h-10 !w-auto !py-2 text-xs"
+              aria-label="Sort products"
+            >
+              <option value="newest">Newest first</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+            </select>
+          </div>
+        </div>
+
+        {filtered.length ? (
           <div className="grid gap-5 pt-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((design) => (
-              <DesignCard key={design.id} design={design} />
+            {filtered.map((product) => (
+              <DesignCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
           <div className="mt-8 rounded-2xl border border-dashed border-white/12 py-20 text-center">
             <p className="font-display text-3xl text-white/55">
-              {designs.length ? "No matching designs" : "The collection is being curated"}
+              {products.length ? "No matching products" : "No products are live yet"}
             </p>
-            {designs.length > 0 && (
+            {products.length > 0 && (
               <button
                 type="button"
                 className="secondary-button mt-6"
                 onClick={() => {
                   setSearch("");
-                  setActiveCategory("All");
+                  setActiveCategory("all");
+                  setInStockOnly(false);
+                  setSort("newest");
                 }}
               >
                 Clear filters

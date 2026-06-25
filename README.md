@@ -2,81 +2,71 @@
 
 > Dont just wear Clothes. WEAR CONFIDENCE.
 
-DARAJNI is being rebuilt as a production e-commerce platform using Next.js 15,
-TypeScript, Tailwind CSS, shadcn/ui, and Supabase.
+Production e-commerce storefront built with Next.js 15, TypeScript, Tailwind
+CSS, shadcn/ui, Supabase PostgreSQL, Supabase Storage, and Razorpay.
 
-## Current milestone
+## Implemented
 
-Phase 1 is complete:
+- Server-rendered, cached storefront catalog
+- Featured products, categories, new arrivals, search, filters, and sorting
+- Product galleries with zoom, sizing, inventory, discounts, and related items
+- Persistent guest cart and authoritative server-side checkout totals
+- Cash on delivery and signed Razorpay payment confirmation
+- Order success details and delivery estimate
+- Rate-limited order tracking using order ID plus phone number
+- Separate website and dress-designer support contacts
+- WhatsApp restricted to support; ordering happens only through checkout
+- Product-image-only Supabase Storage policies
 
-- Next.js 15 App Router replaces the previous Vite SPA entrypoint
-- TypeScript and Tailwind CSS 4 are configured
-- shadcn/ui aliases and core primitives are installed
-- Supabase browser and server client boundaries are available
-- App Router metadata, loading, error, and not-found states are configured
-- Vercel is configured for the Next.js framework
-- Environment placeholders cover Supabase, Razorpay, rate limiting, and support
-
-The existing catalog, authentication, reviews, and admin UI remain available as
-client-side feature modules while later phases replace the data model and ordering
-flow. WhatsApp ordering will be removed during the storefront and checkout phases.
-
-The Phase 2 commerce migration has been generated and locally validated:
-
-- Normalized categories and products with inventory, sizes, discounts, and images
-- Guest orders, immutable order items, archive records, admins, and store settings
-- No customer profile or avatar table
-- Admin-only order access and public tracking through an order ID plus phone RPC
-- Product-image-only storage with administrator writes
-
-The migration is not applied automatically. Review
-`supabase/PHASE_2_SCHEMA.md` and explicitly approve execution first.
-
-## Directory structure
+## Architecture
 
 ```text
 app/
-  admin/                 Admin route
-  dashboard/             Customer account route
-  design/[slug]/         Product route
-  login/                 Authentication route
-  privacy/ and terms/    Legal routes
-  layout.tsx             Root metadata and site shell
-  loading.tsx            Route loading state
-  error.tsx              Recoverable error boundary
+  api/checkout/          Rate-limited order creation and cancellation
+  api/payments/          Razorpay verification and webhook
+  api/track/             Rate-limited tracking endpoint
+  cart/ checkout/        Guest purchase flow
+  design/[slug]/         Server-rendered product details
+  order/success/         Signed private order summary
+  support/ track/        Customer support and tracking
 
-actions/                 Server Actions, grouped by feature
 components/
-  layout/                Shared application shell
-  ui/                    shadcn/ui primitives
+  cart/ checkout/        Client cart state and checkout UI
+  order/ product/        Commerce UI modules
+  layout/ ui/            Shared shell and shadcn primitives
+
 lib/
-  supabase/client.ts     Browser Supabase client
-  supabase/server.ts     Cookie-aware server client
-  utils.ts               Shared class-name helper
-types/                   Shared domain types
-components/screens/      Existing feature screens retained during phased migration
-context/                 Client-side auth, catalog, and review providers
-supabase/                 Local Supabase config and SQL migrations
-public/                   Static brand and metadata assets
+  data/                  Cached server queries
+  security/              Rate limits, request checks, signed order tokens
+  supabase/              Browser, server, and service-role clients
+  validation/            Zod request schemas
+
+supabase/
+  migrations/            Reviewed database changes
+  tests/                 PostgreSQL integration assertions
 ```
 
 ## Environment
 
-Copy `.env.example` to `.env.local` and add project credentials.
+Copy `.env.example` to `.env.local`. Required production secrets include:
 
 ```dotenv
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=https://your-domain.example
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 
-NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxx
 RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_KEY_SECRET
 RAZORPAY_WEBHOOK_SECRET=YOUR_RAZORPAY_WEBHOOK_SECRET
+ORDER_ACCESS_SECRET=generate-a-long-random-secret
+
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 ```
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, or webhook
-secrets through a `NEXT_PUBLIC_` variable.
+Never expose service-role, payment, webhook, Redis, or order-signing secrets
+through `NEXT_PUBLIC_` variables.
 
 ## Commands
 
@@ -89,15 +79,10 @@ npm start
 npm run audit
 ```
 
-Local development runs at `http://localhost:3000`.
+## Database migrations
 
-## Supabase
-
-No database migration is run automatically by the application setup. Migration
-files in `supabase/migrations` must be reviewed and explicitly approved before
-being applied.
-
-When a schema is approved:
+Migrations are never applied automatically. Review and explicitly approve them
+before running:
 
 ```bash
 supabase login
@@ -105,9 +90,25 @@ supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 ```
 
+The Phase 2 and Phase 3 commerce migrations must be applied before the new
+storefront can read products or accept orders.
+
+## Razorpay webhook
+
+Configure the production webhook URL:
+
+```text
+https://your-domain.example/api/payments/razorpay/webhook
+```
+
+Enable at least `payment.captured` and `order.paid`, and use the same secret as
+`RAZORPAY_WEBHOOK_SECRET`.
+
 ## Deployment
 
 1. Import the repository into Vercel.
-2. Add the variables from `.env.example`.
-3. Deploy using the detected Next.js framework settings.
-4. Add the production and preview domains to Supabase Auth redirect URLs.
+2. Add every required environment variable.
+3. Apply the approved Supabase migrations.
+4. Configure the Razorpay webhook.
+5. Configure managed Redis for distributed checkout/tracking rate limits.
+6. Deploy with the detected Next.js settings.

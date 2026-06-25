@@ -38,12 +38,28 @@ begin
     raise exception 'authenticated clients must not insert orders directly';
   end if;
 
-  if not has_function_privilege(
+  if has_function_privilege(
     'anon',
     'public.track_order(text,text)',
     'execute'
   ) then
-    raise exception 'anonymous tracking RPC execution is required';
+    raise exception 'anonymous tracking RPC execution must be denied';
+  end if;
+
+  if not has_function_privilege(
+    'service_role',
+    'public.track_order(text,text)',
+    'execute'
+  ) then
+    raise exception 'service-role tracking RPC execution is required';
+  end if;
+
+  if has_function_privilege(
+    'anon',
+    'public.generate_order_number()',
+    'execute'
+  ) then
+    raise exception 'anonymous order-number generation must be denied';
   end if;
 
   if not exists (

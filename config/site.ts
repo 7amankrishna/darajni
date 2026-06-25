@@ -28,7 +28,8 @@ export function formatPrice(value: number) {
   }).format(value);
 }
 
-export function whatsappLink(message: string) {
-  if (!siteConfig.whatsappNumber) return "#contact";
-  return `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
+export function whatsappSupportLink(number: string, message: string) {
+  const normalized = number.replace(/\D/g, "");
+  if (!normalized) return `mailto:${siteConfig.email}`;
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 }
