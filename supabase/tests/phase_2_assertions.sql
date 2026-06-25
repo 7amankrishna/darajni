@@ -30,6 +30,14 @@ begin
     raise exception 'legacy product was not normalized correctly';
   end if;
 
+  if (
+    select char_length(fabric)
+    from public.products
+    where id = '10000000-0000-0000-0000-000000000001'
+  ) <= 160 then
+    raise exception 'long legacy fabric content was not preserved';
+  end if;
+
   if has_table_privilege('anon', 'public.orders', 'select') then
     raise exception 'anonymous role must not read orders directly';
   end if;

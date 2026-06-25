@@ -130,7 +130,7 @@ create table public.products_new (
   name text not null check (char_length(trim(name)) between 2 and 140),
   slug text not null unique check (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
   description text not null check (char_length(trim(description)) between 30 and 5000),
-  fabric text not null check (char_length(trim(fabric)) between 2 and 160),
+  fabric text not null check (char_length(trim(fabric)) between 2 and 1000),
   size text[] not null default array['Custom']::text[]
     check (cardinality(size) > 0),
   stock integer not null default 0 check (stock >= 0),

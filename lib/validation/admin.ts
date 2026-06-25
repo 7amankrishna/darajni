@@ -21,7 +21,7 @@ export const productInputSchema = z.object({
     .trim()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   description: z.string().trim().min(30).max(5000),
-  fabric: z.string().trim().min(2).max(160),
+  fabric: z.string().trim().min(2).max(1000),
   sizes: z.array(z.string().trim().min(1).max(40)).min(1).max(20),
   stock: z.number().int().min(0).max(1_000_000),
   price: z.number().min(0).max(100_000_000),

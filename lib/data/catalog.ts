@@ -75,7 +75,7 @@ const productColumns = `
   is_active,
   created_at,
   updated_at,
-  categories!products_category_id_fkey (
+  categories (
     id,
     name,
     slug,

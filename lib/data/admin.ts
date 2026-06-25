@@ -105,7 +105,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       supabase
         .from("products")
         .select(
-          "*, categories!products_category_id_fkey(id, name, slug, is_system)",
+          "*, categories(id, name, slug, is_system)",
         )
         .order("created_at", { ascending: false }),
       supabase
