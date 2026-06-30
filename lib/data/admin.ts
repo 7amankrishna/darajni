@@ -2,7 +2,11 @@ import "server-only";
 
 import { requireAdminPage } from "@/lib/auth/admin";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import type { AdminDashboardData, AdminOrder } from "@/types/admin";
+import type {
+  AdminDashboardData,
+  AdminOrder,
+  AdminPromoCode,
+} from "@/types/admin";
 import type { Category, Product, StoreSettings } from "@/types/commerce";
 
 function mapCategory(row: Record<string, unknown>): Category {
@@ -50,6 +54,8 @@ function mapOrder(row: Record<string, unknown>): AdminOrder {
     landmark: row.landmark ? String(row.landmark) : null,
     email: row.email ? String(row.email) : null,
     subtotal: Number(row.subtotal),
+    discountAmount: Number(row.discount_amount ?? 0),
+    promoCode: row.promo_code ? String(row.promo_code) : null,
     shippingFee: Number(row.shipping_fee),
     taxAmount: Number(row.tax_amount),
     total: Number(row.total),
@@ -73,7 +79,52 @@ function mapOrder(row: Record<string, unknown>): AdminOrder {
   };
 }
 
+function mapPromo(row: Record<string, unknown>): AdminPromoCode {
+  const redemptions = Array.isArray(row.promo_redemptions)
+    ? row.promo_redemptions
+    : [];
+  return {
+    id: String(row.id),
+    code: String(row.code),
+    title: String(row.title),
+    description: row.description ? String(row.description) : null,
+    codeType: row.code_type as AdminPromoCode["codeType"],
+    discountType: row.discount_type as AdminPromoCode["discountType"],
+    discountValue: Number(row.discount_value),
+    minimumSubtotal: Number(row.minimum_subtotal),
+    maximumDiscount:
+      row.maximum_discount === null || row.maximum_discount === undefined
+        ? null
+        : Number(row.maximum_discount),
+    usageLimit:
+      row.usage_limit === null || row.usage_limit === undefined
+        ? null
+        : Number(row.usage_limit),
+    perPhoneLimit: Number(row.per_phone_limit),
+    startsAt: row.starts_at ? String(row.starts_at) : null,
+    endsAt: row.ends_at ? String(row.ends_at) : null,
+    isActive: Boolean(row.is_active),
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+    redemptionCount: redemptions.length,
+    redeemedAmount: redemptions.reduce((sum, item) => {
+      const value = item as Record<string, unknown>;
+      return sum + Number(value.discount_amount ?? 0);
+    }, 0),
+  };
+}
+
 const INDIA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+function isMissingRelationError(error: unknown) {
+  return (
+    error !== null &&
+    error !== undefined &&
+    typeof error === "object" &&
+    "code" in error &&
+    (error as { code?: string }).code === "42P01"
+  );
+}
 
 function startOfToday() {
   const indiaNow = new Date(Date.now() + INDIA_OFFSET_MS);
@@ -94,7 +145,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const supabase = createSupabaseServiceClient();
   if (!supabase) throw new Error("Supabase service role is not configured.");
 
-  const [ordersResult, productsResult, categoriesResult, settingsResult] =
+  const [
+    ordersResult,
+    productsResult,
+    categoriesResult,
+    promosResult,
+    settingsResult,
+  ] =
     await Promise.all([
       supabase
         .from("orders")
@@ -113,6 +170,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .select("id, name, slug, is_system")
         .order("name"),
       supabase
+        .from("promo_codes")
+        .select(
+          "*, promo_redemptions(id, discount_amount, redeemed_at)",
+        )
+        .order("created_at", { ascending: false }),
+      supabase
         .from("settings")
         .select(
           "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number",
@@ -121,10 +184,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .single(),
     ]);
 
+  const promoTablesMissing = isMissingRelationError(promosResult.error);
   const error =
     ordersResult.error ||
     productsResult.error ||
     categoriesResult.error ||
+    (!promoTablesMissing ? promosResult.error : null) ||
     settingsResult.error;
   if (error) throw new Error(error.message);
 
@@ -137,6 +202,11 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const categories = (categoriesResult.data ?? []).map((row) =>
     mapCategory(row as Record<string, unknown>),
   );
+  const promos = promoTablesMissing
+    ? []
+    : (promosResult.data ?? []).map((row) =>
+        mapPromo(row as unknown as Record<string, unknown>),
+      );
   const settingsRow = settingsResult.data;
   const settings: StoreSettings = {
     shippingCharge: Number(settingsRow.shipping_charge),
@@ -179,6 +249,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     orders,
     products,
     categories,
+    promos,
     settings,
     analytics: {
       dailyOrders: daily.length,

@@ -33,6 +33,24 @@ export const checkoutSchema = z.object({
     .min(1)
     .max(20),
   paymentMethod: z.enum(["cod", "razorpay"]),
+  promoCode: z
+    .string()
+    .trim()
+    .max(32)
+    .optional()
+    .default("")
+    .transform((value) => value.replace(/\s+/g, "").toUpperCase()),
+});
+
+export const checkoutPromoSchema = z.object({
+  promoCode: z
+    .string()
+    .trim()
+    .min(3, "Enter a valid coupon or voucher code.")
+    .max(32, "Coupon or voucher code is too long.")
+    .transform((value) => value.replace(/\s+/g, "").toUpperCase()),
+  phone: phoneSchema.optional(),
+  items: checkoutSchema.shape.items,
 });
 
 export const razorpayVerificationSchema = z.object({

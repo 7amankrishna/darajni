@@ -37,6 +37,19 @@ export interface StoreSettings {
   designerSupportNumber: string;
 }
 
+export type PromoCodeType = "coupon" | "voucher";
+export type PromoDiscountType = "percentage" | "fixed_amount";
+
+export interface CheckoutPromoQuote {
+  promoCodeId: string;
+  code: string;
+  codeType: PromoCodeType;
+  discountType: PromoDiscountType;
+  discountAmount: number;
+  discountedSubtotal: number;
+  message: string;
+}
+
 export interface CartItem {
   key: string;
   productId: string;
@@ -82,6 +95,8 @@ export interface OrderSummary {
   landmark: string | null;
   email: string | null;
   subtotal: number;
+  discountAmount: number;
+  promoCode: string | null;
   shippingFee: number;
   taxAmount: number;
   total: number;

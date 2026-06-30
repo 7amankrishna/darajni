@@ -1,14 +1,18 @@
 "use client";
 
-import { CreditCard, Loader2, PackageCheck, Truck } from "lucide-react";
+import { CreditCard, Loader2, PackageCheck, Tag, Truck, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useCart } from "@/components/cart/cart-provider";
 import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
-import type { CheckoutCustomer, StoreSettings } from "@/types/commerce";
+import type {
+  CheckoutCustomer,
+  CheckoutPromoQuote,
+  StoreSettings,
+} from "@/types/commerce";
 
 declare global {
   interface Window {
@@ -78,14 +82,46 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">(
     settings.codEnabled ? "cod" : "razorpay",
   );
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<CheckoutPromoQuote | null>(
+    null,
+  );
+  const [promoBusy, setPromoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  const cartSignature = useMemo(
+    () =>
+      items
+        .map((item) => `${item.productId}:${item.size}:${item.quantity}`)
+        .sort()
+        .join("|"),
+    [items],
+  );
+  useEffect(() => {
+    setAppliedPromo(null);
+  }, [cartSignature]);
+
   const totals = useMemo(() => {
     const shipping = items.length ? settings.shippingCharge : 0;
-    const tax = Math.round(subtotal * (settings.taxRate / 100) * 100) / 100;
-    return { shipping, tax, total: subtotal + shipping + tax };
-  }, [items.length, settings.shippingCharge, settings.taxRate, subtotal]);
+    const discount = Math.min(appliedPromo?.discountAmount ?? 0, subtotal);
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax =
+      Math.round(discountedSubtotal * (settings.taxRate / 100) * 100) / 100;
+    return {
+      shipping,
+      discount,
+      discountedSubtotal,
+      tax,
+      total: discountedSubtotal + shipping + tax,
+    };
+  }, [
+    appliedPromo?.discountAmount,
+    items.length,
+    settings.shippingCharge,
+    settings.taxRate,
+    subtotal,
+  ]);
 
   const setField = (field: keyof CheckoutCustomer, value: string) => {
     setCustomer((current) => ({ ...current, [field]: value }));
@@ -98,6 +134,52 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
       body: JSON.stringify({ token, paymentFailed }),
       keepalive: true,
     }).catch(() => undefined);
+  };
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code || promoBusy) return;
+
+    setPromoBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/checkout/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          promoCode: code,
+          phone: customer.phone || undefined,
+          items: items.map((item) => ({
+            productId: item.productId,
+            size: item.size,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+      const result = (await response.json()) as
+        | CheckoutPromoQuote
+        | { error?: string };
+
+      if (!response.ok || !("code" in result)) {
+        throw new Error(
+          "error" in result && result.error
+            ? result.error
+            : "This coupon or voucher could not be applied.",
+        );
+      }
+
+      setAppliedPromo(result);
+      setPromoInput(result.code);
+    } catch (promoError) {
+      setAppliedPromo(null);
+      setError(
+        promoError instanceof Error
+          ? promoError.message
+          : "This coupon or voucher could not be applied.",
+      );
+    } finally {
+      setPromoBusy(false);
+    }
   };
 
   const startRazorpay = async (checkout: {
@@ -185,6 +267,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
             quantity: item.quantity,
           })),
           paymentMethod,
+          promoCode: appliedPromo?.code || "",
         }),
       });
       const result = (await response.json()) as {
@@ -464,11 +547,71 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
             ))}
           </div>
           <div className="my-5 h-px bg-white/10" />
+          <div className="rounded-2xl border border-white/10 p-4">
+            <label htmlFor="checkout-promo" className="field-label">
+              Coupon or voucher
+            </label>
+            <div className="mt-2 flex gap-2">
+              <input
+                id="checkout-promo"
+                value={promoInput}
+                onChange={(event) => {
+                  setPromoInput(event.target.value.toUpperCase());
+                  if (appliedPromo) setAppliedPromo(null);
+                }}
+                className="field"
+                placeholder="DARAJNI10"
+                maxLength={32}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={() => void applyPromo()}
+                disabled={promoBusy || !promoInput.trim()}
+                className="secondary-button shrink-0 !px-4"
+              >
+                {promoBusy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Tag className="h-4 w-4" />
+                    Apply
+                  </>
+                )}
+              </button>
+            </div>
+            {appliedPromo && (
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-emerald-300/20 bg-emerald-300/8 p-3 text-xs text-emerald-100">
+                <span>
+                  {appliedPromo.message}: {appliedPromo.code} saves{" "}
+                  {formatPrice(totals.discount)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedPromo(null);
+                    setPromoInput("");
+                  }}
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full hover:bg-white/10"
+                  aria-label="Remove coupon or voucher"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="my-5 h-px bg-white/10" />
           <div className="space-y-3 text-sm">
             <div className="flex justify-between text-white/55">
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
+            {totals.discount > 0 && (
+              <div className="flex justify-between text-emerald-200">
+                <span>Promo discount</span>
+                <span>-{formatPrice(totals.discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-white/55">
               <span>Shipping</span>
               <span>

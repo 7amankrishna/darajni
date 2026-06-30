@@ -247,6 +247,29 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                 ))}
               </div>
               <div className="border-t border-white/9 p-4 text-right">
+                <div className="ml-auto mb-4 max-w-xs space-y-2 text-sm">
+                  <div className="flex justify-between text-white/50">
+                    <span>Subtotal</span>
+                    <span>{formatPrice(selected.subtotal)}</span>
+                  </div>
+                  {selected.discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-200">
+                      <span>
+                        Promo
+                        {selected.promoCode ? ` (${selected.promoCode})` : ""}
+                      </span>
+                      <span>-{formatPrice(selected.discountAmount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-white/50">
+                    <span>Shipping</span>
+                    <span>{formatPrice(selected.shippingFee)}</span>
+                  </div>
+                  <div className="flex justify-between text-white/50">
+                    <span>Tax</span>
+                    <span>{formatPrice(selected.taxAmount)}</span>
+                  </div>
+                </div>
                 <p className="font-display text-2xl text-[#dfc184]">
                   {formatPrice(selected.total)}
                 </p>

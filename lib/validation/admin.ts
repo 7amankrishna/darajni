@@ -80,3 +80,41 @@ export const settingsInputSchema = z.object({
     .trim()
     .regex(/^[0-9]{0,20}$/),
 });
+
+export const promoInputSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .min(3)
+      .max(32)
+      .transform((value) => value.replace(/\s+/g, "").toUpperCase())
+      .refine(
+        (value) => /^[A-Z0-9][A-Z0-9_-]{2,31}$/.test(value),
+        "Code can use uppercase letters, numbers, underscores and hyphens.",
+      ),
+    title: z.string().trim().min(2).max(100),
+    description: z.string().trim().max(300).nullable().optional(),
+    codeType: z.enum(["coupon", "voucher"]),
+    discountType: z.enum(["percentage", "fixed_amount"]),
+    discountValue: z.number().positive().max(100_000_000),
+    minimumSubtotal: z.number().min(0).max(100_000_000),
+    maximumDiscount: z.number().positive().max(100_000_000).nullable().optional(),
+    usageLimit: z.number().int().positive().max(10_000_000).nullable().optional(),
+    perPhoneLimit: z.number().int().min(1).max(100_000),
+    startsAt: z.string().datetime().nullable().optional(),
+    endsAt: z.string().datetime().nullable().optional(),
+    isActive: z.boolean(),
+  })
+  .refine(
+    (value) =>
+      value.discountType !== "percentage" || value.discountValue <= 100,
+    "Percentage discounts cannot exceed 100%.",
+  )
+  .refine(
+    (value) =>
+      !value.startsAt ||
+      !value.endsAt ||
+      new Date(value.startsAt).getTime() < new Date(value.endsAt).getTime(),
+    "Start date must be before end date.",
+  );

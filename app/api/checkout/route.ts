@@ -15,6 +15,8 @@ interface CheckoutRow {
   order_id: string;
   order_number: string;
   subtotal: number;
+  discount_amount: number;
+  promo_code: string | null;
   shipping_fee: number;
   tax_amount: number;
   total: number;
@@ -29,6 +31,10 @@ function friendlyCheckoutError(message: string) {
     "Insufficient stock",
     "Cart must contain",
     "Item quantity must be",
+    "Coupon or voucher",
+    "coupon or voucher",
+    "Cart subtotal is below",
+    "This phone number has already used this code",
   ];
   return knownMessages.some((known) => message.includes(known))
     ? message
@@ -47,22 +53,6 @@ async function cancelReservation(orderId: string) {
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
     return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
-  }
-
-  const ip = getClientIp(request);
-  const limit = await rateLimit({
-    key: `checkout:${ip}`,
-    limit: 5,
-    windowSeconds: 15 * 60,
-  });
-  if (!limit.success) {
-    return NextResponse.json(
-      { error: "Too many checkout attempts. Please try again shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfter) },
-      },
-    );
   }
 
   if (!isOrderAccessConfigured()) {
@@ -89,7 +79,35 @@ export async function POST(request: Request) {
     );
   }
 
-  const { customer, items, paymentMethod } = parsed.data;
+  const { customer, items, paymentMethod, promoCode } = parsed.data;
+  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (
+    paymentMethod === "razorpay" &&
+    (!razorpayKeyId || !razorpaySecret)
+  ) {
+    return NextResponse.json(
+      { error: "Online payment is not configured." },
+      { status: 503 },
+    );
+  }
+
+  const ip = getClientIp(request);
+  const limit = await rateLimit({
+    key: `checkout:v2:${ip}`,
+    limit: 5,
+    windowSeconds: 15 * 60,
+  });
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: "Too many checkout attempts. Please try again shortly." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfter) },
+      },
+    );
+  }
+
   const { data, error } = await supabase.rpc("create_checkout_order", {
     p_customer: {
       customer_name: customer.customerName,
@@ -107,6 +125,7 @@ export async function POST(request: Request) {
       quantity: item.quantity,
     })),
     p_payment_method: paymentMethod,
+    p_promo_code: promoCode || null,
   });
 
   if (error) {
@@ -144,16 +163,6 @@ export async function POST(request: Request) {
       orderNumber: order.order_number,
       successUrl: `/order/success?token=${encodeURIComponent(token)}`,
     });
-  }
-
-  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!razorpayKeyId || !razorpaySecret) {
-    await cancelReservation(order.order_id);
-    return NextResponse.json(
-      { error: "Online payment is not configured." },
-      { status: 503 },
-    );
   }
 
   try {

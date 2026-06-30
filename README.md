@@ -55,6 +55,7 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 - Quantity controls constrained by the stock value last seen by the browser
 - Cash on delivery, when enabled in store settings
 - Razorpay online payments
+- Coupon and voucher codes with server-side redemption limits
 - Server-authoritative product prices, discounts, stock, tax, and shipping
 - Atomic inventory reservation during order creation
 - Signed, short-lived private order-success links
@@ -236,6 +237,7 @@ engine indexing through metadata and `robots.txt`.
 | Method and route | Purpose | Protection |
 |---|---|---|
 | `POST /api/checkout` | Validate input, create an atomic order, reserve stock, and begin COD or Razorpay flow | Same-origin, validation, per-IP rate limit, server service role |
+| `POST /api/checkout/promo` | Preview an order-wide coupon or voucher discount against current catalog prices | Same-origin, validation, rate limit, server service role |
 | `POST /api/checkout/cancel` | Cancel a pending Razorpay reservation | Same-origin and signed order token |
 | `POST /api/payments/razorpay/verify` | Verify browser payment signature and confirm payment | Same-origin, signed order token, HMAC, rate limit |
 | `POST /api/payments/razorpay/webhook` | Confirm captured/paid Razorpay events | Razorpay webhook HMAC |
@@ -245,8 +247,12 @@ engine indexing through metadata and `robots.txt`.
 | `PUT /api/admin/products/[id]` | Update a product | Administrator and same-origin |
 | `DELETE /api/admin/products/[id]` | Delete an unreferenced product | Administrator and same-origin |
 | `PATCH /api/admin/orders/[id]/status` | Apply an allowed order transition | Administrator and same-origin |
+| `POST /api/admin/promos` | Create a coupon or voucher | Administrator and same-origin |
+| `PUT /api/admin/promos/[id]` | Update a coupon or voucher | Administrator and same-origin |
+| `DELETE /api/admin/promos/[id]` | Deactivate a coupon or voucher | Administrator and same-origin |
 | `PUT /api/admin/settings` | Update singleton store settings | Administrator and same-origin |
 | `POST /api/admin/uploads` | Upload a validated product image | Administrator and same-origin |
+| `GET /api/cron/store-maintenance` | Run lifecycle cleanup and archival automation | `CRON_SECRET` bearer token |
 
 ## Architecture
 
@@ -261,7 +267,7 @@ Browser
 Next.js application
 ├── Middleware: refreshes Auth cookies and protects admin pages
 ├── Server Components: catalog, settings, admin data, print documents
-├── Route Handlers: checkout, tracking, payments, admin mutations
+├── Route Handlers: checkout, promo quote, tracking, payments, cron, admin mutations
 ├── Validation: Zod schemas
 ├── Security: origin checks, rate limits, signed order tokens
 └── Service-role clients: trusted database and storage operations
@@ -270,7 +276,8 @@ Next.js application
         │   ├── catalog and settings
         │   ├── administrator allow-list
         │   ├── orders and immutable item snapshots
-        │   └── atomic checkout/payment functions
+        │   ├── atomic checkout/payment/promo functions
+        │   └── lifecycle maintenance function
         │
         ├── Supabase Storage
         │   └── public product-images bucket
@@ -306,7 +313,9 @@ Next.js application
 | `admin_users` | Allow-list of Supabase Auth UUIDs permitted to administer the store |
 | `orders` | Active guest order, delivery, payment, amount, and status data |
 | `order_items` | Immutable product-name, size, quantity, and price snapshots |
-| `archived_orders` | Reserved minimal archive model for later lifecycle automation |
+| `promo_codes` | Admin-managed coupons and fixed-value vouchers |
+| `promo_redemptions` | Authoritative coupon/voucher usage records for global and per-phone limits |
+| `archived_orders` | Minimal delivered-order archive retained after active cleanup |
 | `settings` | Singleton row for shipping, COD, tax, and support numbers |
 
 Phase 2 removes the legacy `profiles` and `reviews` tables. Customer contact and
@@ -324,6 +333,12 @@ cod | razorpay
 
 payment_status:
 pending | paid | failed | refunded
+
+promo_code_type:
+coupon | voucher
+
+promo_discount_type:
+percentage | fixed_amount
 ```
 
 ### Important database functions
@@ -332,14 +347,22 @@ pending | paid | failed | refunded
 - `generate_order_number()` generates `DJ-YYYYMMDD-NNNNNN` order numbers.
 - `track_order(reference, phone)` returns limited status metadata only when both
   values match.
-- `create_checkout_order(customer, items, payment_method)` creates an order,
-  snapshots items, and reserves stock atomically.
+- `quote_checkout_discount(code, items, phone)` previews a coupon/voucher
+  against current catalog prices.
+- `create_checkout_order(customer, items, payment_method, promo_code)` creates
+  an order, snapshots items, applies an eligible promotion, and reserves stock
+  atomically.
 - `cancel_order_reservation(order_id, payment_failed)` cancels an eligible
   pending Razorpay order.
 - `confirm_razorpay_payment(order_id, razorpay_order_id, payment_id)` marks a
   valid pending Razorpay order paid and confirmed.
 - `restore_stock_after_cancellation()` restores item quantities whenever an
   order first transitions to `cancelled`.
+- `release_promo_after_cancellation()` releases coupon/voucher usage when an
+  order is cancelled.
+- `run_store_maintenance()` archives delivered orders after 10 days, deletes
+  minimal archives after 90 days, and cancels stale pending Razorpay
+  reservations.
 
 ### Store settings
 
@@ -356,27 +379,33 @@ pending | paid | failed | refunded
 ### Common checkout flow
 
 1. The browser submits customer details, product UUIDs, selected sizes,
-   quantities, and the requested payment method.
-2. `/api/checkout` verifies same-origin access and applies a per-IP limit of 5
-   attempts per 15 minutes.
-3. The application checks required order-token configuration before creating
-   any order.
-4. Zod validates the request:
+   quantities, the requested payment method, and an optional coupon/voucher
+   code.
+2. `/api/checkout` verifies same-origin access and required server
+   configuration.
+3. Zod validates the request:
    - 1–20 cart lines
    - 1–10 units per submitted line
    - UUID product IDs
    - valid Indian-style 10-digit phone normalization
    - six-digit PIN code
    - bounded delivery and contact fields
+4. Configured, structurally valid requests consume the per-IP checkout limit of
+   5 attempts per 15 minutes. Missing configuration and invalid form payloads
+   do not consume the order-creation quota.
 5. `create_checkout_order` locks products in a stable order to avoid overselling
    and deadlock-prone lock ordering.
 6. PostgreSQL verifies active products, selected sizes, stock, and COD
    availability.
-7. PostgreSQL calculates discounted unit prices, subtotal, fixed shipping,
-   percentage tax, and total.
+7. PostgreSQL calculates discounted unit prices, subtotal, optional
+   coupon/voucher discount, fixed shipping, percentage tax, and total.
 8. The order and item snapshots are inserted and stock is decremented in the
    same database transaction.
 9. The server creates a 24-hour HMAC-signed order-access token.
+
+Coupon/voucher previews use `/api/checkout/promo`, but the preview is only a
+convenience. The final code eligibility, redemption limits, and discount amount
+are recomputed by `create_checkout_order`.
 
 ### Cash on delivery
 
@@ -423,12 +452,19 @@ Additional behavior:
 - `delivered_at` is set when the order becomes delivered.
 - `cancelled_at` is set when the order becomes cancelled.
 - Stock is restored exactly when an order first transitions to cancelled.
+- Coupon/voucher redemptions are released exactly when an order first
+  transitions to cancelled.
 - Product names, selected sizes, quantities, and prices are snapshotted in
   `order_items`; later catalog edits do not rewrite order history.
 - Products referenced by an order cannot be deleted because of foreign-key
   protection. Mark them inactive instead.
-- `archived_orders` exists for a future archival phase; delivered orders are not
-  automatically archived by the current application.
+- A Vercel Cron request to `/api/cron/store-maintenance` calls
+  `run_store_maintenance()` once per day:
+  - delivered orders older than 10 days move to `archived_orders` and leave the
+    active orders table;
+  - archived rows older than 90 days are deleted;
+  - stale pending Razorpay reservations older than 1 hour are cancelled.
+- Browser carts are local-only and self-expire after 48 hours.
 
 ## Security model
 
@@ -476,6 +512,7 @@ separate `ORDER_ACCESS_SECRET` should always be configured.
 | Operation | Limit |
 |---|---|
 | Checkout | 5 attempts per IP per 15 minutes |
+| Coupon/voucher preview | 20 attempts per IP per 15 minutes |
 | Razorpay browser verification | 10 attempts per IP per 15 minutes |
 | Order tracking | 12 attempts per IP per 15 minutes |
 
@@ -516,6 +553,7 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Yes | Supabase publishable/anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | Yes | Trusted database and Storage operations |
 | `ORDER_ACCESS_SECRET` | Server only | Yes | Signs private 24-hour order links |
+| `CRON_SECRET` | Server only | Yes for maintenance cron | Authorizes `/api/cron/store-maintenance` |
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Public | For online payment | Razorpay test/live key ID |
 | `RAZORPAY_KEY_SECRET` | Server only | For online payment | Razorpay order creation and browser-response verification |
 | `RAZORPAY_WEBHOOK_SECRET` | Server only | For online payment | Razorpay webhook signature verification |
@@ -535,6 +573,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 
 ORDER_ACCESS_SECRET=GENERATE_WITH_OPENSSL_RAND_HEX_32
+CRON_SECRET=GENERATE_WITH_OPENSSL_RAND_HEX_32
 
 NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
 RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_KEY_SECRET
@@ -548,7 +587,7 @@ NEXT_PUBLIC_DESIGNER_SUPPORT_WHATSAPP=
 NEXT_PUBLIC_CONTACT_EMAIL=hello@example.com
 ```
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ORDER_ACCESS_SECRET`,
+Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ORDER_ACCESS_SECRET`, `CRON_SECRET`,
 `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, or Upstash credentials through
 a `NEXT_PUBLIC_` variable.
 
@@ -598,6 +637,7 @@ Migrations are stored in `supabase/migrations` and run in timestamp order:
 | `20260625010000_optimized_product_images.sql` | Product image data update |
 | `20260625020000_ecommerce_core.sql` | Guest-commerce schema, admins, normalized products, orders, settings, RLS, and Storage policies |
 | `20260625030000_checkout_functions.sql` | Atomic checkout, inventory restoration, cancellation, and payment confirmation |
+| `20260625040000_promos_lifecycle.sql` | Coupons, vouchers, promo redemptions, maintenance archival, and cleanup automation |
 
 All migrations are required for a new database because later phases transform
 objects created by earlier phases.
@@ -798,6 +838,8 @@ Database assertions are under `supabase/tests`:
   order transitions, tracking privacy, Storage settings, and admin recognition.
 - `phase_3_checkout_assertions.sql` verifies atomic totals, stock reservation,
   cancellation restoration, RPC privileges, and Razorpay confirmation.
+- `phase_5_promos_lifecycle_assertions.sql` verifies coupon/voucher math,
+  redemption release, RPC privileges, and lifecycle maintenance.
 
 Run database assertions only against a disposable test database prepared with
 the expected fixtures and migrations.

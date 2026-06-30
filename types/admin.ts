@@ -2,6 +2,8 @@ import type {
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
+  PromoCodeType,
+  PromoDiscountType,
 } from "@/types/database";
 import type { Category, Product, StoreSettings } from "@/types/commerce";
 
@@ -27,6 +29,8 @@ export interface AdminOrder {
   landmark: string | null;
   email: string | null;
   subtotal: number;
+  discountAmount: number;
+  promoCode: string | null;
   shippingFee: number;
   taxAmount: number;
   total: number;
@@ -36,6 +40,27 @@ export interface AdminOrder {
   createdAt: string;
   updatedAt: string;
   items: AdminOrderItem[];
+}
+
+export interface AdminPromoCode {
+  id: string;
+  code: string;
+  title: string;
+  description: string | null;
+  codeType: PromoCodeType;
+  discountType: PromoDiscountType;
+  discountValue: number;
+  minimumSubtotal: number;
+  maximumDiscount: number | null;
+  usageLimit: number | null;
+  perPhoneLimit: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  redemptionCount: number;
+  redeemedAmount: number;
 }
 
 export interface AnalyticsSummary {
@@ -57,6 +82,7 @@ export interface AdminDashboardData {
   orders: AdminOrder[];
   products: Product[];
   categories: Category[];
+  promos: AdminPromoCode[];
   settings: StoreSettings;
   analytics: AnalyticsSummary;
 }

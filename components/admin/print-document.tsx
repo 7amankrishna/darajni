@@ -130,6 +130,14 @@ export function PrintDocument({
               <span>Subtotal</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
+            {order.discountAmount > 0 && (
+              <div className="flex justify-between">
+                <span>
+                  Discount{order.promoCode ? ` (${order.promoCode})` : ""}
+                </span>
+                <span>-{formatPrice(order.discountAmount)}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span>Shipping</span>
               <span>{formatPrice(order.shippingFee)}</span>

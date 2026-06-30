@@ -102,6 +102,14 @@ export default async function Page({
                 <span>Subtotal</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
+              {order.discountAmount > 0 && (
+                <div className="flex justify-between text-emerald-200">
+                  <span>
+                    Promo discount{order.promoCode ? ` (${order.promoCode})` : ""}
+                  </span>
+                  <span>-{formatPrice(order.discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-white/50">
                 <span>Shipping</span>
                 <span>{formatPrice(order.shippingFee)}</span>

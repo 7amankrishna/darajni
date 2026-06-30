@@ -26,6 +26,11 @@
 - Tracking is exposed only through the rate-limited app API and requires both
   order ID and matching phone number.
 - Order success links use a short-lived HMAC token.
+- Coupon and voucher codes are only previews in the browser; final eligibility,
+  redemption limits, discount, tax, and total are recomputed in PostgreSQL.
+- Delivered orders leave the active order table after 10 days via maintenance
+  automation; minimal archives are deleted after 90 days.
+- Browser carts are local-only and self-expire after 48 hours.
 - Product images are the only assets stored in Supabase Storage.
 - Every admin page and API verifies both a Supabase Auth session and membership
   in `admin_users`.
@@ -64,6 +69,12 @@ supabase/migrations/20260625020000_ecommerce_core.sql
 
 supabase/migrations/20260625030000_checkout_functions.sql
   Atomic checkout, inventory reservation/restoration, payment confirmation.
+
+supabase/migrations/20260625040000_promos_lifecycle.sql
+  Coupon/voucher tables, redemption limits, order archival, cleanup automation.
+
+app/api/cron/store-maintenance/route.ts
+  CRON_SECRET-protected endpoint that calls run_store_maintenance().
 ```
 
 ## Routes

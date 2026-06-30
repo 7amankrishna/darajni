@@ -28,6 +28,7 @@ interface CartContextValue {
 }
 
 const STORAGE_KEY = "darajni-cart-v1";
+const CART_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 const CartContext = createContext<CartContextValue | null>(null);
 
 function safeCart(value: unknown): CartItem[] {
@@ -47,6 +48,26 @@ function safeCart(value: unknown): CartItem[] {
   });
 }
 
+function readStoredCart(raw: string | null): CartItem[] {
+  if (!raw) return [];
+  const parsed = JSON.parse(raw) as unknown;
+
+  if (Array.isArray(parsed)) {
+    return safeCart(parsed);
+  }
+
+  if (!parsed || typeof parsed !== "object") return [];
+  const candidate = parsed as { savedAt?: unknown; items?: unknown };
+  const savedAt =
+    typeof candidate.savedAt === "number" ? candidate.savedAt : Date.now();
+  if (Date.now() - savedAt > CART_MAX_AGE_MS) {
+    window.localStorage.removeItem(STORAGE_KEY);
+    return [];
+  }
+
+  return safeCart(candidate.items);
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
@@ -54,7 +75,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      setItems(stored ? safeCart(JSON.parse(stored)) : []);
+      setItems(readStoredCart(stored));
     } catch {
       setItems([]);
     } finally {
@@ -64,7 +85,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!ready) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ savedAt: Date.now(), items }),
+    );
   }, [items, ready]);
 
   const addItem = useCallback((item: AddCartItem) => {

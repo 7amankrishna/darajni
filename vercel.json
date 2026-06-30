@@ -2,6 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "npm run build",
+  "crons": [
+    {
+      "path": "/api/cron/store-maintenance",
+      "schedule": "0 20 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

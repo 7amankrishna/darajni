@@ -16,6 +16,8 @@ export type OrderStatus =
 
 export type PaymentMethod = "cod" | "razorpay";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type PromoCodeType = "coupon" | "voucher";
+export type PromoDiscountType = "percentage" | "fixed_amount";
 
 export interface Database {
   public: {
@@ -102,6 +104,9 @@ export interface Database {
           landmark: string | null;
           email: string | null;
           subtotal: number;
+          discount_amount: number;
+          promo_code_id: string | null;
+          promo_code: string | null;
           total: number;
           shipping_fee: number;
           tax_amount: number;
@@ -127,6 +132,9 @@ export interface Database {
           landmark?: string | null;
           email?: string | null;
           subtotal: number;
+          discount_amount?: number;
+          promo_code_id?: string | null;
+          promo_code?: string | null;
           total: number;
           shipping_fee?: number;
           tax_amount?: number;
@@ -185,6 +193,68 @@ export interface Database {
         };
         Update: never;
       };
+      promo_codes: {
+        Row: {
+          id: string;
+          code: string;
+          title: string;
+          description: string | null;
+          code_type: PromoCodeType;
+          discount_type: PromoDiscountType;
+          discount_value: number;
+          minimum_subtotal: number;
+          maximum_discount: number | null;
+          usage_limit: number | null;
+          per_phone_limit: number;
+          starts_at: string | null;
+          ends_at: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          title: string;
+          description?: string | null;
+          code_type?: PromoCodeType;
+          discount_type: PromoDiscountType;
+          discount_value: number;
+          minimum_subtotal?: number;
+          maximum_discount?: number | null;
+          usage_limit?: number | null;
+          per_phone_limit?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["promo_codes"]["Insert"]>;
+      };
+      promo_redemptions: {
+        Row: {
+          id: string;
+          promo_code_id: string;
+          order_id: string | null;
+          order_number: string;
+          phone_last10: string;
+          subtotal_at_time: number;
+          discount_amount: number;
+          redeemed_at: string;
+        };
+        Insert: {
+          id?: string;
+          promo_code_id: string;
+          order_id?: string | null;
+          order_number: string;
+          phone_last10: string;
+          subtotal_at_time: number;
+          discount_amount: number;
+          redeemed_at?: string;
+        };
+        Update: never;
+      };
       settings: {
         Row: {
           id: boolean;
@@ -231,15 +301,42 @@ export interface Database {
           p_customer: Json;
           p_items: Json;
           p_payment_method: PaymentMethod;
+          p_promo_code?: string | null;
         };
         Returns: {
           order_id: string;
           order_number: string;
           subtotal: number;
+          discount_amount: number;
+          promo_code: string | null;
           shipping_fee: number;
           tax_amount: number;
           total: number;
           status: OrderStatus;
+        }[];
+      };
+      quote_checkout_discount: {
+        Args: {
+          p_promo_code: string;
+          p_items: Json;
+          p_phone?: string | null;
+        };
+        Returns: {
+          promo_code_id: string;
+          code: string;
+          code_type: PromoCodeType;
+          discount_type: PromoDiscountType;
+          discount_amount: number;
+          discounted_subtotal: number;
+          message: string;
+        }[];
+      };
+      run_store_maintenance: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          archived_orders: number;
+          deleted_archives: number;
+          cancelled_expired_razorpay: number;
         }[];
       };
       cancel_order_reservation: {
@@ -262,6 +359,8 @@ export interface Database {
       order_status: OrderStatus;
       payment_method: PaymentMethod;
       payment_status: PaymentStatus;
+      promo_code_type: PromoCodeType;
+      promo_discount_type: PromoDiscountType;
     };
     CompositeTypes: Record<string, never>;
   };
