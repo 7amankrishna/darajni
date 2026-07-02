@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
@@ -11,11 +12,11 @@ export default function DesignCard({ product }: { product: Product }) {
 
   return (
     <article
-      className="group overflow-hidden rounded-2xl border border-white/8 bg-[#11110f] transition-transform duration-500 ease-in-out hover:-translate-y-2 hover:rotate-y-5 hover:border-[#caaa70]/35"
+      className="product-card-3d group overflow-hidden rounded-xl border border-white/8 bg-[#11110f]"
     >
       <Link
         href={`/design/${product.slug}`}
-        className="relative block aspect-[4/5] overflow-hidden bg-black"
+        className="product-card-media relative block aspect-[4/5] overflow-hidden bg-black"
         aria-label={`View ${product.name}`}
       >
         <ProductImage
@@ -24,7 +25,7 @@ export default function DesignCard({ product }: { product: Product }) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition duration-500 group-hover:scale-[1.025]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/10 to-transparent" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {product.isFeatured && (
             <span className="rounded-full bg-[#caaa70] px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-black">
@@ -41,6 +42,9 @@ export default function DesignCard({ product }: { product: Product }) {
               Sold out
             </span>
           )}
+        </div>
+        <div className="product-card-float">
+          <span>{product.category.name}</span>
         </div>
       </Link>
 
@@ -60,6 +64,9 @@ export default function DesignCard({ product }: { product: Product }) {
           </div>
         </div>
         <p className="mt-2 text-xs text-white/38">{product.fabric}</p>
+        <p className="product-card-description mt-3 text-xs leading-6 text-white/46">
+          {product.description}
+        </p>
         <p className="mt-3 text-xs text-white/42">
           {product.stock > 0
             ? `${product.stock} available · ${product.sizes.join(", ")}`
@@ -70,6 +77,7 @@ export default function DesignCard({ product }: { product: Product }) {
           className="primary-button mt-5 w-full"
         >
           View details
+          <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
     </article>

@@ -19,6 +19,18 @@ export default function Collection({
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("newest");
   const [inStockOnly, setInStockOnly] = useState(false);
+  const categoryOptions = useMemo(
+    () => [
+      { name: "All", slug: "all", count: products.length },
+      ...categories.map((category) => ({
+        ...category,
+        count: products.filter(
+          (product) => product.category.slug === category.slug,
+        ).length,
+      })),
+    ],
+    [categories, products],
+  );
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -52,17 +64,17 @@ export default function Collection({
   }, [activeCategory, inStockOnly, products, search, sort]);
 
   return (
-    <section id="collection" className="py-20 sm:py-28">
+    <section id="collection" className="collection-stage py-20 sm:py-28">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
           <div>
-            <p className="eyebrow">The DARAJNI edit</p>
+            <p className="eyebrow">All available dresses</p>
             <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-              Find your silhouette
+              Find your silhouette in the live catalog.
             </h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/48">
-              Search by style, fabric, category or size. Every displayed price
-              is the price used at checkout.
+              Search every active design by style, fabric, category or size.
+              Every displayed price is the price used at checkout.
             </p>
           </div>
           <label className="relative block w-full lg:max-w-sm">
@@ -78,23 +90,25 @@ export default function Collection({
         </div>
 
         <div className="-mx-2 mt-9 flex gap-2 overflow-x-auto px-2 pb-3 [scrollbar-width:none]">
-          {[{ name: "All", slug: "all" }, ...categories].map((category) => (
+          {categoryOptions.map((category) => (
             <button
               type="button"
               key={category.slug}
               onClick={() => setActiveCategory(category.slug)}
-              className={`min-h-10 shrink-0 rounded-full border px-5 text-xs font-semibold transition ${
+              aria-pressed={category.slug === activeCategory}
+              className={`category-filter-button ${
                 category.slug === activeCategory
-                  ? "border-[#caaa70] bg-[#caaa70] text-[#151006]"
+                  ? "is-active"
                   : "border-white/10 text-white/55 hover:border-[#caaa70]/45"
               }`}
             >
               {category.name}
+              <span>{category.count}</span>
             </button>
           ))}
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="collection-toolbar mt-5 flex flex-col gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-xs text-white/45">
             <SlidersHorizontal className="h-4 w-4" />
             {filtered.length} product{filtered.length === 1 ? "" : "s"}
