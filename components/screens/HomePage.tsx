@@ -65,10 +65,10 @@ export default async function HomePage() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const [collectionObserverRef, isCollectionVisible] = useInView({
+  const [collectionObserverRef, isCollectionVisible] = useInView<HTMLDivElement>({
     threshold: 0.1,
   });
-  const [aboutObserverRef, isAboutVisible] = useInView({
+  const [aboutObserverRef, isAboutVisible] = useInView<HTMLDivElement>({
     threshold: 0.1,
   });
 
@@ -152,7 +152,7 @@ export default async function HomePage() {
       {/* Collection section with animation and dynamic import */}
       <div
         ref={collectionObserverRef}
-        className={`animate-fade-up ${reduceMotion || isCollectionVisible ? "visible" : ""}`}
+        className={`${reduceMotion || isCollectionVisible ? "animate-fade-up visible" : "animate-fade-up"}`}
       >
         <DynamicCollection products={products} categories={categories} />
       </div>
@@ -160,7 +160,7 @@ export default async function HomePage() {
       {/* About section with animation and dynamic import */}
       <div
         ref={aboutObserverRef}
-        className={`animate-fade-up ${reduceMotion || isAboutVisible ? "visible" : ""}`}
+        className={`${reduceMotion || isAboutVisible ? "animate-fade-up visible" : "animate-fade-up"}`}
       >
         <DynamicAbout />
       </div>
