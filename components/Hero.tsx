@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 
@@ -25,8 +27,7 @@ export default function Hero() {
     }
   }, []);
 
-  // Calculate transform values based on mouse position
-  const getTransform = (element: string, maxMove: number) => {
+  const getTransform = (maxMove: number) => {
     if (!heroRef.current) return "translate(0, 0)";
     const rect = heroRef.current.getBoundingClientRect();
     const centerX = rect.width / 2;
@@ -47,7 +48,7 @@ export default function Hero() {
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_78%_42%,rgba(202,170,112,.2),transparent_28rem),linear-gradient(135deg,#080808_0%,#12100c_58%,#080808_100%)]" />
       <div
         className="absolute -right-28 top-1/2 -z-10 hidden -translate-y-1/2 opacity-55 lg:block"
-        style={{ transform: getTransform("logo", 40) }}
+        style={{ transform: getTransform(40) }}
       >
         <BrandLogo className="h-[42rem] w-[42rem] border border-[#caaa70]/15 shadow-[0_0_120px_rgba(202,170,112,.12)]" priority />
       </div>

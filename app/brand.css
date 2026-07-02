@@ -180,8 +180,6 @@ img {
 .glass-panel {
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 1.25rem;
-  background: rgba(17, 17, 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 1.25rem;
   background: rgba(17, 17, 15, 0.88);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
 }

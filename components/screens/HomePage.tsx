@@ -1,22 +1,12 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
 
 import About from "@/components/About";
+import AnimatedSection from "@/components/AnimatedSection";
 import Collection from "@/components/Collection";
 import DesignCard from "@/components/DesignCard";
 import Hero from "@/components/Hero";
 import { siteConfig } from "@/config/site";
 import { getCatalog } from "@/lib/data/catalog";
-import { useInView } from "@/lib/useInView";
-import { useEffect, useState } from "react";
-
-const DynamicCollection = dynamic(() => import("@/components/Collection"), {
-  loading: () => <p className="text-center py-8">Loading collection...</p>,
-});
-
-const DynamicAbout = dynamic(() => import("@/components/About"), {
-  loading: () => <p className="text-center py-8">Loading about...</p>,
-});
 
 export default async function HomePage() {
   const { products, categories } = await getCatalog();
@@ -52,25 +42,6 @@ export default async function HomePage() {
       })),
     },
   ];
-
-  const [reduceMotion, setReduceMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handleChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
-
-  const [collectionObserverRef, isCollectionVisible] = useInView<HTMLDivElement>({
-    threshold: 0.1,
-  });
-  const [aboutObserverRef, isAboutVisible] = useInView<HTMLDivElement>({
-    threshold: 0.1,
-  });
 
   return (
     <>
@@ -149,21 +120,13 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Collection section with animation and dynamic import */}
-      <div
-        ref={collectionObserverRef}
-        className={`${reduceMotion || isCollectionVisible ? "animate-fade-up visible" : "animate-fade-up"}`}
-      >
-        <DynamicCollection products={products} categories={categories} />
-      </div>
+      <AnimatedSection>
+        <Collection products={products} categories={categories} />
+      </AnimatedSection>
 
-      {/* About section with animation and dynamic import */}
-      <div
-        ref={aboutObserverRef}
-        className={`${reduceMotion || isAboutVisible ? "animate-fade-up visible" : "animate-fade-up"}`}
-      >
-        <DynamicAbout />
-      </div>
+      <AnimatedSection>
+        <About />
+      </AnimatedSection>
     </>
   );
 }
