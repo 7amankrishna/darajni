@@ -8,7 +8,7 @@ import Hero from "@/components/Hero";
 import { siteConfig } from "@/config/site";
 import { getCatalog } from "@/lib/data/catalog";
 import { useInView } from "@/lib/useInView";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 const DynamicCollection = dynamic(() => import("@/components/Collection"), {
   loading: () => <p className="text-center py-8">Loading collection...</p>,
@@ -60,34 +60,17 @@ export default async function HomePage() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handleChange = (e) => setReduceMotion(e.matches);
+    const handleChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const collectionRef = useRef<HTMLDivElement>(null);
-  const [collectionVisible, setCollectionVisible] = useState(false);
-  const { ref: collectionObserverRef, isVisible: isCollectionVisible } = useInView({
+  const [collectionObserverRef, isCollectionVisible] = useInView({
     threshold: 0.1,
   });
-
-  const aboutRef = useRef<HTMLDivElement>(null);
-  const [aboutVisible, setAboutVisible] = useState(false);
-  const { ref: aboutObserverRef, isVisible: isAboutVisible } = useInView({
+  const [aboutObserverRef, isAboutVisible] = useInView({
     threshold: 0.1,
   });
-
-  // Update visibility state based on hook, but respect reduce motion
-  useEffect(() => {
-    if (!reduceMotion) {
-      setCollectionVisible(isCollectionVisible);
-      setAboutVisible(isAboutVisible);
-    } else {
-      // If reduce motion is preferred, we still want to show the content, so set visible to true immediately
-      setCollectionVisible(true);
-      setAboutVisible(true);
-    }
-  }, [reduceMotion, isCollectionVisible, isAboutVisible]);
 
   return (
     <>
@@ -167,12 +150,18 @@ export default async function HomePage() {
       )}
 
       {/* Collection section with animation and dynamic import */}
-      <div ref={collectionObserverRef} className={`${collectionVisible ? "animate-fade-up visible" : "animate-fade-up"}`}>
+      <div
+        ref={collectionObserverRef}
+        className={`animate-fade-up ${reduceMotion || isCollectionVisible ? "visible" : ""}`}
+      >
         <DynamicCollection products={products} categories={categories} />
       </div>
 
       {/* About section with animation and dynamic import */}
-      <div ref={aboutObserverRef} className={`${aboutVisible ? "animate-fade-up visible" : "animate-fade-up"}`}>
+      <div
+        ref={aboutObserverRef}
+        className={`animate-fade-up ${reduceMotion || isAboutVisible ? "visible" : ""}`}
+      >
         <DynamicAbout />
       </div>
     </>
