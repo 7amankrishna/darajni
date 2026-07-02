@@ -1,12 +1,54 @@
 import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
 
 import BrandLogo from "./BrandLogo";
 
 export default function Hero() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMousePos({ x, y });
+    };
+
+    const heroElement = heroRef.current;
+    if (heroElement) {
+      heroElement.addEventListener("mousemove", handleMouseMove);
+      return () => {
+        heroElement.removeEventListener("mousemove", handleMouseMove);
+      };
+    }
+  }, []);
+
+  // Calculate transform values based on mouse position
+  const getTransform = (element: string, maxMove: number) => {
+    if (!heroRef.current) return "translate(0, 0)";
+    const rect = heroRef.current.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const deltaX = mousePos.x - centerX;
+    const deltaY = mousePos.y - centerY;
+    const moveX = (deltaX / centerX) * (maxMove / 2);
+    const moveY = (deltaY / centerY) * (maxMove / 2);
+    return `translate(${moveX}px, ${moveY}px)`;
+  };
+
   return (
-    <section id="home" className="relative isolate min-h-[calc(100svh-74px)] overflow-hidden">
+    <section
+      id="home"
+      ref={heroRef}
+      className="relative isolate min-h-[calc(100svh-74px)] overflow-hidden"
+    >
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_78%_42%,rgba(202,170,112,.2),transparent_28rem),linear-gradient(135deg,#080808_0%,#12100c_58%,#080808_100%)]" />
-      <div className="absolute -right-28 top-1/2 -z-10 hidden -translate-y-1/2 opacity-55 lg:block">
+      <div
+        className="absolute -right-28 top-1/2 -z-10 hidden -translate-y-1/2 opacity-55 lg:block"
+        style={{ transform: getTransform("logo", 40) }}
+      >
         <BrandLogo className="h-[42rem] w-[42rem] border border-[#caaa70]/15 shadow-[0_0_120px_rgba(202,170,112,.12)]" priority />
       </div>
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(7,7,7,.98)_0%,rgba(7,7,7,.82)_52%,rgba(7,7,7,.18)_100%)]" />

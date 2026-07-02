@@ -123,7 +123,7 @@ img {
   outline: none;
 }
 
-select.field option {
+.select.field option {
   background: #151512;
 }
 
@@ -180,6 +180,8 @@ select.field option {
 .glass-panel {
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 1.25rem;
+  background: rgba(17, 17, 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1.25rem;
   background: rgba(17, 17, 15, 0.88);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
 }
@@ -193,6 +195,17 @@ select.field option {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @media (max-width: 640px) {
@@ -209,6 +222,11 @@ select.field option {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .animate-fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 

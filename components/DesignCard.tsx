@@ -10,7 +10,9 @@ export default function DesignCard({ product }: { product: Product }) {
   const image = product.images[0] || "/logo.webp";
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-white/8 bg-[#11110f] transition hover:-translate-y-1 hover:border-[#caaa70]/35">
+    <article
+      className="group overflow-hidden rounded-2xl border border-white/8 bg-[#11110f] transition-transform duration-500 ease-in-out hover:-translate-y-2 hover:rotate-y-5 hover:border-[#caaa70]/35"
+    >
       <Link
         href={`/design/${product.slug}`}
         className="relative block aspect-[4/5] overflow-hidden bg-black"

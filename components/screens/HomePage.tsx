@@ -1,4 +1,5 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 import About from "@/components/About";
 import Collection from "@/components/Collection";
@@ -6,6 +7,16 @@ import DesignCard from "@/components/DesignCard";
 import Hero from "@/components/Hero";
 import { siteConfig } from "@/config/site";
 import { getCatalog } from "@/lib/data/catalog";
+import { useInView } from "@/lib/useInView";
+import { useEffect, useState, useRef } from "react";
+
+const DynamicCollection = dynamic(() => import("@/components/Collection"), {
+  loading: () => <p className="text-center py-8">Loading collection...</p>,
+});
+
+const DynamicAbout = dynamic(() => import("@/components/About"), {
+  loading: () => <p className="text-center py-8">Loading about...</p>,
+});
 
 export default async function HomePage() {
   const { products, categories } = await getCatalog();
@@ -41,6 +52,42 @@ export default async function HomePage() {
       })),
     },
   ];
+
+  const [reduceMotion, setReduceMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleChange = (e) => setReduceMotion(e.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  const collectionRef = useRef<HTMLDivElement>(null);
+  const [collectionVisible, setCollectionVisible] = useState(false);
+  const { ref: collectionObserverRef, isVisible: isCollectionVisible } = useInView({
+    threshold: 0.1,
+  });
+
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const [aboutVisible, setAboutVisible] = useState(false);
+  const { ref: aboutObserverRef, isVisible: isAboutVisible } = useInView({
+    threshold: 0.1,
+  });
+
+  // Update visibility state based on hook, but respect reduce motion
+  useEffect(() => {
+    if (!reduceMotion) {
+      setCollectionVisible(isCollectionVisible);
+      setAboutVisible(isAboutVisible);
+    } else {
+      // If reduce motion is preferred, we still want to show the content, so set visible to true immediately
+      setCollectionVisible(true);
+      setAboutVisible(true);
+    }
+  }, [reduceMotion, isCollectionVisible, isAboutVisible]);
 
   return (
     <>
@@ -119,8 +166,15 @@ export default async function HomePage() {
         </section>
       )}
 
-      <Collection products={products} categories={categories} />
-      <About />
+      {/* Collection section with animation and dynamic import */}
+      <div ref={collectionObserverRef} className={`${collectionVisible ? "animate-fade-up visible" : "animate-fade-up"}`}>
+        <DynamicCollection products={products} categories={categories} />
+      </div>
+
+      {/* About section with animation and dynamic import */}
+      <div ref={aboutObserverRef} className={`${aboutVisible ? "animate-fade-up visible" : "animate-fade-up"}`}>
+        <DynamicAbout />
+      </div>
     </>
   );
 }
