@@ -213,17 +213,17 @@ export default function DressModelStage({ className = "" }: { className?: string
         if (!mount.isConnected) return;
         const { width, height } = mount.getBoundingClientRect();
         const isMobile = width < 700;
-        const modelX = isMobile ? 0.62 : 1.05;
+        const modelX = isMobile ? 0.22 : 1.05;
 
-        modelBaseY = isMobile ? -2.15 : -0.46;
-        cameraBaseY = isMobile ? 0.42 : 0.52;
-        cameraTargetX = isMobile ? 0.52 : 0.74;
-        cameraTargetY = isMobile ? -0.08 : 0.16;
-        camera.position.z = isMobile ? 6.35 : 5.45;
+        modelBaseY = isMobile ? -0.04 : -0.46;
+        cameraBaseY = isMobile ? 0.34 : 0.52;
+        cameraTargetX = isMobile ? 0.22 : 0.74;
+        cameraTargetY = isMobile ? 0.18 : 0.16;
+        camera.position.z = isMobile ? 5.8 : 5.45;
         modelRoot.position.x = modelX;
-        modelRoot.scale.setScalar(isMobile ? 0.78 : 1);
+        modelRoot.scale.setScalar(isMobile ? 0.92 : 1);
         stageRoot.position.x = modelX;
-        stageRoot.position.y = isMobile ? -1.72 : -0.92;
+        stageRoot.position.y = isMobile ? -0.62 : -0.92;
 
         camera.aspect = Math.max(width, 1) / Math.max(height, 1);
         camera.updateProjectionMatrix();

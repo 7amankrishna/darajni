@@ -848,6 +848,10 @@ img {
     width: min(100% - 1.25rem, 80rem);
   }
 
+  .home-hero-3d {
+    min-height: auto;
+  }
+
   .home-hero .section-shell {
     min-height: auto;
     padding-block: 2.75rem 3.5rem;
@@ -855,28 +859,47 @@ img {
 
   .home-hero .hero-3d-shell {
     min-height: auto;
-    padding-block: 2.75rem 6rem;
+    padding-block: 2.5rem clamp(27rem, 122vw, 33rem);
   }
 
   .hero-3d-shell {
-    gap: 1rem;
+    display: block;
+    gap: 0;
   }
 
   .hero-3d-copy h1 {
     max-width: 8ch;
+    font-size: clamp(3.35rem, 16.4vw, 4.5rem);
+    line-height: 0.9;
+  }
+
+  .hero-3d-copy p:not(.eyebrow) {
+    margin-top: 1.4rem;
+    line-height: 1.75;
+  }
+
+  .hero-3d-copy .primary-button,
+  .hero-3d-copy .secondary-button {
+    width: 100%;
   }
 
   .hero-proof-grid {
     max-width: 100%;
+    margin-top: 2rem;
   }
 
   .hero-3d-aside {
-    min-height: 17rem;
-    justify-content: start;
+    min-height: 0;
   }
 
   .hero-feature-link {
-    width: min(100%, 18rem);
+    display: none;
+  }
+
+  .hero-model-layer {
+    top: auto;
+    bottom: 0;
+    height: clamp(23rem, 105vw, 29rem);
   }
 
   .dress-model-grid {
@@ -893,7 +916,7 @@ img {
 
   .dress-stage-controls {
     right: 50%;
-    bottom: 0.85rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
     gap: 0.42rem;
     padding: 0.45rem;
     transform: translateX(50%);
@@ -916,8 +939,10 @@ img {
 
   .dress-model-loader {
     top: auto;
-    right: 1rem;
-    bottom: 5.4rem;
+    right: 50%;
+    bottom: 4.75rem;
+    transform: translateX(50%);
+    white-space: nowrap;
   }
 
   .showroom-stage {
