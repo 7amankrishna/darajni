@@ -5,8 +5,38 @@ import type { PointerEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Material, Mesh, Object3D, Texture, WebGLRenderer } from "three";
 
+const DRESS_MODEL_URL = "/models/dress/red_cross-halter_dress.optimized.glb";
+
+const DRESS_COLOR_OPTIONS = [
+  { name: "Ruby", value: "#b1122c" },
+  { name: "Wine", value: "#5f1234" },
+  { name: "Emerald", value: "#087252" },
+  { name: "Midnight", value: "#101522" },
+  { name: "Champagne", value: "#d9b46f" },
+] as const;
+
+type ColorableMaterial = Material & {
+  color?: {
+    set: (color: string) => void;
+  };
+  map?: Texture | null;
+  metalness?: number;
+  roughness?: number;
+};
+
 function isMesh(object: Object3D): object is Mesh {
   return "isMesh" in object && object.isMesh === true;
+}
+
+function isDressMaterial(material: Material) {
+  return material.name.startsWith("1_front");
+}
+
+function isColorableMaterial(material: Material): material is ColorableMaterial {
+  return (
+    "color" in material &&
+    typeof (material as ColorableMaterial).color?.set === "function"
+  );
 }
 
 function disposeMaterial(material: Material | Material[]) {
@@ -27,6 +57,8 @@ export default function DressModelStage({ className = "" }: { className?: string
   const mountRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<Object3D | null>(null);
   const rendererRef = useRef<WebGLRenderer | null>(null);
+  const dressMaterialsRef = useRef<ColorableMaterial[]>([]);
+  const activeDressColorRef = useRef<string>(DRESS_COLOR_OPTIONS[0].value);
   const targetRotationRef = useRef({ x: 0, y: 0 });
   const currentRotationRef = useRef({ x: 0, y: 0 });
   const pointerRef = useRef({ x: 0, y: 0 });
@@ -41,10 +73,25 @@ export default function DressModelStage({ className = "" }: { className?: string
   const [isPaused, setIsPaused] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [activeDressColor, setActiveDressColor] = useState<string>(
+    DRESS_COLOR_OPTIONS[0].value,
+  );
+
+  const applyDressColor = useCallback((color: string) => {
+    activeDressColorRef.current = color;
+    dressMaterialsRef.current.forEach((material) => {
+      material.color?.set(color);
+      material.needsUpdate = true;
+    });
+  }, []);
 
   useEffect(() => {
     pausedRef.current = isPaused;
   }, [isPaused]);
+
+  useEffect(() => {
+    applyDressColor(activeDressColor);
+  }, [activeDressColor, applyDressColor]);
 
   useEffect(() => {
     let disposed = false;
@@ -75,10 +122,9 @@ export default function DressModelStage({ className = "" }: { className?: string
         alpha: true,
         antialias: true,
         powerPreference: "high-performance",
-        preserveDrawingBuffer: true,
       });
       renderer.setClearColor(0x000000, 0);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.45));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.08;
@@ -189,22 +235,46 @@ export default function DressModelStage({ className = "" }: { className?: string
 
       const object = await new Promise<Object3D>((resolve, reject) => {
         const loader = new GLTFLoader();
-        loader.load(
-          "/models/dress/red_cross-halter_dress.glb",
-          (gltf) => resolve(gltf.scene),
-          undefined,
-          reject,
-        );
+        loader.load(DRESS_MODEL_URL, (gltf) => resolve(gltf.scene), undefined, reject);
       });
 
       if (disposed) return;
 
+      const dressMaterials: ColorableMaterial[] = [];
       object.traverse((child) => {
         if (!isMesh(child)) return;
 
         child.castShadow = true;
         child.receiveShadow = true;
+
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+        const updatedMaterials = materials.map((material) => {
+          if (!isDressMaterial(material)) return material;
+
+          const clonedMaterial = material.clone();
+          if (!isColorableMaterial(clonedMaterial)) return material;
+
+          clonedMaterial.name = material.name;
+          clonedMaterial.map = null;
+          clonedMaterial.metalness =
+            typeof clonedMaterial.metalness === "number"
+              ? Math.min(clonedMaterial.metalness, 0.04)
+              : 0.04;
+          clonedMaterial.roughness =
+            typeof clonedMaterial.roughness === "number"
+              ? Math.max(clonedMaterial.roughness, 0.68)
+              : 0.68;
+          clonedMaterial.color?.set(activeDressColorRef.current);
+          clonedMaterial.needsUpdate = true;
+          dressMaterials.push(clonedMaterial);
+
+          return clonedMaterial;
+        });
+
+        child.material = Array.isArray(child.material) ? updatedMaterials : updatedMaterials[0];
       });
+      dressMaterialsRef.current = dressMaterials;
+      applyDressColor(activeDressColorRef.current);
 
       const box = new THREE.Box3().setFromObject(object);
       const size = box.getSize(new THREE.Vector3());
@@ -261,6 +331,7 @@ export default function DressModelStage({ className = "" }: { className?: string
         rayMaterial.dispose();
         renderer.dispose();
         renderer.domElement.remove();
+        dressMaterialsRef.current = [];
       };
     }
 
@@ -347,7 +418,27 @@ export default function DressModelStage({ className = "" }: { className?: string
         </div>
       )}
 
-      <div className="dress-stage-controls" aria-label="Dress model controls">
+      <div
+        className="dress-stage-controls"
+        aria-label="Dress model controls"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <div className="dress-stage-swatch-group" aria-label="Dress colors">
+          {DRESS_COLOR_OPTIONS.map((option) => (
+            <button
+              type="button"
+              key={option.name}
+              className={`dress-color-swatch ${
+                activeDressColor === option.value ? "is-active" : ""
+              }`}
+              style={{ backgroundColor: option.value }}
+              aria-label={`Change dress color to ${option.name}`}
+              aria-pressed={activeDressColor === option.value}
+              title={option.name}
+              onClick={() => setActiveDressColor(option.value)}
+            />
+          ))}
+        </div>
         <button
           type="button"
           className="dress-stage-icon-button"
