@@ -1,12 +1,10 @@
-------------------------------------------------------
+Current hero model:
+"Red cross-halter dress" by Style3D CG on Sketchfab
+Source: https://sketchfab.com/3d-models/red-cross-halter-dress-e20255aa8e564c349cd6c887aeec9f7c
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+
+Legacy OBJ/MTL files in this folder:
 LowPoly Models by @Quaternius
-Consider supporting me on Patreon, even $1 helps me a lot!
-
-https://www.patreon.com/quaternius
--------------------------------------------------------
-
-License:
-CC0 1.0 Universal (CC0 1.0) 
-Public Domain Dedication
-https://creativecommons.org/publicdomain/zero/1.0/
-
+License: CC0 1.0 Universal Public Domain Dedication
+License URL: https://creativecommons.org/publicdomain/zero/1.0/

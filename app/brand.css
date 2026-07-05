@@ -334,40 +334,12 @@ img {
   backdrop-filter: blur(16px);
 }
 
-.dress-swatch-list {
-  display: flex;
-  align-items: center;
-  gap: 0.42rem;
-  padding-right: 0.4rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dress-swatch,
 .dress-stage-icon-button {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
   border-radius: 999px;
   transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
-}
-
-.dress-swatch {
-  width: 2.05rem;
-  height: 2.05rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.32), transparent 48%),
-    var(--fabric-color);
-}
-
-.dress-swatch:hover,
-.dress-swatch.is-active {
-  border-color: rgba(240, 210, 142, 0.86);
-  transform: translateY(-1px);
-}
-
-.dress-swatch.is-active {
-  box-shadow: 0 0 0 3px rgba(202, 170, 112, 0.16);
 }
 
 .dress-stage-icon-button {
@@ -885,11 +857,6 @@ img {
     right: 50%;
     bottom: 0.85rem;
     transform: translateX(50%);
-  }
-
-  .dress-swatch {
-    width: 1.85rem;
-    height: 1.85rem;
   }
 
   .dress-stage-icon-button {

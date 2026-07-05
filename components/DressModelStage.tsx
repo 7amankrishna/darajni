@@ -1,30 +1,9 @@
 "use client";
 
 import { Pause, Play, RotateCcw } from "lucide-react";
-import type { CSSProperties, PointerEvent } from "react";
+import type { PointerEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  Material,
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  WebGLRenderer,
-} from "three";
-import type { MTLLoader as MTLLoaderNamespace } from "three/examples/jsm/loaders/MTLLoader.js";
-
-const FABRICS = [
-  { name: "Ruby silk", color: "#8f2435", glow: "#2a050b" },
-  { name: "Ivory zari", color: "#e7cf9c", glow: "#3a2910" },
-  { name: "Emerald satin", color: "#2f746a", glow: "#05201b" },
-  { name: "Midnight velvet", color: "#151823", glow: "#080b17" },
-] as const;
-
-type Fabric = (typeof FABRICS)[number];
-type MaterialCreator = MTLLoaderNamespace.MaterialCreator;
-
-type SwatchStyle = CSSProperties & {
-  "--fabric-color": string;
-};
+import type { Material, Mesh, Object3D, Texture, WebGLRenderer } from "three";
 
 function isMesh(object: Object3D): object is Mesh {
   return "isMesh" in object && object.isMesh === true;
@@ -36,6 +15,11 @@ function disposeMaterial(material: Material | Material[]) {
     return;
   }
 
+  Object.values(material).forEach((value) => {
+    if (value && typeof value === "object" && "isTexture" in value) {
+      (value as Texture).dispose();
+    }
+  });
   material.dispose();
 }
 
@@ -43,7 +27,6 @@ export default function DressModelStage({ className = "" }: { className?: string
   const mountRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<Object3D | null>(null);
   const rendererRef = useRef<WebGLRenderer | null>(null);
-  const dressMaterialsRef = useRef<MeshStandardMaterial[]>([]);
   const targetRotationRef = useRef({ x: 0, y: 0 });
   const currentRotationRef = useRef({ x: 0, y: 0 });
   const pointerRef = useRef({ x: 0, y: 0 });
@@ -54,9 +37,7 @@ export default function DressModelStage({ className = "" }: { className?: string
     pointerX: 0,
     pointerY: 0,
   });
-  const fabricRef = useRef<Fabric>(FABRICS[0]);
   const pausedRef = useRef(false);
-  const [fabricIndex, setFabricIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -66,25 +47,13 @@ export default function DressModelStage({ className = "" }: { className?: string
   }, [isPaused]);
 
   useEffect(() => {
-    const fabric = FABRICS[fabricIndex];
-    fabricRef.current = fabric;
-
-    dressMaterialsRef.current.forEach((material) => {
-      material.color.set(fabric.color);
-      material.emissive.set(fabric.glow);
-      material.needsUpdate = true;
-    });
-  }, [fabricIndex]);
-
-  useEffect(() => {
     let disposed = false;
     let frameId = 0;
     let cleanupScene: (() => void) | undefined;
 
     async function initScene() {
       const THREE = await import("three");
-      const { MTLLoader } = await import("three/examples/jsm/loaders/MTLLoader.js");
-      const { OBJLoader } = await import("three/examples/jsm/loaders/OBJLoader.js");
+      const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
 
       if (disposed || !mountRef.current) return;
 
@@ -127,11 +96,11 @@ export default function DressModelStage({ className = "" }: { className?: string
       const ambientLight = new THREE.HemisphereLight(0xfff2d0, 0x21101a, 1.7);
       scene.add(ambientLight);
 
-      const keyLight = new THREE.DirectionalLight(0xffdc9d, 2.9);
+      const keyLight = new THREE.DirectionalLight(0xffdc9d, 3.2);
       keyLight.position.set(-3.2, 4.2, 4.8);
       scene.add(keyLight);
 
-      const rimLight = new THREE.DirectionalLight(0x7bd0c1, 2.15);
+      const rimLight = new THREE.DirectionalLight(0x7bd0c1, 2.25);
       rimLight.position.set(3.8, 3.2, -2.5);
       scene.add(rimLight);
 
@@ -200,14 +169,15 @@ export default function DressModelStage({ className = "" }: { className?: string
         const isMobile = width < 700;
         const modelX = isMobile ? 0.62 : 1.05;
 
-        modelBaseY = isMobile ? -0.82 : -0.5;
-        cameraBaseY = isMobile ? 0.36 : 0.42;
+        modelBaseY = isMobile ? -2.15 : -0.46;
+        cameraBaseY = isMobile ? 0.42 : 0.52;
         cameraTargetX = isMobile ? 0.52 : 0.74;
-        cameraTargetY = isMobile ? 0 : 0.08;
-        camera.position.z = isMobile ? 5.85 : 5.25;
+        cameraTargetY = isMobile ? -0.08 : 0.16;
+        camera.position.z = isMobile ? 6.35 : 5.45;
         modelRoot.position.x = modelX;
+        modelRoot.scale.setScalar(isMobile ? 0.78 : 1);
         stageRoot.position.x = modelX;
-        stageRoot.position.y = isMobile ? -1.08 : -0.94;
+        stageRoot.position.y = isMobile ? -1.72 : -0.92;
 
         camera.aspect = Math.max(width, 1) / Math.max(height, 1);
         camera.updateProjectionMatrix();
@@ -217,71 +187,30 @@ export default function DressModelStage({ className = "" }: { className?: string
       resize();
       window.addEventListener("resize", resize);
 
-      const createMaterial = (name: string) => {
-        const fabric = fabricRef.current;
-        const base =
-          name === "Skin"
-            ? { color: "#bd9162", roughness: 0.62, metalness: 0.02 }
-            : name === "Hair"
-              ? { color: "#4b3217", roughness: 0.58, metalness: 0.03 }
-              : name === "Eyes"
-                ? { color: "#151515", roughness: 0.35, metalness: 0.05 }
-                : name === "Shoes"
-                  ? { color: "#2b1110", roughness: 0.44, metalness: 0.12 }
-                  : { color: fabric.color, roughness: 0.34, metalness: 0.1 };
-
-        const material = new THREE.MeshStandardMaterial({
-          color: base.color,
-          roughness: base.roughness,
-          metalness: base.metalness,
-          emissive: name === "Dress" ? fabric.glow : "#000000",
-          emissiveIntensity: name === "Dress" ? 0.22 : 0,
-        });
-        material.name = name;
-        return material;
-      };
-
-      const materialCreator = await new Promise<MaterialCreator>((resolve, reject) => {
-        const loader = new MTLLoader();
-        loader.setPath("/models/dress/");
-        loader.load("Smooth_Female_Dress.mtl", resolve, undefined, reject);
-      });
-      materialCreator.preload();
-
       const object = await new Promise<Object3D>((resolve, reject) => {
-        const loader = new OBJLoader();
-        loader.setMaterials(materialCreator);
-        loader.setPath("/models/dress/");
-        loader.load("Smooth_Female_Dress.obj", resolve, undefined, reject);
+        const loader = new GLTFLoader();
+        loader.load(
+          "/models/dress/red_cross-halter_dress.glb",
+          (gltf) => resolve(gltf.scene),
+          undefined,
+          reject,
+        );
       });
 
       if (disposed) return;
 
-      dressMaterialsRef.current = [];
       object.traverse((child) => {
         if (!isMesh(child)) return;
 
         child.castShadow = true;
         child.receiveShadow = true;
-        const sourceMaterials = Array.isArray(child.material)
-          ? child.material
-          : [child.material];
-        const nextMaterials = sourceMaterials.map((material) => {
-          const nextMaterial = createMaterial(material.name || "Dress");
-          if (nextMaterial.name === "Dress") {
-            dressMaterialsRef.current.push(nextMaterial);
-          }
-          return nextMaterial;
-        });
-
-        child.material = Array.isArray(child.material) ? nextMaterials : nextMaterials[0];
       });
 
       const box = new THREE.Box3().setFromObject(object);
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
       object.position.sub(center);
-      object.scale.setScalar(2.65 / Math.max(size.y, 1));
+      object.scale.setScalar(2.85 / Math.max(size.y, 1));
       modelRoot.add(object);
       modelRef.current = modelRoot;
       setIsLoaded(true);
@@ -348,7 +277,6 @@ export default function DressModelStage({ className = "" }: { className?: string
       cleanupScene?.();
       modelRef.current = null;
       rendererRef.current = null;
-      dressMaterialsRef.current = [];
     };
   }, []);
 
@@ -419,21 +347,7 @@ export default function DressModelStage({ className = "" }: { className?: string
         </div>
       )}
 
-      <div className="dress-stage-controls" aria-label="Dress material controls">
-        <div className="dress-swatch-list" aria-label="Fabric color">
-          {FABRICS.map((fabric, index) => (
-            <button
-              type="button"
-              key={fabric.name}
-              aria-label={fabric.name}
-              aria-pressed={fabricIndex === index}
-              title={fabric.name}
-              onClick={() => setFabricIndex(index)}
-              className={`dress-swatch ${fabricIndex === index ? "is-active" : ""}`}
-              style={{ "--fabric-color": fabric.color } as SwatchStyle}
-            />
-          ))}
-        </div>
+      <div className="dress-stage-controls" aria-label="Dress model controls">
         <button
           type="button"
           className="dress-stage-icon-button"
