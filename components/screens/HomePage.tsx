@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import About from "@/components/About";
 import AnimatedSection from "@/components/AnimatedSection";
+import Card3DReveal from "@/components/Card3DReveal";
 import Collection from "@/components/Collection";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
@@ -128,8 +129,10 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((product) => (
-                <DesignCard key={product.id} product={product} />
+              {featured.map((product, index) => (
+                <Card3DReveal key={product.id} index={index}>
+                  <DesignCard product={product} />
+                </Card3DReveal>
               ))}
             </div>
           </div>
@@ -144,8 +147,10 @@ export default async function HomePage() {
               New arrivals with real product detail.
             </h2>
             <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {newArrivals.map((product) => (
-                <DesignCard key={product.id} product={product} />
+              {newArrivals.map((product, index) => (
+                <Card3DReveal key={product.id} index={index}>
+                  <DesignCard product={product} />
+                </Card3DReveal>
               ))}
             </div>
           </div>
