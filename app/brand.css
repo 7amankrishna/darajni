@@ -227,6 +227,188 @@ img {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.025), transparent);
 }
 
+.home-hero-3d {
+  min-height: calc(88svh - 74px);
+}
+
+.hero-3d-shell {
+  position: relative;
+  z-index: 2;
+  min-height: calc(88svh - 74px);
+  padding-block: clamp(3rem, 6vw, 5.5rem) clamp(3.5rem, 7vw, 6rem);
+  pointer-events: none;
+}
+
+.hero-3d-copy {
+  animation: hero-copy-enter 780ms ease both;
+  pointer-events: auto;
+}
+
+.hero-3d-aside {
+  display: flex;
+  min-height: 30rem;
+  align-items: end;
+  justify-content: end;
+  pointer-events: none;
+}
+
+.hero-feature-link {
+  display: block;
+  width: min(100%, 21rem);
+  border-top: 1px solid rgba(202, 170, 112, 0.42);
+  padding-top: 1rem;
+  color: inherit;
+  pointer-events: auto;
+  text-shadow: 0 14px 42px rgba(0, 0, 0, 0.82);
+  transform: translateY(0);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.hero-feature-link:hover {
+  border-color: rgba(240, 210, 142, 0.78);
+  transform: translateY(-0.2rem);
+}
+
+.hero-model-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.dress-model-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.dress-model-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.dress-model-stage canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dress-model-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 4.5rem 4.5rem;
+  mask-image: linear-gradient(90deg, transparent, black 28%, black 82%, transparent);
+  opacity: 0.28;
+}
+
+.dress-model-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 72% 48%, transparent 0%, rgba(8, 8, 8, 0.12) 42%, rgba(8, 8, 8, 0.7) 86%),
+    linear-gradient(90deg, rgba(8, 8, 8, 0.96) 0%, rgba(8, 8, 8, 0.72) 36%, rgba(8, 8, 8, 0.06) 72%),
+    linear-gradient(180deg, rgba(8, 8, 8, 0.08), rgba(0, 0, 0, 0.7));
+}
+
+.dress-stage-controls {
+  position: absolute;
+  right: clamp(1rem, 4vw, 4rem);
+  bottom: clamp(1rem, 4vw, 3rem);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.66);
+  padding: 0.55rem;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+}
+
+.dress-swatch-list {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding-right: 0.4rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dress-swatch,
+.dress-stage-icon-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.dress-swatch {
+  width: 2.05rem;
+  height: 2.05rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.32), transparent 48%),
+    var(--fabric-color);
+}
+
+.dress-swatch:hover,
+.dress-swatch.is-active {
+  border-color: rgba(240, 210, 142, 0.86);
+  transform: translateY(-1px);
+}
+
+.dress-swatch.is-active {
+  box-shadow: 0 0 0 3px rgba(202, 170, 112, 0.16);
+}
+
+.dress-stage-icon-button {
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid rgba(202, 170, 112, 0.32);
+  color: #e8cc91;
+}
+
+.dress-stage-icon-button:hover {
+  border-color: rgba(202, 170, 112, 0.7);
+  background: rgba(202, 170, 112, 0.1);
+  transform: translateY(-1px);
+}
+
+.dress-model-loader {
+  position: absolute;
+  right: clamp(1rem, 11vw, 9rem);
+  top: clamp(6rem, 18vw, 10rem);
+  z-index: 3;
+  border-top: 1px solid rgba(202, 170, 112, 0.38);
+  padding-top: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+@keyframes hero-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .showroom-stage {
   position: relative;
   display: grid;
@@ -659,6 +841,66 @@ img {
   .home-hero .section-shell {
     min-height: auto;
     padding-block: 2.75rem 3.5rem;
+  }
+
+  .home-hero .hero-3d-shell {
+    min-height: auto;
+    padding-block: 2.75rem 6rem;
+  }
+
+  .hero-3d-shell {
+    gap: 1rem;
+  }
+
+  .hero-3d-copy h1 {
+    max-width: 8ch;
+  }
+
+  .hero-proof-grid {
+    max-width: 100%;
+  }
+
+  .hero-3d-aside {
+    min-height: 17rem;
+    justify-content: start;
+  }
+
+  .hero-feature-link {
+    width: min(100%, 18rem);
+  }
+
+  .dress-model-grid {
+    background-size: 3.5rem 3.5rem;
+    opacity: 0.18;
+  }
+
+  .dress-model-vignette {
+    background:
+      radial-gradient(ellipse at 74% 64%, transparent 0%, rgba(8, 8, 8, 0.16) 40%, rgba(8, 8, 8, 0.78) 88%),
+      linear-gradient(180deg, rgba(8, 8, 8, 0.96) 0%, rgba(8, 8, 8, 0.66) 42%, rgba(8, 8, 8, 0.1) 74%),
+      linear-gradient(90deg, rgba(8, 8, 8, 0.96), rgba(8, 8, 8, 0.22));
+  }
+
+  .dress-stage-controls {
+    right: 50%;
+    bottom: 0.85rem;
+    transform: translateX(50%);
+  }
+
+  .dress-swatch {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .dress-stage-icon-button {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .dress-model-loader {
+    top: auto;
+    right: 1rem;
+    bottom: 5.4rem;
   }
 
   .showroom-stage {
