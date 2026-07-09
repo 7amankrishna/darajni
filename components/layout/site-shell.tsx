@@ -1,13 +1,18 @@
 import { Providers } from "@/components/providers";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { getStoreSettings } from "@/lib/data/catalog";
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export async function SiteShell({ children }: { children: React.ReactNode }) {
+  const settings = await getStoreSettings();
+  const supportNumber =
+    settings.designerSupportNumber || settings.developerSupportNumber;
+
   return (
     <Providers>
-      <Navbar />
+      <Navbar supportNumber={supportNumber} />
       {children}
-      <Footer />
+      <Footer supportNumber={supportNumber} />
     </Providers>
   );
 }

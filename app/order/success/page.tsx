@@ -1,14 +1,15 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, MessageCircle, PackageCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { OrderStatusTimeline } from "@/components/order/order-status-timeline";
-import { formatPrice } from "@/config/site";
+import { formatPrice, whatsappSupportLink } from "@/config/site";
 import {
   formatDate,
   getEstimatedDelivery,
 } from "@/lib/commerce";
+import { getStoreSettings } from "@/lib/data/catalog";
 import { getOrderByAccessToken } from "@/lib/data/orders";
 
 export const metadata: Metadata = {
@@ -23,49 +24,62 @@ export default async function Page({
 }) {
   const { token } = await searchParams;
   if (!token) notFound();
-  const order = await getOrderByAccessToken(token);
+  const [order, settings] = await Promise.all([
+    getOrderByAccessToken(token),
+    getStoreSettings(),
+  ]);
   if (!order) notFound();
 
   const estimate = getEstimatedDelivery(order.createdAt);
+  const supportNumber =
+    settings.designerSupportNumber || settings.developerSupportNumber;
+  const whatsappHref = whatsappSupportLink(
+    supportNumber,
+    `Hello DARAJNI, I need help with order ${order.orderNumber}.`,
+  );
 
   return (
-    <main className="py-12 sm:py-16">
-      <div className="section-shell max-w-4xl">
+    <main className="bg-[#FFF8EF] py-12 sm:py-16">
+      <div className="section-shell max-w-5xl">
         <div className="text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-[#caaa70]" />
+          <CheckCircle2 className="mx-auto h-12 w-12 text-[#1FAF54]" />
           <p className="eyebrow mt-5">
             {order.paymentMethod === "cod"
-              ? "Order received"
+              ? "Order placed successfully"
               : "Payment confirmed"}
           </p>
-          <h1 className="font-display mt-3 text-5xl sm:text-6xl">
+          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
             Thank you, {order.customerName.split(" ")[0]}.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-white/80">
+          <p className="mt-4 text-sm leading-7 text-[#6F6255]">
             Your order ID is{" "}
-            <strong className="select-all text-[#dfc184]">
+            <strong className="select-all text-[#6E0F1A]">
               {order.orderNumber}
             </strong>
             . Keep it with your phone number for tracking.
           </p>
         </div>
 
-        <section className="glass-panel mt-9 p-5 sm:p-8">
+        <section className="mt-9 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
           <OrderStatusTimeline status={order.status} />
-          <div className="mt-8 grid gap-4 border-t border-white/9 pt-6 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 border-t border-[#E9DCCB] pt-6 sm:grid-cols-4">
+            <div>
+              <p className="field-label">Order ID</p>
+              <p className="text-sm font-semibold text-[#171717]">{order.orderNumber}</p>
+            </div>
             <div>
               <p className="field-label">Placed</p>
-              <p className="text-sm">{formatDate(order.createdAt)}</p>
+              <p className="text-sm text-[#5F5348]">{formatDate(order.createdAt)}</p>
             </div>
             <div>
               <p className="field-label">Estimated delivery</p>
-              <p className="text-sm">
-                {formatDate(estimate.earliest)} – {formatDate(estimate.latest)}
+              <p className="text-sm text-[#5F5348]">
+                {formatDate(estimate.earliest)} to {formatDate(estimate.latest)}
               </p>
             </div>
             <div>
               <p className="field-label">Payment</p>
-              <p className="text-sm capitalize">
+              <p className="text-sm capitalize text-[#5F5348]">
                 {order.paymentMethod === "cod"
                   ? "Cash on delivery"
                   : order.paymentStatus}
@@ -74,65 +88,95 @@ export default async function Page({
           </div>
         </section>
 
-        <section className="glass-panel mt-6 overflow-hidden">
-          <div className="border-b border-white/9 p-5 sm:p-6">
+        <section className="mt-6 overflow-hidden rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] shadow-[0_18px_50px_rgba(83,54,22,0.08)]">
+          <div className="border-b border-[#E9DCCB] p-5 sm:p-6">
             <p className="eyebrow">Order items</p>
           </div>
-          <div className="divide-y divide-white/8">
+          <div className="divide-y divide-[#E9DCCB]">
             {order.items.map((item) => (
               <div
                 key={item.id}
                 className="flex items-start justify-between gap-5 p-5 sm:p-6"
               >
                 <div>
-                  <p className="font-display text-xl">{item.productName}</p>
-                  <p className="mt-2 text-xs text-white/75">
-                    Size {item.selectedSize} · Quantity {item.quantity}
+                  <p className="font-display text-2xl text-[#171717]">
+                    {item.productName}
+                  </p>
+                  <p className="mt-2 text-xs text-[#6F6255]">
+                    Size {item.selectedSize} | Quantity {item.quantity}
                   </p>
                 </div>
-                <p className="font-display text-xl text-[#dfc184]">
+                <p className="font-display text-2xl font-semibold text-[#171717]">
                   {formatPrice(item.lineTotal)}
                 </p>
               </div>
             ))}
           </div>
-          <div className="border-t border-white/9 p-5 sm:p-6">
+          <div className="border-t border-[#E9DCCB] p-5 sm:p-6">
             <div className="ml-auto max-w-xs space-y-2 text-sm">
-              <div className="flex justify-between text-white/50">
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Subtotal</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
               {order.discountAmount > 0 && (
-                <div className="flex justify-between text-emerald-200">
+                <div className="flex justify-between text-emerald-700">
                   <span>
                     Promo discount{order.promoCode ? ` (${order.promoCode})` : ""}
                   </span>
                   <span>-{formatPrice(order.discountAmount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-white/50">
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Shipping</span>
                 <span>{formatPrice(order.shippingFee)}</span>
               </div>
-              <div className="flex justify-between text-white/50">
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Tax</span>
                 <span>{formatPrice(order.taxAmount)}</span>
               </div>
-              <div className="flex justify-between border-t border-white/9 pt-3 font-semibold">
+              <div className="flex justify-between border-t border-[#E9DCCB] pt-3 font-semibold text-[#171717]">
                 <span>Total</span>
-                <span className="text-[#dfc184]">{formatPrice(order.total)}</span>
+                <span>{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>
         </section>
 
+        <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#F6E9DD] p-6">
+          <div className="flex items-center gap-3">
+            <PackageCheck className="h-5 w-5 text-[#B8893B]" />
+            <h2 className="font-display text-3xl text-[#171717]">
+              What happens next?
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-4">
+            {[
+              "We confirm your order",
+              "We collect measurements if needed",
+              "We prepare and pack your outfit",
+              "We ship and share tracking",
+            ].map((step, index) => (
+              <div key={step} className="rounded-xl bg-[#FFFDF8] p-4 text-sm text-[#5F5348]">
+                <span className="font-display text-2xl text-[#6E0F1A]">
+                  {index + 1}
+                </span>
+                <p className="mt-2">{step}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <Link href="/track" className="primary-button">
-            Track this order
+            Track Order
           </Link>
-          <Link href="/#collection" className="secondary-button">
-            Continue shopping
+          <Link href="/collection" className="secondary-button">
+            Continue Shopping
           </Link>
+          <a href={whatsappHref} className="whatsapp-button">
+            <MessageCircle className="h-4 w-4" />
+            Chat on WhatsApp
+          </a>
         </div>
       </div>
     </main>

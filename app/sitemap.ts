@@ -7,7 +7,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { products } = await getCatalog();
   const staticRoutes = [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
+    { path: "/collection", priority: 0.9, changeFrequency: "weekly" as const },
+    { path: "/size-guide", priority: 0.7, changeFrequency: "monthly" as const },
+    { path: "/about", priority: 0.7, changeFrequency: "monthly" as const },
     { path: "/support", priority: 0.6, changeFrequency: "monthly" as const },
+    { path: "/shipping-policy", priority: 0.5, changeFrequency: "yearly" as const },
+    { path: "/returns-exchange", priority: 0.5, changeFrequency: "yearly" as const },
     { path: "/privacy", priority: 0.3, changeFrequency: "yearly" as const },
     { path: "/terms", priority: 0.3, changeFrequency: "yearly" as const },
   ];

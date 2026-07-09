@@ -13,10 +13,10 @@ function Toaster({ ...props }: ToasterProps) {
       toastOptions={{
         classNames: {
           toast:
-            "group toast border border-white/10 bg-[#11110f] text-white shadow-2xl",
-          description: "text-white/50",
-          actionButton: "bg-[#caaa70] text-black",
-          cancelButton: "bg-white/10 text-white",
+            "group toast border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] shadow-2xl",
+          description: "text-[#6F6255]",
+          actionButton: "bg-[#111111] text-white",
+          cancelButton: "bg-[#F6E9DD] text-[#171717]",
         },
       }}
       {...props}

@@ -1,6 +1,16 @@
 "use client";
 
-import { CreditCard, Loader2, PackageCheck, Tag, Truck, X } from "lucide-react";
+import {
+  CreditCard,
+  Loader2,
+  MessageCircle,
+  PackageCheck,
+  Ruler,
+  Tag,
+  Truck,
+  UserRound,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -89,6 +99,8 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
   const [promoBusy, setPromoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true);
+  const [needsMeasurementHelp, setNeedsMeasurementHelp] = useState(false);
 
   const cartSignature = useMemo(
     () =>
@@ -210,7 +222,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
         email: checkout.customer.email,
         contact: checkout.customer.phone,
       },
-      theme: { color: "#caaa70" },
+      theme: { color: "#B8893B" },
       handler: async (response) => {
         setBusy(true);
         const verification = await fetch("/api/payments/razorpay/verify", {
@@ -331,19 +343,21 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
 
   if (!ready) {
     return (
-      <main className="grid min-h-[65vh] place-items-center">
-        <p className="eyebrow">Preparing checkout…</p>
+      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF]">
+        <p className="eyebrow">Preparing checkout...</p>
       </main>
     );
   }
 
   if (!items.length) {
     return (
-      <main className="grid min-h-[65vh] place-items-center px-4 text-center">
+      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF] px-4 text-center">
         <div>
-          <h1 className="font-display text-5xl">Your cart is empty.</h1>
-          <Link href="/#collection" className="primary-button mt-7">
-            Browse collection
+          <h1 className="font-display text-5xl text-[#171717]">
+            Your cart is empty.
+          </h1>
+          <Link href="/collection" className="primary-button mt-7">
+            Shop Collection
           </Link>
         </div>
       </main>
@@ -351,138 +365,232 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
   }
 
   return (
-    <main className="py-12 sm:py-16">
+    <main className="bg-[#FFF8EF] py-12 sm:py-16">
       <form
         onSubmit={submit}
         className="section-shell grid gap-8 lg:grid-cols-[1fr_400px]"
       >
         <div>
           <p className="eyebrow">Guest checkout</p>
-          <h1 className="font-display mt-3 text-5xl sm:text-6xl">
-            Delivery details
+          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
+            Place your order securely.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-white/80">
-            No account is required. We use these details only to fulfil and
-            support this order.
+          <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+            A guided checkout for contact details, delivery address,
+            custom-size support and payment. We use this information only for
+            order updates and delivery.
           </p>
 
-          <div className="glass-panel mt-8 grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
-            <div className="sm:col-span-2">
-              <label htmlFor="checkout-name" className="field-label">
-                Full name
-              </label>
-              <input
-                id="checkout-name"
-                value={customer.customerName}
-                onChange={(event) => setField("customerName", event.target.value)}
-                className="field"
-                autoComplete="name"
-                minLength={2}
-                maxLength={100}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-phone" className="field-label">
-                Phone
-              </label>
-              <input
-                id="checkout-phone"
-                type="tel"
-                value={customer.phone}
-                onChange={(event) => setField("phone", event.target.value)}
-                className="field"
-                autoComplete="tel"
-                placeholder="+91 98765 43210"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-email" className="field-label">
-                Email <span className="normal-case tracking-normal">(optional)</span>
-              </label>
-              <input
-                id="checkout-email"
-                type="email"
-                value={customer.email}
-                onChange={(event) => setField("email", event.target.value)}
-                className="field"
-                autoComplete="email"
-                maxLength={254}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label htmlFor="checkout-address" className="field-label">
-                Address
-              </label>
-              <textarea
-                id="checkout-address"
-                value={customer.address}
-                onChange={(event) => setField("address", event.target.value)}
-                className="field min-h-24 resize-y"
-                autoComplete="street-address"
-                minLength={10}
-                maxLength={300}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-city" className="field-label">
-                City
-              </label>
-              <input
-                id="checkout-city"
-                value={customer.city}
-                onChange={(event) => setField("city", event.target.value)}
-                className="field"
-                autoComplete="address-level2"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-state" className="field-label">
-                State
-              </label>
-              <input
-                id="checkout-state"
-                value={customer.state}
-                onChange={(event) => setField("state", event.target.value)}
-                className="field"
-                autoComplete="address-level1"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-pincode" className="field-label">
-                Pincode
-              </label>
-              <input
-                id="checkout-pincode"
-                inputMode="numeric"
-                pattern="[1-9][0-9]{5}"
-                value={customer.pincode}
-                onChange={(event) => setField("pincode", event.target.value)}
-                className="field"
-                autoComplete="postal-code"
-                maxLength={6}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="checkout-landmark" className="field-label">
-                Landmark <span className="normal-case tracking-normal">(optional)</span>
-              </label>
-              <input
-                id="checkout-landmark"
-                value={customer.landmark}
-                onChange={(event) => setField("landmark", event.target.value)}
-                className="field"
-                maxLength={160}
-              />
-            </div>
+          <div className="mt-7 grid gap-3 sm:grid-cols-4">
+            {["Details", "Delivery", "Size", "Payment"].map((step, index) => (
+              <div key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4">
+                <span className="text-xs font-extrabold uppercase text-[#B8893B]">
+                  Step {index + 1}
+                </span>
+                <p className="font-display mt-1 text-2xl text-[#171717]">
+                  {step}
+                </p>
+              </div>
+            ))}
           </div>
 
-          <div className="glass-panel mt-6 p-5 sm:p-7">
+          <section className="mt-8 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+            <div className="flex items-center gap-3">
+              <UserRound className="h-5 w-5 text-[#B8893B]" />
+              <h2 className="font-display text-3xl text-[#171717]">
+                Contact details
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label htmlFor="checkout-name" className="field-label">
+                  Full name
+                </label>
+                <input
+                  id="checkout-name"
+                  value={customer.customerName}
+                  onChange={(event) => setField("customerName", event.target.value)}
+                  className="field"
+                  autoComplete="name"
+                  minLength={2}
+                  maxLength={100}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="checkout-phone" className="field-label">
+                  Phone number
+                </label>
+                <input
+                  id="checkout-phone"
+                  type="tel"
+                  value={customer.phone}
+                  onChange={(event) => setField("phone", event.target.value)}
+                  className="field"
+                  autoComplete="tel"
+                  placeholder="+91 98765 43210"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="checkout-email" className="field-label">
+                  Email <span className="normal-case">(optional)</span>
+                </label>
+                <input
+                  id="checkout-email"
+                  type="email"
+                  value={customer.email}
+                  onChange={(event) => setField("email", event.target.value)}
+                  className="field"
+                  autoComplete="email"
+                  maxLength={254}
+                />
+              </div>
+              <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
+                <input
+                  type="checkbox"
+                  checked={whatsappSameAsPhone}
+                  onChange={(event) => setWhatsappSameAsPhone(event.target.checked)}
+                  className="accent-[#B8893B]"
+                />
+                WhatsApp number is same as phone number
+              </label>
+            </div>
+            <p className="mt-4 text-xs leading-5 text-[#6F6255]">
+              We use this only for order updates, delivery and measurement
+              confirmation.
+            </p>
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+            <div className="flex items-center gap-3">
+              <Truck className="h-5 w-5 text-[#B8893B]" />
+              <h2 className="font-display text-3xl text-[#171717]">
+                Delivery address
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="checkout-pincode" className="field-label">
+                  Pincode
+                </label>
+                <input
+                  id="checkout-pincode"
+                  inputMode="numeric"
+                  pattern="[1-9][0-9]{5}"
+                  value={customer.pincode}
+                  onChange={(event) => setField("pincode", event.target.value)}
+                  className="field"
+                  autoComplete="postal-code"
+                  maxLength={6}
+                  required
+                />
+              </div>
+              <div className="rounded-xl bg-[#F6E9DD] p-4 text-xs leading-5 text-[#5F5348]">
+                {customer.pincode.length === 6
+                  ? "Delivery estimate will be confirmed after checkout for this pincode."
+                  : "Enter pincode to help us confirm delivery timing."}
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="checkout-address" className="field-label">
+                  Full address
+                </label>
+                <textarea
+                  id="checkout-address"
+                  value={customer.address}
+                  onChange={(event) => setField("address", event.target.value)}
+                  className="field min-h-24 resize-y"
+                  autoComplete="street-address"
+                  minLength={10}
+                  maxLength={300}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="checkout-city" className="field-label">
+                  City
+                </label>
+                <input
+                  id="checkout-city"
+                  value={customer.city}
+                  onChange={(event) => setField("city", event.target.value)}
+                  className="field"
+                  autoComplete="address-level2"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="checkout-state" className="field-label">
+                  State
+                </label>
+                <input
+                  id="checkout-state"
+                  value={customer.state}
+                  onChange={(event) => setField("state", event.target.value)}
+                  className="field"
+                  autoComplete="address-level1"
+                  required
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="checkout-landmark" className="field-label">
+                  Landmark <span className="normal-case">(optional)</span>
+                </label>
+                <input
+                  id="checkout-landmark"
+                  value={customer.landmark}
+                  onChange={(event) => setField("landmark", event.target.value)}
+                  className="field"
+                  maxLength={160}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+            <div className="flex items-center gap-3">
+              <Ruler className="h-5 w-5 text-[#B8893B]" />
+              <h2 className="font-display text-3xl text-[#171717]">
+                Size and customization
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-5">
+              <div className="rounded-xl border border-[#E9DCCB] bg-[#F6E9DD] p-4">
+                <p className="text-xs font-extrabold uppercase text-[#B8893B]">
+                  Size option
+                </p>
+                <p className="mt-2 font-display text-3xl text-[#171717]">
+                  Custom
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#5F5348]">
+                  Measurements are collected after order. You can also share
+                  measurement photos or notes with support.
+                </p>
+              </div>
+              <div className="rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4 text-sm leading-6 text-[#5F5348]">
+                Share sleeve length, blouse length, fit preference or
+                measurement photos through WhatsApp support after checkout so
+                the team can confirm them before processing.
+              </div>
+              <label className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
+                <input
+                  type="checkbox"
+                  checked={needsMeasurementHelp}
+                  onChange={(event) => setNeedsMeasurementHelp(event.target.checked)}
+                  className="accent-[#B8893B]"
+                />
+                I need help with measurements
+              </label>
+              {needsMeasurementHelp && (
+                <p className="rounded-xl border border-[#B8893B]/30 bg-[#FFF8EF] p-4 text-xs leading-5 text-[#5F5348]">
+                  DARAJNI support will guide you after checkout. Keep a soft
+                  measuring tape ready if possible.
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <p className="eyebrow">Payment</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {settings.codEnabled && (
@@ -491,13 +599,13 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                   onClick={() => setPaymentMethod("cod")}
                   className={`rounded-2xl border p-5 text-left transition ${
                     paymentMethod === "cod"
-                      ? "border-[#caaa70] bg-[#caaa70]/8"
-                      : "border-white/10"
+                      ? "border-[#111111] bg-[#111111] text-white"
+                      : "border-[#E9DCCB] bg-white text-[#171717]"
                   }`}
                 >
-                  <Truck className="h-5 w-5 text-[#caaa70]" />
+                  <Truck className="h-5 w-5 text-[#B8893B]" />
                   <p className="mt-3 text-sm font-semibold">Cash on delivery</p>
-                  <p className="mt-2 text-xs leading-5 text-white/75">
+                  <p className={`mt-2 text-xs leading-5 ${paymentMethod === "cod" ? "text-white/75" : "text-[#6F6255]"}`}>
                     Pay when the order reaches you.
                   </p>
                 </button>
@@ -507,26 +615,26 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                 onClick={() => setPaymentMethod("razorpay")}
                 className={`rounded-2xl border p-5 text-left transition ${
                   paymentMethod === "razorpay"
-                    ? "border-[#caaa70] bg-[#caaa70]/8"
-                    : "border-white/10"
+                    ? "border-[#111111] bg-[#111111] text-white"
+                    : "border-[#E9DCCB] bg-white text-[#171717]"
                 }`}
               >
-                <CreditCard className="h-5 w-5 text-[#caaa70]" />
+                <CreditCard className="h-5 w-5 text-[#B8893B]" />
                 <p className="mt-3 text-sm font-semibold">Pay securely online</p>
-                <p className="mt-2 text-xs leading-5 text-white/75">
+                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "razorpay" ? "text-white/75" : "text-[#6F6255]"}`}>
                   UPI, cards, net banking and supported wallets via Razorpay.
                 </p>
               </button>
             </div>
-          </div>
+          </section>
         </div>
 
-        <aside className="glass-panel h-fit p-6 lg:sticky lg:top-24">
+        <aside className="h-fit rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] lg:sticky lg:top-32">
           <p className="eyebrow">Your order</p>
           <div className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
             {items.map((item) => (
               <div key={item.key} className="flex gap-3">
-                <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-black">
+                <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-[#F6E9DD]">
                   <ProductImage
                     src={item.image}
                     alt=""
@@ -535,19 +643,21 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{item.name}</p>
-                  <p className="mt-1 text-xs text-white/75">
-                    {item.size} · Qty {item.quantity}
+                  <p className="truncate text-sm font-semibold text-[#171717]">
+                    {item.name}
+                  </p>
+                  <p className="mt-1 text-xs text-[#6F6255]">
+                    {item.size} | Qty {item.quantity}
                   </p>
                 </div>
-                <p className="text-sm text-[#dfc184]">
+                <p className="text-sm font-semibold text-[#171717]">
                   {formatPrice(item.unitPrice * item.quantity)}
                 </p>
               </div>
             ))}
           </div>
-          <div className="my-5 h-px bg-white/10" />
-          <div className="rounded-2xl border border-white/10 p-4">
+          <div className="my-5 h-px bg-[#E9DCCB]" />
+          <div className="rounded-2xl border border-[#E9DCCB] bg-[#F6E9DD] p-4">
             <label htmlFor="checkout-promo" className="field-label">
               Coupon or voucher
             </label>
@@ -581,7 +691,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
               </button>
             </div>
             {appliedPromo && (
-              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-emerald-300/20 bg-emerald-300/8 p-3 text-xs text-emerald-100">
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-xs text-emerald-800">
                 <span>
                   {appliedPromo.message}: {appliedPromo.code} saves{" "}
                   {formatPrice(totals.discount)}
@@ -592,7 +702,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                     setAppliedPromo(null);
                     setPromoInput("");
                   }}
-                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full hover:bg-white/10"
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-full hover:bg-white/50"
                   aria-label="Remove coupon or voucher"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -600,40 +710,40 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
               </div>
             )}
           </div>
-          <div className="my-5 h-px bg-white/10" />
+          <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="space-y-3 text-sm">
-            <div className="flex justify-between text-white/55">
+            <div className="flex justify-between text-[#6F6255]">
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
             {totals.discount > 0 && (
-              <div className="flex justify-between text-emerald-200">
+              <div className="flex justify-between text-emerald-700">
                 <span>Promo discount</span>
                 <span>-{formatPrice(totals.discount)}</span>
               </div>
             )}
-            <div className="flex justify-between text-white/55">
+            <div className="flex justify-between text-[#6F6255]">
               <span>Shipping</span>
               <span>
                 {totals.shipping ? formatPrice(totals.shipping) : "Free"}
               </span>
             </div>
-            <div className="flex justify-between text-white/55">
+            <div className="flex justify-between text-[#6F6255]">
               <span>Tax ({settings.taxRate}%)</span>
               <span>{formatPrice(totals.tax)}</span>
             </div>
           </div>
-          <div className="my-5 h-px bg-white/10" />
+          <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="flex items-end justify-between">
-            <span className="font-semibold">Estimated total</span>
-            <span className="font-display text-3xl text-[#dfc184]">
+            <span className="font-semibold text-[#171717]">Estimated total</span>
+            <span className="font-display text-3xl font-semibold text-[#171717]">
               {formatPrice(totals.total)}
             </span>
           </div>
           {error && (
             <p
               role="alert"
-              className="mt-5 rounded-xl border border-red-400/20 bg-red-400/8 p-4 text-xs leading-5 text-red-200"
+              className="mt-5 rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-xs leading-5 text-red-800"
             >
               {error}
             </p>
@@ -646,19 +756,22 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
             {busy ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Processing…
+                Processing...
               </>
             ) : (
               <>
                 <PackageCheck className="h-4 w-4" />
-                {paymentMethod === "cod" ? "Place COD order" : "Proceed to payment"}
+                {paymentMethod === "cod" ? "Place COD order" : "Place Order Securely"}
               </>
             )}
           </button>
-          <p className="mt-4 text-center text-[0.68rem] leading-5 text-white/70">
-            Prices, inventory and totals are revalidated before the order is
-            accepted.
-          </p>
+          <div className="mt-4 rounded-xl bg-[#F6E9DD] p-4 text-center text-[0.68rem] leading-5 text-[#5F5348]">
+            Razorpay secure payment | Order total rechecked | WhatsApp support
+          </div>
+          <Link href="/support" className="secondary-button mt-3 w-full">
+            <MessageCircle className="h-4 w-4" />
+            Need help?
+          </Link>
         </aside>
       </form>
     </main>

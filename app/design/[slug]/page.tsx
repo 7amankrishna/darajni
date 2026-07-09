@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import ProductPage from "@/components/screens/ProductPage";
 import { siteConfig } from "@/config/site";
-import { getCatalog, getProductBySlug } from "@/lib/data/catalog";
+import { getCatalog, getProductBySlug, getStoreSettings } from "@/lib/data/catalog";
 
 export async function generateMetadata({
   params,
@@ -34,9 +34,10 @@ export default async function DesignPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, catalog] = await Promise.all([
+  const [product, catalog, settings] = await Promise.all([
     getProductBySlug(slug),
     getCatalog(),
+    getStoreSettings(),
   ]);
   if (!product) notFound();
 
@@ -76,7 +77,11 @@ export default async function DesignPage({
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <ProductPage product={product} related={related} />
+      <ProductPage
+        product={product}
+        related={related}
+        supportNumber={settings.designerSupportNumber || settings.developerSupportNumber}
+      />
     </>
   );
 }

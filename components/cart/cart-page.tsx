@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { MessageCircle, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { useCart } from "@/components/cart/cart-provider";
@@ -23,23 +23,26 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
 
   if (!ready) {
     return (
-      <main className="grid min-h-[65vh] place-items-center">
-        <p className="eyebrow">Loading your cart…</p>
+      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF]">
+        <p className="eyebrow">Loading your cart...</p>
       </main>
     );
   }
 
   if (!items.length) {
     return (
-      <main className="grid min-h-[65vh] place-items-center px-4 text-center">
-        <div>
-          <ShoppingBag className="mx-auto h-10 w-10 text-[#caaa70]" />
-          <h1 className="font-display mt-5 text-5xl">Your cart is empty.</h1>
-          <p className="mt-4 text-sm text-white/80">
-            Find a piece you love and it will appear here.
+      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF] px-4 text-center">
+        <div className="max-w-xl">
+          <ShoppingBag className="mx-auto h-11 w-11 text-[#B8893B]" />
+          <h1 className="font-display mt-5 text-5xl leading-none text-[#171717] sm:text-6xl">
+            Your cart is waiting for something beautiful.
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+            Browse DARAJNI&apos;s current collection and choose your
+            custom-fit outfit.
           </p>
-          <Link href="/#collection" className="primary-button mt-7">
-            Browse collection
+          <Link href="/collection" className="primary-button mt-7">
+            Shop Collection
           </Link>
         </div>
       </main>
@@ -47,17 +50,19 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
   }
 
   return (
-    <main className="py-12 sm:py-16">
+    <main className="bg-[#FFF8EF] py-12 sm:py-16">
       <div className="section-shell">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="eyebrow">Your selection</p>
-            <h1 className="font-display mt-3 text-5xl sm:text-6xl">Shopping cart</h1>
+            <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
+              Shopping cart
+            </h1>
           </div>
           <button
             type="button"
             onClick={clearCart}
-            className="text-xs font-bold uppercase tracking-wider text-white/75 hover:text-red-300"
+            className="text-xs font-extrabold uppercase text-[#6F6255] hover:text-red-700"
           >
             Clear cart
           </button>
@@ -68,52 +73,60 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
             {items.map((item) => (
               <article
                 key={item.key}
-                className="glass-panel flex gap-4 p-4 sm:gap-6 sm:p-5"
+                className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:flex sm:gap-6 sm:p-5"
               >
                 <Link
                   href={`/design/${item.slug}`}
-                  className="relative h-36 w-24 shrink-0 overflow-hidden rounded-xl bg-black sm:h-44 sm:w-32"
+                  className="relative block aspect-[4/5] w-full overflow-hidden rounded-xl bg-[#F6E9DD] sm:h-44 sm:w-32 sm:shrink-0"
                 >
                   <ProductImage
                     src={item.image}
                     alt={item.name}
-                    sizes="128px"
+                    sizes="(max-width: 640px) 100vw, 128px"
                     className="object-cover"
                   />
                 </Link>
-                <div className="flex min-w-0 flex-1 flex-col">
+                <div className="mt-4 flex min-w-0 flex-1 flex-col sm:mt-0">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <Link
                         href={`/design/${item.slug}`}
-                        className="font-display text-2xl leading-tight hover:text-[#dfc184]"
+                        className="font-display text-3xl leading-tight text-[#171717] hover:text-[#6E0F1A]"
                       >
                         {item.name}
                       </Link>
-                      <p className="mt-2 text-xs text-white/75">Size: {item.size}</p>
+                      <p className="mt-2 text-xs font-semibold text-[#6F6255]">
+                        Size: {item.size}
+                      </p>
+                      <p className="mt-2 rounded-xl bg-[#F6E9DD] px-3 py-2 text-xs leading-5 text-[#5F5348]">
+                        Measurements will be collected after order.
+                      </p>
+                      <p className="mt-2 text-xs font-semibold text-[#6E0F1A]">
+                        Only {item.stock} available
+                      </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeItem(item.key)}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/75 hover:bg-red-400/10 hover:text-red-300"
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#6F6255] hover:bg-red-50 hover:text-red-700"
                       aria-label={`Remove ${item.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="mt-auto flex items-end justify-between gap-3">
-                    <div className="flex items-center rounded-full border border-white/12">
+                  <div className="mt-5 flex items-end justify-between gap-3 sm:mt-auto">
+                    <div className="flex items-center rounded-xl border border-[#E9DCCB] bg-white">
                       <button
                         type="button"
                         onClick={() =>
                           updateQuantity(item.key, item.quantity - 1)
                         }
-                        className="grid h-10 w-10 place-items-center"
+                        className="grid h-10 w-10 place-items-center text-[#5F5348]"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="min-w-8 text-center text-sm">
+                      <span className="min-w-8 text-center text-sm font-semibold">
                         {item.quantity}
                       </span>
                       <button
@@ -121,13 +134,13 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                         onClick={() =>
                           updateQuantity(item.key, item.quantity + 1)
                         }
-                        className="grid h-10 w-10 place-items-center"
+                        className="grid h-10 w-10 place-items-center text-[#5F5348]"
                         aria-label="Increase quantity"
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    <p className="font-display text-xl text-[#dfc184]">
+                    <p className="font-display text-2xl font-semibold text-[#171717]">
                       {formatPrice(item.unitPrice * item.quantity)}
                     </p>
                   </div>
@@ -136,37 +149,49 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
             ))}
           </div>
 
-          <aside className="glass-panel h-fit p-6 lg:sticky lg:top-24">
+          <aside className="h-fit rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] lg:sticky lg:top-32">
             <p className="eyebrow">Order summary</p>
             <div className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between text-white/55">
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-white/55">
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Shipping</span>
                 <span>{shipping ? formatPrice(shipping) : "Free"}</span>
               </div>
-              <div className="flex justify-between text-white/55">
+              <div className="flex justify-between text-[#6F6255]">
+                <span>Discount/coupon</span>
+                <span>Apply at checkout</span>
+              </div>
+              <div className="flex justify-between text-[#6F6255]">
                 <span>Tax ({settings.taxRate}%)</span>
                 <span>{formatPrice(tax)}</span>
               </div>
             </div>
-            <div className="my-5 h-px bg-white/10" />
+            <div className="my-5 h-px bg-[#E9DCCB]" />
             <div className="flex items-end justify-between">
-              <span className="text-sm font-semibold">Estimated total</span>
-              <span className="font-display text-3xl text-[#dfc184]">
+              <span className="text-sm font-semibold text-[#171717]">Estimated total</span>
+              <span className="font-display text-3xl font-semibold text-[#171717]">
                 {formatPrice(total)}
               </span>
             </div>
-            <p className="mt-3 text-xs leading-5 text-white/75">
-              Inventory and final totals are verified securely during checkout.
+            <p className="mt-3 text-xs leading-5 text-[#6F6255]">
+              COD/online payment availability and final totals are verified
+              securely during checkout.
             </p>
             <Link href="/checkout" className="primary-button mt-6 w-full">
-              Continue to checkout
+              Proceed to Checkout
             </Link>
-            <Link href="/#collection" className="secondary-button mt-3 w-full">
+            <Link href="/collection" className="secondary-button mt-3 w-full">
               Continue shopping
+            </Link>
+            <div className="mt-5 rounded-xl bg-[#F6E9DD] p-4 text-center text-xs font-semibold text-[#5F5348]">
+              Secure checkout | Pan-India delivery | WhatsApp support
+            </div>
+            <Link href="/support" className="secondary-button mt-3 w-full">
+              <MessageCircle className="h-4 w-4" />
+              Need help?
             </Link>
           </aside>
         </div>

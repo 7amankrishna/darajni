@@ -1,6 +1,7 @@
 "use client";
 
-import { Loader2, Search } from "lucide-react";
+import { Loader2, MessageCircle, Search } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 import { OrderStatusTimeline } from "@/components/order/order-status-timeline";
@@ -38,8 +39,11 @@ export function TrackingForm() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <form onSubmit={submit} className="glass-panel p-6 sm:p-8">
+    <div className="mx-auto max-w-4xl">
+      <form
+        onSubmit={submit}
+        className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8"
+      >
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="tracking-id" className="field-label">
@@ -72,7 +76,7 @@ export function TrackingForm() {
           </div>
         </div>
         {error && (
-          <p className="mt-5 rounded-xl border border-red-400/20 bg-red-400/8 p-4 text-sm text-red-200">
+          <p className="mt-5 rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-800">
             {error}
           </p>
         )}
@@ -80,30 +84,52 @@ export function TrackingForm() {
           {busy ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Checking…
+              Checking...
             </>
           ) : (
             <>
               <Search className="h-4 w-4" />
-              Track order
+              Track Order
             </>
           )}
         </button>
+        <p className="mt-4 text-center text-xs text-[#6F6255]">
+          Forgot your order ID?{" "}
+          <Link href="/support" className="font-bold text-[#6E0F1A]">
+            Contact support
+          </Link>
+        </p>
       </form>
 
       {result && (
-        <section className="glass-panel mt-6 p-6 sm:p-8">
+        <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow">Order found</p>
-              <h2 className="font-display mt-2 text-3xl">{result.orderNumber}</h2>
+              <h2 className="font-display mt-2 text-4xl text-[#171717]">
+                {result.orderNumber}
+              </h2>
             </div>
-            <p className="text-xs text-white/75">
+            <p className="text-xs font-semibold text-[#6F6255]">
               Last updated {formatDate(result.updatedAt)}
             </p>
           </div>
           <div className="mt-8">
             <OrderStatusTimeline status={result.status} />
+          </div>
+          <div className="mt-8 grid gap-4 rounded-2xl bg-[#F6E9DD] p-5 text-sm text-[#5F5348] sm:grid-cols-3">
+            <div>
+              <p className="field-label">Placed</p>
+              <p>{formatDate(result.createdAt)}</p>
+            </div>
+            <div>
+              <p className="field-label">Current status</p>
+              <p className="capitalize">{result.status}</p>
+            </div>
+            <Link href="/support" className="secondary-button">
+              <MessageCircle className="h-4 w-4" />
+              Support
+            </Link>
           </div>
         </section>
       )}

@@ -1,10 +1,25 @@
-import { ArrowRight, Sparkles, ShoppingBag } from "lucide-react";
+import {
+  ArrowRight,
+  type LucideIcon,
+  MessageCircle,
+  Ruler,
+  ShieldCheck,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
+
+const trustPoints: Array<[string, LucideIcon]> = [
+  ["Secure Checkout", ShieldCheck],
+  ["Custom Size Available", Ruler],
+  ["Pan-India Delivery", Truck],
+  ["WhatsApp Support", MessageCircle],
+];
 
 export default function Hero({
   products,
@@ -20,7 +35,7 @@ export default function Hero({
   return (
     <section
       id="home"
-      className="home-hero home-hero-3d relative isolate overflow-hidden"
+      className="home-hero relative isolate overflow-hidden"
     >
       <div className="hero-model-layer hero-poster-layer" aria-hidden="true">
         <div className="dress-model-grid" />
@@ -43,38 +58,38 @@ export default function Hero({
         <div className="dress-model-vignette" />
       </div>
 
-      <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[0.86fr_1.14fr]">
+      <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="hero-3d-copy max-w-3xl">
-          <p className="eyebrow">Couture showroom</p>
-          <h1 className="font-display mt-6 text-6xl font-medium leading-[0.86] sm:text-7xl lg:text-8xl">
+          <p className="eyebrow">Premium occasion wear from Bihar Sharif</p>
+          <h1 className="font-display mt-5 text-6xl font-semibold leading-[0.88] text-[#171717] sm:text-7xl lg:text-8xl">
             DARAJNI Designer House
           </h1>
-          <p className="mt-7 max-w-xl text-base leading-8 text-white/67 md:text-lg">
-            Premium lehengas, sarees, anarkalis and gowns staged in a
-            refined product showroom with clear prices, secure checkout and
-            Pan-India delivery.
+          <p className="font-display mt-4 text-4xl leading-none text-[#6E0F1A] sm:text-5xl">
+            Don&apos;t just wear clothes. Wear confidence.
+          </p>
+          <p className="mt-7 max-w-xl text-base leading-8 text-[#5F5348] md:text-lg">
+            Premium lehengas, gowns, sarees and occasion wear, custom-sized
+            with clear communication and delivered across India.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#collection" className="primary-button sm:min-w-48">
-              Explore dresses
+            <Link href="/collection" className="primary-button sm:min-w-48">
+              Shop New Arrivals
               <ShoppingBag className="h-4 w-4" />
-            </a>
-            <Link href="/track" className="secondary-button sm:min-w-48">
-              Track an order
+            </Link>
+            <Link href="/size-guide" className="secondary-button sm:min-w-48">
+              How Custom Size Works
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          <div className="hero-proof-grid mt-12 grid max-w-2xl grid-cols-3 divide-x divide-white/12 border-y border-white/12 py-5">
-            {[
-              [products.length ? `${products.length}` : "Live", "Available designs"],
-              [categoryCount ? `${categoryCount}` : "Curated", "Dress categories"],
-              ["Pan India", "Tracked delivery"],
-            ].map(([title, detail]) => (
-              <div key={title} className="px-3 first:pl-0 sm:px-6">
-                <p className="font-display text-lg text-[#e2c48b] sm:text-2xl">{title}</p>
-                <p className="mt-1 hidden text-[0.68rem] text-white/75 sm:block">{detail}</p>
+          <div className="hero-proof-grid mt-10 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#E9DCCB] sm:grid-cols-4">
+            {trustPoints.map(([title, Icon]) => (
+              <div key={title as string} className="bg-[#FFFDF8]/86 p-4">
+                <Icon className="h-4 w-4 text-[#B8893B]" />
+                <p className="mt-3 text-xs font-extrabold uppercase text-[#171717]">
+                  {title as string}
+                </p>
               </div>
             ))}
           </div>
@@ -87,15 +102,14 @@ export default function Hero({
               className="hero-feature-link"
               aria-label={`View ${featuredProduct.name}`}
             >
-              <span className="inline-flex items-center gap-2 text-[0.64rem] font-bold uppercase text-[#f0d28e]">
-                <Sparkles className="h-3.5 w-3.5" />
-                {featuredProduct.category.name}
+              <span className="inline-flex items-center gap-2 text-[0.64rem] font-extrabold uppercase text-[#B8893B]">
+                {products.length ? `${products.length} live designs` : "Curated catalog"}
               </span>
-              <span className="font-display mt-2 block text-3xl leading-none text-white">
+              <span className="font-display mt-2 block text-3xl leading-none text-[#171717]">
                 {featuredProduct.name}
               </span>
-              <span className="mt-2 block text-sm text-white/72">
-                {formatPrice(getProductPrice(featuredProduct))}
+              <span className="mt-2 block text-sm text-[#5F5348]">
+                {formatPrice(getProductPrice(featuredProduct))} · {categoryCount} categories
               </span>
             </Link>
           )}

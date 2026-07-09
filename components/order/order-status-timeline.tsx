@@ -3,35 +3,43 @@ import {
   CircleDot,
   Package,
   PackageCheck,
+  Ruler,
+  Scissors,
   Truck,
   X,
 } from "lucide-react";
 
 import type { OrderStatus } from "@/types/database";
 
-const statuses: Array<{
-  value: Exclude<OrderStatus, "cancelled">;
-  label: string;
-  icon: typeof CircleDot;
-}> = [
-  { value: "pending", label: "Pending", icon: CircleDot },
-  { value: "confirmed", label: "Confirmed", icon: Check },
-  { value: "packed", label: "Packed", icon: Package },
-  { value: "shipped", label: "Shipped", icon: Truck },
-  { value: "delivered", label: "Delivered", icon: PackageCheck },
+const steps = [
+  { key: "placed", label: "Order placed", icon: CircleDot },
+  { key: "payment", label: "Payment confirmed", icon: Check },
+  { key: "measurements", label: "Measurements", icon: Ruler },
+  { key: "preparation", label: "Preparation", icon: Scissors },
+  { key: "packed", label: "Packed", icon: Package },
+  { key: "shipped", label: "Shipped", icon: Truck },
+  { key: "delivered", label: "Delivered", icon: PackageCheck },
 ];
+
+const statusIndex: Record<Exclude<OrderStatus, "cancelled">, number> = {
+  pending: 0,
+  confirmed: 3,
+  packed: 4,
+  shipped: 5,
+  delivered: 6,
+};
 
 export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
   if (status === "cancelled") {
     return (
-      <div className="rounded-2xl border border-red-400/20 bg-red-400/8 p-5 text-red-200">
+      <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-5 text-red-800">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-red-400/10">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-red-500/10">
             <X className="h-5 w-5" />
           </span>
           <div>
             <p className="text-sm font-semibold">Order cancelled</p>
-            <p className="mt-1 text-xs text-red-100/55">
+            <p className="mt-1 text-xs text-red-800/70">
               Contact support if you need help with this order.
             </p>
           </div>
@@ -40,34 +48,34 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
     );
   }
 
-  const activeIndex = statuses.findIndex((item) => item.value === status);
+  const activeIndex = statusIndex[status];
 
   return (
-    <div className="grid grid-cols-5">
-      {statuses.map((item, index) => {
+    <div className="grid gap-5 sm:grid-cols-7">
+      {steps.map((item, index) => {
         const Icon = item.icon;
         const complete = index <= activeIndex;
         return (
-          <div key={item.value} className="relative text-center">
+          <div key={item.key} className="relative text-center">
             {index > 0 && (
               <div
-                className={`absolute right-1/2 top-5 h-px w-full ${
-                  index <= activeIndex ? "bg-[#caaa70]" : "bg-white/12"
+                className={`absolute right-1/2 top-5 hidden h-px w-full sm:block ${
+                  index <= activeIndex ? "bg-[#B8893B]" : "bg-[#E9DCCB]"
                 }`}
               />
             )}
             <div
               className={`relative z-10 mx-auto grid h-10 w-10 place-items-center rounded-full border ${
                 complete
-                  ? "border-[#caaa70] bg-[#caaa70] text-black"
-                  : "border-white/12 bg-[#11110f] text-white/70"
+                  ? "border-[#111111] bg-[#111111] text-white"
+                  : "border-[#E9DCCB] bg-[#FFFDF8] text-[#8E8071]"
               }`}
             >
               <Icon className="h-4 w-4" />
             </div>
             <p
-              className={`mt-3 text-[0.6rem] font-bold uppercase tracking-wider sm:text-xs ${
-                complete ? "text-[#dfc184]" : "text-white/70"
+              className={`mt-3 text-[0.62rem] font-extrabold uppercase sm:text-[0.68rem] ${
+                complete ? "text-[#171717]" : "text-[#8E8071]"
               }`}
             >
               {item.label}

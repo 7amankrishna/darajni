@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     : siteConfig.description;
 
   return {
-    title: "DARAJNI Designer House | Interactive Dress Showcase",
+    title: "DARAJNI Designer House | Custom Indian Occasion Wear",
     description,
     alternates: { canonical: "/" },
     keywords: [
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       ...productNames,
     ],
     openGraph: {
-      title: "DARAJNI Designer House | Interactive Dress Showcase",
+      title: "DARAJNI Designer House | Custom Indian Occasion Wear",
       description,
       url: siteConfig.siteUrl,
       images: products[0]?.images[0] ? [products[0].images[0]] : ["/og-cover.svg"],

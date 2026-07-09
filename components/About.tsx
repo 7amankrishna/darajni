@@ -1,53 +1,69 @@
+import { BadgeCheck, MapPin, MessageCircle, Ruler, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+
 import BrandLogo from "./BrandLogo";
+
+const promises = [
+  ["Clear pricing", "The checkout price matches the product listing."],
+  ["Custom fit support", "Measurements are confirmed after ordering."],
+  ["Secure checkout", "COD and Razorpay options are shown clearly."],
+  ["Pan-India delivery", "Orders are packed with tracking support."],
+];
 
 export default function About() {
   return (
-    <section id="about" className="bg-[#0d0d0c] py-20 sm:py-28">
-      <div className="section-shell grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-        <div className="relative grid min-h-[430px] place-items-center overflow-hidden rounded-[1.5rem] border border-[#caaa70]/12 bg-[radial-gradient(circle_at_center,rgba(202,170,112,.16),transparent_55%),#080808] sm:min-h-[600px]">
-          <div className="absolute inset-8 rounded-full border border-[#caaa70]/10" />
-          <div className="absolute inset-16 rounded-full border border-[#caaa70]/8" />
-          <BrandLogo className="h-64 w-64 border border-[#caaa70]/20 shadow-[0_0_80px_rgba(202,170,112,.14)] sm:h-96 sm:w-96" />
-          <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/15 bg-black/70 p-5 backdrop-blur-md sm:inset-x-7 sm:bottom-7 sm:p-7">
-            <p className="font-display text-2xl text-[#e6cb98] sm:text-3xl">
-              Built locally. Designed to travel.
-            </p>
-            <p className="mt-2 text-sm leading-6 text-white/55">
-              Based in Bihar Sharif 803111, serving customers throughout India.
-            </p>
+    <section id="about" className="bg-[#FFF8EF] py-20 sm:py-28">
+      <div className="section-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+        <div className="relative min-h-[430px] overflow-hidden rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_24px_80px_rgba(83,54,22,0.09)] sm:min-h-[560px] sm:p-8">
+          <div className="absolute inset-x-0 top-0 h-28 bg-[#6E0F1A]" />
+          <div className="relative z-10 grid h-full min-h-[380px] place-items-center rounded-2xl border border-[#E9DCCB] bg-[#F6E9DD]">
+            <BrandLogo className="h-56 w-56 border border-[#B8893B]/25 bg-[#FFFDF8] shadow-[0_22px_70px_rgba(83,54,22,0.12)] sm:h-80 sm:w-80" />
+            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8]/92 p-5 backdrop-blur-md sm:inset-x-7 sm:bottom-7 sm:p-7">
+              <p className="font-display text-3xl leading-none text-[#171717]">
+                Rooted in Bihar Sharif. Designed to travel.
+              </p>
+              <p className="mt-2 flex items-center gap-2 text-sm leading-6 text-[#6F6255]">
+                <MapPin className="h-4 w-4 text-[#B8893B]" />
+                Bihar Sharif 803111, serving customers throughout India.
+              </p>
+            </div>
           </div>
         </div>
 
         <div>
-          <p className="eyebrow">The beginning of our story</p>
-          <h2 className="font-display mt-5 text-5xl leading-[0.95] sm:text-6xl">
-            A new label with
-            <span className="block italic text-[#d5b574]">care at its centre.</span>
+          <p className="eyebrow">Brand story</p>
+          <h2 className="font-display mt-5 text-5xl leading-[0.95] text-[#171717] sm:text-6xl">
+            A boutique label with
+            <span className="block italic text-[#6E0F1A]">real care at its centre.</span>
           </h2>
-          <p className="mt-7 text-base leading-8 text-white/58">
-            DARAJNI is growing from Bihar Sharif with a simple promise: present every design
-            honestly, communicate each step clearly and help customers choose occasion wear
-            that feels like their own.
+          <p className="mt-7 text-base leading-8 text-[#5F5348]">
+            DARAJNI began in Bihar Sharif with a simple promise: present every
+            design honestly, help every customer choose the right fit and
+            deliver occasion wear with care.
           </p>
-          <p className="mt-5 text-base leading-8 text-white/58">
-            Trust is built through clear prices, secure online checkout and
-            useful order updates. You can shop without creating an account and
-            track every order with its order ID and matching phone number.
+          <p className="mt-5 text-base leading-8 text-[#5F5348]">
+            The store is built around clear prices, secure ordering, useful
+            updates, guest checkout and order tracking with an order ID and
+            matching phone number.
           </p>
 
           <div className="mt-9 grid gap-3 sm:grid-cols-2">
-            {[
-              ["Clear pricing", "The checkout price matches the product listing."],
-              ["Guest checkout", "Place an order without creating an account."],
-              ["Order tracking", "Follow fulfilment with your order ID and phone."],
-              ["Nationwide support", "Delivery and product support across India."],
-            ].map(([title, text]) => (
-              <div key={title} className="rounded-xl border border-white/8 bg-white/[0.025] p-5">
-                <p className="font-display text-xl text-[#dfc48e]">{title}</p>
-                <p className="mt-2 text-xs leading-6 text-white/75">{text}</p>
-              </div>
-            ))}
+            {promises.map(([title, text], index) => {
+              const icons = [BadgeCheck, Ruler, ShieldCheck, MessageCircle];
+              const Icon = icons[index];
+              return (
+                <div key={title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
+                  <Icon className="h-5 w-5 text-[#B8893B]" />
+                  <p className="font-display mt-4 text-2xl text-[#171717]">{title}</p>
+                  <p className="mt-2 text-xs leading-6 text-[#6F6255]">{text}</p>
+                </div>
+              );
+            })}
           </div>
+
+          <Link href="/about" className="secondary-button mt-8">
+            Read Our Story
+          </Link>
         </div>
       </div>
     </section>

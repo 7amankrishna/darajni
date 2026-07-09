@@ -1,3 +1,14 @@
+import {
+  BadgeCheck,
+  HeartHandshake,
+  type LucideIcon,
+  MessageCircle,
+  PackageCheck,
+  Ruler,
+  ShieldCheck,
+  Star,
+  Truck,
+} from "lucide-react";
 import Link from "next/link";
 
 import About from "@/components/About";
@@ -5,14 +16,189 @@ import Collection from "@/components/Collection";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
 import Hero from "@/components/Hero";
+import { ProductImage } from "@/components/product/product-image";
 import { siteConfig } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
 
+function CustomFitSection() {
+  const steps = [
+    ["Choose your outfit", "Pick a live DARAJNI design from the collection."],
+    ["Share your measurements", "Use the guide or get help on WhatsApp after ordering."],
+    ["We prepare your custom fit", "Our team confirms details before dispatch."],
+  ];
+
+  return (
+    <section className="bg-[#F6E9DD] py-20 sm:py-28">
+      <div className="section-shell grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+        <div>
+          <p className="eyebrow">Custom size ordering</p>
+          <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+            Your size. Your fit. Made just for you.
+          </h2>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5F5348]">
+            Most DARAJNI pieces are prepared around your measurements, so the
+            order feels personal instead of guessing from standard sizes.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {steps.map(([title, text], index) => (
+              <article key={title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#171717] text-sm font-bold text-white">
+                  {index + 1}
+                </span>
+                <h3 className="font-display mt-5 text-2xl leading-none text-[#171717]">
+                  {title}
+                </h3>
+                <p className="mt-3 text-xs leading-6 text-[#6F6255]">{text}</p>
+              </article>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href="/size-guide" className="primary-button">
+              <Ruler className="h-4 w-4" />
+              View Size Guide
+            </Link>
+            <Link href="/support" className="secondary-button">
+              <MessageCircle className="h-4 w-4" />
+              Get Measurement Help
+            </Link>
+          </div>
+        </div>
+
+        <div className="measurement-figure">
+          {[
+            ["Bust", "left-[12%] top-[24%]"],
+            ["Shoulder", "right-[10%] top-[18%]"],
+            ["Waist", "right-[12%] top-[40%]"],
+            ["Hip", "left-[12%] top-[55%]"],
+            ["Length", "left-1/2 top-[78%] -translate-x-1/2"],
+          ].map(([label, position]) => (
+            <span key={label} className={`measure-label ${position}`}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustSection({ image }: { image: string }) {
+  const cards: Array<[string, string, LucideIcon]> = [
+    ["Verified buyer reviews", "No reviews yet", BadgeCheck],
+    ["Delivery/package photos", "Shared after fulfilment", PackageCheck],
+    ["Human fit support", "WhatsApp measurement help", HeartHandshake],
+  ];
+
+  return (
+    <section className="bg-[#FFF8EF] py-20 sm:py-28">
+      <div className="section-shell">
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+          <div>
+            <p className="eyebrow">Loved by customers across India</p>
+            <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+              New label, real care, clear ordering.
+            </h2>
+          </div>
+          <p className="text-sm leading-7 text-[#6F6255]">
+            Review and delivery-photo spaces are ready for verified buyers.
+            Until more real reviews arrive, DARAJNI keeps the promise simple:
+            honest details, human support and careful fulfilment.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {cards.map(([title, text, Icon]) => (
+            <article key={title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6">
+              <Icon className="h-5 w-5 text-[#B8893B]" />
+              <div className="mt-5 flex gap-1 text-[#B8893B]" aria-hidden="true">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star key={index} className="h-4 w-4" />
+                ))}
+              </div>
+              <h3 className="font-display mt-4 text-2xl text-[#171717]">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm text-[#6F6255]">{text}</p>
+              <p className="mt-4 inline-flex rounded-full bg-[#F6E9DD] px-3 py-1 text-[0.65rem] font-extrabold uppercase text-[#6E0F1A]">
+                Verified buyer structure
+              </p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-8 grid gap-5 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 md:grid-cols-[0.7fr_1.3fr] md:p-7">
+          <div className="relative min-h-72 overflow-hidden rounded-2xl bg-[#F6E9DD]">
+            <ProductImage src={image} alt="" sizes="(max-width: 768px) 100vw, 28vw" className="object-cover" />
+          </div>
+          <div className="flex flex-col justify-center">
+            <p className="eyebrow">Care before scale</p>
+            <h3 className="font-display mt-3 text-4xl leading-none text-[#171717]">
+              Every order has a clear next step.
+            </h3>
+            <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+              Customers can browse available products, place guest checkout
+              orders, receive secure payment or COD options and track their
+              order status with the same phone number used at checkout.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PolicyPreview() {
+  const policies: Array<[string, string, string, LucideIcon]> = [
+    ["Shipping", "Pan-India delivery with tracking updates.", "/shipping-policy", Truck],
+    ["Exchange", "Eligibility and custom-size rules explained.", "/returns-exchange", HeartHandshake],
+    ["Custom Size", "Measurements are collected and confirmed.", "/size-guide", Ruler],
+    ["Payment Safety", "COD and Razorpay checkout are clearly shown.", "/terms", ShieldCheck],
+  ];
+
+  return (
+    <section className="bg-[#F6E9DD] py-20 sm:py-24">
+      <div className="section-shell">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <p className="eyebrow">Before you order</p>
+            <h2 className="font-display mt-4 text-5xl leading-none text-[#171717]">
+              Clear policies, easy support.
+            </h2>
+          </div>
+          <Link href="/support" className="secondary-button w-fit">
+            <MessageCircle className="h-4 w-4" />
+            Contact Support
+          </Link>
+        </div>
+        <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {policies.map(([title, text, href, Icon]) => (
+            <Link
+              key={title}
+              href={href}
+              className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 transition hover:-translate-y-1 hover:border-[#B8893B]"
+            >
+              <Icon className="h-5 w-5 text-[#B8893B]" />
+              <h3 className="font-display mt-5 text-2xl text-[#171717]">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#6F6255]">{text}</p>
+              <span className="mt-5 inline-flex text-xs font-extrabold uppercase text-[#6E0F1A]">
+                View policy
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default async function HomePage() {
   const { products, categories } = await getCatalog();
-  const featured = products.filter((product) => product.isFeatured).slice(0, 3);
-  const newArrivals = products.slice(0, 3);
+  const featured = products.filter((product) => product.isFeatured).slice(0, 4);
+  const fallbackFeatured = featured.length ? featured : products.slice(0, 4);
+  const trustImage = products.find((product) => product.images[0])?.images[0] || "/logo.webp";
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -29,12 +215,12 @@ export default async function HomePage() {
         addressCountry: "IN",
       },
       areaServed: { "@type": "Country", name: "India" },
-      priceRange: "₹₹",
+      priceRange: "INR",
     },
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      name: "DARAJNI interactive dress showcase",
+      name: "DARAJNI designer collection",
       url: siteConfig.siteUrl,
       description:
         "A live catalog of DARAJNI designer lehengas, sarees, anarkalis and gowns.",
@@ -78,24 +264,6 @@ export default async function HomePage() {
         },
       })),
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: siteConfig.siteUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Collection",
-          item: `${siteConfig.siteUrl}/#collection`,
-        },
-      ],
-    },
   ];
 
   return (
@@ -111,26 +279,26 @@ export default async function HomePage() {
 
         <DressShowcase products={products} categories={categories} />
 
-        {featured.length > 0 && (
-          <section className="py-20 sm:py-28">
+        {fallbackFeatured.length > 0 && (
+          <section className="bg-[#FFF8EF] py-20 sm:py-28">
             <div className="section-shell">
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow">Selected for you</p>
-                  <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-                    Featured pieces in depth.
+                  <p className="eyebrow">Featured Designs</p>
+                  <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+                    Occasion wear with custom-size support.
                   </h2>
                 </div>
                 <Link
-                  href="/#collection"
+                  href="/collection"
                   className="secondary-button w-fit"
                   aria-label="View the full DARAJNI dress collection"
                 >
-                  View all dresses
+                  View all designs
                 </Link>
               </div>
-              <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {featured.map((product) => (
+              <div className="mt-9 grid grid-cols-1 gap-5 min-[520px]:grid-cols-2 lg:grid-cols-4">
+                {fallbackFeatured.map((product) => (
                   <DesignCard key={product.id} product={product} />
                 ))}
               </div>
@@ -138,25 +306,15 @@ export default async function HomePage() {
           </section>
         )}
 
-        {newArrivals.length > 0 && (
-          <section className="showcase-band border-y border-white/8 py-20 sm:py-28">
-            <div className="section-shell">
-              <p className="eyebrow">Fresh from the studio</p>
-              <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-                New arrivals with real product detail.
-              </h2>
-              <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {newArrivals.map((product) => (
-                  <DesignCard key={product.id} product={product} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        <CustomFitSection />
 
         <Collection products={products} categories={categories} />
 
+        <TrustSection image={trustImage} />
+
         <About />
+
+        <PolicyPreview />
       </main>
     </>
   );

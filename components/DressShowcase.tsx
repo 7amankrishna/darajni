@@ -15,117 +15,130 @@ export default function DressShowcase({
 }) {
   const productsWithImages = products.filter((product) => product.images.length > 0);
   const runwayProducts = productsWithImages.slice(0, 5);
-  const categoryShowcases = categories
-    .map((category) => ({
+  const categoryShowcases = categories.map((category) => {
+    const categoryProducts = productsWithImages.filter(
+      (product) => product.category.slug === category.slug,
+    );
+    return {
       category,
-      products: productsWithImages.filter(
-        (product) => product.category.slug === category.slug,
-      ),
-    }))
-    .filter((showcase) => showcase.products.length > 0);
+      products: categoryProducts,
+      image: categoryProducts[0]?.images[0] || "/logo.webp",
+    };
+  });
 
-  if (products.length === 0) return null;
+  if (products.length === 0 && categories.length === 0) return null;
 
   return (
-    <section id="showcase" className="showcase-band py-20 sm:py-28">
+    <section id="categories" className="showcase-band py-20 sm:py-28">
       <div className="section-shell">
-        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
           <div>
-            <p className="eyebrow">Available dress showcases</p>
-            <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-              See every live design by occasion.
+            <p className="eyebrow">Shop by category</p>
+            <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+              Festive silhouettes, made easier to browse.
             </h2>
           </div>
-          <p className="max-w-3xl text-sm leading-7 text-white/52 lg:justify-self-end">
-            Browse the current DARAJNI catalog as a visual showroom. Every card
-            links to its product page with fabric, size, stock, price and secure
-            checkout details.
+          <p className="max-w-3xl text-sm leading-7 text-[#6F6255] lg:justify-self-end">
+            Browse the current DARAJNI catalog by lehenga, gown, saree and
+            occasion-wear categories. Empty categories are clearly marked while
+            new designs are being prepared.
           </p>
         </div>
 
-        {runwayProducts.length > 0 && (
-          <div className="runway-grid mt-12">
-            {runwayProducts.map((product, index) => (
-              <Link
-                key={product.id}
-                href={`/design/${product.slug}`}
-                className={`runway-card runway-card-${index + 1}`}
-                aria-label={`View ${product.name}`}
-              >
-                <ProductImage
-                  src={product.images[0]}
-                  alt={product.name}
-                  sizes="(max-width: 768px) 76vw, (max-width: 1200px) 24vw, 18vw"
-                  className="object-cover"
-                />
-                <span className="runway-label">
-                  {product.category.name}
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </span>
-                <div className="runway-caption">
-                  <p className="font-display text-2xl leading-none">
-                    {product.name}
-                  </p>
-                  <p className="mt-1 text-xs text-white/62">
-                    {formatPrice(getProductPrice(product))}
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {categoryShowcases.map(({ category, products: categoryProducts, image }) => {
+            const available = categoryProducts.length > 0;
+            const content = (
+              <article className="category-depth-card">
+                <div className="category-preview-stack" aria-hidden="true">
+                  <span className="category-preview-image category-preview-image-1">
+                    <ProductImage src={image} alt="" sizes="9rem" className="object-cover" />
+                  </span>
+                  {categoryProducts.slice(1, 3).map((product, index) => (
+                    <span
+                      key={product.id}
+                      className={`category-preview-image category-preview-image-${index + 2}`}
+                    >
+                      <ProductImage
+                        src={product.images[0]}
+                        alt=""
+                        sizes="9rem"
+                        className="object-cover"
+                      />
+                    </span>
+                  ))}
+                </div>
+                <div className="relative z-10 max-w-[68%]">
+                  <span className="text-[0.62rem] font-extrabold uppercase text-[#B8893B]">
+                    {available
+                      ? `${categoryProducts.length} design${categoryProducts.length === 1 ? "" : "s"}`
+                      : "Coming soon"}
+                  </span>
+                  <h3 className="font-display mt-4 text-4xl leading-none text-[#171717]">
+                    {category.name}
+                  </h3>
+                  <p className="mt-3 text-xs font-semibold text-[#6F6255]">
+                    {available ? "Explore" : "New pieces are being added"}
                   </p>
                 </div>
+                {available && (
+                  <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-[#B8893B]" />
+                )}
+              </article>
+            );
+
+            return available ? (
+              <Link key={category.id} href="/collection">
+                {content}
               </Link>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div key={category.id}>{content}</div>
+            );
+          })}
+        </div>
 
-        {categoryShowcases.length > 0 && (
-          <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {categoryShowcases.map(({ category, products: categoryProducts }) => {
-              const previewProducts = categoryProducts.slice(0, 3);
-              const fabrics = [
-                ...new Set(categoryProducts.map((product) => product.fabric)),
-              ]
-                .slice(0, 2)
-                .join(" + ");
-
-              return (
+        {runwayProducts.length > 0 && (
+          <div className="mt-14">
+            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="eyebrow">Live from the studio</p>
+                <h3 className="font-display mt-3 text-4xl leading-none text-[#171717]">
+                  Featured designs with real product details.
+                </h3>
+              </div>
+              <Link href="/collection" className="secondary-button w-fit">
+                View full collection
+              </Link>
+            </div>
+            <div className="runway-grid">
+              {runwayProducts.map((product, index) => (
                 <Link
-                  key={category.id}
-                  href="/#collection"
-                  className="category-depth-card"
+                  key={product.id}
+                  href={`/design/${product.slug}`}
+                  className={`runway-card runway-card-${index + 1}`}
+                  aria-label={`View ${product.name}`}
                 >
-                  <div className="category-preview-stack" aria-hidden="true">
-                    {previewProducts.map((product, index) => (
-                      <span
-                        key={product.id}
-                        className={`category-preview-image category-preview-image-${
-                          index + 1
-                        }`}
-                      >
-                        <ProductImage
-                          src={product.images[0]}
-                          alt=""
-                          sizes="9rem"
-                          className="object-cover"
-                        />
-                      </span>
-                    ))}
+                  <ProductImage
+                    src={product.images[0]}
+                    alt={product.name}
+                    sizes="(max-width: 768px) 76vw, (max-width: 1200px) 24vw, 18vw"
+                    className="object-cover"
+                  />
+                  <span className="runway-label">
+                    {product.category.name}
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </span>
+                  <div className="runway-caption">
+                    <p className="font-display text-2xl leading-none">
+                      {product.name}
+                    </p>
+                    <p className="mt-1 text-xs text-white/78">
+                      {formatPrice(getProductPrice(product))}
+                    </p>
                   </div>
-                  <div className="relative z-10">
-                    <span className="text-[0.62rem] font-bold uppercase text-[#e6c47f]">
-                      {categoryProducts.length} design
-                      {categoryProducts.length === 1 ? "" : "s"}
-                    </span>
-                    <h3 className="font-display mt-4 text-4xl leading-none text-white">
-                      {category.name}
-                    </h3>
-                    {fabrics && (
-                      <p className="mt-3 text-xs leading-6 text-white/80">
-                        {fabrics}
-                      </p>
-                    )}
-                  </div>
-                  <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-white/80" />
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
       </div>

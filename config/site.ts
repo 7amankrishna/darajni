@@ -6,14 +6,14 @@ const configuredDeveloperWhatsApp =
 export const siteConfig = {
   name: "DARAJNI Designer House",
   shortName: "DARAJNI",
-  slogan: "Dont just wear Clothes. WEAR CONFIDENCE.",
+  slogan: "Don't just wear clothes. Wear confidence.",
   description:
     "DARAJNI creates made-to-order Indian occasion wear in Bihar Sharif, Bihar, with custom sizing and Pan-India delivery.",
   siteUrl: (process.env.NEXT_PUBLIC_SITE_URL || "https://darajni.in").replace(/\/$/, ""),
   whatsappNumber: configuredDesignerWhatsApp || "",
   designerSupportWhatsApp: configuredDesignerWhatsApp || "",
   developerSupportWhatsApp: configuredDeveloperWhatsApp || "",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "7amankrishna@gmail.com",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@darajni.in",
   locality: "Bihar Sharif",
   region: "Bihar",
   postalCode: "803111",

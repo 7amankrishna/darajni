@@ -1,22 +1,53 @@
 "use client";
 
-import { Minus, Plus, ShoppingBag, Zap } from "lucide-react";
+import {
+  type LucideIcon,
+  MessageCircle,
+  Minus,
+  Plus,
+  Ruler,
+  ShieldCheck,
+  ShoppingBag,
+  Truck,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/cart/cart-provider";
-import { formatPrice } from "@/config/site";
+import { formatPrice, whatsappSupportLink } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
 
-export function ProductPurchase({ product }: { product: Product }) {
+export function ProductPurchase({
+  product,
+  supportNumber,
+}: {
+  product: Product;
+  supportNumber: string;
+}) {
   const router = useRouter();
   const { addItem } = useCart();
-  const [size, setSize] = useState(product.sizes[0] ?? "Custom");
+  const sizeOptions = useMemo(
+    () => (product.sizes.length ? product.sizes : ["Custom Size"]),
+    [product.sizes],
+  );
+  const [size, setSize] = useState(sizeOptions[0]);
   const [quantity, setQuantity] = useState(1);
   const price = getProductPrice(product);
   const soldOut = product.stock < 1;
+  const whatsappHref = whatsappSupportLink(
+    supportNumber,
+    `Hello DARAJNI, I need measurement help for ${product.name}.`,
+  );
+  const trustItems: Array<[string, LucideIcon]> = [
+    ["Secure payment", ShieldCheck],
+    ["COD availability", ShoppingBag],
+    ["Easy exchange", Ruler],
+    ["Pan-India delivery", Truck],
+  ];
 
   const add = () => {
     addItem({
@@ -39,73 +70,107 @@ export function ProductPurchase({ product }: { product: Product }) {
 
   return (
     <div>
-      <div>
-        <span className="field-label">Select size</span>
-        <div className="flex flex-wrap gap-2">
-          {product.sizes.map((option) => (
+      <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+            <Ruler className="h-5 w-5" />
+          </span>
+          <div>
+            <h2 className="font-display text-3xl leading-none text-[#171717]">
+              Select Your Size
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#6F6255]">
+              After placing your order, our team will contact you for
+              measurements. You can also share them directly on WhatsApp.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {sizeOptions.map((option) => (
             <button
               type="button"
               key={option}
               onClick={() => setSize(option)}
-              className={`min-h-10 rounded-full border px-4 text-xs font-semibold transition ${
+              className={`min-h-10 rounded-xl border px-4 text-xs font-extrabold transition ${
                 option === size
-                  ? "border-[#caaa70] bg-[#caaa70] text-black"
-                  : "border-white/12 text-white/60 hover:border-[#caaa70]/55"
+                  ? "border-[#111111] bg-[#111111] text-white"
+                  : "border-[#E9DCCB] bg-white text-[#5F5348] hover:border-[#B8893B]"
               }`}
             >
               {option}
             </button>
           ))}
+          <Link href="/size-guide" className="secondary-button !min-h-10 !py-2">
+            Open Size Guide
+          </Link>
+          <a href={whatsappHref} className="whatsapp-button !min-h-10 !py-2">
+            WhatsApp Measurement Help
+          </a>
         </div>
       </div>
 
       <div className="mt-6">
         <span className="field-label">Quantity</span>
-        <div className="flex w-fit items-center rounded-full border border-white/12">
+        <div className="flex w-fit items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8]">
           <button
             type="button"
             onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-            className="grid h-11 w-11 place-items-center"
+            className="grid h-11 w-11 place-items-center text-[#5F5348]"
             aria-label="Decrease quantity"
           >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="min-w-10 text-center text-sm">{quantity}</span>
+          <span className="min-w-10 text-center text-sm font-semibold">{quantity}</span>
           <button
             type="button"
             onClick={() =>
               setQuantity((value) => Math.min(product.stock, value + 1))
             }
-            className="grid h-11 w-11 place-items-center"
+            className="grid h-11 w-11 place-items-center text-[#5F5348]"
             aria-label="Increase quantity"
+            disabled={quantity >= product.stock}
           >
             <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={add}
-          disabled={soldOut}
-          className="secondary-button"
-        >
-          <ShoppingBag className="h-4 w-4" />
-          Add to cart
-        </button>
+      <div className="mt-8 grid gap-3">
         <button
           type="button"
           onClick={buyNow}
           disabled={soldOut}
-          className="primary-button"
+          className="primary-button w-full"
         >
           <Zap className="h-4 w-4" />
-          Buy now
+          Buy Now
         </button>
+        <button
+          type="button"
+          onClick={add}
+          disabled={soldOut}
+          className="secondary-button w-full"
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Add to Cart
+        </button>
+        <a href={whatsappHref} className="whatsapp-button w-full">
+          <MessageCircle className="h-4 w-4" />
+          Chat on WhatsApp
+        </a>
       </div>
 
-      <p className="mt-4 text-center text-xs text-white/75">
+      <div className="mt-5 grid grid-cols-2 gap-2 text-[0.68rem] font-bold text-[#6F6255] sm:grid-cols-4">
+        {trustItems.map(([label, Icon]) => (
+          <span key={label} className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-2">
+            <Icon className="h-3.5 w-3.5 text-[#B8893B]" />
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <p className="mt-4 text-center text-xs text-[#6F6255]">
         {soldOut
           ? "This product is currently sold out."
           : `${product.stock} available · ${formatPrice(price * quantity)} total`}
