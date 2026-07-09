@@ -48,15 +48,15 @@ export default async function Page() {
         <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="measurement-figure">
             {[
-              ["Bust", "left-[10%] top-[24%]"],
-              ["Waist", "right-[12%] top-[40%]"],
-              ["Hip", "left-[12%] top-[56%]"],
-              ["Shoulder", "right-[10%] top-[18%]"],
-              ["Sleeve", "left-[12%] top-[70%]"],
-              ["Blouse length", "right-[8%] top-[68%]"],
-              ["Lehenga length", "left-1/2 top-[82%] -translate-x-1/2"],
-            ].map(([label, position]) => (
-              <span key={label} className={`measure-label ${position}`}>
+              ["Shoulder", "measure-shoulder"],
+              ["Bust", "measure-bust"],
+              ["Waist", "measure-waist"],
+              ["Hip", "measure-hip"],
+              ["Sleeve", "measure-sleeve"],
+              ["Blouse length", "measure-blouse"],
+              ["Lehenga length", "measure-length"],
+            ].map(([label, className]) => (
+              <span key={label} className={`measure-label ${className}`}>
                 {label}
               </span>
             ))}

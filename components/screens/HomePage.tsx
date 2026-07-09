@@ -67,13 +67,13 @@ function CustomFitSection() {
 
         <div className="measurement-figure">
           {[
-            ["Bust", "left-[12%] top-[24%]"],
-            ["Shoulder", "right-[10%] top-[18%]"],
-            ["Waist", "right-[12%] top-[40%]"],
-            ["Hip", "left-[12%] top-[55%]"],
-            ["Length", "left-1/2 top-[78%] -translate-x-1/2"],
-          ].map(([label, position]) => (
-            <span key={label} className={`measure-label ${position}`}>
+            ["Shoulder", "measure-shoulder"],
+            ["Bust", "measure-bust"],
+            ["Waist", "measure-waist"],
+            ["Hip", "measure-hip"],
+            ["Length", "measure-length"],
+          ].map(([label, className]) => (
+            <span key={label} className={`measure-label ${className}`}>
               {label}
             </span>
           ))}
