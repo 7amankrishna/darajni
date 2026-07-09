@@ -20,7 +20,7 @@ export default function ProductPage({
     <main className="py-6 sm:py-10">
       <div className="section-shell">
         <nav
-          className="mb-5 flex flex-wrap items-center gap-2 text-xs text-white/35"
+          className="mb-5 flex flex-wrap items-center gap-2 text-xs text-white/75"
           aria-label="Breadcrumb"
         >
           <Link href="/" className="hover:text-[#dfc184]">
@@ -48,7 +48,7 @@ export default function ProductPage({
                 </p>
                 {product.discount > 0 && (
                   <>
-                    <p className="pb-1 text-sm text-white/30 line-through">
+                    <p className="pb-1 text-sm text-white/70 line-through">
                       {formatPrice(product.price)}
                     </p>
                     <span className="mb-1 rounded-full bg-[#caaa70]/15 px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#dfc084]">
@@ -57,7 +57,7 @@ export default function ProductPage({
                   </>
                 )}
               </div>
-              <p className="mt-4 text-xs uppercase tracking-[0.12em] text-white/38">
+              <p className="mt-4 text-xs uppercase tracking-[0.12em] text-white/75">
                 {product.fabric}
               </p>
               <div className="my-7 h-px bg-white/9" />

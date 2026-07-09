@@ -154,7 +154,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   </TableCell>
                   <TableCell>
                     <p>{order.customerName}</p>
-                    <p className="mt-1 text-xs text-white/35">{order.phone}</p>
+                    <p className="mt-1 text-xs text-white/75">{order.phone}</p>
                   </TableCell>
                   <TableCell>{formatPrice(order.total)}</TableCell>
                   <TableCell>
@@ -199,7 +199,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
             </TableBody>
           </Table>
         ) : (
-          <p className="py-16 text-center text-sm text-white/35">
+          <p className="py-16 text-center text-sm text-white/75">
             No orders match this status.
           </p>
         )}
@@ -238,7 +238,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   <div key={item.id} className="flex justify-between gap-4 p-4">
                     <div>
                       <p className="font-semibold">{item.productName}</p>
-                      <p className="mt-1 text-xs text-white/40">
+                      <p className="mt-1 text-xs text-white/75">
                         Size {item.selectedSize} · Qty {item.quantity}
                       </p>
                     </div>

@@ -1,8 +1,6 @@
 import Link from "next/link";
 
 import About from "@/components/About";
-import AnimatedSection from "@/components/AnimatedSection";
-import Card3DReveal from "@/components/Card3DReveal";
 import Collection from "@/components/Collection";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
@@ -108,62 +106,58 @@ export default async function HomePage() {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <Hero products={products} categoryCount={categories.length} />
+      <main id="main-content">
+        <Hero products={products} categoryCount={categories.length} />
 
-      <AnimatedSection>
         <DressShowcase products={products} categories={categories} />
-      </AnimatedSection>
 
-      {featured.length > 0 && (
-        <section className="py-20 sm:py-28">
-          <div className="section-shell">
-            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-              <div>
-                <p className="eyebrow">Selected for you</p>
-                <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-                  Featured pieces in depth.
-                </h2>
+        {featured.length > 0 && (
+          <section className="py-20 sm:py-28">
+            <div className="section-shell">
+              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+                <div>
+                  <p className="eyebrow">Selected for you</p>
+                  <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
+                    Featured pieces in depth.
+                  </h2>
+                </div>
+                <Link
+                  href="/#collection"
+                  className="secondary-button w-fit"
+                  aria-label="View the full DARAJNI dress collection"
+                >
+                  View all dresses
+                </Link>
               </div>
-              <Link href="/#collection" className="secondary-button w-fit">
-                View all dresses
-              </Link>
+              <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {featured.map((product) => (
+                  <DesignCard key={product.id} product={product} />
+                ))}
+              </div>
             </div>
-            <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((product, index) => (
-                <Card3DReveal key={product.id} index={index}>
-                  <DesignCard product={product} />
-                </Card3DReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {newArrivals.length > 0 && (
-        <section className="showcase-band border-y border-white/8 py-20 sm:py-28">
-          <div className="section-shell">
-            <p className="eyebrow">Fresh from the studio</p>
-            <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
-              New arrivals with real product detail.
-            </h2>
-            <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {newArrivals.map((product, index) => (
-                <Card3DReveal key={product.id} index={index}>
-                  <DesignCard product={product} />
-                </Card3DReveal>
-              ))}
+        {newArrivals.length > 0 && (
+          <section className="showcase-band border-y border-white/8 py-20 sm:py-28">
+            <div className="section-shell">
+              <p className="eyebrow">Fresh from the studio</p>
+              <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
+                New arrivals with real product detail.
+              </h2>
+              <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {newArrivals.map((product) => (
+                  <DesignCard key={product.id} product={product} />
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      <AnimatedSection>
         <Collection products={products} categories={categories} />
-      </AnimatedSection>
 
-      <AnimatedSection>
         <About />
-      </AnimatedSection>
+      </main>
     </>
   );
 }

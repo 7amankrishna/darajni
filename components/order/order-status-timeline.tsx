@@ -60,14 +60,14 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
               className={`relative z-10 mx-auto grid h-10 w-10 place-items-center rounded-full border ${
                 complete
                   ? "border-[#caaa70] bg-[#caaa70] text-black"
-                  : "border-white/12 bg-[#11110f] text-white/30"
+                  : "border-white/12 bg-[#11110f] text-white/70"
               }`}
             >
               <Icon className="h-4 w-4" />
             </div>
             <p
               className={`mt-3 text-[0.6rem] font-bold uppercase tracking-wider sm:text-xs ${
-                complete ? "text-[#dfc184]" : "text-white/30"
+                complete ? "text-[#dfc184]" : "text-white/70"
               }`}
             >
               {item.label}

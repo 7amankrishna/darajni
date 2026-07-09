@@ -44,7 +44,7 @@ export default async function Page() {
           <h1 className="font-display mt-4 text-5xl sm:text-6xl">
             Choose the right support.
           </h1>
-          <p className="mt-5 text-sm leading-7 text-white/48">
+          <p className="mt-5 text-sm leading-7 text-white/80">
             WhatsApp is provided for support only. Orders must be placed through
             the website cart and secure checkout.
           </p>

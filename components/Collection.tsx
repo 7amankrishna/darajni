@@ -72,14 +72,14 @@ export default function Collection({
             <h2 className="font-display mt-4 text-5xl leading-none sm:text-6xl">
               Find your silhouette in the live catalog.
             </h2>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/48">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/80">
               Search every active design by style, fabric, category or size.
               Every displayed price is the price used at checkout.
             </p>
           </div>
           <label className="relative block w-full lg:max-w-sm">
             <span className="sr-only">Search collection</span>
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/75" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -109,7 +109,7 @@ export default function Collection({
         </div>
 
         <div className="collection-toolbar mt-5 flex flex-col gap-3 rounded-xl border border-white/8 bg-white/[0.025] p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2 text-xs text-white/45">
+          <div className="flex items-center gap-2 text-xs text-white/80">
             <SlidersHorizontal className="h-4 w-4" />
             {filtered.length} product{filtered.length === 1 ? "" : "s"}
           </div>

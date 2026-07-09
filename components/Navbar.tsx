@@ -31,7 +31,6 @@ export default function Navbar() {
         >
           <BrandLogo
             className="h-11 w-11 border border-[#caaa70]/35"
-            priority
           />
           <span>
             <span className="font-display block text-[1.55rem] leading-none tracking-[0.13em]">

@@ -190,7 +190,7 @@ export function ProductManagement({
         <div>
           <p className="eyebrow">Product management</p>
           <h2 className="font-display mt-2 text-4xl">Catalog</h2>
-          <p className="mt-3 text-sm text-white/40">
+          <p className="mt-3 text-sm text-white/75">
             {activeCount} active of {products.length} products
           </p>
         </div>
@@ -234,7 +234,7 @@ export function ProductManagement({
                   {formatPrice(product.price)}
                 </p>
               </div>
-              <p className="mt-3 text-xs text-white/40">
+              <p className="mt-3 text-xs text-white/75">
                 Stock {product.stock} · Discount {product.discount}% ·{" "}
                 {product.sizes.join(", ")}
               </p>

@@ -7,7 +7,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
       <article className="section-shell max-w-3xl">
         <p className="eyebrow">DARAJNI Designer House</p>
         <h1 className="font-display mt-4 text-5xl">{privacy ? "Privacy policy" : "Terms of use"}</h1>
-        <p className="mt-4 text-sm text-white/38">Effective June 24, 2026</p>
+        <p className="mt-4 text-sm text-white/75">Effective June 24, 2026</p>
         <div className="mt-9 space-y-7 text-sm leading-8 text-white/55">
           {privacy ? (
             <>

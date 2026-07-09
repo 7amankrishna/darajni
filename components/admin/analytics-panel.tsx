@@ -41,7 +41,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
           return (
             <article key={card.label} className="glass-panel p-5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-white/38">
+                <p className="text-xs font-bold uppercase tracking-wider text-white/75">
                   {card.label}
                 </p>
                 <Icon className="h-4 w-4 text-[#caaa70]" />
@@ -70,7 +70,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                     </span>
                     <div>
                       <p className="text-sm font-semibold">{product.name}</p>
-                      <p className="mt-1 text-xs text-white/38">
+                      <p className="mt-1 text-xs text-white/75">
                         {product.quantity} item{product.quantity === 1 ? "" : "s"} sold
                       </p>
                     </div>
@@ -81,7 +81,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 </div>
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-white/35">
+              <p className="py-10 text-center text-sm text-white/75">
                 Sales data will appear after orders are placed.
               </p>
             )}
@@ -102,7 +102,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 >
                   <div>
                     <p className="text-sm font-semibold">{product.name}</p>
-                    <p className="mt-1 text-xs text-white/38">
+                    <p className="mt-1 text-xs text-white/75">
                       {product.category.name}
                     </p>
                   </div>
@@ -118,7 +118,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 </div>
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-white/35">
+              <p className="py-10 text-center text-sm text-white/75">
                 All active products have healthy stock.
               </p>
             )}

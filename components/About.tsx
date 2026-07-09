@@ -44,7 +44,7 @@ export default function About() {
             ].map(([title, text]) => (
               <div key={title} className="rounded-xl border border-white/8 bg-white/[0.025] p-5">
                 <p className="font-display text-xl text-[#dfc48e]">{title}</p>
-                <p className="mt-2 text-xs leading-6 text-white/42">{text}</p>
+                <p className="mt-2 text-xs leading-6 text-white/75">{text}</p>
               </div>
             ))}
           </div>

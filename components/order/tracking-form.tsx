@@ -98,7 +98,7 @@ export function TrackingForm() {
               <p className="eyebrow">Order found</p>
               <h2 className="font-display mt-2 text-3xl">{result.orderNumber}</h2>
             </div>
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-white/75">
               Last updated {formatDate(result.updatedAt)}
             </p>
           </div>

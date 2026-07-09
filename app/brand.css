@@ -2,7 +2,6 @@
 
 :root {
   color-scheme: dark;
-  font-family: "Manrope", sans-serif;
   background: #090909;
   color: #f7f2e9;
   --gold: #caaa70;
@@ -28,6 +27,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #090909 0%, #0d0b10 54%, #080b0a 100%);
   color: #f7f2e9;
+  font-family: var(--font-body), "Manrope", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -76,7 +76,7 @@ img {
 }
 
 .font-display {
-  font-family: "Cormorant Garamond", serif;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
 }
 
 .eyebrow {
@@ -275,27 +275,6 @@ img {
   z-index: 0;
 }
 
-.dress-model-stage {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
-.dress-model-stage.is-dragging {
-  cursor: grabbing;
-}
-
-.dress-model-stage canvas {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 .dress-model-grid {
   position: absolute;
   inset: 0;
@@ -318,93 +297,90 @@ img {
     linear-gradient(180deg, rgba(8, 8, 8, 0.08), rgba(0, 0, 0, 0.7));
 }
 
-.dress-stage-controls {
+.hero-poster-layer {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-poster-layer::before {
+  content: "";
   position: absolute;
-  right: clamp(1rem, 4vw, 4rem);
-  bottom: clamp(1rem, 4vw, 3rem);
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  max-width: calc(100vw - 2rem);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  background: rgba(8, 8, 8, 0.66);
-  padding: 0.55rem;
-  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(16px);
+  right: min(10vw, 8rem);
+  bottom: clamp(2.5rem, 6vw, 5.5rem);
+  width: min(46vw, 34rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(202, 170, 112, 0.12);
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgba(202, 170, 112, 0.1), transparent);
+  box-shadow: 0 36px 90px rgba(0, 0, 0, 0.38);
+  transform: rotateX(68deg);
 }
 
-.dress-stage-swatch-group {
-  display: flex;
-  align-items: center;
-  gap: 0.42rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-  margin-right: 0.1rem;
-  padding-right: 0.18rem;
-}
-
-.dress-color-swatch {
-  width: 1.58rem;
-  height: 1.58rem;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 999px;
-  box-shadow:
-    inset 0 0 0 3px rgba(8, 8, 8, 0.62),
-    0 8px 18px rgba(0, 0, 0, 0.22);
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
-}
-
-.dress-color-swatch:hover,
-.dress-color-swatch.is-active {
-  border-color: rgba(240, 210, 142, 0.86);
-  box-shadow:
-    inset 0 0 0 3px rgba(8, 8, 8, 0.48),
-    0 0 0 2px rgba(240, 210, 142, 0.18),
-    0 10px 26px rgba(0, 0, 0, 0.26);
-  transform: translateY(-1px);
-}
-
-.dress-color-swatch:focus-visible,
-.dress-stage-icon-button:focus-visible {
-  outline: 2px solid rgba(240, 210, 142, 0.86);
-  outline-offset: 3px;
-}
-
-.dress-stage-icon-button {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 999px;
-  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
-}
-
-.dress-stage-icon-button {
-  width: 2.35rem;
-  height: 2.35rem;
-  border: 1px solid rgba(202, 170, 112, 0.32);
-  color: #e8cc91;
-}
-
-.dress-stage-icon-button:hover {
-  border-color: rgba(202, 170, 112, 0.7);
-  background: rgba(202, 170, 112, 0.1);
-  transform: translateY(-1px);
-}
-
-.dress-model-loader {
+.hero-poster-frame {
   position: absolute;
-  right: clamp(1rem, 11vw, 9rem);
-  top: clamp(6rem, 18vw, 10rem);
-  z-index: 3;
-  border-top: 1px solid rgba(202, 170, 112, 0.38);
-  padding-top: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.68rem;
+  right: clamp(1rem, 8vw, 8rem);
+  bottom: clamp(3.25rem, 8vw, 7rem);
+  z-index: 1;
+  width: min(40vw, 28rem);
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 1.25rem;
+  background: #090909;
+  box-shadow:
+    0 38px 90px rgba(0, 0, 0, 0.46),
+    0 0 0 1px rgba(202, 170, 112, 0.08) inset;
+  transform: rotateY(-7deg) rotateX(2deg) translateZ(0);
+}
+
+.hero-poster-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 48%, transparent 58%),
+    linear-gradient(180deg, transparent 38%, rgba(0, 0, 0, 0.72));
+}
+
+.hero-poster-caption {
+  position: absolute;
+  inset-inline: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1rem;
+  background: rgba(8, 8, 8, 0.74);
+  padding: 0.95rem;
+  backdrop-filter: blur(18px);
+}
+
+.hero-poster-caption span {
+  display: block;
+  color: #f0d28e;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.hero-poster-caption strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: white;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.35rem, 2vw, 2.1rem);
+  font-weight: 500;
+  line-height: 0.95;
+}
+
+.hero-poster-accent {
+  position: absolute;
+  right: clamp(2rem, 13vw, 12rem);
+  top: clamp(5rem, 12vw, 9rem);
+  width: min(23vw, 16rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240, 210, 142, 0.8), transparent);
+  opacity: 0.78;
 }
 
 @keyframes hero-copy-enter {
@@ -902,6 +878,30 @@ img {
     height: clamp(23rem, 105vw, 29rem);
   }
 
+  .hero-poster-layer::before {
+    right: 8%;
+    bottom: 1.75rem;
+    width: 84vw;
+  }
+
+  .hero-poster-frame {
+    right: 50%;
+    bottom: 2.2rem;
+    width: min(82vw, 22rem);
+    border-radius: 1rem;
+    transform: translateX(50%);
+  }
+
+  .hero-poster-caption {
+    inset-inline: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.8rem;
+  }
+
+  .hero-poster-accent {
+    display: none;
+  }
+
   .dress-model-grid {
     background-size: 3.5rem 3.5rem;
     opacity: 0.18;
@@ -912,37 +912,6 @@ img {
       radial-gradient(ellipse at 74% 64%, transparent 0%, rgba(8, 8, 8, 0.16) 40%, rgba(8, 8, 8, 0.78) 88%),
       linear-gradient(180deg, rgba(8, 8, 8, 0.96) 0%, rgba(8, 8, 8, 0.66) 42%, rgba(8, 8, 8, 0.1) 74%),
       linear-gradient(90deg, rgba(8, 8, 8, 0.96), rgba(8, 8, 8, 0.22));
-  }
-
-  .dress-stage-controls {
-    right: 50%;
-    bottom: max(1rem, env(safe-area-inset-bottom));
-    gap: 0.42rem;
-    padding: 0.45rem;
-    transform: translateX(50%);
-  }
-
-  .dress-stage-swatch-group {
-    gap: 0.34rem;
-    padding-right: 0.1rem;
-  }
-
-  .dress-color-swatch {
-    width: 1.4rem;
-    height: 1.4rem;
-  }
-
-  .dress-stage-icon-button {
-    width: 2.2rem;
-    height: 2.2rem;
-  }
-
-  .dress-model-loader {
-    top: auto;
-    right: 50%;
-    bottom: 4.75rem;
-    transform: translateX(50%);
-    white-space: nowrap;
   }
 
   .showroom-stage {

@@ -174,7 +174,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
         <div>
           <p className="eyebrow">Coupons & vouchers</p>
           <h2 className="font-display mt-2 text-4xl">Promo codes</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/40">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">
             Create order-wide coupons and fixed-value vouchers. Checkout always
             recalculates discounts in PostgreSQL before an order is accepted.
           </p>
@@ -198,7 +198,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                     className={`status-pill ${
                       promo.isActive
                         ? "bg-emerald-400/12 text-emerald-200"
-                        : "bg-white/10 text-white/45"
+                        : "bg-white/10 text-white/80"
                     }`}
                   >
                     {promo.isActive ? "Active" : "Inactive"}
@@ -212,7 +212,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                   {discountLabel(promo)}
                 </p>
                 {promo.description && (
-                  <p className="mt-2 text-xs leading-5 text-white/38">
+                  <p className="mt-2 text-xs leading-5 text-white/75">
                     {promo.description}
                   </p>
                 )}
@@ -239,7 +239,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 text-xs text-white/42 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 text-xs text-white/75 sm:grid-cols-3">
               <p>
                 Minimum
                 <span className="mt-1 block text-sm text-white/70">
@@ -260,7 +260,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 </span>
               </p>
             </div>
-            <div className="mt-4 text-xs leading-5 text-white/35">
+            <div className="mt-4 text-xs leading-5 text-white/75">
               {promo.startsAt || promo.endsAt ? (
                 <p>
                   Window: {promo.startsAt ? formatDate(promo.startsAt) : "now"} –{" "}
@@ -278,7 +278,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
             <div>
               <Tag className="mx-auto h-9 w-9 text-[#caaa70]" />
               <h3 className="font-display mt-4 text-3xl">No promo codes yet.</h3>
-              <p className="mt-3 text-sm text-white/38">
+              <p className="mt-3 text-sm text-white/75">
                 Add a coupon or voucher after running the Stage 5 SQL migration.
               </p>
             </div>
@@ -474,7 +474,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
             <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-white/9 p-4">
               <div>
                 <p className="text-sm font-semibold">Active</p>
-                <p className="mt-1 text-xs text-white/38">
+                <p className="mt-1 text-xs text-white/75">
                   Inactive codes cannot be applied at checkout.
                 </p>
               </div>

@@ -1,10 +1,7 @@
-"use client";
-
 import { ArrowRight, Sparkles, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 
-import DressModelStage from "@/components/DressModelStage";
+import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
@@ -16,28 +13,45 @@ export default function Hero({
   products: Product[];
   categoryCount: number;
 }) {
-  const heroProducts = useMemo(
-    () => products.filter((product) => product.images.length > 0).slice(0, 6),
-    [products],
-  );
+  const heroProducts = products.filter((product) => product.images.length > 0).slice(0, 6);
   const featuredProduct = heroProducts[0] ?? products[0] ?? null;
+  const posterImage = featuredProduct?.images[0] ?? "/logo.webp";
 
   return (
     <section
       id="home"
       className="home-hero home-hero-3d relative isolate overflow-hidden"
     >
-      <DressModelStage className="hero-model-layer" />
+      <div className="hero-model-layer hero-poster-layer" aria-hidden="true">
+        <div className="dress-model-grid" />
+        <div className="hero-poster-frame">
+          <ProductImage
+            src={posterImage}
+            alt=""
+            sizes="(max-width: 640px) 82vw, (max-width: 1024px) 42vw, 30vw"
+            priority
+            className="object-cover"
+          />
+          {featuredProduct && (
+            <div className="hero-poster-caption">
+              <span>{featuredProduct.category.name}</span>
+              <strong>{featuredProduct.name}</strong>
+            </div>
+          )}
+        </div>
+        <div className="hero-poster-accent" />
+        <div className="dress-model-vignette" />
+      </div>
 
       <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[0.86fr_1.14fr]">
         <div className="hero-3d-copy max-w-3xl">
-          <p className="eyebrow">3D couture showroom</p>
+          <p className="eyebrow">Couture showroom</p>
           <h1 className="font-display mt-6 text-6xl font-medium leading-[0.86] sm:text-7xl lg:text-8xl">
             DARAJNI Designer House
           </h1>
           <p className="mt-7 max-w-xl text-base leading-8 text-white/67 md:text-lg">
             Premium lehengas, sarees, anarkalis and gowns staged in a
-            dimensional showroom with clear prices, secure checkout and
+            refined product showroom with clear prices, secure checkout and
             Pan-India delivery.
           </p>
 
@@ -60,7 +74,7 @@ export default function Hero({
             ].map(([title, detail]) => (
               <div key={title} className="px-3 first:pl-0 sm:px-6">
                 <p className="font-display text-lg text-[#e2c48b] sm:text-2xl">{title}</p>
-                <p className="mt-1 hidden text-[0.68rem] text-white/38 sm:block">{detail}</p>
+                <p className="mt-1 hidden text-[0.68rem] text-white/75 sm:block">{detail}</p>
               </div>
             ))}
           </div>

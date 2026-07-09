@@ -41,7 +41,7 @@ export default async function Page({
           <h1 className="font-display mt-3 text-5xl sm:text-6xl">
             Thank you, {order.customerName.split(" ")[0]}.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-white/48">
+          <p className="mt-4 text-sm leading-7 text-white/80">
             Your order ID is{" "}
             <strong className="select-all text-[#dfc184]">
               {order.orderNumber}
@@ -86,7 +86,7 @@ export default async function Page({
               >
                 <div>
                   <p className="font-display text-xl">{item.productName}</p>
-                  <p className="mt-2 text-xs text-white/40">
+                  <p className="mt-2 text-xs text-white/75">
                     Size {item.selectedSize} · Quantity {item.quantity}
                   </p>
                 </div>

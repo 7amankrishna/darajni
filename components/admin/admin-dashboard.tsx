@@ -54,7 +54,7 @@ export function AdminDashboard({
             <h1 className="font-display mt-3 text-5xl sm:text-6xl">
               Store dashboard
             </h1>
-            <p className="mt-3 text-sm text-white/40">
+            <p className="mt-3 text-sm text-white/75">
               Signed in as {email}
             </p>
           </div>

@@ -35,7 +35,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
         <div>
           <ShoppingBag className="mx-auto h-10 w-10 text-[#caaa70]" />
           <h1 className="font-display mt-5 text-5xl">Your cart is empty.</h1>
-          <p className="mt-4 text-sm text-white/45">
+          <p className="mt-4 text-sm text-white/80">
             Find a piece you love and it will appear here.
           </p>
           <Link href="/#collection" className="primary-button mt-7">
@@ -57,7 +57,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
           <button
             type="button"
             onClick={clearCart}
-            className="text-xs font-bold uppercase tracking-wider text-white/38 hover:text-red-300"
+            className="text-xs font-bold uppercase tracking-wider text-white/75 hover:text-red-300"
           >
             Clear cart
           </button>
@@ -90,12 +90,12 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                       >
                         {item.name}
                       </Link>
-                      <p className="mt-2 text-xs text-white/40">Size: {item.size}</p>
+                      <p className="mt-2 text-xs text-white/75">Size: {item.size}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeItem(item.key)}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/35 hover:bg-red-400/10 hover:text-red-300"
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/75 hover:bg-red-400/10 hover:text-red-300"
                       aria-label={`Remove ${item.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -159,7 +159,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                 {formatPrice(total)}
               </span>
             </div>
-            <p className="mt-3 text-xs leading-5 text-white/35">
+            <p className="mt-3 text-xs leading-5 text-white/75">
               Inventory and final totals are verified securely during checkout.
             </p>
             <Link href="/checkout" className="primary-button mt-6 w-full">

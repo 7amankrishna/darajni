@@ -361,7 +361,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
           <h1 className="font-display mt-3 text-5xl sm:text-6xl">
             Delivery details
           </h1>
-          <p className="mt-4 text-sm leading-7 text-white/45">
+          <p className="mt-4 text-sm leading-7 text-white/80">
             No account is required. We use these details only to fulfil and
             support this order.
           </p>
@@ -497,7 +497,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                 >
                   <Truck className="h-5 w-5 text-[#caaa70]" />
                   <p className="mt-3 text-sm font-semibold">Cash on delivery</p>
-                  <p className="mt-2 text-xs leading-5 text-white/40">
+                  <p className="mt-2 text-xs leading-5 text-white/75">
                     Pay when the order reaches you.
                   </p>
                 </button>
@@ -513,7 +513,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
               >
                 <CreditCard className="h-5 w-5 text-[#caaa70]" />
                 <p className="mt-3 text-sm font-semibold">Pay securely online</p>
-                <p className="mt-2 text-xs leading-5 text-white/40">
+                <p className="mt-2 text-xs leading-5 text-white/75">
                   UPI, cards, net banking and supported wallets via Razorpay.
                 </p>
               </button>
@@ -536,7 +536,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{item.name}</p>
-                  <p className="mt-1 text-xs text-white/38">
+                  <p className="mt-1 text-xs text-white/75">
                     {item.size} · Qty {item.quantity}
                   </p>
                 </div>
@@ -655,7 +655,7 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
               </>
             )}
           </button>
-          <p className="mt-4 text-center text-[0.68rem] leading-5 text-white/30">
+          <p className="mt-4 text-center text-[0.68rem] leading-5 text-white/70">
             Prices, inventory and totals are revalidated before the order is
             accepted.
           </p>

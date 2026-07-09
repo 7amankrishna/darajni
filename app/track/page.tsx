@@ -16,7 +16,7 @@ export default function Page() {
           <h1 className="font-display mt-4 text-5xl sm:text-6xl">
             Follow your order.
           </h1>
-          <p className="mt-5 text-sm leading-7 text-white/48">
+          <p className="mt-5 text-sm leading-7 text-white/80">
             Enter the order ID from your confirmation and the same phone number
             used at checkout.
           </p>

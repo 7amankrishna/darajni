@@ -105,7 +105,7 @@ export function ProductPurchase({ product }: { product: Product }) {
         </button>
       </div>
 
-      <p className="mt-4 text-center text-xs text-white/35">
+      <p className="mt-4 text-center text-xs text-white/75">
         {soldOut
           ? "This product is currently sold out."
           : `${product.stock} available · ${formatPrice(price * quantity)} total`}

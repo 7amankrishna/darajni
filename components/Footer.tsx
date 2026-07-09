@@ -17,11 +17,11 @@ export default function Footer() {
               </p>
             </div>
           </div>
-          <p className="mt-4 max-w-md text-sm leading-7 text-white/45">
+          <p className="mt-4 max-w-md text-sm leading-7 text-white/80">
             Premium Indian occasion wear from Bihar Sharif, available for
             secure online ordering and Pan-India delivery.
           </p>
-          <p className="mt-4 text-xs text-white/35">
+          <p className="mt-4 text-xs text-white/75">
             {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="section-shell mt-10 border-t border-white/8 pt-6 text-xs text-white/30">
+      <div className="section-shell mt-10 border-t border-white/8 pt-6 text-xs text-white/70">
         © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
         delivered Pan India.
       </div>

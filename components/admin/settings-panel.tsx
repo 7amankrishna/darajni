@@ -115,7 +115,7 @@ export function SettingsPanel({ settings }: { settings: StoreSettings }) {
         <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-white/9 p-4">
           <div>
             <p className="text-sm font-semibold">Cash on delivery</p>
-            <p className="mt-1 text-xs text-white/38">
+            <p className="mt-1 text-xs text-white/75">
               Allow customers to select COD during checkout.
             </p>
           </div>

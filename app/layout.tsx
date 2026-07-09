@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { Cormorant_Garamond, Manrope } from "next/font/google";
 
 import { SiteShell } from "@/components/layout/site-shell";
 import { siteConfig } from "@/config/site";
 
 import "./globals.css";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-body",
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
@@ -43,7 +58,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-IN" suppressHydrationWarning>
-      <body>
+      <body className={`${manrope.variable} ${cormorant.variable}`}>
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

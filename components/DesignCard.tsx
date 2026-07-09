@@ -57,17 +57,17 @@ export default function DesignCard({ product }: { product: Product }) {
               {formatPrice(price)}
             </p>
             {product.discount > 0 && (
-              <p className="mt-1 text-xs text-white/32 line-through">
+              <p className="mt-1 text-xs text-white/72 line-through">
                 {formatPrice(product.price)}
               </p>
             )}
           </div>
         </div>
-        <p className="mt-2 text-xs text-white/38">{product.fabric}</p>
-        <p className="product-card-description mt-3 text-xs leading-6 text-white/46">
+        <p className="mt-2 text-xs text-white/75">{product.fabric}</p>
+        <p className="product-card-description mt-3 text-xs leading-6 text-white/80">
           {product.description}
         </p>
-        <p className="mt-3 text-xs text-white/42">
+        <p className="mt-3 text-xs text-white/75">
           {product.stock > 0
             ? `${product.stock} available · ${product.sizes.join(", ")}`
             : "Currently unavailable"}
@@ -75,6 +75,7 @@ export default function DesignCard({ product }: { product: Product }) {
         <Link
           href={`/design/${product.slug}`}
           className="primary-button mt-5 w-full"
+          aria-label={`View details for ${product.name}`}
         >
           View details
           <ArrowUpRight className="h-4 w-4" />

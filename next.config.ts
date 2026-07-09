@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -13,7 +14,23 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
+    const immutableAssetHeaders = [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+    ];
+
     return [
+      {
+        source: "/models/:path*",
+        headers: immutableAssetHeaders,
+      },
+      {
+        source: "/:asset(favicon|apple-touch-icon|icon-192|icon-512|logo).:ext(png|webp|ico)",
+        headers: immutableAssetHeaders,
+      },
+      {
+        source: "/og-cover.svg",
+        headers: immutableAssetHeaders,
+      },
       {
         source: "/(.*)",
         headers: [
@@ -30,4 +47,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(nextConfig);

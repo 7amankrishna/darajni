@@ -117,12 +117,12 @@ export default function DressShowcase({
                       {category.name}
                     </h3>
                     {fabrics && (
-                      <p className="mt-3 text-xs leading-6 text-white/46">
+                      <p className="mt-3 text-xs leading-6 text-white/80">
                         {fabrics}
                       </p>
                     )}
                   </div>
-                  <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-white/45" />
+                  <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-white/80" />
                 </Link>
               );
             })}
