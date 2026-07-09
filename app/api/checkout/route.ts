@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
 import {
+  getCustomerUser,
+  saveCheckoutProfileForUser,
+} from "@/lib/data/account";
+import {
   createOrderAccessToken,
   isOrderAccessConfigured,
 } from "@/lib/security/order-token";
@@ -80,6 +84,7 @@ export async function POST(request: Request) {
   }
 
   const { customer, items, paymentMethod, promoCode } = parsed.data;
+  const customerUser = await getCustomerUser();
   const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
   const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
   if (
@@ -144,6 +149,22 @@ export async function POST(request: Request) {
       { error: "The order could not be created." },
       { status: 500 },
     );
+  }
+
+  if (customerUser) {
+    const profile = await saveCheckoutProfileForUser(customerUser, customer);
+    if (!profile) {
+      console.error("Checkout profile sync failed for user", customerUser.id);
+    }
+
+    const { error: linkError } = await supabase
+      .from("orders")
+      .update({ customer_id: customerUser.id })
+      .eq("id", order.order_id);
+
+    if (linkError) {
+      console.error("Checkout order account link failed", linkError.message);
+    }
   }
 
   let token: string;

@@ -91,10 +91,40 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["products"]["Insert"]>;
       };
+      customer_profiles: {
+        Row: {
+          id: string;
+          email: string;
+          full_name: string;
+          phone: string;
+          address: string;
+          city: string;
+          state: string;
+          pincode: string;
+          landmark: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string;
+          full_name?: string;
+          phone?: string;
+          address?: string;
+          city?: string;
+          state?: string;
+          pincode?: string;
+          landmark?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["customer_profiles"]["Insert"]>;
+      };
       orders: {
         Row: {
           id: string;
           order_number: string;
+          customer_id: string | null;
           customer_name: string;
           phone: string;
           address: string;
@@ -123,6 +153,7 @@ export interface Database {
         Insert: {
           id?: string;
           order_number?: string;
+          customer_id?: string | null;
           customer_name: string;
           phone: string;
           address: string;

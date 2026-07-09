@@ -36,8 +36,8 @@ const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
   { label: "Categories", href: "/collection", icon: Grid2X2 },
   { label: "Wishlist", href: "/wishlist", icon: Heart },
-  { label: "Orders", href: "/track", icon: PackageSearch },
-  { label: "Account", href: "/support", icon: UserRound },
+  { label: "Orders", href: "/login", icon: PackageSearch },
+  { label: "Account", href: "/login", icon: UserRound },
 ];
 
 function Badge({ count }: { count: number }) {
@@ -139,9 +139,9 @@ export default function Navbar({ supportNumber }: { supportNumber: string }) {
               <Badge count={wishlistCount} />
             </Link>
             <Link
-              href="/support"
+              href="/login"
               className="hidden h-10 w-10 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
-              aria-label="Account and support"
+              aria-label="Customer account"
             >
               <UserRound className="h-4 w-4" />
             </Link>

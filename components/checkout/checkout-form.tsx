@@ -21,6 +21,7 @@ import { formatPrice } from "@/config/site";
 import type {
   CheckoutCustomer,
   CheckoutPromoQuote,
+  CustomerProfile,
   StoreSettings,
 } from "@/types/commerce";
 
@@ -64,6 +65,22 @@ const initialCustomer: CheckoutCustomer = {
   email: "",
 };
 
+function customerFromProfile(
+  profile?: CustomerProfile | null,
+): CheckoutCustomer {
+  if (!profile) return initialCustomer;
+  return {
+    customerName: profile.fullName,
+    phone: profile.phone,
+    address: profile.address,
+    city: profile.city,
+    state: profile.state,
+    pincode: profile.pincode,
+    landmark: profile.landmark,
+    email: profile.email,
+  };
+}
+
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve(true);
   return new Promise<boolean>((resolve) => {
@@ -85,10 +102,18 @@ function loadRazorpay() {
   });
 }
 
-export function CheckoutForm({ settings }: { settings: StoreSettings }) {
+export function CheckoutForm({
+  settings,
+  customerProfile,
+}: {
+  settings: StoreSettings;
+  customerProfile?: CustomerProfile | null;
+}) {
   const router = useRouter();
   const { items, ready, subtotal, clearCart } = useCart();
-  const [customer, setCustomer] = useState(initialCustomer);
+  const [customer, setCustomer] = useState<CheckoutCustomer>(() =>
+    customerFromProfile(customerProfile),
+  );
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">(
     settings.codEnabled ? "cod" : "razorpay",
   );
@@ -371,7 +396,9 @@ export function CheckoutForm({ settings }: { settings: StoreSettings }) {
         className="section-shell grid gap-8 lg:grid-cols-[1fr_400px]"
       >
         <div>
-          <p className="eyebrow">Guest checkout</p>
+          <p className="eyebrow">
+            {customerProfile ? "Account checkout" : "Guest checkout"}
+          </p>
           <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
             Place your order securely.
           </h1>

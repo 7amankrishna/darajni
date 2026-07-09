@@ -167,7 +167,10 @@ export default async function Page({
         </section>
 
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/track" className="primary-button">
+          <Link href="/login" className="primary-button">
+            My Orders
+          </Link>
+          <Link href="/track" className="secondary-button">
             Track Order
           </Link>
           <Link href="/collection" className="secondary-button">

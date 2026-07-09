@@ -49,7 +49,8 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 
 ### Cart and checkout
 
-- Guest checkout with no customer account requirement
+- Guest checkout with optional customer account sign-in
+- Signed-in checkout prefills saved customer contact and delivery details
 - Browser-persistent cart stored under `darajni-cart-v1` in local storage
 - Cart items separated by product and selected size
 - Quantity controls constrained by the stock value last seen by the browser
@@ -67,6 +68,7 @@ current database values during checkout.
 ### Order tracking and support
 
 - Order tracking using both the order number and matching phone number
+- Signed-in customers can view saved order progress from `/login`
 - Public tracking returns status metadata only
 - Separate technical/developer and dress-designer support contacts
 - WhatsApp is support-only; orders must be placed through the website checkout
@@ -94,7 +96,7 @@ current database values during checkout.
 - Tailwind CSS 4
 - shadcn/ui and Radix UI primitives
 - Supabase PostgreSQL 15
-- Supabase Auth for administrators
+- Supabase Auth for administrators and optional customer accounts
 - Supabase Storage for product images
 - Razorpay for online payments
 - Optional Upstash Redis REST rate limiting
@@ -103,13 +105,15 @@ current database values during checkout.
 
 ## Roles and access control
 
-The current commerce application intentionally has no customer profile or
-customer account role. Customers shop and check out as guests.
+Customer accounts are optional. Guests can still shop and track orders with the
+public order-number-plus-phone flow, while signed-in customers can save basic
+delivery details and view linked order progress.
 
 | Actor | Authentication | Access |
 |---|---|---|
 | Guest customer | None | Active catalog, public settings, local cart, checkout APIs, support, and tracking with order number plus phone |
-| Authenticated non-admin | Supabase Auth session | No operational access; redirected away from admin pages |
+| Customer account | Supabase Auth session | Own `customer_profiles` row, linked order progress, account checkout prefill |
+| Authenticated non-admin | Supabase Auth session | Customer account access only; redirected away from admin pages |
 | Administrator | Supabase Auth session plus a row in `public.admin_users` | Dashboard, orders, products, settings, uploads, invoices, and packing slips |
 | Service role | Server-only Supabase key | Trusted application database and storage operations |
 | Razorpay webhook | Valid Razorpay HMAC signature | Asynchronous online-payment confirmation only |
@@ -219,6 +223,7 @@ security boundary.
 | `/checkout` | Guest delivery form and payment selection | Public |
 | `/order/success?token=...` | Private order confirmation and item summary | Valid signed token |
 | `/track` | Order tracking form | Public |
+| `/login` | Customer sign-in, profile details, and saved order progress | Public form / customer session |
 | `/support` | Developer and designer support contacts | Public |
 | `/privacy` | Privacy information | Public |
 | `/terms` | Store terms | Public |
@@ -226,7 +231,6 @@ security boundary.
 | `/admin` | Analytics and store operations dashboard | Administrator |
 | `/admin/orders/[id]/invoice` | Printable A4 invoice | Administrator |
 | `/admin/orders/[id]/packing-slip` | Printable A4 packing slip | Administrator |
-| `/login` | Legacy route that redirects to `/` | Public |
 | `/dashboard` | Legacy route that redirects to `/track` | Public |
 
 Cart, checkout, admin, API, and private order pages are excluded from search
@@ -239,6 +243,7 @@ engine indexing through metadata and `robots.txt`.
 | `POST /api/checkout` | Validate input, create an atomic order, reserve stock, and begin COD or Razorpay flow | Same-origin, validation, per-IP rate limit, server service role |
 | `POST /api/checkout/promo` | Preview an order-wide coupon or voucher discount against current catalog prices | Same-origin, validation, rate limit, server service role |
 | `POST /api/checkout/cancel` | Cancel a pending Razorpay reservation | Same-origin and signed order token |
+| `POST /api/account/profile` | Save a signed-in customer's basic contact and delivery details | Auth session, same-origin, validation, rate limit |
 | `POST /api/payments/razorpay/verify` | Verify browser payment signature and confirm payment | Same-origin, signed order token, HMAC, rate limit |
 | `POST /api/payments/razorpay/webhook` | Confirm captured/paid Razorpay events | Razorpay webhook HMAC |
 | `POST /api/track` | Return matching order status metadata | Same-origin, order reference plus phone, rate limit |
@@ -260,14 +265,14 @@ engine indexing through metadata and `robots.txt`.
 Browser
 ├── Public server-rendered pages
 ├── Local-storage cart
-├── Supabase Auth browser session for admins
+├── Supabase Auth browser session for customers and admins
 └── Same-origin application API requests
         │
         ▼
 Next.js application
 ├── Middleware: refreshes Auth cookies and protects admin pages
 ├── Server Components: catalog, settings, admin data, print documents
-├── Route Handlers: checkout, promo quote, tracking, payments, cron, admin mutations
+├── Route Handlers: account profile, checkout, promo quote, tracking, payments, cron, admin mutations
 ├── Validation: Zod schemas
 ├── Security: origin checks, rate limits, signed order tokens
 └── Service-role clients: trusted database and storage operations
@@ -275,6 +280,7 @@ Next.js application
         ├── Supabase PostgreSQL
         │   ├── catalog and settings
         │   ├── administrator allow-list
+        │   ├── customer profiles
         │   ├── orders and immutable item snapshots
         │   ├── atomic checkout/payment/promo functions
         │   └── lifecycle maintenance function
@@ -296,6 +302,8 @@ Next.js application
 - The browser is never trusted for prices, discounts, shipping, tax, totals,
   product availability, or final stock.
 - Public users cannot directly read or write orders or order items.
+- Signed-in customers can read orders linked to their account through the
+  account page.
 - Checkout and tracking RPC functions are executable only by the service role.
 - Admin APIs verify the Auth user and `admin_users` membership before using the
   service-role client.
@@ -311,15 +319,17 @@ Next.js application
 | `categories` | Product grouping and protected fixed categories |
 | `products` | Product content, sizes, stock, pricing, discounts, images, category, and visibility |
 | `admin_users` | Allow-list of Supabase Auth UUIDs permitted to administer the store |
-| `orders` | Active guest order, delivery, payment, amount, and status data |
+| `customer_profiles` | Basic signed-in customer contact and delivery details without profile images |
+| `orders` | Active guest or linked customer order, delivery, payment, amount, and status data |
 | `order_items` | Immutable product-name, size, quantity, and price snapshots |
 | `promo_codes` | Admin-managed coupons and fixed-value vouchers |
 | `promo_redemptions` | Authoritative coupon/voucher usage records for global and per-phone limits |
 | `archived_orders` | Minimal delivered-order archive retained after active cleanup |
 | `settings` | Singleton row for shipping, COD, tax, and support numbers |
 
-Phase 2 removes the legacy `profiles` and `reviews` tables. Customer contact and
-delivery data exists only on the order for which it is needed.
+Phase 2 removes the legacy `profiles` and `reviews` tables. Customer account
+details now live in `customer_profiles`; checkout still stores the delivery
+snapshot on each order.
 
 ### Enums
 
@@ -928,19 +938,22 @@ distributed production enforcement.
 app/
 ├── admin/                         Protected dashboard and print pages
 ├── api/
+│   ├── account/                   Customer profile updates
 │   ├── admin/                     Admin verification and mutations
 │   ├── checkout/                  Order creation and reservation cancellation
 │   ├── payments/razorpay/         Browser verification and webhook
 │   └── track/                     Private-by-pair order tracking
 ├── cart/                          Guest cart page
-├── checkout/                      Guest checkout page
+├── checkout/                      Guest and account checkout page
 ├── design/[slug]/                 Product page
+├── login/                         Customer account and order progress
 ├── order/success/                 Signed private order summary
 ├── support/                       Support contacts
 ├── track/                         Order tracking
 └── privacy/, terms/               Legal pages
 
 components/
+├── account/                       Customer account profile and orders UI
 ├── admin/                         Analytics, orders, products, settings, print
 ├── cart/                          Cart provider and cart UI
 ├── checkout/                      Checkout and Razorpay browser flow
@@ -955,10 +968,10 @@ config/
 
 lib/
 ├── auth/                          Admin session and authorization helpers
-├── data/                          Catalog, settings, orders, and admin queries
+├── data/                          Account, catalog, settings, orders, and admin queries
 ├── security/                      Origin checks, rate limits, signed tokens
 ├── supabase/                      Browser, server, and service-role clients
-├── validation/                    Checkout and admin Zod schemas
+├── validation/                    Account, checkout, and admin Zod schemas
 └── commerce.ts                    Pricing, phone, date, and delivery helpers
 
 supabase/

@@ -73,6 +73,31 @@ export interface CheckoutCustomer {
   email?: string;
 }
 
+export interface CustomerProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  landmark: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomerAccountUser {
+  id: string;
+  email: string;
+}
+
+export interface CustomerAccountData {
+  user: CustomerAccountUser | null;
+  profile: CustomerProfile | null;
+  orders: OrderSummary[];
+}
+
 export interface OrderItemSummary {
   id: string;
   productId: string;
