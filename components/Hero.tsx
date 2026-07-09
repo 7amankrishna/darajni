@@ -10,8 +10,6 @@ import {
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
-import { formatPrice } from "@/config/site";
-import { getProductPrice } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
 
 const trustPoints: Array<[string, LucideIcon]> = [
@@ -23,10 +21,8 @@ const trustPoints: Array<[string, LucideIcon]> = [
 
 export default function Hero({
   products,
-  categoryCount,
 }: {
   products: Product[];
-  categoryCount: number;
 }) {
   const heroProducts = products.filter((product) => product.images.length > 0).slice(0, 6);
   const featuredProduct = heroProducts[0] ?? products[0] ?? null;
@@ -94,26 +90,7 @@ export default function Hero({
             ))}
           </div>
         </div>
-
-        <div className="hero-3d-aside">
-          {featuredProduct && (
-            <Link
-              href={`/design/${featuredProduct.slug}`}
-              className="hero-feature-link"
-              aria-label={`View ${featuredProduct.name}`}
-            >
-              <span className="inline-flex items-center gap-2 text-[0.64rem] font-extrabold uppercase text-[#B8893B]">
-                {products.length ? `${products.length} live designs` : "Curated catalog"}
-              </span>
-              <span className="font-display mt-2 block text-3xl leading-none text-[#171717]">
-                {featuredProduct.name}
-              </span>
-              <span className="mt-2 block text-sm text-[#5F5348]">
-                {formatPrice(getProductPrice(featuredProduct))} · {categoryCount} categories
-              </span>
-            </Link>
-          )}
-        </div>
+        <div className="hero-3d-aside" aria-hidden="true" />
       </div>
     </section>
   );

@@ -149,7 +149,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
             <TableBody>
               {visible.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-semibold text-[#dfc184]">
+                  <TableCell className="font-semibold text-[#D9B56B]">
                     {order.orderNumber}
                   </TableCell>
                   <TableCell>
@@ -168,7 +168,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                       <button
                         type="button"
                         onClick={() => setSelected(order)}
-                        className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#caaa70]/50"
+                        className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#B8893B]/50"
                         aria-label={`View ${order.orderNumber}`}
                       >
                         <Eye className="h-4 w-4" />
@@ -184,7 +184,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                             className={`inline-flex h-9 items-center gap-1 rounded-full border px-3 text-xs font-semibold ${
                               action.danger
                                 ? "border-red-400/25 text-red-200"
-                                : "border-[#caaa70]/35 text-[#dfc184]"
+                                : "border-[#B8893B]/35 text-[#D9B56B]"
                             }`}
                           >
                             <Icon className="h-3.5 w-3.5" />
@@ -242,7 +242,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                         Size {item.selectedSize} · Qty {item.quantity}
                       </p>
                     </div>
-                    <p className="text-[#dfc184]">{formatPrice(item.lineTotal)}</p>
+                    <p className="text-[#D9B56B]">{formatPrice(item.lineTotal)}</p>
                   </div>
                 ))}
               </div>
@@ -270,7 +270,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                     <span>{formatPrice(selected.taxAmount)}</span>
                   </div>
                 </div>
-                <p className="font-display text-2xl text-[#dfc184]">
+                <p className="font-display text-2xl text-[#D9B56B]">
                   {formatPrice(selected.total)}
                 </p>
               </div>

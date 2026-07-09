@@ -220,7 +220,7 @@ export function ProductManagement({
                   {product.isActive ? "Active" : "Hidden"}
                 </span>
                 {product.isFeatured && (
-                  <span className="status-pill bg-[#caaa70] text-black">
+                  <span className="status-pill bg-[#B8893B] text-black">
                     Featured
                   </span>
                 )}
@@ -230,7 +230,7 @@ export function ProductManagement({
               <p className="eyebrow !text-[0.58rem]">{product.category.name}</p>
               <div className="mt-2 flex items-start justify-between gap-4">
                 <h3 className="font-display text-2xl">{product.name}</h3>
-                <p className="shrink-0 text-sm text-[#dfc184]">
+                <p className="shrink-0 text-sm text-[#D9B56B]">
                   {formatPrice(product.price)}
                 </p>
               </div>
@@ -431,7 +431,7 @@ export function ProductManagement({
                     </button>
                   </div>
                 ))}
-                <label className="grid aspect-square cursor-pointer place-items-center rounded-xl border border-dashed border-[#caaa70]/35 text-center text-[#dfc184] hover:bg-[#caaa70]/5">
+                <label className="grid aspect-square cursor-pointer place-items-center rounded-xl border border-dashed border-[#B8893B]/35 text-center text-[#D9B56B] hover:bg-[#B8893B]/5">
                   {uploading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
@@ -476,7 +476,7 @@ export function ProductManagement({
                 type="checkbox"
                 checked={draft.isActive}
                 onChange={(event) => setField("isActive", event.target.checked)}
-                className="accent-[#caaa70]"
+                className="accent-[#B8893B]"
               />
               Visible in storefront
             </label>
@@ -485,7 +485,7 @@ export function ProductManagement({
                 type="checkbox"
                 checked={draft.isFeatured}
                 onChange={(event) => setField("isFeatured", event.target.checked)}
-                className="accent-[#caaa70]"
+                className="accent-[#B8893B]"
               />
               Featured product
             </label>

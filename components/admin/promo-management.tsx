@@ -191,7 +191,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[#caaa70]/35 bg-[#caaa70]/8 px-3 py-1 font-mono text-xs font-bold text-[#dfc184]">
+                  <span className="rounded-full border border-[#B8893B]/35 bg-[#B8893B]/8 px-3 py-1 font-mono text-xs font-bold text-[#D9B56B]">
                     {promo.code}
                   </span>
                   <span
@@ -208,7 +208,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                   </span>
                 </div>
                 <h3 className="font-display mt-4 text-2xl">{promo.title}</h3>
-                <p className="mt-2 text-sm text-[#dfc184]">
+                <p className="mt-2 text-sm text-[#D9B56B]">
                   {discountLabel(promo)}
                 </p>
                 {promo.description && (
@@ -221,7 +221,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 <button
                   type="button"
                   onClick={() => editPromo(promo)}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#caaa70]/50"
+                  className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#B8893B]/50"
                   aria-label={`Edit ${promo.code}`}
                 >
                   <Pencil className="h-4 w-4" />
@@ -276,7 +276,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
         {!promos.length && (
           <div className="glass-panel grid min-h-64 place-items-center p-8 text-center lg:col-span-2">
             <div>
-              <Tag className="mx-auto h-9 w-9 text-[#caaa70]" />
+              <Tag className="mx-auto h-9 w-9 text-[#B8893B]" />
               <h3 className="font-display mt-4 text-3xl">No promo codes yet.</h3>
               <p className="mt-3 text-sm text-white/75">
                 Add a coupon or voucher after running the Stage 5 SQL migration.
@@ -482,7 +482,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 type="checkbox"
                 checked={draft.isActive}
                 onChange={(event) => setField("isActive", event.target.checked)}
-                className="h-5 w-5 accent-[#caaa70]"
+                className="h-5 w-5 accent-[#B8893B]"
               />
             </label>
             <button type="submit" disabled={saving} className="primary-button sm:col-span-2">

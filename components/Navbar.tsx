@@ -17,6 +17,7 @@ import { useState } from "react";
 
 import BrandLogo from "@/components/BrandLogo";
 import { useCart } from "@/components/cart/cart-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { siteConfig, whatsappSupportLink } from "@/config/site";
 
@@ -144,6 +145,7 @@ export default function Navbar({ supportNumber }: { supportNumber: string }) {
             >
               <UserRound className="h-4 w-4" />
             </Link>
+            <ThemeToggle />
             <Link
               href="/cart"
               className="relative grid h-10 w-10 place-items-center rounded-xl border border-[#B8893B]/45 bg-[#111111] text-[#FFFDF8] transition hover:bg-[#6E0F1A]"
@@ -177,6 +179,12 @@ export default function Navbar({ supportNumber }: { supportNumber: string }) {
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp support
               </a>
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-[#F6E9DD] px-3 py-2">
+                <span className="text-xs font-extrabold uppercase text-[#5F5348]">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}

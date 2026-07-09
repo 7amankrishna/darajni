@@ -275,7 +275,7 @@ export default async function HomePage() {
         }}
       />
       <main id="main-content">
-        <Hero products={products} categoryCount={categories.length} />
+        <Hero products={products} />
 
         <DressShowcase products={products} categories={categories} />
 

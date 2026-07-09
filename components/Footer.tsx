@@ -1,4 +1,5 @@
 import {
+  AtSign,
   Mail,
   MapPin,
   MessageCircle,
@@ -86,6 +87,15 @@ export default function Footer({ supportNumber }: { supportNumber: string }) {
               <MapPin className="h-4 w-4 text-[#D9B56B]" />
               {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
             </span>
+            <a
+              href="https://www.instagram.com/bruhh.aman/"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 hover:text-white"
+            >
+              <AtSign className="h-4 w-4 text-[#D9B56B]" />
+              Instagram @bruhh.aman
+            </a>
           </div>
         </div>
 
@@ -118,10 +128,24 @@ export default function Footer({ supportNumber }: { supportNumber: string }) {
             Secure checkout
           </span>
         </div>
-        <p>
-          © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
-          delivered Pan India.
-        </p>
+        <div className="space-y-1 md:text-right">
+          <p>
+            © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
+            delivered Pan India.
+          </p>
+          <p>
+            Built and maintained by{" "}
+            <a
+              href="https://www.instagram.com/bruhh.aman/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#D9B56B] hover:text-white"
+            >
+              Aman Krishna (@bruhh.aman)
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </footer>
   );

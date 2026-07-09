@@ -45,9 +45,9 @@ export function AdminLoginForm({ unauthorized = false }: { unauthorized?: boolea
   };
 
   return (
-    <main className="grid min-h-[calc(100svh-74px)] place-items-center px-4 py-12">
+    <main className="admin-surface grid min-h-[calc(100svh-74px)] place-items-center px-4 py-12">
       <form onSubmit={submit} className="glass-panel w-full max-w-md p-7 sm:p-9">
-        <BrandLogo className="mx-auto h-20 w-20 border border-[#caaa70]/25" priority />
+        <BrandLogo className="mx-auto h-20 w-20 border border-[#B8893B]/25" priority />
         <div className="mt-6 text-center">
           <p className="eyebrow">Secure administration</p>
           <h1 className="font-display mt-3 text-4xl">Store sign in</h1>

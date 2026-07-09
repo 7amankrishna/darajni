@@ -46,7 +46,7 @@ export function AdminDashboard({
   };
 
   return (
-    <main className="min-h-[75vh] py-10 sm:py-14">
+    <main className="admin-surface min-h-[75vh] py-10 sm:py-14">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
           <div>
@@ -74,8 +74,8 @@ export function AdminDashboard({
                 onClick={() => setTab(item.value)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-xs font-bold uppercase tracking-wider transition ${
                   tab === item.value
-                    ? "border-[#caaa70] bg-[#caaa70] text-black"
-                    : "border-white/10 text-white/50 hover:border-[#caaa70]/40"
+                    ? "border-[#B8893B] bg-[#B8893B] text-black"
+                    : "border-white/10 text-white/50 hover:border-[#B8893B]/40"
                 }`}
               >
                 <Icon className="h-4 w-4" />
