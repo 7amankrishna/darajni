@@ -175,7 +175,7 @@ export function CustomerAccountPage({
   const submitAuth = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase || authBusy) {
-      setAuthError("Customer sign in is not configured.");
+      setAuthError("Customer sign in is temporarily unavailable.");
       return;
     }
 
@@ -207,7 +207,7 @@ export function CustomerAccountPage({
       setAuthError(
         mode === "signin"
           ? "The email or password is incorrect."
-          : response.error.message,
+          : "The account could not be created. Check your details and try again.",
       );
       return;
     }

@@ -1,8 +1,10 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import {
   isAllowedOrderTransition,
@@ -13,16 +15,14 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
-  }
-  const session = await requireAdminApi();
-  if (!session) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
 
   const parsed = orderStatusSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid order status." }, { status: 400 });
@@ -30,7 +30,7 @@ export async function PATCH(
   const { id } = await params;
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Order management is temporarily unavailable.", 503);
   }
 
   const { data: order, error: readError } = await supabase
@@ -57,7 +57,12 @@ export async function PATCH(
     .eq("id", id)
     .eq("status", parsed.data.currentStatus);
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 409 });
+    return internalApiError(
+      "admin-order-status-update",
+      error,
+      "The order status could not be updated.",
+      409,
+    );
   }
 
   revalidatePath("/admin");

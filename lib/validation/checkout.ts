@@ -54,14 +54,14 @@ export const checkoutPromoSchema = z.object({
 });
 
 export const razorpayVerificationSchema = z.object({
-  token: z.string().min(20),
-  razorpayOrderId: z.string().min(5).max(100),
-  razorpayPaymentId: z.string().min(5).max(100),
-  razorpaySignature: z.string().min(20).max(200),
+  token: z.string().min(20).max(2048),
+  razorpayOrderId: z.string().regex(/^order_[A-Za-z0-9]+$/).max(100),
+  razorpayPaymentId: z.string().regex(/^pay_[A-Za-z0-9]+$/).max(100),
+  razorpaySignature: z.string().regex(/^[a-f0-9]{64}$/i),
 });
 
 export const cancellationSchema = z.object({
-  token: z.string().min(20),
+  token: z.string().min(20).max(2048),
   paymentFailed: z.boolean().optional().default(false),
 });
 

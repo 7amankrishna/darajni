@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
@@ -26,8 +27,14 @@ function hasSignature(bytes: Uint8Array, signatures: number[][]) {
 }
 
 export async function POST(request: Request) {
-  if (!isSameOrigin(request) || !(await requireAdminApi())) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminUpload,
+  );
+  if (authorization.response) return authorization.response;
+  const declaredLength = Number(request.headers.get("content-length") || 0);
+  if (declaredLength > 2.5 * 1024 * 1024) {
+    return apiError("The upload is too large.", 413);
   }
   const formData = await request.formData();
   const file = formData.get("file");
@@ -54,7 +61,7 @@ export async function POST(request: Request) {
 
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Storage is not configured." }, { status: 503 });
+    return apiError("Image uploads are temporarily unavailable.", 503);
   }
   const path = `${new Date().getUTCFullYear()}/${randomUUID()}.${definition.extension}`;
   const { error } = await supabase.storage
@@ -65,7 +72,12 @@ export async function POST(request: Request) {
       upsert: false,
     });
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 409 });
+    return internalApiError(
+      "admin-product-image-upload",
+      error,
+      "The image could not be uploaded.",
+      409,
+    );
   }
   const { data } = supabase.storage.from("product-images").getPublicUrl(path);
   return NextResponse.json({ url: data.publicUrl });

@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 
 import { getCustomerUser, saveCustomerProfile } from "@/lib/data/account";
-import { rateLimit } from "@/lib/security/rate-limit";
-import { getClientIp, isSameOrigin } from "@/lib/security/request";
+import { apiError, rateLimitError } from "@/lib/security/api-response";
+import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
+import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { customerProfileSchema } from "@/lib/validation/account";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
 
   const user = await getCustomerUser();
@@ -17,20 +18,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please sign in to update your details." }, { status: 401 });
   }
 
-  const limit = await rateLimit({
-    key: `account-profile:${user.id}:${getClientIp(request)}`,
-    limit: 20,
-    windowSeconds: 15 * 60,
-  });
-  if (!limit.success) {
-    return NextResponse.json(
-      { error: "Too many profile updates. Please try again shortly." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
-    );
-  }
+  const limit = await rateLimitRequest(request, RATE_LIMITS.accountProfile, user.id);
+  if (!limit.success) return rateLimitError(limit);
 
   const parsed = customerProfileSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(

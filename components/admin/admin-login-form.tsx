@@ -17,7 +17,7 @@ export function AdminLoginForm({ unauthorized = false }: { unauthorized?: boolea
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase) {
-      setError("Supabase authentication is not configured.");
+      setError("Administrator sign in is temporarily unavailable.");
       return;
     }
     setBusy(true);

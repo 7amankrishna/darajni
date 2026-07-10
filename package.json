@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "validate:env": "node --env-file-if-exists=.env.local scripts/validate-env.mjs",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && next build",
     "start": "next start",

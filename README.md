@@ -99,7 +99,7 @@ current database values during checkout.
 - Supabase Auth for administrators and optional customer accounts
 - Supabase Storage for product images
 - Razorpay for online payments
-- Optional Upstash Redis REST rate limiting
+- Upstash Redis REST rate limiting in production with a bounded local fallback
 - Zod request validation
 - Vercel deployment configuration
 
@@ -516,8 +516,8 @@ Use a dedicated high-entropy secret:
 openssl rand -hex 32
 ```
 
-The code has a backward-compatible fallback to `RAZORPAY_WEBHOOK_SECRET`, but a
-separate `ORDER_ACCESS_SECRET` should always be configured.
+`ORDER_ACCESS_SECRET` is mandatory for checkout and cannot fall back to or reuse
+the Razorpay webhook secret.
 
 ### Rate limits
 
@@ -525,12 +525,21 @@ separate `ORDER_ACCESS_SECRET` should always be configured.
 |---|---|
 | Checkout | 5 attempts per IP per 15 minutes |
 | Coupon/voucher preview | 20 attempts per IP per 15 minutes |
+| Checkout cancellation | 20 attempts per IP per 15 minutes |
 | Razorpay browser verification | 10 attempts per IP per 15 minutes |
+| Razorpay webhook | 300 deliveries per IP per minute |
 | Order tracking | 12 attempts per IP per 15 minutes |
+| Customer profile update | 20 updates per account per 15 minutes |
+| Admin read/verification | 120 requests per IP per 15 minutes |
+| Admin mutations | 60 requests per IP per 15 minutes |
+| Admin uploads | 20 requests per IP per 15 minutes |
+| Store maintenance | 10 requests per IP per hour |
 
 When both Upstash variables are configured, counters are shared across
 instances. Otherwise, the application uses an in-memory fallback suitable for
-development but not reliable as a distributed production limit.
+development but not reliable as a distributed production limit. Rate-limit
+keys hash the client identifier before storage, memory counters are bounded,
+and throttled responses include standard limit and retry headers.
 
 ### Product upload validation
 
@@ -548,6 +557,10 @@ development but not reliable as a distributed production limit.
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - Restricted browser permissions for camera, microphone, and geolocation
 - `X-Frame-Options: SAMEORIGIN`
+- Content Security Policy restricting scripts, connections, frames, and images
+- HSTS in production with subdomain protection
+- Cross-origin opener and resource isolation headers
+- `no-store` and `noindex` headers for API responses
 - Sensitive and transactional routes excluded from indexing
 
 ## Environment variables
@@ -569,8 +582,8 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Public | For online payment | Razorpay test/live key ID |
 | `RAZORPAY_KEY_SECRET` | Server only | For online payment | Razorpay order creation and browser-response verification |
 | `RAZORPAY_WEBHOOK_SECRET` | Server only | For online payment | Razorpay webhook signature verification |
-| `UPSTASH_REDIS_REST_URL` | Server only | Recommended in production | Distributed rate-limit store |
-| `UPSTASH_REDIS_REST_TOKEN` | Server only | Recommended in production | Upstash authorization token |
+| `UPSTASH_REDIS_REST_URL` | Server only | Yes in production | Distributed rate-limit store; configure together with its token |
+| `UPSTASH_REDIS_REST_TOKEN` | Server only | Yes in production | Upstash authorization token; configure together with its URL |
 | `NEXT_PUBLIC_DEVELOPER_SUPPORT_WHATSAPP` | Public | Optional fallback | Digits-only technical support number |
 | `NEXT_PUBLIC_DESIGNER_SUPPORT_WHATSAPP` | Public | Optional fallback | Digits-only designer support number |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Public | Optional | Public email and support fallback |
@@ -602,6 +615,21 @@ NEXT_PUBLIC_CONTACT_EMAIL=hello@example.com
 Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ORDER_ACCESS_SECRET`, `CRON_SECRET`,
 `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, or Upstash credentials through
 a `NEXT_PUBLIC_` variable.
+
+Use a different random value for every server-side secret. `ORDER_ACCESS_SECRET`
+and `CRON_SECRET` must contain at least 32 characters and must never reuse the
+Razorpay webhook secret. Validate a local or deployment environment before
+release:
+
+```bash
+npm run validate:env
+```
+
+The validator rejects missing values, placeholders, malformed URLs, incomplete
+Razorpay/Upstash pairs, short or reused secrets, and secret-like variables with
+a `NEXT_PUBLIC_` prefix. Production deployments should configure Upstash;
+without it, rate limiting falls back to a bounded per-instance memory store and
+cannot coordinate limits across multiple server instances.
 
 Restart the development server after changing `.env.local`. In Vercel, changing
 an environment variable requires a new deployment.

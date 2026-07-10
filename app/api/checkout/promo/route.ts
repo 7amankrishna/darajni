@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { rateLimit } from "@/lib/security/rate-limit";
-import { getClientIp, isSameOrigin } from "@/lib/security/request";
+import {
+  apiError,
+  internalApiError,
+  rateLimitError,
+} from "@/lib/security/api-response";
+import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
+import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { checkoutPromoSchema } from "@/lib/validation/checkout";
 
@@ -29,18 +34,19 @@ function friendlyPromoError(message: string) {
     "Cart must contain",
     "Item quantity must be",
   ];
-  return knownMessages.some((known) => message.includes(known))
-    ? message
-    : "This coupon or voucher could not be applied.";
+  return knownMessages.some((known) => message.includes(known)) ? message : null;
 }
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
 
+  const limit = await rateLimitRequest(request, RATE_LIMITS.checkoutPromo);
+  if (!limit.success) return rateLimitError(limit);
+
   const parsed = checkoutPromoSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(
@@ -49,24 +55,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const limit = await rateLimit({
-    key: `checkout-promo:${getClientIp(request)}`,
-    limit: 20,
-    windowSeconds: 15 * 60,
-  });
-  if (!limit.success) {
-    return NextResponse.json(
-      { error: "Too many coupon checks. Please try again shortly." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
-    );
-  }
-
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json(
-      { error: "Coupon and voucher checks are not configured." },
-      { status: 503 },
-    );
+    return apiError("Coupon and voucher checks are temporarily unavailable.", 503);
   }
 
   const { data, error } = await supabase.rpc("quote_checkout_discount", {
@@ -80,10 +71,15 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json(
-      { error: friendlyPromoError(error.message) },
-      { status: 409 },
-    );
+    const friendly = friendlyPromoError(error.message);
+    return friendly
+      ? apiError(friendly, 409)
+      : internalApiError(
+          "checkout-promo-quote",
+          error,
+          "This coupon or voucher could not be applied.",
+          409,
+        );
   }
 
   const quote = (Array.isArray(data) ? data[0] : data) as

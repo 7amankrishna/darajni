@@ -1,17 +1,21 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { settingsInputSchema } from "@/lib/validation/admin";
 
 export async function PUT(request: Request) {
-  if (!isSameOrigin(request) || !(await requireAdminApi())) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
   const parsed = settingsInputSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(
@@ -21,7 +25,7 @@ export async function PUT(request: Request) {
   }
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Store settings are temporarily unavailable.", 503);
   }
   const value = parsed.data;
   const { error } = await supabase
@@ -35,7 +39,12 @@ export async function PUT(request: Request) {
     })
     .eq("id", true);
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 409 });
+    return internalApiError(
+      "admin-settings-update",
+      error,
+      "Store settings could not be updated.",
+      409,
+    );
   }
 
   revalidateTag("settings");

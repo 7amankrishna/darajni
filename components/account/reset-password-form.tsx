@@ -19,7 +19,7 @@ export function ResetPasswordForm() {
   useEffect(() => {
     const client = supabase;
     if (!client) {
-      setError("Password recovery is not configured.");
+      setError("Password recovery is temporarily unavailable.");
       return;
     }
 
@@ -71,7 +71,7 @@ export function ResetPasswordForm() {
     const { error: updateError } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (updateError) {
-      setError(updateError.message);
+      setError("The password could not be updated. Request a new reset link and try again.");
       return;
     }
     setComplete(true);

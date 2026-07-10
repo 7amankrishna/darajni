@@ -1,20 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
   return (
     <main className="grid min-h-[70vh] place-items-center bg-[#FFF8EF] px-4 text-center">
       <div className="max-w-lg">

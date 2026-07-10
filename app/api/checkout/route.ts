@@ -4,12 +4,18 @@ import {
   getCustomerUser,
   saveCheckoutProfileForUser,
 } from "@/lib/data/account";
+import { getRazorpayOrderEnvironment } from "@/lib/config/server-env";
+import {
+  apiError,
+  internalApiError,
+  rateLimitError,
+} from "@/lib/security/api-response";
 import {
   createOrderAccessToken,
   isOrderAccessConfigured,
 } from "@/lib/security/order-token";
-import { rateLimit } from "@/lib/security/rate-limit";
-import { getClientIp, isSameOrigin } from "@/lib/security/request";
+import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
+import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { checkoutSchema } from "@/lib/validation/checkout";
 
@@ -40,9 +46,7 @@ function friendlyCheckoutError(message: string) {
     "Cart subtotal is below",
     "This phone number has already used this code",
   ];
-  return knownMessages.some((known) => message.includes(known))
-    ? message
-    : "The order could not be created. Please review your cart and try again.";
+  return knownMessages.some((known) => message.includes(known)) ? message : null;
 }
 
 async function cancelReservation(orderId: string) {
@@ -56,18 +60,18 @@ async function cancelReservation(orderId: string) {
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
+
+  const limit = await rateLimitRequest(request, RATE_LIMITS.checkout);
+  if (!limit.success) return rateLimitError(limit);
 
   if (!isOrderAccessConfigured()) {
     console.error("Checkout blocked: ORDER_ACCESS_SECRET is not configured.");
-    return NextResponse.json(
-      { error: "Order access security is not configured." },
-      { status: 503 },
-    );
+    return apiError("Checkout is temporarily unavailable.", 503);
   }
 
-  const parsed = checkoutSchema.safeParse(await request.json().catch(() => null));
+  const parsed = checkoutSchema.safeParse(await readJsonBody(request));
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message || "Invalid checkout details." },
@@ -77,40 +81,17 @@ export async function POST(request: Request) {
 
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json(
-      { error: "Checkout is not configured." },
-      { status: 503 },
-    );
+    return apiError("Checkout is temporarily unavailable.", 503);
   }
 
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
-  const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
+  const razorpayEnvironment = getRazorpayOrderEnvironment();
   if (
     paymentMethod === "razorpay" &&
-    (!razorpayKeyId || !razorpaySecret)
+    !razorpayEnvironment
   ) {
-    return NextResponse.json(
-      { error: "Online payment is not configured." },
-      { status: 503 },
-    );
-  }
-
-  const ip = getClientIp(request);
-  const limit = await rateLimit({
-    key: `checkout:v2:${ip}`,
-    limit: 5,
-    windowSeconds: 15 * 60,
-  });
-  if (!limit.success) {
-    return NextResponse.json(
-      { error: "Too many checkout attempts. Please try again shortly." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(limit.retryAfter) },
-      },
-    );
+    return apiError("Online payment is temporarily unavailable.", 503);
   }
 
   const { data, error } = await supabase.rpc("create_checkout_order", {
@@ -134,20 +115,26 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    console.error("Checkout RPC failed", error.message);
-    return NextResponse.json(
-      { error: friendlyCheckoutError(error.message) },
-      { status: 409 },
-    );
+    const friendly = friendlyCheckoutError(error.message);
+    return friendly
+      ? apiError(friendly, 409)
+      : internalApiError(
+          "checkout-order-create",
+          error,
+          "The order could not be created. Please review your cart and try again.",
+          409,
+        );
   }
 
   const order = (Array.isArray(data) ? data[0] : data) as
     | CheckoutRow
     | undefined;
   if (!order) {
-    return NextResponse.json(
-      { error: "The order could not be created." },
-      { status: 500 },
+    return internalApiError(
+      "checkout-order-empty-result",
+      new Error("Checkout RPC returned no order row."),
+      "The order could not be created.",
+      500,
     );
   }
 
@@ -172,10 +159,7 @@ export async function POST(request: Request) {
     token = createOrderAccessToken(order.order_id);
   } catch {
     await cancelReservation(order.order_id);
-    return NextResponse.json(
-      { error: "Order access security is not configured." },
-      { status: 503 },
-    );
+    return apiError("Checkout is temporarily unavailable.", 503);
   }
 
   if (paymentMethod === "cod") {
@@ -187,11 +171,14 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (!razorpayEnvironment) {
+      throw new Error("Razorpay environment unavailable after validation.");
+    }
     const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
       headers: {
         Authorization: `Basic ${Buffer.from(
-          `${razorpayKeyId}:${razorpaySecret}`,
+          `${razorpayEnvironment.keyId}:${razorpayEnvironment.keySecret}`,
         ).toString("base64")}`,
         "Content-Type": "application/json",
       },
@@ -202,6 +189,7 @@ export async function POST(request: Request) {
         notes: { order_id: order.order_id },
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
 
     const razorpayOrder = (await razorpayResponse.json()) as {
@@ -223,7 +211,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       mode: "razorpay",
-      keyId: razorpayKeyId,
+      keyId: razorpayEnvironment.keyId,
       razorpayOrderId: razorpayOrder.id,
       amount: Math.round(Number(order.total) * 100),
       currency: "INR",
@@ -237,11 +225,12 @@ export async function POST(request: Request) {
       token,
     });
   } catch (razorpayError) {
-    console.error("Razorpay setup failed", razorpayError);
     await cancelReservation(order.order_id);
-    return NextResponse.json(
-      { error: "Online payment could not be started. Please try again." },
-      { status: 502 },
+    return internalApiError(
+      "razorpay-order-create",
+      razorpayError,
+      "Online payment could not be started. Please try again.",
+      502,
     );
   }
 }

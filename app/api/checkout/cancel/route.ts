@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 
+import {
+  apiError,
+  internalApiError,
+  rateLimitError,
+} from "@/lib/security/api-response";
 import { verifyOrderAccessToken } from "@/lib/security/order-token";
-import { isSameOrigin } from "@/lib/security/request";
+import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
+import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { cancellationSchema } from "@/lib/validation/checkout";
 
@@ -9,11 +15,14 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
 
+  const limit = await rateLimitRequest(request, RATE_LIMITS.checkoutCancel);
+  if (!limit.success) return rateLimitError(limit);
+
   const parsed = cancellationSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid cancellation request." }, { status: 400 });
@@ -26,7 +35,7 @@ export async function POST(request: Request) {
 
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Checkout is not configured." }, { status: 503 });
+    return apiError("Checkout is temporarily unavailable.", 503);
   }
 
   const { error } = await supabase.rpc("cancel_order_reservation", {
@@ -35,7 +44,12 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ error: "The reservation could not be cancelled." }, { status: 409 });
+    return internalApiError(
+      "checkout-reservation-cancel",
+      error,
+      "The reservation could not be cancelled.",
+      409,
+    );
   }
   return NextResponse.json({ cancelled: true });
 }

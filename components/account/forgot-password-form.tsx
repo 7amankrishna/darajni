@@ -15,7 +15,7 @@ export function ForgotPasswordForm() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase || busy) {
-      setError("Password recovery is not configured.");
+      setError("Password recovery is temporarily unavailable.");
       return;
     }
 
@@ -29,7 +29,7 @@ export function ForgotPasswordForm() {
     setBusy(false);
 
     if (resetError) {
-      setError(resetError.message);
+      setError("The reset email could not be sent. Please try again later.");
       return;
     }
 

@@ -1,20 +1,21 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { productInputSchema } from "@/lib/validation/admin";
 
 export async function POST(request: Request) {
-  if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
-  }
-  if (!(await requireAdminApi())) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
   const parsed = productInputSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Product management is temporarily unavailable.", 503);
   }
   const product = parsed.data;
   const { data, error } = await supabase
@@ -47,7 +48,12 @@ export async function POST(request: Request) {
     .select("id")
     .single();
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 409 });
+    return internalApiError(
+      "admin-product-create",
+      error,
+      "The product could not be created. Check that its slug and category are valid.",
+      409,
+    );
   }
 
   revalidateTag("catalog");

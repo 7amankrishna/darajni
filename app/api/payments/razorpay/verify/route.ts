@@ -1,9 +1,15 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
+import { getRazorpayKeySecret } from "@/lib/config/server-env";
+import {
+  apiError,
+  internalApiError,
+  rateLimitError,
+} from "@/lib/security/api-response";
 import { verifyOrderAccessToken } from "@/lib/security/order-token";
-import { rateLimit } from "@/lib/security/rate-limit";
-import { getClientIp, isSameOrigin } from "@/lib/security/request";
+import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
+import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { razorpayVerificationSchema } from "@/lib/validation/checkout";
 
@@ -11,44 +17,34 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) {
-    return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    return apiError("Forbidden.", 403);
   }
 
-  const limit = await rateLimit({
-    key: `payment-verify:${getClientIp(request)}`,
-    limit: 10,
-    windowSeconds: 15 * 60,
-  });
-  if (!limit.success) {
-    return NextResponse.json(
-      { error: "Too many verification attempts." },
-      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
-    );
-  }
+  const limit = await rateLimitRequest(request, RATE_LIMITS.paymentVerify);
+  if (!limit.success) return rateLimitError(limit);
 
   const parsed = razorpayVerificationSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid payment response." }, { status: 400 });
   }
 
   const payload = verifyOrderAccessToken(parsed.data.token);
-  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const secret = getRazorpayKeySecret();
   if (!payload || !secret) {
-    return NextResponse.json({ error: "Payment verification is unavailable." }, { status: 401 });
+    return apiError("Payment verification is unavailable.", 401);
   }
 
   const expected = createHmac("sha256", secret)
     .update(
       `${parsed.data.razorpayOrderId}|${parsed.data.razorpayPaymentId}`,
     )
-    .digest("hex");
-  const actualBuffer = Buffer.from(parsed.data.razorpaySignature);
-  const expectedBuffer = Buffer.from(expected);
+    .digest();
+  const actualBuffer = Buffer.from(parsed.data.razorpaySignature, "hex");
   if (
-    actualBuffer.length !== expectedBuffer.length ||
-    !timingSafeEqual(actualBuffer, expectedBuffer)
+    actualBuffer.length !== expected.length ||
+    !timingSafeEqual(actualBuffer, expected)
   ) {
     return NextResponse.json({ error: "Payment signature is invalid." }, { status: 400 });
   }
@@ -64,8 +60,12 @@ export async function POST(request: Request) {
     p_razorpay_payment_id: parsed.data.razorpayPaymentId,
   });
   if (error) {
-    console.error("Payment confirmation failed", error.message);
-    return NextResponse.json({ error: "Payment could not be confirmed." }, { status: 409 });
+    return internalApiError(
+      "razorpay-payment-confirm",
+      error,
+      "Payment could not be confirmed.",
+      409,
+    );
   }
 
   return NextResponse.json({

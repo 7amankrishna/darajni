@@ -1,24 +1,24 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { productInputSchema } from "@/lib/validation/admin";
-
-async function authorize(request: Request) {
-  return isSameOrigin(request) && Boolean(await requireAdminApi());
-}
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!(await authorize(request))) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
   const parsed = productInputSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(
@@ -29,7 +29,7 @@ export async function PUT(
   const { id } = await params;
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Product management is temporarily unavailable.", 503);
   }
   const product = parsed.data;
   const { error } = await supabase
@@ -50,7 +50,12 @@ export async function PUT(
     })
     .eq("id", id);
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 409 });
+    return internalApiError(
+      "admin-product-update",
+      error,
+      "The product could not be updated. Check that its slug and category are valid.",
+      409,
+    );
   }
 
   revalidateTag("catalog");
@@ -63,13 +68,15 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!(await authorize(request))) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
   const { id } = await params;
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Product management is temporarily unavailable.", 503);
   }
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) {

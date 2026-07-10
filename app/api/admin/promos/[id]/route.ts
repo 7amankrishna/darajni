@@ -2,8 +2,10 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import type { z } from "zod";
 
-import { requireAdminApi } from "@/lib/auth/admin";
-import { isSameOrigin } from "@/lib/security/request";
+import { authorizeAdminRequest } from "@/lib/security/admin-api";
+import { apiError, internalApiError } from "@/lib/security/api-response";
+import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { promoInputSchema } from "@/lib/validation/admin";
 
@@ -28,25 +30,24 @@ function promoPayload(value: PromoInput) {
 }
 
 function friendlyPromoAdminError(message: string) {
-  if (message.includes("promo_codes")) {
-    return "Run the Stage 5 SQL migration before managing coupons and vouchers.";
-  }
   if (message.includes("duplicate key")) {
     return "A coupon or voucher with this code already exists.";
   }
-  return message;
+  return null;
 }
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!isSameOrigin(request) || !(await requireAdminApi())) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
 
   const parsed = promoInputSchema.safeParse(
-    await request.json().catch(() => null),
+    await readJsonBody(request),
   );
   if (!parsed.success) {
     return NextResponse.json(
@@ -58,7 +59,7 @@ export async function PUT(
   const { id } = await params;
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Promotion management is temporarily unavailable.", 503);
   }
 
   const { error } = await supabase
@@ -67,10 +68,15 @@ export async function PUT(
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json(
-      { error: friendlyPromoAdminError(error.message) },
-      { status: 409 },
-    );
+    const friendly = friendlyPromoAdminError(error.message);
+    return friendly
+      ? apiError(friendly, 409)
+      : internalApiError(
+          "admin-promo-update",
+          error,
+          "The coupon or voucher could not be updated.",
+          409,
+        );
   }
 
   revalidatePath("/admin");
@@ -82,14 +88,16 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!isSameOrigin(request) || !(await requireAdminApi())) {
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 });
-  }
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminMutation,
+  );
+  if (authorization.response) return authorization.response;
 
   const { id } = await params;
   const supabase = createSupabaseServiceClient();
   if (!supabase) {
-    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+    return apiError("Promotion management is temporarily unavailable.", 503);
   }
 
   const { error } = await supabase
@@ -98,9 +106,11 @@ export async function DELETE(
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json(
-      { error: friendlyPromoAdminError(error.message) },
-      { status: 409 },
+    return internalApiError(
+      "admin-promo-deactivate",
+      error,
+      "The coupon or voucher could not be deactivated.",
+      409,
     );
   }
 
