@@ -1,4 +1,5 @@
 import {
+  AtSign,
   Mail,
   MapPin,
   MessageCircle,
@@ -83,18 +84,18 @@ export default function Footer({
             Premium Indian occasion wear from Bihar Sharif, custom-sized with
             clear communication and delivered Pan India.
           </p>
-          <div className="mt-6 grid gap-3 text-xs text-white/70">
-            <a href={whatsappHref} className="flex items-center gap-2 hover:text-white">
-              <MessageCircle className="h-4 w-4 text-[#1FAF54]" />
-              {supportNumber ? `+${supportNumber}` : "WhatsApp support"}
+          <div className="mt-6 grid max-w-md gap-2 text-xs text-white/78">
+            <a href={whatsappHref} className="footer-contact-row group">
+              <MessageCircle className="h-4 w-4 text-[#35C66D]" />
+              <span><small>Customer support</small>{supportNumber ? `+${supportNumber}` : "WhatsApp support"}</span>
             </a>
-            <a href={`mailto:${siteConfig.email}`} className="flex items-center gap-2 hover:text-white">
+            <a href={`mailto:${siteConfig.email}`} className="footer-contact-row group">
               <Mail className="h-4 w-4 text-[#D9B56B]" />
-              {siteConfig.email}
+              <span><small>Email</small>{siteConfig.email}</span>
             </a>
-            <span className="flex items-center gap-2">
+            <span className="footer-contact-row">
               <MapPin className="h-4 w-4 text-[#D9B56B]" />
-              {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
+              <span><small>Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
             </span>
           </div>
         </div>
@@ -105,7 +106,7 @@ export default function Footer({
               <p className="text-[0.68rem] font-extrabold uppercase text-[#D9B56B]">
                 {column.title}
               </p>
-              <div className="mt-4 grid gap-3 text-sm text-white/58">
+              <div className="mt-4 grid gap-3 text-sm text-white/72">
                 {column.links.map(([label, href]) => (
                   <Link key={label} href={href} className="hover:text-white">
                     {label}
@@ -128,20 +129,22 @@ export default function Footer({
             Secure checkout
           </span>
         </div>
-        <div className="space-y-1 md:text-right">
+        <div className="space-y-2 md:text-right">
           <p>
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
           </p>
-          <p>
-            Created And Managed by Aman Krishna · Instagram:{" "}
+          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+            <span>Website crafted &amp; managed by Aman Krishna</span>
+            <span className="hidden text-white/35 sm:inline">•</span>
             <a
               href="https://www.instagram.com/bruhh.aman/"
               target="_blank"
               rel="noreferrer"
-              className="font-semibold text-[#D9B56B] hover:text-white"
+              className="inline-flex items-center gap-1.5 font-bold text-[#E7C47F] transition hover:text-white"
             >
-              bruhh.aman
+              <AtSign className="h-3.5 w-3.5" />
+              @bruhh.aman
             </a>
           </p>
         </div>

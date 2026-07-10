@@ -14,29 +14,28 @@ export function MeasurementGuideFigure({
   labels?: Array<[string, string]>;
 }) {
   return (
-    <div className="measurement-figure" aria-label="Female measurement dummy with marked body points">
-      <div className="measurement-dummy" aria-hidden="true">
-        <span className="dummy-head" />
-        <span className="dummy-neck" />
-        <span className="dummy-torso">
-          <span className="dummy-mark dummy-mark-shoulder" />
-          <span className="dummy-mark dummy-mark-bust" />
-          <span className="dummy-mark dummy-mark-waist" />
-          <span className="dummy-mark dummy-mark-hip" />
-          <span className="dummy-centerline" />
-        </span>
-        <span className="dummy-arm dummy-arm-left" />
-        <span className="dummy-arm dummy-arm-right" />
-        <span className="dummy-leg dummy-leg-left" />
-        <span className="dummy-leg dummy-leg-right" />
-        <span className="dummy-length-line" />
+    <figure className="measurement-figure" aria-label="Illustrated woman demonstrating how to take custom-fit measurements">
+      <div className="measurement-person" aria-hidden="true">
+        <Image
+          src="/images/measurement-guide-woman.png"
+          alt=""
+          fill
+          sizes="(max-width: 640px) 70vw, 28rem"
+          className="object-contain object-bottom"
+        />
       </div>
+
+      <figcaption className="measurement-caption">
+        <span>Made-to-measure guide</span>
+        Keep the tape comfortably close, without pulling it tight.
+      </figcaption>
 
       {labels.map(([label, className]) => (
         <span key={label} className={`measure-label ${className}`}>
           {label}
         </span>
       ))}
-    </div>
+    </figure>
   );
 }
+import Image from "next/image";

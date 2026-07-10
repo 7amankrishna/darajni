@@ -1,4 +1,5 @@
 import {
+  Clock3,
   CreditCard,
   HeartHandshake,
   type LucideIcon,
@@ -149,7 +150,7 @@ export default async function Page() {
                 delivery.
               </p>
             </div>
-            <div className="grid gap-3 text-sm text-white/76">
+            <div className="grid gap-3 text-sm text-white/82">
               <a
                 id="whatsapp"
                 href={whatsappHref}
@@ -157,23 +158,23 @@ export default async function Page() {
                 rel="noreferrer"
                 className="flex items-center gap-3 rounded-xl border border-white/10 p-4 hover:bg-white/5"
               >
-                <MessageCircle className="h-5 w-5 text-[#1FAF54]" />
-                {supportNumber ? `+${supportNumber}` : "WhatsApp support"}
+                <MessageCircle className="h-5 w-5 shrink-0 text-[#35C66D]" />
+                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">WhatsApp support</small>{supportNumber ? `+${supportNumber}` : "Start a support conversation"}</span>
               </a>
               <a
                 href={`mailto:${siteConfig.email}`}
                 className="flex items-center gap-3 rounded-xl border border-white/10 p-4 hover:bg-white/5"
               >
-                <Mail className="h-5 w-5 text-[#D9B56B]" />
-                {siteConfig.email}
+                <Mail className="h-5 w-5 shrink-0 text-[#D9B56B]" />
+                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Email</small>{siteConfig.email}</span>
               </a>
               <div className="flex items-center gap-3 rounded-xl border border-white/10 p-4">
-                <MapPin className="h-5 w-5 text-[#D9B56B]" />
-                {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
+                <MapPin className="h-5 w-5 shrink-0 text-[#D9B56B]" />
+                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
               </div>
-              <div className="rounded-xl bg-white/5 p-4 text-xs leading-6 text-white/64">
-                Timings: 10 AM to 7 PM, Monday to Saturday. Messages outside
-                hours are answered as soon as support is available.
+              <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-xs leading-6 text-white/72">
+                <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-[#D9B56B]" />
+                <span><strong className="block text-white">Support hours</strong>10 AM–7 PM, Monday–Saturday. Messages outside hours are answered as soon as support is available.</span>
               </div>
             </div>
           </div>

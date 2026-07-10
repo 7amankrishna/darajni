@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   HeartHandshake,
   type LucideIcon,
   MessageCircle,
@@ -6,6 +7,7 @@ import {
   Ruler,
   ShieldCheck,
   Truck,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -180,6 +182,40 @@ function PolicyPreview() {
   );
 }
 
+function ClosingCta() {
+  return (
+    <section className="bg-[#FFF8EF] px-4 py-16 sm:py-20">
+      <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-[#B8893B]/35 px-6 py-12 sm:px-10 lg:px-14">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#B8893B]/35 bg-[#FFFDF8]/82 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-[#6E0F1A]">
+              <Sparkles className="h-3.5 w-3.5 text-[#B8893B]" />
+              Your occasion, your fit
+            </span>
+            <h2 className="font-display mt-5 text-5xl leading-none text-[#171717] sm:text-6xl">
+              Find a design you love. We&apos;ll help with the fit.
+            </h2>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5F5348]">
+              Explore the live collection, check every product closely, and
+              order with sizing support from a real DARAJNI team member.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <Link href="/collection" className="primary-button min-w-52">
+              Explore the collection
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/support" className="secondary-button min-w-52">
+              <MessageCircle className="h-4 w-4" />
+              Talk to support
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default async function HomePage() {
   const { products, categories } = await getCatalog();
   const availableCategories = categories.filter((category) =>
@@ -306,6 +342,8 @@ export default async function HomePage() {
         <About />
 
         <PolicyPreview />
+
+        <ClosingCta />
       </main>
     </>
   );
