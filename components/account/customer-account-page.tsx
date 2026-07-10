@@ -342,9 +342,19 @@ export function CustomerAccountPage({
                 />
               </div>
               <div>
-                <label htmlFor="account-password" className="field-label">
-                  Password
-                </label>
+                <div className="flex items-center justify-between gap-4">
+                  <label htmlFor="account-password" className="field-label">
+                    Password
+                  </label>
+                  {mode === "signin" && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-xs font-semibold text-[#6E0F1A] underline-offset-4 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  )}
+                </div>
                 <input
                   id="account-password"
                   type="password"

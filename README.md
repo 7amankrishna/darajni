@@ -224,6 +224,8 @@ security boundary.
 | `/order/success?token=...` | Private order confirmation and item summary | Valid signed token |
 | `/track` | Order tracking form | Public |
 | `/login` | Customer sign-in, profile details, and saved order progress | Public form / customer session |
+| `/forgot-password` | Request a customer password-reset email | Public |
+| `/reset-password` | Choose a new password from a valid recovery link | Valid Supabase recovery session |
 | `/support` | Developer and designer support contacts | Public |
 | `/privacy` | Privacy information | Public |
 | `/terms` | Store terms | Public |
