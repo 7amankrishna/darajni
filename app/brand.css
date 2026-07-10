@@ -531,6 +531,10 @@ img {
   transform: rotateY(-5deg) rotateX(2deg) translateZ(0);
 }
 
+.dark .hero-poster-frame {
+  background: #241d17;
+}
+
 .hero-poster-frame img {
   border-radius: inherit;
 }
@@ -611,6 +615,13 @@ img {
     var(--blush);
 }
 
+.dark .showcase-band {
+  background:
+    radial-gradient(circle at 82% 12%, rgba(217, 181, 107, 0.08), transparent 24rem),
+    linear-gradient(180deg, rgba(36, 29, 23, 0.96), rgba(16, 13, 11, 0.82)),
+    var(--blush);
+}
+
 .runway-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -630,6 +641,11 @@ img {
   box-shadow: 0 22px 60px rgba(83, 54, 22, 0.13);
   transform-style: preserve-3d;
   transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+}
+
+.dark .runway-card {
+  background: #241d17;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
 }
 
 .runway-card::after {
