@@ -24,7 +24,7 @@ export function MeasurementFigure({
   onSelect?: (field: MeasurementField) => void;
 }) {
   return (
-    <div className={`measurement-figure ${className}`}>
+    <div className={`measurement-figure measurement-figure-model ${className}`}>
       <Image
         src="/measurement-model-transparent.png"
         alt="Front-facing woman wearing a maroon dress in a measurement pose"
