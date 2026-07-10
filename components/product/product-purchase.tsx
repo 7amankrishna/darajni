@@ -115,6 +115,25 @@ export function ProductPurchase({
             WhatsApp Measurement Help
           </a>
         </div>
+
+        <div className="mt-5 rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4">
+          <p className="text-xs font-extrabold uppercase text-[#B8893B]">
+            Custom size measurements to keep ready
+          </p>
+          <ul className="mt-3 grid gap-2 text-xs leading-5 text-[#5F5348] sm:grid-cols-2">
+            {[
+              "Shoulder tip to shoulder tip",
+              "Bust, waist and hip around the body",
+              "Sleeve length from shoulder point",
+              "Blouse or lehenga length to desired hem",
+            ].map((item) => (
+              <li key={item} className="flex gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#B8893B]" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div className="mt-6">

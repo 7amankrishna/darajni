@@ -133,6 +133,17 @@ export default function Footer({
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
           </p>
+          <p>
+            Created And Managed by Aman Krishna · Instagram:{" "}
+            <a
+              href="https://www.instagram.com/bruhh.aman/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-[#D9B56B] hover:text-white"
+            >
+              bruhh.aman
+            </a>
+          </p>
         </div>
       </div>
     </footer>

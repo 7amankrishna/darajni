@@ -1,6 +1,7 @@
 import { MessageCircle, Ruler } from "lucide-react";
 import type { Metadata } from "next";
 
+import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { whatsappSupportLink } from "@/config/site";
 import { getStoreSettings } from "@/lib/data/catalog";
 
@@ -46,21 +47,7 @@ export default async function Page() {
         </div>
 
         <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="measurement-figure">
-            {[
-              ["Shoulder", "measure-shoulder"],
-              ["Bust", "measure-bust"],
-              ["Waist", "measure-waist"],
-              ["Hip", "measure-hip"],
-              ["Sleeve", "measure-sleeve"],
-              ["Blouse length", "measure-blouse"],
-              ["Lehenga length", "measure-length"],
-            ].map(([label, className]) => (
-              <span key={label} className={`measure-label ${className}`}>
-                {label}
-              </span>
-            ))}
-          </div>
+          <MeasurementGuideFigure />
 
           <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
             <p className="eyebrow">Size chart</p>
@@ -95,11 +82,11 @@ export default async function Page() {
           <p className="eyebrow">How to measure</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              "Use a soft measuring tape",
-              "Wear fitted clothes while measuring",
-              "Keep tape comfortable, not tight",
-              "Measure twice",
-              "Share numbers on WhatsApp",
+              "Wear fitted clothes and stand straight in front of a mirror.",
+              "Measure shoulder tip to shoulder tip across the back.",
+              "Wrap the tape around the fullest bust, natural waist and fullest hip.",
+              "Measure sleeve from shoulder point to desired sleeve end.",
+              "Measure blouse or lehenga length from the starting point to the desired hem.",
             ].map((step, index) => (
               <article key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-[#171717] text-sm font-bold text-white">

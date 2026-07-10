@@ -13,6 +13,7 @@ import About from "@/components/About";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
 import Hero from "@/components/Hero";
+import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { ProductImage } from "@/components/product/product-image";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
@@ -62,19 +63,15 @@ function CustomFitSection() {
           </div>
         </div>
 
-        <div className="measurement-figure">
-          {[
+        <MeasurementGuideFigure
+          labels={[
             ["Shoulder", "measure-shoulder"],
             ["Bust", "measure-bust"],
             ["Waist", "measure-waist"],
             ["Hip", "measure-hip"],
             ["Length", "measure-length"],
-          ].map(([label, className]) => (
-            <span key={label} className={`measure-label ${className}`}>
-              {label}
-            </span>
-          ))}
-        </div>
+          ]}
+        />
       </div>
     </section>
   );
