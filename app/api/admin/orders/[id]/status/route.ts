@@ -35,7 +35,7 @@ export async function PATCH(
 
   const { data: order, error: readError } = await supabase
     .from("orders")
-    .select("status, payment_method, payment_status")
+    .select("status")
     .eq("id", id)
     .maybeSingle();
   if (readError || !order) {
@@ -49,39 +49,6 @@ export async function PATCH(
       { error: "This order changed or the requested transition is not allowed." },
       { status: 409 },
     );
-  }
-
-  if (parsed.data.status === "confirmed") {
-    if (
-      order.payment_method === "razorpay" &&
-      order.payment_status !== "paid"
-    ) {
-      return apiError("Online payment must be paid before confirming this order.", 409);
-    }
-    const { data: measurementItems, error: measurementReadError } = await supabase
-      .from("order_items")
-      .select("measurements, measurement_status")
-      .eq("order_id", id);
-    if (measurementReadError) {
-      return internalApiError(
-        "admin-order-measurement-read",
-        measurementReadError,
-        "Measurement review could not be verified.",
-        500,
-      );
-    }
-    if (
-      !measurementItems?.length ||
-      measurementItems.some(
-        (item) =>
-          !item.measurements || item.measurement_status !== "confirmed",
-      )
-    ) {
-      return apiError(
-        "Confirm every item measurement before confirming this order.",
-        409,
-      );
-    }
   }
 
   const { error } = await supabase

@@ -18,7 +18,6 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useCart } from "@/components/cart/cart-provider";
 import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
-import { calculateOrderEstimate } from "@/lib/commerce";
 import type {
   CheckoutCustomer,
   CheckoutPromoQuote,
@@ -127,14 +126,6 @@ export function CheckoutForm({
   const [error, setError] = useState("");
   const [whatsappSameAsPhone, setWhatsappSameAsPhone] = useState(true);
   const [needsMeasurementHelp, setNeedsMeasurementHelp] = useState(false);
-  const [pincodeBusy, setPincodeBusy] = useState(false);
-  const [pincodeCheck, setPincodeCheck] = useState<{
-    pincode: string;
-    serviceable: boolean;
-    codEligible: boolean;
-    deliveryEstimate: string;
-    message: string;
-  } | null>(null);
 
   const cartSignature = useMemo(
     () =>
@@ -149,12 +140,18 @@ export function CheckoutForm({
   }, [cartSignature]);
 
   const totals = useMemo(() => {
-    return calculateOrderEstimate({
-      itemsSubtotal: subtotal,
-      discount: appliedPromo?.discountAmount ?? 0,
-      shipping: items.length ? settings.shippingCharge : 0,
-      taxRate: settings.taxRate,
-    });
+    const shipping = items.length ? settings.shippingCharge : 0;
+    const discount = Math.min(appliedPromo?.discountAmount ?? 0, subtotal);
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax =
+      Math.round(discountedSubtotal * (settings.taxRate / 100) * 100) / 100;
+    return {
+      shipping,
+      discount,
+      discountedSubtotal,
+      tax,
+      total: discountedSubtotal + shipping + tax,
+    };
   }, [
     appliedPromo?.discountAmount,
     items.length,
@@ -165,44 +162,6 @@ export function CheckoutForm({
 
   const setField = (field: keyof CheckoutCustomer, value: string) => {
     setCustomer((current) => ({ ...current, [field]: value }));
-    if (field === "pincode") setPincodeCheck(null);
-  };
-
-  const checkPincode = async () => {
-    if (!/^[1-9][0-9]{5}$/.test(customer.pincode) || pincodeBusy) return;
-    setPincodeBusy(true);
-    setError("");
-    try {
-      const response = await fetch("/api/checkout/pincode", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pincode: customer.pincode }),
-      });
-      const result = (await response.json()) as {
-        pincode?: string;
-        serviceable?: boolean;
-        codEligible?: boolean;
-        deliveryEstimate?: string;
-        message?: string;
-        error?: string;
-      };
-      if (!response.ok || !result.pincode || !result.message || !result.deliveryEstimate) {
-        throw new Error(result.error || "This pincode could not be checked.");
-      }
-      setPincodeCheck({
-        pincode: result.pincode,
-        serviceable: Boolean(result.serviceable),
-        codEligible: Boolean(result.codEligible),
-        deliveryEstimate: result.deliveryEstimate,
-        message: result.message,
-      });
-      if (!result.codEligible && paymentMethod === "cod") setPaymentMethod("razorpay");
-    } catch (pincodeError) {
-      setPincodeCheck(null);
-      setError(pincodeError instanceof Error ? pincodeError.message : "This pincode could not be checked.");
-    } finally {
-      setPincodeBusy(false);
-    }
   };
 
   const cancelReservation = async (token: string, paymentFailed = false) => {
@@ -231,7 +190,6 @@ export function CheckoutForm({
             productId: item.productId,
             size: item.size,
             quantity: item.quantity,
-            measurements: item.measurements,
           })),
         }),
       });
@@ -332,10 +290,6 @@ export function CheckoutForm({
     event.preventDefault();
     if (!items.length || busy) return;
 
-    if (!pincodeCheck || pincodeCheck.pincode !== customer.pincode || !pincodeCheck.serviceable) {
-      setError("Check your delivery pincode before placing the order.");
-      return;
-    }
     setBusy(true);
     setError("");
     try {
@@ -348,7 +302,6 @@ export function CheckoutForm({
             productId: item.productId,
             size: item.size,
             quantity: item.quantity,
-            measurements: item.measurements,
           })),
           paymentMethod,
           promoCode: appliedPromo?.code || "",
@@ -559,26 +512,11 @@ export function CheckoutForm({
                   maxLength={6}
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => void checkPincode()}
-                  disabled={pincodeBusy || !/^[1-9][0-9]{5}$/.test(customer.pincode)}
-                  className="secondary-button mt-2 w-full"
-                >
-                  {pincodeBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />}
-                  Check delivery & COD
-                </button>
               </div>
-              <div aria-live="polite" className="rounded-xl bg-[#F6E9DD] p-4 text-xs leading-5 text-[#5F5348]">
-                {pincodeCheck ? (
-                  <>
-                    <p className="font-bold text-[#171717]">Delivery: {pincodeCheck.deliveryEstimate}</p>
-                    <p className="mt-1">{pincodeCheck.message}</p>
-                    <p className="mt-1 font-semibold text-[#6E0F1A]">
-                      {pincodeCheck.codEligible ? "COD is eligible for this order." : "COD is unavailable; please pay online."}
-                    </p>
-                  </>
-                ) : "Enter your pincode, then check delivery and COD eligibility."}
+              <div className="rounded-xl bg-[#F6E9DD] p-4 text-xs leading-5 text-[#5F5348]">
+                {customer.pincode.length === 6
+                  ? "Delivery estimate will be confirmed after checkout for this pincode."
+                  : "Enter pincode to help us confirm delivery timing."}
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="checkout-address" className="field-label">
@@ -649,22 +587,18 @@ export function CheckoutForm({
                   Size option
                 </p>
                 <p className="mt-2 font-display text-3xl text-[#171717]">
-                  Custom Size
+                  Custom
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#5F5348]">
-                  Your confirmed measurements are attached to each item below.
-                  The tailoring team reviews them before cutting begins.
+                  Measurements are collected after order. You can also share
+                  measurement photos or notes with support.
                 </p>
               </div>
-              {items.map((item) => (
-                <div key={item.key} className="rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4 text-sm text-[#5F5348]">
-                  <p className="font-semibold text-[#171717]">{item.name}</p>
-                  <p className="mt-2 leading-6">
-                    Shoulder {item.measurements.shoulder} · Bust {item.measurements.bust} · Waist {item.measurements.waist} · Hips {item.measurements.hips} · Length {item.measurements.outfitLength} inches
-                  </p>
-                  <p className="mt-1 capitalize">Fit: {item.measurements.fitPreference}</p>
-                </div>
-              ))}
+              <div className="rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4 text-sm leading-6 text-[#5F5348]">
+                Share sleeve length, blouse length, fit preference or
+                measurement photos through WhatsApp support after checkout so
+                the team can confirm them before processing.
+              </div>
               <label className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
                 <input
                   type="checkbox"
@@ -690,7 +624,6 @@ export function CheckoutForm({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("cod")}
-                  disabled={Boolean(pincodeCheck && !pincodeCheck.codEligible)}
                   className={`rounded-2xl border p-5 text-left transition ${
                     paymentMethod === "cod"
                       ? "border-[#111111] bg-[#111111] text-white"
@@ -700,9 +633,7 @@ export function CheckoutForm({
                   <Truck className="h-5 w-5 text-[#B8893B]" />
                   <p className="mt-3 text-sm font-semibold">Cash on delivery</p>
                   <p className={`mt-2 text-xs leading-5 ${paymentMethod === "cod" ? "text-white/75" : "text-[#6F6255]"}`}>
-                    {pincodeCheck?.codEligible
-                      ? "Eligible for your checked pincode. Pay the final total on delivery; no COD fee."
-                      : "Check your pincode above to confirm COD eligibility."}
+                    Pay when the order reaches you.
                   </p>
                 </button>
               )}
@@ -809,7 +740,7 @@ export function CheckoutForm({
           <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="space-y-3 text-sm">
             <div className="flex justify-between text-[#6F6255]">
-              <span>Items subtotal</span>
+              <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
             {totals.discount > 0 && (
@@ -825,13 +756,13 @@ export function CheckoutForm({
               </span>
             </div>
             <div className="flex justify-between text-[#6F6255]">
-              <span>GST/tax ({settings.taxRate}% of discounted items)</span>
+              <span>Tax ({settings.taxRate}%)</span>
               <span>{formatPrice(totals.tax)}</span>
             </div>
           </div>
           <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="flex items-end justify-between">
-            <span className="font-semibold text-[#171717]">Payable total</span>
+            <span className="font-semibold text-[#171717]">Estimated total</span>
             <span className="font-display text-3xl font-semibold text-[#171717]">
               {formatPrice(totals.total)}
             </span>
@@ -846,7 +777,7 @@ export function CheckoutForm({
           )}
           <button
             type="submit"
-            disabled={busy || !pincodeCheck?.serviceable}
+            disabled={busy}
             className="primary-button mt-6 w-full"
           >
             {busy ? (

@@ -138,28 +138,6 @@ export async function POST(request: Request) {
     );
   }
 
-  for (const item of items) {
-    const { error: measurementError } = await supabase
-      .from("order_items")
-      .update({
-        measurements: item.measurements,
-        measurement_status: "customer_submitted",
-      })
-      .eq("order_id", order.order_id)
-      .eq("product_id", item.productId)
-      .eq("selected_size", item.size);
-
-    if (measurementError) {
-      await cancelReservation(order.order_id);
-      return internalApiError(
-        "checkout-measurements-save",
-        measurementError,
-        "Your measurements could not be saved. No order was placed; please try again.",
-        500,
-      );
-    }
-  }
-
   if (customerUser) {
     const profile = await saveCheckoutProfileForUser(customerUser, customer);
     if (!profile) {

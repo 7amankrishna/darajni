@@ -1,8 +1,6 @@
 import { MessageCircle, Ruler } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { MeasurementFigure } from "@/components/product/measurement-figure";
 import { whatsappSupportLink } from "@/config/site";
 import { getStoreSettings } from "@/lib/data/catalog";
 
@@ -42,16 +40,30 @@ export default async function Page() {
             Find your perfect fit
           </h1>
           <p className="mt-5 text-sm leading-7 text-[#6F6255]">
-            Use this body reference chart to understand proportions, then enter
-            your own measurements. Custom Size is the only ordering option.
+            Use this guide to measure at home. For help, our team can guide you
+            on WhatsApp.
           </p>
         </div>
 
         <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <MeasurementFigure />
+          <div className="measurement-figure">
+            {[
+              ["Shoulder", "measure-shoulder"],
+              ["Bust", "measure-bust"],
+              ["Waist", "measure-waist"],
+              ["Hip", "measure-hip"],
+              ["Sleeve", "measure-sleeve"],
+              ["Blouse length", "measure-blouse"],
+              ["Lehenga length", "measure-length"],
+            ].map(([label, className]) => (
+              <span key={label} className={`measure-label ${className}`}>
+                {label}
+              </span>
+            ))}
+          </div>
 
           <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
-            <p className="eyebrow">Body reference chart — not ordering sizes</p>
+            <p className="eyebrow">Size chart</p>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[680px] text-left text-sm text-[#5F5348]">
                 <thead className="bg-[#F6E9DD] text-xs uppercase text-[#6F6255]">
@@ -83,18 +95,17 @@ export default async function Page() {
           <p className="eyebrow">How to measure</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              ["Prepare", "Use a soft tape and wear fitted clothing. Stand naturally with your feet together."],
-              ["Shoulder", "Measure straight across your back from one shoulder edge to the other."],
-              ["Bust, waist & hips", "Keep the tape level around each fullest point. It should touch without squeezing."],
-              ["Sleeve & length", "Measure from the shoulder point to the cuff, then shoulder to your desired outfit hem."],
-              ["Confirm", "Record in inches, measure every point twice, then confirm the values during ordering."],
-            ].map(([title, step], index) => (
+              "Use a soft measuring tape",
+              "Wear fitted clothes while measuring",
+              "Keep tape comfortable, not tight",
+              "Measure twice",
+              "Share numbers on WhatsApp",
+            ].map((step, index) => (
               <article key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-[#171717] text-sm font-bold text-white">
                   {index + 1}
                 </span>
-                <h3 className="font-display mt-5 text-2xl text-[#171717]">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#5F5348]">
+                <p className="mt-5 text-sm font-semibold leading-6 text-[#171717]">
                   {step}
                 </p>
               </article>
@@ -121,9 +132,6 @@ export default async function Page() {
               <MessageCircle className="h-4 w-4" />
               Get measurement help on WhatsApp
             </a>
-            <Link href="/measurements" className="primary-button">
-              Open interactive guide
-            </Link>
           </div>
         </section>
       </div>

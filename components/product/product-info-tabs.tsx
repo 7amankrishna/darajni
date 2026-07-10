@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
 
 const tabs = [
@@ -24,6 +25,11 @@ const sizeRows = [
 
 export function ProductInfoTabs({ product }: { product: Product }) {
   const [active, setActive] = useState(tabs[0]);
+  const descriptionNeedsConfirmation = isProductInformationUncertain(
+    product.description,
+  );
+  const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
+
   return (
     <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4 sm:p-6">
       <div className="flex gap-2 overflow-x-auto pb-2">
@@ -50,7 +56,9 @@ export function ProductInfoTabs({ product }: { product: Product }) {
               About this design
             </h3>
             <p className="mt-4">
-              {product.description}
+              {descriptionNeedsConfirmation
+                ? "Ask DARAJNI support to confirm the exact material, included pieces and finish for this design before ordering."
+                : product.description}
             </p>
           </div>
         )}
@@ -66,7 +74,9 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                   Fabric
                 </dt>
                 <dd className="mt-2">
-                  {product.fabric}
+                  {fabricNeedsConfirmation
+                    ? "Contact DARAJNI for exact fabric confirmation."
+                    : product.fabric}
                 </dd>
               </div>
               <div className="rounded-xl bg-[#F6E9DD] p-4">
@@ -74,16 +84,8 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                   Garment care
                 </dt>
                 <dd className="mt-2">
-                  {product.careInstructions}
+                  Confirm the garment-specific care instructions with support.
                 </dd>
-              </div>
-              <div className="rounded-xl bg-[#F6E9DD] p-4">
-                <dt className="text-xs font-extrabold uppercase text-[#B8893B]">Work & finish</dt>
-                <dd className="mt-2">{product.workDetails}</dd>
-              </div>
-              <div className="rounded-xl bg-[#F6E9DD] p-4">
-                <dt className="text-xs font-extrabold uppercase text-[#B8893B]">Lining</dt>
-                <dd className="mt-2">{product.lining}</dd>
               </div>
             </dl>
           </div>

@@ -127,7 +127,7 @@ export function PrintDocument({
         {invoice && (
           <div className="ml-auto mt-8 max-w-xs space-y-3 text-sm">
             <div className="flex justify-between">
-              <span>Items subtotal</span>
+              <span>Subtotal</span>
               <span>{formatPrice(order.subtotal)}</span>
             </div>
             {order.discountAmount > 0 && (
@@ -143,11 +143,11 @@ export function PrintDocument({
               <span>{formatPrice(order.shippingFee)}</span>
             </div>
             <div className="flex justify-between">
-              <span>GST/tax</span>
+              <span>Tax</span>
               <span>{formatPrice(order.taxAmount)}</span>
             </div>
             <div className="flex justify-between border-t-2 border-black pt-3 text-base font-bold">
-              <span>Final total</span>
+              <span>Total</span>
               <span>{formatPrice(order.total)}</span>
             </div>
           </div>

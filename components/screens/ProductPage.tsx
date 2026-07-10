@@ -17,6 +17,7 @@ import {
   formatDate,
   getEstimatedDelivery,
   getProductPrice,
+  isProductInformationUncertain,
 } from "@/lib/commerce";
 import type { Product, StoreSettings } from "@/types/commerce";
 
@@ -30,15 +31,16 @@ const sizeRows = [
 ];
 
 function ProductFacts({ product }: { product: Product }) {
+  const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
   const facts = [
     ["Category", product.category.name],
-    ["Fabric", product.fabric],
-    ["Colour", product.colour],
-    ["Included pieces", product.includedPieces],
-    ["Work & finish", product.workDetails],
-    ["Lining", product.lining],
-    ["Care", product.careInstructions],
-    ["Ordering size", "Custom Size — made from your confirmed measurements"],
+    [
+      "Fabric",
+      fabricNeedsConfirmation
+        ? "Exact fabric confirmation is available from DARAJNI support before ordering."
+        : product.fabric,
+    ],
+    ["Available sizes", product.sizes.join(", ") || "Custom size"],
     ["Availability", product.stock > 0 ? `${product.stock} available` : "Sold out"],
   ];
 
@@ -79,7 +81,7 @@ function StickyHelpPanel({
       <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
         <div className="flex items-center gap-2">
           <Ruler className="h-5 w-5 text-[#B8893B]" />
-          <h2 className="font-display text-2xl text-[#171717]">Body Reference</h2>
+          <h2 className="font-display text-2xl text-[#171717]">Size Guide</h2>
         </div>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[260px] text-left text-[0.68rem] text-[#5F5348]">
@@ -105,11 +107,8 @@ function StickyHelpPanel({
             </tbody>
           </table>
         </div>
-        <p className="mt-3 text-xs leading-5 text-[#6F6255]">
-          Reference only. Custom Size is the sole ordering option.
-        </p>
-        <Link href="/measurements" className="secondary-button mt-4 w-full">
-          Interactive Measurement Guide
+        <Link href="/size-guide" className="secondary-button mt-4 w-full">
+          How to Measure
         </Link>
       </section>
 
@@ -177,8 +176,11 @@ export default function ProductPage({
   settings: StoreSettings;
 }) {
   const price = getProductPrice(product);
+  const descriptionNeedsConfirmation = isProductInformationUncertain(
+    product.description,
+  );
   const priceNote = settings.taxRate > 0
-    ? `GST/tax (${settings.taxRate}%) is calculated on the discounted item price; shipping is shown at checkout`
+    ? `Tax (${settings.taxRate}%) and shipping are shown before payment`
     : settings.shippingCharge > 0
       ? `Applicable taxes included · ${formatPrice(settings.shippingCharge)} shipping at checkout`
       : "Inclusive of applicable taxes · Free shipping";
@@ -247,9 +249,17 @@ export default function ProductPage({
                   settings={settings}
                 />
               </div>
-              <p className="mt-5 text-sm leading-7 text-[#5F5348]">
-                {product.description}
-              </p>
+              {descriptionNeedsConfirmation ? (
+                <p className="mt-5 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
+                  Some material details for this design still require studio
+                  confirmation. Please ask DARAJNI support to confirm the exact
+                  fabric, included pieces and finish before ordering.
+                </p>
+              ) : (
+                <p className="mt-5 text-sm leading-7 text-[#5F5348]">
+                  {product.description}
+                </p>
+              )}
             </div>
 
             <ProductFacts product={product} />

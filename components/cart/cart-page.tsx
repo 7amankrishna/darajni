@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useCart } from "@/components/cart/cart-provider";
 import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
-import { calculateOrderEstimate } from "@/lib/commerce";
 import type { StoreSettings } from "@/types/commerce";
 
 export function CartPage({ settings }: { settings: StoreSettings }) {
@@ -18,11 +17,9 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
     removeItem,
     clearCart,
   } = useCart();
-  const totals = calculateOrderEstimate({
-    itemsSubtotal: subtotal,
-    shipping: items.length ? settings.shippingCharge : 0,
-    taxRate: settings.taxRate,
-  });
+  const shipping = items.length ? settings.shippingCharge : 0;
+  const tax = Math.round(subtotal * (settings.taxRate / 100) * 100) / 100;
+  const total = subtotal + shipping + tax;
 
   if (!ready) {
     return (
@@ -101,14 +98,9 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                       <p className="mt-2 text-xs font-semibold text-[#6F6255]">
                         Size: {item.size}
                       </p>
-                      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 rounded-xl bg-[#F6E9DD] px-3 py-2 text-xs leading-5 text-[#5F5348] sm:grid-cols-3">
-                        <div><dt className="font-bold">Bust</dt><dd>{item.measurements.bust} in</dd></div>
-                        <div><dt className="font-bold">Waist</dt><dd>{item.measurements.waist} in</dd></div>
-                        <div><dt className="font-bold">Hips</dt><dd>{item.measurements.hips} in</dd></div>
-                        <div><dt className="font-bold">Shoulder</dt><dd>{item.measurements.shoulder} in</dd></div>
-                        <div><dt className="font-bold">Length</dt><dd>{item.measurements.outfitLength} in</dd></div>
-                        <div><dt className="font-bold">Fit</dt><dd className="capitalize">{item.measurements.fitPreference}</dd></div>
-                      </dl>
+                      <p className="mt-2 rounded-xl bg-[#F6E9DD] px-3 py-2 text-xs leading-5 text-[#5F5348]">
+                        Measurements will be collected after order.
+                      </p>
                       <p className="mt-2 text-xs font-semibold text-[#6E0F1A]">
                         Only {item.stock} available
                       </p>
@@ -161,27 +153,27 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
             <p className="eyebrow">Order summary</p>
             <div className="mt-5 space-y-3 text-sm">
               <div className="flex justify-between text-[#6F6255]">
-                <span>Items subtotal</span>
+                <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-[#6F6255]">
                 <span>Shipping</span>
-                <span>{totals.shipping ? formatPrice(totals.shipping) : "Free"}</span>
+                <span>{shipping ? formatPrice(shipping) : "Free"}</span>
               </div>
               <div className="flex justify-between text-[#6F6255]">
                 <span>Discount/coupon</span>
                 <span>Apply at checkout</span>
               </div>
               <div className="flex justify-between text-[#6F6255]">
-                <span>GST/tax ({settings.taxRate}% of discounted items)</span>
-                <span>{formatPrice(totals.tax)}</span>
+                <span>Tax ({settings.taxRate}%)</span>
+                <span>{formatPrice(tax)}</span>
               </div>
             </div>
             <div className="my-5 h-px bg-[#E9DCCB]" />
             <div className="flex items-end justify-between">
-              <span className="text-sm font-semibold text-[#171717]">Estimated payable total</span>
+              <span className="text-sm font-semibold text-[#171717]">Estimated total</span>
               <span className="font-display text-3xl font-semibold text-[#171717]">
-                {formatPrice(totals.total)}
+                {formatPrice(total)}
               </span>
             </div>
             <p className="mt-3 text-xs leading-5 text-[#6F6255]">

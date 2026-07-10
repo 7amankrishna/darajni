@@ -7,8 +7,6 @@ import {
   FileText,
   Package,
   Printer,
-  Ruler,
-  RotateCcw,
   Truck,
 } from "lucide-react";
 import Link from "next/link";
@@ -34,7 +32,6 @@ import {
 import { formatPrice } from "@/config/site";
 import { formatDate } from "@/lib/commerce";
 import type { AdminOrder } from "@/types/admin";
-import type { MeasurementStatus } from "@/types/commerce";
 import type { OrderStatus } from "@/types/database";
 
 const statusStyle: Record<OrderStatus, string> = {
@@ -72,21 +69,6 @@ const actions: Partial<
   shipped: [{ status: "delivered", label: "Deliver", icon: Check }],
 };
 
-function confirmationBlockReason(order: AdminOrder) {
-  if (order.paymentMethod === "razorpay" && order.paymentStatus !== "paid") {
-    return "Online payment must be paid first.";
-  }
-  if (
-    !order.items.length ||
-    order.items.some(
-      (item) => !item.measurements || item.measurementStatus !== "confirmed",
-    )
-  ) {
-    return "Approve every item measurement first.";
-  }
-  return "";
-}
-
 export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
   const router = useRouter();
   const [selected, setSelected] = useState<AdminOrder | null>(null);
@@ -123,37 +105,6 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
     }
     toast.success(`Order marked ${status}.`);
     setSelected(null);
-    router.refresh();
-  };
-
-  const updateMeasurementStatus = async (
-    order: AdminOrder,
-    itemId: string,
-    status: Extract<MeasurementStatus, "confirmed" | "needs_revision">,
-  ) => {
-    setBusy(`${itemId}:${status}`);
-    const response = await fetch(`/api/admin/orders/${order.id}/measurements`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ itemId, status }),
-    });
-    const result = (await response.json()) as { error?: string };
-    setBusy("");
-    if (!response.ok) {
-      toast.error(result.error || "Measurement review could not be updated.");
-      return;
-    }
-    setSelected((current) =>
-      current
-        ? {
-            ...current,
-            items: current.items.map((item) =>
-              item.id === itemId ? { ...item, measurementStatus: status } : item,
-            ),
-          }
-        : current,
-    );
-    toast.success(status === "confirmed" ? "Measurements confirmed." : "Revision requested.");
     router.refresh();
   };
 
@@ -224,19 +175,11 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                       </button>
                       {(actions[order.status] ?? []).map((action) => {
                         const Icon = action.icon;
-                        const blockReason =
-                          action.status === "confirmed"
-                            ? confirmationBlockReason(order)
-                            : "";
                         return (
                           <button
                             type="button"
                             key={action.status}
-                            disabled={
-                              busy === `${order.id}:${action.status}` ||
-                              Boolean(blockReason)
-                            }
-                            title={blockReason || undefined}
+                            disabled={busy === `${order.id}:${action.status}`}
                             onClick={() => void updateStatus(order, action.status)}
                             className={`inline-flex h-9 items-center gap-1 rounded-full border px-3 text-xs font-semibold ${
                               action.danger
@@ -292,47 +235,12 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
             <section className="rounded-xl border border-white/9">
               <div className="divide-y divide-white/8">
                 {selected.items.map((item) => (
-                  <div key={item.id} className="grid gap-4 p-4 sm:grid-cols-[1fr_auto]">
+                  <div key={item.id} className="flex justify-between gap-4 p-4">
                     <div>
                       <p className="font-semibold">{item.productName}</p>
                       <p className="mt-1 text-xs text-white/75">
                         Size {item.selectedSize} · Qty {item.quantity}
                       </p>
-                      {item.measurements && (
-                        <div className="mt-3 rounded-xl border border-[#B8893B]/25 bg-[#B8893B]/5 p-3 text-xs leading-6 text-white/75">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Ruler className="h-4 w-4 text-[#D9B56B]" />
-                            <span className="font-bold text-[#D9B56B]">Measurements</span>
-                            <span className="status-pill bg-white/10 text-white">
-                              {item.measurementStatus?.replace("_", " ")}
-                            </span>
-                          </div>
-                          <p className="mt-2">
-                            Shoulder {item.measurements.shoulder} · Bust {item.measurements.bust} · Waist {item.measurements.waist} · Hips {item.measurements.hips} · Outfit length {item.measurements.outfitLength} in
-                          </p>
-                          <p className="capitalize">Fit: {item.measurements.fitPreference}</p>
-                          {item.measurements.sleeveLength && <p>Sleeve: {item.measurements.sleeveLength} in</p>}
-                          {item.measurements.notes && <p>Notes: {item.measurements.notes}</p>}
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              disabled={busy === `${item.id}:confirmed`}
-                              onClick={() => void updateMeasurementStatus(selected, item.id, "confirmed")}
-                              className="secondary-button !min-h-9 !px-3 !py-1"
-                            >
-                              <Check className="h-3.5 w-3.5" /> Confirm measurements
-                            </button>
-                            <button
-                              type="button"
-                              disabled={busy === `${item.id}:needs_revision`}
-                              onClick={() => void updateMeasurementStatus(selected, item.id, "needs_revision")}
-                              className="danger-button !min-h-9 !px-3 !py-1"
-                            >
-                              <RotateCcw className="h-3.5 w-3.5" /> Request revision
-                            </button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                     <p className="text-[#D9B56B]">{formatPrice(item.lineTotal)}</p>
                   </div>
@@ -341,7 +249,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
               <div className="border-t border-white/9 p-4 text-right">
                 <div className="ml-auto mb-4 max-w-xs space-y-2 text-sm">
                   <div className="flex justify-between text-white/50">
-                    <span>Items subtotal</span>
+                    <span>Subtotal</span>
                     <span>{formatPrice(selected.subtotal)}</span>
                   </div>
                   {selected.discountAmount > 0 && (
@@ -358,20 +266,15 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                     <span>{formatPrice(selected.shippingFee)}</span>
                   </div>
                   <div className="flex justify-between text-white/50">
-                    <span>GST/tax</span>
+                    <span>Tax</span>
                     <span>{formatPrice(selected.taxAmount)}</span>
                   </div>
                 </div>
                 <p className="font-display text-2xl text-[#D9B56B]">
-                  Final total {formatPrice(selected.total)}
+                  {formatPrice(selected.total)}
                 </p>
               </div>
             </section>
-            {selected.status === "pending" && confirmationBlockReason(selected) && (
-              <p className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-xs leading-5 text-amber-100">
-                Confirmation locked: {confirmationBlockReason(selected)}
-              </p>
-            )}
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/orders/${selected.id}/invoice`}
@@ -391,16 +294,10 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
               </Link>
               {(actions[selected.status] ?? []).map((action) => {
                 const Icon = action.icon;
-                const blockReason =
-                  action.status === "confirmed"
-                    ? confirmationBlockReason(selected)
-                    : "";
                 return (
                   <button
                     type="button"
                     key={action.status}
-                    disabled={Boolean(blockReason)}
-                    title={blockReason || undefined}
                     onClick={() => void updateStatus(selected, action.status)}
                     className={action.danger ? "danger-button" : "primary-button"}
                   >

@@ -60,7 +60,7 @@ export default function Footer({
           category.name,
           `/collection?category=${encodeURIComponent(category.slug)}`,
         ]),
-        ["Custom Fit", "/measurements"],
+        ["Custom Fit", "/size-guide"],
       ],
     },
     ...columns,

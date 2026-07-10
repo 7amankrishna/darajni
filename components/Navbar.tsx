@@ -67,7 +67,7 @@ export default function Navbar({
       label: category.name,
       href: `/collection?category=${encodeURIComponent(category.slug)}`,
     })),
-    { label: "Custom Fit", href: "/measurements" },
+    { label: "Custom Fit", href: "/size-guide" },
     ...(hasSaleProducts
       ? [{ label: "Sale", href: "/collection?sale=true" }]
       : []),
@@ -84,7 +84,7 @@ export default function Navbar({
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
-              {codEnabled ? "COD subject to pincode | " : ""}Secure Payments | Exchange Support
+              {codEnabled ? "COD Available | " : ""}Secure Payments | Exchange Support
             </span>
             <a
               href={whatsappHref}
@@ -212,7 +212,7 @@ export default function Navbar({
         href={whatsappHref}
         target={supportNumber ? "_blank" : undefined}
         rel="noreferrer"
-        className="fixed bottom-24 right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#147A3A] text-white shadow-[0_16px_38px_rgba(20,122,58,0.28)] md:bottom-6 md:right-6"
+        className="fixed bottom-24 right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6"
         aria-label="Chat with DARAJNI on WhatsApp"
       >
         <MessageCircle className="h-5 w-5" />

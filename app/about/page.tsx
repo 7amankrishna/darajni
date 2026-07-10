@@ -1,5 +1,4 @@
 import {
-  AtSign,
   BadgeCheck,
   CreditCard,
   HeartHandshake,
@@ -104,31 +103,6 @@ export default async function Page() {
                 </h3>
               </article>
             ))}
-          </div>
-        </section>
-
-        <section className="mt-16 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7 sm:p-9">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <p className="eyebrow">Website credits</p>
-              <h2 className="font-display mt-3 text-4xl leading-none text-[#171717] sm:text-5xl">
-                Built and managed by Aman Krishna.
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-[#5F5348]">
-                Product experience, storefront operations and ongoing website
-                management for DARAJNI Designer House.
-              </p>
-            </div>
-            <a
-              href="https://www.instagram.com/bruhh.aman/"
-              target="_blank"
-              rel="noreferrer"
-              className="secondary-button"
-              aria-label="Follow Aman Krishna on Instagram at bruhh.aman"
-            >
-              <AtSign className="h-4 w-4" />
-              @bruhh.aman
-            </a>
           </div>
         </section>
 

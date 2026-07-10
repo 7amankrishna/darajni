@@ -83,12 +83,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
       </div>
 
       <div className="mt-7">
-        <OrderStatusTimeline
-          status={order.status}
-          paymentMethod={order.paymentMethod}
-          paymentStatus={order.paymentStatus}
-          measurementStatuses={order.items.map((item) => item.measurementStatus)}
-        />
+        <OrderStatusTimeline status={order.status} />
       </div>
 
       <div className="mt-7 grid gap-3 rounded-2xl bg-[#F6E9DD] p-4 text-sm text-[#5F5348] sm:grid-cols-3">
@@ -121,18 +116,6 @@ function OrderCard({ order }: { order: OrderSummary }) {
               <p className="mt-1 text-xs text-[#6F6255]">
                 Size {item.selectedSize} | Qty {item.quantity}
               </p>
-              {item.measurements && (
-                <div className="mt-2 rounded-xl bg-[#F6E9DD] p-3 text-xs leading-5 text-[#5F5348]">
-                  <p>
-                    Shoulder {item.measurements.shoulder} · Bust {item.measurements.bust} ·
-                    Waist {item.measurements.waist} · Hips {item.measurements.hips} ·
-                    Length {item.measurements.outfitLength} in
-                  </p>
-                  <p className="mt-1 font-semibold capitalize text-[#6E0F1A]">
-                    Measurement review: {item.measurementStatus?.replace("_", " ") || "pending"}
-                  </p>
-                </div>
-              )}
             </div>
             <p className="shrink-0 font-semibold text-[#171717]">
               {formatPrice(item.lineTotal)}

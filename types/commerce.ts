@@ -17,11 +17,6 @@ export interface Product {
   slug: string;
   description: string;
   fabric: string;
-  colour: string;
-  includedPieces: string;
-  workDetails: string;
-  lining: string;
-  careInstructions: string;
   sizes: string[];
   stock: number;
   price: number;
@@ -33,27 +28,6 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
-
-export type FitPreference = "close" | "regular" | "relaxed";
-
-export interface CustomMeasurements {
-  unit: "in";
-  shoulder: number;
-  bust: number;
-  waist: number;
-  hips: number;
-  outfitLength: number;
-  sleeveLength?: number;
-  height?: number;
-  fitPreference: FitPreference;
-  notes?: string;
-  customerConfirmed: boolean;
-}
-
-export type MeasurementStatus =
-  | "customer_submitted"
-  | "confirmed"
-  | "needs_revision";
 
 export interface StoreSettings {
   shippingCharge: number;
@@ -86,7 +60,6 @@ export interface CartItem {
   quantity: number;
   unitPrice: number;
   stock: number;
-  measurements: CustomMeasurements;
 }
 
 export interface CheckoutCustomer {
@@ -133,8 +106,6 @@ export interface OrderItemSummary {
   quantity: number;
   priceAtTime: number;
   lineTotal: number;
-  measurements: CustomMeasurements | null;
-  measurementStatus: MeasurementStatus | null;
 }
 
 export interface OrderSummary {

@@ -5,13 +5,7 @@ import type {
   PromoCodeType,
   PromoDiscountType,
 } from "@/types/database";
-import type {
-  Category,
-  CustomMeasurements,
-  MeasurementStatus,
-  Product,
-  StoreSettings,
-} from "@/types/commerce";
+import type { Category, Product, StoreSettings } from "@/types/commerce";
 
 export interface AdminOrderItem {
   id: string;
@@ -21,8 +15,6 @@ export interface AdminOrderItem {
   quantity: number;
   priceAtTime: number;
   lineTotal: number;
-  measurements: CustomMeasurements | null;
-  measurementStatus: MeasurementStatus | null;
 }
 
 export interface AdminOrder {

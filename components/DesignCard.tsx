@@ -15,6 +15,9 @@ export default function DesignCard({ product }: { product: Product }) {
   const image = product.images[0] || "/logo.webp";
   const { isWishlisted, toggle } = useWishlist();
   const wished = isWishlisted(product.id);
+  const customSize =
+    product.sizes.length === 0 ||
+    product.sizes.some((size) => size.toLowerCase().includes("custom"));
   const fabricSummary = isProductInformationUncertain(product.fabric)
     ? "Fabric confirmation available"
     : product.fabric;
@@ -38,10 +41,12 @@ export default function DesignCard({ product }: { product: Product }) {
             <span className="rounded-full bg-[#FFFDF8]/92 px-3 py-1 text-[0.62rem] font-extrabold uppercase text-[#171717] shadow-sm">
               {product.category.name}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#6E0F1A] px-3 py-1 text-[0.62rem] font-extrabold uppercase text-white">
-              <Ruler className="h-3 w-3" />
-              Custom size
-            </span>
+            {customSize && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#6E0F1A] px-3 py-1 text-[0.62rem] font-extrabold uppercase text-white">
+                <Ruler className="h-3 w-3" />
+                Custom size
+              </span>
+            )}
           </div>
           <div className="product-card-float">
             {product.stock > 0
@@ -98,7 +103,7 @@ export default function DesignCard({ product }: { product: Product }) {
             </p>
             <p className="mt-1 text-xs font-semibold text-[#6F6255]">
               {product.stock > 0
-                ? `${product.stock} available · Custom size only`
+                ? `${product.stock} available · ${customSize ? "Custom size" : product.sizes.join(", ")}`
                 : "Currently unavailable"}
             </p>
           </div>
