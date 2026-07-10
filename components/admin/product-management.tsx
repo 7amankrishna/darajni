@@ -21,7 +21,11 @@ interface ProductDraft {
   slug: string;
   description: string;
   fabric: string;
-  sizes: string;
+  colour: string;
+  includedPieces: string;
+  workDetails: string;
+  lining: string;
+  careInstructions: string;
   stock: string;
   price: string;
   discount: string;
@@ -45,7 +49,11 @@ function blankDraft(categoryId = ""): ProductDraft {
     slug: "",
     description: "",
     fabric: "",
-    sizes: "Custom",
+    colour: "",
+    includedPieces: "",
+    workDetails: "",
+    lining: "",
+    careInstructions: "Dry clean only. Store in a cool, dry place.",
     stock: "0",
     price: "0",
     discount: "0",
@@ -62,7 +70,11 @@ function fromProduct(product: Product): ProductDraft {
     slug: product.slug,
     description: product.description,
     fabric: product.fabric,
-    sizes: product.sizes.join(", "),
+    colour: product.colour,
+    includedPieces: product.includedPieces,
+    workDetails: product.workDetails,
+    lining: product.lining,
+    careInstructions: product.careInstructions,
     stock: String(product.stock),
     price: String(product.price),
     discount: String(product.discount),
@@ -142,7 +154,11 @@ export function ProductManagement({
       slug: draft.slug.trim(),
       description: draft.description.trim(),
       fabric: draft.fabric.trim(),
-      sizes: [...new Set(draft.sizes.split(",").map((size) => size.trim()).filter(Boolean))],
+      colour: draft.colour.trim(),
+      includedPieces: draft.includedPieces.trim(),
+      workDetails: draft.workDetails.trim(),
+      lining: draft.lining.trim(),
+      careInstructions: draft.careInstructions.trim(),
       stock: Number(draft.stock),
       price: Number(draft.price),
       discount: Number(draft.discount),
@@ -236,7 +252,7 @@ export function ProductManagement({
               </div>
               <p className="mt-3 text-xs text-white/75">
                 Stock {product.stock} · Discount {product.discount}% ·{" "}
-                {product.sizes.join(", ")}
+                Custom Size only
               </p>
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <button
@@ -339,17 +355,28 @@ export function ProductManagement({
               </p>
             </div>
             <div>
-              <label htmlFor="product-sizes" className="field-label">
-                Sizes, comma separated
-              </label>
-              <input
-                id="product-sizes"
-                value={draft.sizes}
-                onChange={(event) => setField("sizes", event.target.value)}
-                className="field"
-                placeholder="S, M, L, Custom"
-                required
-              />
+              <span className="field-label">Ordering size</span>
+              <div className="field flex items-center font-semibold">Custom Size only</div>
+            </div>
+            <div>
+              <label htmlFor="product-colour" className="field-label">Colour</label>
+              <input id="product-colour" value={draft.colour} onChange={(event) => setField("colour", event.target.value)} className="field" required />
+            </div>
+            <div>
+              <label htmlFor="product-pieces" className="field-label">Included pieces</label>
+              <input id="product-pieces" value={draft.includedPieces} onChange={(event) => setField("includedPieces", event.target.value)} className="field" placeholder="Kurta, trousers and dupatta" required />
+            </div>
+            <div>
+              <label htmlFor="product-lining" className="field-label">Lining</label>
+              <input id="product-lining" value={draft.lining} onChange={(event) => setField("lining", event.target.value)} className="field" required />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="product-work" className="field-label">Work and finish</label>
+              <textarea id="product-work" value={draft.workDetails} onChange={(event) => setField("workDetails", event.target.value)} className="field min-h-24 resize-y" required />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="product-care" className="field-label">Care instructions</label>
+              <textarea id="product-care" value={draft.careInstructions} onChange={(event) => setField("careInstructions", event.target.value)} className="field min-h-24 resize-y" required />
             </div>
             <div>
               <label htmlFor="product-price" className="field-label">

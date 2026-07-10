@@ -7,9 +7,11 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type { CustomerProfileInput } from "@/lib/validation/account";
 import type {
   CheckoutCustomer,
+  CustomMeasurements,
   CustomerAccountData,
   CustomerProfile,
   OrderSummary,
+  MeasurementStatus,
 } from "@/types/commerce";
 
 function fallbackName(user: User) {
@@ -72,6 +74,12 @@ function mapOrder(row: Record<string, unknown>): OrderSummary {
         quantity: Number(value.quantity),
         priceAtTime: Number(value.price_at_time),
         lineTotal: Number(value.line_total),
+        measurements: value.measurements
+          ? (value.measurements as unknown as CustomMeasurements)
+          : null,
+        measurementStatus: value.measurement_status
+          ? (String(value.measurement_status) as MeasurementStatus)
+          : null,
       };
     }),
   };
@@ -214,7 +222,9 @@ export async function getCustomerOrders(
       selected_size,
       quantity,
       price_at_time,
-      line_total
+      line_total,
+      measurements,
+      measurement_status
     )
   `;
 

@@ -40,8 +40,8 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 
 - Server-rendered product catalog backed by Supabase PostgreSQL
 - Featured products, new arrivals, category filters, search, and sorting
-- Product pages with images, description, fabric, sizes, stock, discount, and
-  related products
+- Product pages with images, confirmed fabric, colour, included pieces, work,
+  lining, care, custom sizing, stock, discount, and related products
 - Indian currency formatting and discounted-price presentation
 - Product and store structured data for search engines
 - Dynamic sitemap containing active product pages
@@ -52,12 +52,16 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 - Guest checkout with optional customer account sign-in
 - Signed-in checkout prefills saved customer contact and delivery details
 - Browser-persistent cart stored under `darajni-cart-v1` in local storage
-- Cart items separated by product and selected size
+- Custom-size-only ordering with required measurements saved on each cart item
+- Customer measurement confirmation followed by admin tailoring review before
+  an order can be confirmed
 - Quantity controls constrained by the stock value last seen by the browser
 - Cash on delivery, when enabled in store settings
+- Checkout pincode checking with delivery guidance and explicit COD eligibility
 - Razorpay online payments
 - Coupon and voucher codes with server-side redemption limits
-- Server-authoritative product prices, discounts, stock, tax, and shipping
+- Server-authoritative product prices, discounts, stock, tax on discounted
+  merchandise, and shipping
 - Atomic inventory reservation during order creation
 - Signed, short-lived private order-success links
 - Estimated delivery window of 7–12 calendar days

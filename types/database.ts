@@ -61,6 +61,11 @@ export interface Database {
           slug: string;
           description: string;
           fabric: string;
+          colour: string;
+          included_pieces: string;
+          work_details: string;
+          lining: string;
+          care_instructions: string;
           size: string[];
           stock: number;
           price: number;
@@ -78,6 +83,11 @@ export interface Database {
           slug: string;
           description: string;
           fabric: string;
+          colour: string;
+          included_pieces: string;
+          work_details: string;
+          lining: string;
+          care_instructions: string;
           size?: string[];
           stock?: number;
           price: number;
@@ -191,6 +201,8 @@ export interface Database {
           quantity: number;
           price_at_time: number;
           line_total: number;
+          measurements: Json | null;
+          measurement_status: string | null;
           created_at: string;
         };
         Insert: {
@@ -201,9 +213,14 @@ export interface Database {
           selected_size: string;
           quantity: number;
           price_at_time: number;
+          measurements?: Json | null;
+          measurement_status?: string | null;
           created_at?: string;
         };
-        Update: never;
+        Update: {
+          measurements?: Json | null;
+          measurement_status?: string | null;
+        };
       };
       archived_orders: {
         Row: {

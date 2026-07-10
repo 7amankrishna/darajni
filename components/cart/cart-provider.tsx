@@ -43,7 +43,9 @@ function safeCart(value: unknown): CartItem[] {
       typeof candidate.size === "string" &&
       typeof candidate.quantity === "number" &&
       typeof candidate.unitPrice === "number" &&
-      typeof candidate.stock === "number"
+      typeof candidate.stock === "number" &&
+      Boolean(candidate.measurements) &&
+      candidate.measurements?.customerConfirmed === true
     );
   });
 }
@@ -102,6 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         entry.key === key
           ? {
               ...entry,
+              ...item,
               quantity: Math.min(entry.quantity + quantity, entry.stock),
             }
           : entry,

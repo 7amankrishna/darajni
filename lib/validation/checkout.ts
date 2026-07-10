@@ -8,6 +8,22 @@ const phoneSchema = z
     "Enter a valid 10-digit phone number.",
   );
 
+const measurementSchema = z.object({
+  unit: z.literal("in"),
+  shoulder: z.number().min(8).max(30),
+  bust: z.number().min(20).max(80),
+  waist: z.number().min(18).max(80),
+  hips: z.number().min(20).max(90),
+  outfitLength: z.number().min(20).max(80),
+  sleeveLength: z.number().min(0).max(40).optional(),
+  height: z.number().min(40).max(90).optional(),
+  fitPreference: z.enum(["close", "regular", "relaxed"]),
+  notes: z.string().trim().max(500).optional().default(""),
+  customerConfirmed: z.literal(true, {
+    error: "Confirm that you have checked every measurement.",
+  }),
+});
+
 export const checkoutSchema = z.object({
   customer: z.object({
     customerName: z.string().trim().min(2).max(100),
@@ -28,6 +44,7 @@ export const checkoutSchema = z.object({
         productId: z.string().uuid(),
         size: z.string().trim().min(1).max(40),
         quantity: z.number().int().min(1).max(10),
+        measurements: measurementSchema,
       }),
     )
     .min(1)

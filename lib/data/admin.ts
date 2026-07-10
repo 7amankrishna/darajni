@@ -7,7 +7,13 @@ import type {
   AdminOrder,
   AdminPromoCode,
 } from "@/types/admin";
-import type { Category, Product, StoreSettings } from "@/types/commerce";
+import type {
+  Category,
+  CustomMeasurements,
+  MeasurementStatus,
+  Product,
+  StoreSettings,
+} from "@/types/commerce";
 
 function mapCategory(row: Record<string, unknown>): Category {
   return {
@@ -27,6 +33,11 @@ function mapProduct(row: Record<string, unknown>): Product {
     slug: String(row.slug),
     description: String(row.description),
     fabric: String(row.fabric),
+    colour: String(row.colour),
+    includedPieces: String(row.included_pieces),
+    workDetails: String(row.work_details),
+    lining: String(row.lining),
+    careInstructions: String(row.care_instructions),
     sizes: Array.isArray(row.size) ? row.size.map(String) : [],
     stock: Number(row.stock),
     price: Number(row.price),
@@ -74,6 +85,12 @@ function mapOrder(row: Record<string, unknown>): AdminOrder {
         quantity: Number(value.quantity),
         priceAtTime: Number(value.price_at_time),
         lineTotal: Number(value.line_total),
+        measurements: value.measurements
+          ? (value.measurements as unknown as CustomMeasurements)
+          : null,
+        measurementStatus: value.measurement_status
+          ? (String(value.measurement_status) as MeasurementStatus)
+          : null,
       };
     }),
   };
@@ -156,7 +173,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       supabase
         .from("orders")
         .select(
-          "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
+          "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total, measurements, measurement_status)",
         )
         .order("created_at", { ascending: false }),
       supabase

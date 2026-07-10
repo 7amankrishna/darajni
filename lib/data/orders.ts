@@ -2,7 +2,11 @@ import "server-only";
 
 import { verifyOrderAccessToken } from "@/lib/security/order-token";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import type { OrderSummary } from "@/types/commerce";
+import type {
+  CustomMeasurements,
+  MeasurementStatus,
+  OrderSummary,
+} from "@/types/commerce";
 
 export async function getOrderByAccessToken(
   token: string,
@@ -45,7 +49,9 @@ export async function getOrderByAccessToken(
           selected_size,
           quantity,
           price_at_time,
-          line_total
+          line_total,
+          measurements,
+          measurement_status
         )
       `,
     )
@@ -87,6 +93,12 @@ export async function getOrderByAccessToken(
       quantity: Number(item.quantity),
       priceAtTime: Number(item.price_at_time),
       lineTotal: Number(item.line_total),
+      measurements: item.measurements
+        ? (item.measurements as unknown as CustomMeasurements)
+        : null,
+      measurementStatus: item.measurement_status
+        ? (String(item.measurement_status) as MeasurementStatus)
+        : null,
     })),
   };
 }

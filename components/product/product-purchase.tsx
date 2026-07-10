@@ -13,13 +13,49 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/cart/cart-provider";
+import { MeasurementFigure } from "@/components/product/measurement-figure";
 import { formatPrice, whatsappSupportLink } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
-import type { Product, StoreSettings } from "@/types/commerce";
+import type {
+  CustomMeasurements,
+  FitPreference,
+  Product,
+  StoreSettings,
+} from "@/types/commerce";
+
+type MeasurementDraft = Record<
+  "shoulder" | "bust" | "waist" | "hips" | "outfitLength" | "sleeveLength" | "height",
+  string
+>;
+
+const initialMeasurements: MeasurementDraft = {
+  shoulder: "",
+  bust: "",
+  waist: "",
+  hips: "",
+  outfitLength: "",
+  sleeveLength: "",
+  height: "",
+};
+
+const measurementFields: Array<{
+  key: keyof MeasurementDraft;
+  label: string;
+  hint: string;
+  required?: boolean;
+}> = [
+  { key: "shoulder", label: "Shoulder", hint: "Back, edge to edge", required: true },
+  { key: "bust", label: "Bust", hint: "Around the fullest part", required: true },
+  { key: "waist", label: "Waist", hint: "Around the natural waist", required: true },
+  { key: "hips", label: "Hips", hint: "Around the fullest part", required: true },
+  { key: "outfitLength", label: "Outfit length", hint: "Shoulder to desired hem", required: true },
+  { key: "sleeveLength", label: "Sleeve length", hint: "Shoulder point to cuff" },
+  { key: "height", label: "Your height", hint: "Barefoot, head to floor" },
+];
 
 export function ProductPurchase({
   product,
@@ -32,12 +68,12 @@ export function ProductPurchase({
 }) {
   const router = useRouter();
   const { addItem } = useCart();
-  const sizeOptions = useMemo(
-    () => (product.sizes.length ? product.sizes : ["Custom Size"]),
-    [product.sizes],
-  );
-  const [size, setSize] = useState(sizeOptions[0]);
+  const size = "Custom Size";
   const [quantity, setQuantity] = useState(1);
+  const [measurements, setMeasurements] = useState(initialMeasurements);
+  const [fitPreference, setFitPreference] = useState<FitPreference>("regular");
+  const [measurementNotes, setMeasurementNotes] = useState("");
+  const [measurementsConfirmed, setMeasurementsConfirmed] = useState(false);
   const price = getProductPrice(product);
   const soldOut = product.stock < 1;
   const whatsappHref = whatsappSupportLink(
@@ -46,7 +82,7 @@ export function ProductPurchase({
   );
   const trustItems: Array<[string, LucideIcon]> = [
     ["Secure payment", ShieldCheck],
-    [settings.codEnabled ? "COD available" : "Online payment", ShoppingBag],
+    [settings.codEnabled ? "COD after pincode check" : "Online payment", ShoppingBag],
     ["Exchange policy", Ruler],
     [
       settings.shippingCharge > 0
@@ -56,7 +92,44 @@ export function ProductPurchase({
     ],
   ];
 
+  const buildMeasurements = (): CustomMeasurements | null => {
+    const values = Object.fromEntries(
+      Object.entries(measurements).map(([key, value]) => [
+        key,
+        value.trim() ? Number(value) : undefined,
+      ]),
+    ) as Record<keyof MeasurementDraft, number | undefined>;
+
+    if (
+      !values.shoulder ||
+      !values.bust ||
+      !values.waist ||
+      !values.hips ||
+      !values.outfitLength ||
+      !measurementsConfirmed
+    ) {
+      toast.error("Enter the five required measurements and confirm them.");
+      return null;
+    }
+
+    return {
+      unit: "in",
+      shoulder: values.shoulder,
+      bust: values.bust,
+      waist: values.waist,
+      hips: values.hips,
+      outfitLength: values.outfitLength,
+      sleeveLength: values.sleeveLength,
+      height: values.height,
+      fitPreference,
+      notes: measurementNotes.trim() || undefined,
+      customerConfirmed: true,
+    };
+  };
+
   const add = () => {
+    const customMeasurements = buildMeasurements();
+    if (!customMeasurements) return false;
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -66,13 +139,14 @@ export function ProductPurchase({
       quantity,
       unitPrice: price,
       stock: product.stock,
+      measurements: customMeasurements,
     });
     toast.success(`${product.name} added to your cart`);
+    return true;
   };
 
   const buyNow = () => {
-    add();
-    router.push("/checkout");
+    if (add()) router.push("/checkout");
   };
 
   return (
@@ -83,37 +157,100 @@ export function ProductPurchase({
             <Ruler className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="font-display text-3xl leading-none text-[#171717]">
-              Select Your Size
+            <p className="eyebrow">Custom size ordering</p>
+            <h2 className="font-display mt-2 text-3xl leading-none text-[#171717]">
+              Your size. Your fit. Made just for you.
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#6F6255]">
-              After placing your order, our team will contact you for
-              measurements. You can also share them directly on WhatsApp.
+              This design is made to your measurements. Measure in inches over
+              fitted clothing, keep the tape level and comfortable, and check
+              every number twice before confirming.
             </p>
           </div>
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {sizeOptions.map((option) => (
-            <button
-              type="button"
-              key={option}
-              onClick={() => setSize(option)}
-              className={`min-h-10 rounded-xl border px-4 text-xs font-extrabold transition ${
-                option === size
-                  ? "border-[#111111] bg-[#111111] text-white"
-                  : "border-[#E9DCCB] bg-white text-[#5F5348] hover:border-[#B8893B]"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
+          <span className="inline-flex min-h-10 items-center rounded-xl border border-[#111111] bg-[#111111] px-4 text-xs font-extrabold text-white">
+            Custom Size
+          </span>
           <Link href="/size-guide" className="secondary-button !min-h-10 !py-2">
             Open Size Guide
           </Link>
           <a href={whatsappHref} className="whatsapp-button !min-h-10 !py-2">
             WhatsApp Measurement Help
           </a>
+        </div>
+
+        <div className="mt-6 grid gap-5 lg:grid-cols-[0.82fr_1.18fr]">
+          <MeasurementFigure className="!min-h-[25rem]" />
+          <div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {measurementFields.map((field) => (
+                <div key={field.key}>
+                  <label htmlFor={`measurement-${field.key}`} className="field-label">
+                    {field.label} {field.required ? "*" : "(optional)"}
+                  </label>
+                  <div className="relative">
+                    <input
+                      id={`measurement-${field.key}`}
+                      type="number"
+                      min="1"
+                      max="90"
+                      step="0.25"
+                      inputMode="decimal"
+                      value={measurements[field.key]}
+                      onChange={(event) =>
+                        setMeasurements((current) => ({
+                          ...current,
+                          [field.key]: event.target.value,
+                        }))
+                      }
+                      className="field !pr-12"
+                      required={field.required}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#6F6255]">
+                      in
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.68rem] text-[#6F6255]">{field.hint}</p>
+                </div>
+              ))}
+              <div>
+                <label htmlFor="measurement-fit" className="field-label">Fit preference</label>
+                <select
+                  id="measurement-fit"
+                  value={fitPreference}
+                  onChange={(event) => setFitPreference(event.target.value as FitPreference)}
+                  className="field"
+                >
+                  <option value="close">Close fit</option>
+                  <option value="regular">Regular fit</option>
+                  <option value="relaxed">Relaxed fit</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="measurement-notes" className="field-label">Tailoring notes (optional)</label>
+                <textarea
+                  id="measurement-notes"
+                  value={measurementNotes}
+                  onChange={(event) => setMeasurementNotes(event.target.value)}
+                  maxLength={500}
+                  className="field min-h-20 resize-y"
+                  placeholder="Neck depth, sleeve style, comfort or mobility notes"
+                />
+              </div>
+            </div>
+            <label className="mt-4 flex items-start gap-3 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-xs leading-5 text-[#5F5348]">
+              <input
+                type="checkbox"
+                checked={measurementsConfirmed}
+                onChange={(event) => setMeasurementsConfirmed(event.target.checked)}
+                className="mt-0.5 accent-[#B8893B]"
+              />
+              I measured in inches, checked each number twice, and understand
+              the tailoring team will confirm these details before cutting.
+            </label>
+          </div>
         </div>
       </div>
 

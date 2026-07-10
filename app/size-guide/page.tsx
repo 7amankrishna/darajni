@@ -1,6 +1,7 @@
 import { MessageCircle, Ruler } from "lucide-react";
 import type { Metadata } from "next";
 
+import { MeasurementFigure } from "@/components/product/measurement-figure";
 import { whatsappSupportLink } from "@/config/site";
 import { getStoreSettings } from "@/lib/data/catalog";
 
@@ -46,21 +47,7 @@ export default async function Page() {
         </div>
 
         <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="measurement-figure">
-            {[
-              ["Shoulder", "measure-shoulder"],
-              ["Bust", "measure-bust"],
-              ["Waist", "measure-waist"],
-              ["Hip", "measure-hip"],
-              ["Sleeve", "measure-sleeve"],
-              ["Blouse length", "measure-blouse"],
-              ["Lehenga length", "measure-length"],
-            ].map(([label, className]) => (
-              <span key={label} className={`measure-label ${className}`}>
-                {label}
-              </span>
-            ))}
-          </div>
+          <MeasurementFigure />
 
           <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
             <p className="eyebrow">Size chart</p>
@@ -95,17 +82,18 @@ export default async function Page() {
           <p className="eyebrow">How to measure</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              "Use a soft measuring tape",
-              "Wear fitted clothes while measuring",
-              "Keep tape comfortable, not tight",
-              "Measure twice",
-              "Share numbers on WhatsApp",
-            ].map((step, index) => (
+              ["Prepare", "Use a soft tape and wear fitted clothing. Stand naturally with your feet together."],
+              ["Shoulder", "Measure straight across your back from one shoulder edge to the other."],
+              ["Bust, waist & hips", "Keep the tape level around each fullest point. It should touch without squeezing."],
+              ["Sleeve & length", "Measure from the shoulder point to the cuff, then shoulder to your desired outfit hem."],
+              ["Confirm", "Record in inches, measure every point twice, then confirm the values during ordering."],
+            ].map(([title, step], index) => (
               <article key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-[#171717] text-sm font-bold text-white">
                   {index + 1}
                 </span>
-                <p className="mt-5 text-sm font-semibold leading-6 text-[#171717]">
+                <h3 className="font-display mt-5 text-2xl text-[#171717]">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#5F5348]">
                   {step}
                 </p>
               </article>

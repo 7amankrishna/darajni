@@ -105,6 +105,16 @@ export default async function Page({
                   <p className="mt-2 text-xs text-[#6F6255]">
                     Size {item.selectedSize} | Quantity {item.quantity}
                   </p>
+                  {item.measurements && (
+                    <div className="mt-3 rounded-xl bg-[#F6E9DD] p-3 text-xs leading-5 text-[#5F5348]">
+                      <p>
+                        Shoulder {item.measurements.shoulder} · Bust {item.measurements.bust} · Waist {item.measurements.waist} · Hips {item.measurements.hips} · Length {item.measurements.outfitLength} in
+                      </p>
+                      <p className="mt-1 font-semibold capitalize">
+                        Measurement review: {item.measurementStatus?.replace("_", " ")}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <p className="font-display text-2xl font-semibold text-[#171717]">
                   {formatPrice(item.lineTotal)}
@@ -115,7 +125,7 @@ export default async function Page({
           <div className="border-t border-[#E9DCCB] p-5 sm:p-6">
             <div className="ml-auto max-w-xs space-y-2 text-sm">
               <div className="flex justify-between text-[#6F6255]">
-                <span>Subtotal</span>
+                <span>Items subtotal</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
               {order.discountAmount > 0 && (
@@ -131,11 +141,11 @@ export default async function Page({
                 <span>{formatPrice(order.shippingFee)}</span>
               </div>
               <div className="flex justify-between text-[#6F6255]">
-                <span>Tax</span>
+                <span>GST/tax on discounted items</span>
                 <span>{formatPrice(order.taxAmount)}</span>
               </div>
               <div className="flex justify-between border-t border-[#E9DCCB] pt-3 font-semibold text-[#171717]">
-                <span>Total</span>
+                <span>Final total</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
             </div>
@@ -152,7 +162,7 @@ export default async function Page({
           <div className="mt-5 grid gap-3 sm:grid-cols-4">
             {[
               "We confirm your order",
-              "We collect measurements if needed",
+              "We review and confirm your measurements",
               "We prepare and pack your outfit",
               "We ship and share tracking",
             ].map((step, index) => (

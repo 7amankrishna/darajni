@@ -1,10 +1,38 @@
 import type { Product } from "@/types/commerce";
 
+export function roundMoney(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+export function calculateOrderEstimate({
+  itemsSubtotal,
+  discount = 0,
+  shipping = 0,
+  taxRate = 0,
+}: {
+  itemsSubtotal: number;
+  discount?: number;
+  shipping?: number;
+  taxRate?: number;
+}) {
+  const safeDiscount = Math.min(Math.max(0, discount), itemsSubtotal);
+  const discountedItemsSubtotal = roundMoney(itemsSubtotal - safeDiscount);
+  const tax = roundMoney(discountedItemsSubtotal * (taxRate / 100));
+  return {
+    itemsSubtotal: roundMoney(itemsSubtotal),
+    discount: safeDiscount,
+    discountedItemsSubtotal,
+    shipping: roundMoney(shipping),
+    tax,
+    total: roundMoney(discountedItemsSubtotal + shipping + tax),
+  };
+}
+
 export function getDiscountedPrice(
   price: number,
   discount: number,
 ): number {
-  return Math.round(price * (1 - discount / 100) * 100) / 100;
+  return roundMoney(price * (1 - discount / 100));
 }
 
 export function getProductPrice(product: Pick<Product, "price" | "discount">) {

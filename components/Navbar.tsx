@@ -84,7 +84,7 @@ export default function Navbar({
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
-              {codEnabled ? "COD Available | " : ""}Secure Payments | Exchange Support
+              {codEnabled ? "COD subject to pincode | " : ""}Secure Payments | Exchange Support
             </span>
             <a
               href={whatsappHref}

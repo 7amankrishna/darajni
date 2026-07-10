@@ -17,7 +17,6 @@ import {
   formatDate,
   getEstimatedDelivery,
   getProductPrice,
-  isProductInformationUncertain,
 } from "@/lib/commerce";
 import type { Product, StoreSettings } from "@/types/commerce";
 
@@ -31,16 +30,15 @@ const sizeRows = [
 ];
 
 function ProductFacts({ product }: { product: Product }) {
-  const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
   const facts = [
     ["Category", product.category.name],
-    [
-      "Fabric",
-      fabricNeedsConfirmation
-        ? "Exact fabric confirmation is available from DARAJNI support before ordering."
-        : product.fabric,
-    ],
-    ["Available sizes", product.sizes.join(", ") || "Custom size"],
+    ["Fabric", product.fabric],
+    ["Colour", product.colour],
+    ["Included pieces", product.includedPieces],
+    ["Work & finish", product.workDetails],
+    ["Lining", product.lining],
+    ["Care", product.careInstructions],
+    ["Ordering size", "Custom Size — made from your confirmed measurements"],
     ["Availability", product.stock > 0 ? `${product.stock} available` : "Sold out"],
   ];
 
@@ -176,11 +174,8 @@ export default function ProductPage({
   settings: StoreSettings;
 }) {
   const price = getProductPrice(product);
-  const descriptionNeedsConfirmation = isProductInformationUncertain(
-    product.description,
-  );
   const priceNote = settings.taxRate > 0
-    ? `Tax (${settings.taxRate}%) and shipping are shown before payment`
+    ? `GST/tax (${settings.taxRate}%) is calculated on the discounted item price; shipping is shown at checkout`
     : settings.shippingCharge > 0
       ? `Applicable taxes included · ${formatPrice(settings.shippingCharge)} shipping at checkout`
       : "Inclusive of applicable taxes · Free shipping";
@@ -249,17 +244,9 @@ export default function ProductPage({
                   settings={settings}
                 />
               </div>
-              {descriptionNeedsConfirmation ? (
-                <p className="mt-5 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
-                  Some material details for this design still require studio
-                  confirmation. Please ask DARAJNI support to confirm the exact
-                  fabric, included pieces and finish before ordering.
-                </p>
-              ) : (
-                <p className="mt-5 text-sm leading-7 text-[#5F5348]">
-                  {product.description}
-                </p>
-              )}
+              <p className="mt-5 text-sm leading-7 text-[#5F5348]">
+                {product.description}
+              </p>
             </div>
 
             <ProductFacts product={product} />

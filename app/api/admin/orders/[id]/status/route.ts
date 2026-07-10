@@ -51,6 +51,30 @@ export async function PATCH(
     );
   }
 
+  if (parsed.data.status === "confirmed") {
+    const { data: measurementItems, error: measurementReadError } = await supabase
+      .from("order_items")
+      .select("measurement_status")
+      .eq("order_id", id);
+    if (measurementReadError) {
+      return internalApiError(
+        "admin-order-measurement-read",
+        measurementReadError,
+        "Measurement review could not be verified.",
+        500,
+      );
+    }
+    if (
+      !measurementItems?.length ||
+      measurementItems.some((item) => item.measurement_status !== "confirmed")
+    ) {
+      return apiError(
+        "Confirm every item measurement before confirming this order.",
+        409,
+      );
+    }
+  }
+
   const { error } = await supabase
     .from("orders")
     .update({ status: parsed.data.status })
