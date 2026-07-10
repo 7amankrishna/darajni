@@ -4,7 +4,7 @@ import { siteConfig } from "@/config/site";
 import { getCatalog } from "@/lib/data/catalog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { products } = await getCatalog();
+  const { products, categories } = await getCatalog();
   const staticRoutes = [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
     { path: "/collection", priority: 0.9, changeFrequency: "weekly" as const },
@@ -30,5 +30,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
+    ...categories
+      .filter((category) =>
+        products.some((product) => product.category.id === category.id),
+      )
+      .map((category) => ({
+        url: `${siteConfig.siteUrl}/collection?category=${encodeURIComponent(category.slug)}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+      })),
   ];
 }

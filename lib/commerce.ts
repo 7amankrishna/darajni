@@ -11,6 +11,12 @@ export function getProductPrice(product: Pick<Product, "price" | "discount">) {
   return getDiscountedPrice(product.price, product.discount);
 }
 
+export function isProductInformationUncertain(value: string) {
+  return /\b(appears?|seems?|possibly|likely|style)\b|\bor\b|-style\b/i.test(
+    value,
+  );
+}
+
 export function normalizeIndianPhone(value: string) {
   return value.replace(/\D/g, "").slice(-10);
 }

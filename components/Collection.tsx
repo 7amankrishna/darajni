@@ -1,10 +1,11 @@
 "use client";
 
 import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import DesignCard from "@/components/DesignCard";
-import { getProductPrice } from "@/lib/commerce";
+import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import type { Category, Product } from "@/types/commerce";
 
 type SortOption = "newest" | "price-low" | "price-high";
@@ -25,30 +26,41 @@ export default function Collection({
   products,
   categories,
   mode = "home",
+  initialCategory = "all",
+  initialSort = "newest",
+  initialSortInUrl = false,
+  initialSale = false,
 }: {
   products: Product[];
   categories: Category[];
   mode?: "home" | "page";
+  initialCategory?: string;
+  initialSort?: SortOption;
+  initialSortInUrl?: boolean;
+  initialSale?: boolean;
 }) {
-  const [activeCategory, setActiveCategory] = useState("all");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<SortOption>("newest");
+  const [sort, setSort] = useState<SortOption>(initialSort);
   const [priceRange, setPriceRange] = useState<PriceRange>("all");
   const [occasion, setOccasion] = useState("all");
   const [color, setColor] = useState("all");
   const [fabric, setFabric] = useState("all");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [customOnly, setCustomOnly] = useState(false);
+  const [saleOnly, setSaleOnly] = useState(initialSale);
 
   const categoryOptions = useMemo(
     () => [
       { name: "All", slug: "all", count: products.length },
-      ...categories.map((category) => ({
-        ...category,
-        count: products.filter(
+      ...categories.flatMap((category) => {
+        const count = products.filter(
           (product) => product.category.slug === category.slug,
-        ).length,
-      })),
+        ).length;
+        return count ? [{ ...category, count }] : [];
+      }),
     ],
     [categories, products],
   );
@@ -56,6 +68,10 @@ export default function Collection({
   const fabricOptions = useMemo(
     () =>
       Array.from(new Set(products.map((product) => product.fabric).filter(Boolean)))
+        .filter(
+          (option) =>
+            option.length <= 80 && !isProductInformationUncertain(option),
+        )
         .slice(0, 16)
         .sort((a, b) => a.localeCompare(b)),
     [products],
@@ -93,6 +109,7 @@ export default function Collection({
       const customMatches =
         !customOnly ||
         product.sizes.some((size) => size.toLowerCase().includes("custom"));
+      const saleMatches = !saleOnly || product.discount > 0;
 
       return (
         categoryMatches &&
@@ -101,6 +118,7 @@ export default function Collection({
         colorMatches &&
         fabricMatches &&
         priceMatches &&
+        saleMatches &&
         customMatches &&
         (!inStockOnly || product.stock > 0)
       );
@@ -120,7 +138,28 @@ export default function Collection({
     occasion,
     priceRange,
     products,
+    saleOnly,
     search,
+    sort,
+  ]);
+
+  useEffect(() => {
+    if (mode !== "page") return;
+
+    const params = new URLSearchParams();
+    if (activeCategory !== "all") params.set("category", activeCategory);
+    if (sort !== "newest" || initialSortInUrl) params.set("sort", sort);
+    if (saleOnly) params.set("sale", "true");
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [
+    activeCategory,
+    initialSortInUrl,
+    mode,
+    pathname,
+    router,
+    saleOnly,
     sort,
   ]);
 
@@ -134,6 +173,7 @@ export default function Collection({
     setOccasion("all");
     setColor("all");
     setFabric("all");
+    setSaleOnly(false);
   };
 
   return (
@@ -149,11 +189,19 @@ export default function Collection({
             <p className="eyebrow">
               {mode === "page" ? "Explore DARAJNI Collection" : "All available designs"}
             </p>
-            <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
-              {mode === "page"
-                ? "Lehengas, gowns, sarees and occasion wear."
-                : "Find your custom-fit celebration piece."}
-            </h2>
+            {mode === "page" ? (
+              <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+                {activeCategory === "all"
+                  ? saleOnly
+                    ? "Sale collection"
+                    : "Indian occasion wear, made to celebrate."
+                  : `${activeCategoryName} collection`}
+              </h1>
+            ) : (
+              <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+                Find your custom-fit celebration piece.
+              </h2>
+            )}
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#6F6255]">
               Browse live designs by category, fabric, price and availability.
               Every product page includes stock, size and checkout details.
@@ -288,6 +336,17 @@ export default function Collection({
               />
               Custom size available
             </label>
+            {products.some((product) => product.discount > 0) && (
+              <label className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
+                <input
+                  type="checkbox"
+                  checked={saleOnly}
+                  onChange={(event) => setSaleOnly(event.target.checked)}
+                  className="accent-[#B8893B]"
+                />
+                Sale designs only
+              </label>
+            )}
           </div>
         </div>
 

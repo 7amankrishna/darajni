@@ -331,8 +331,12 @@ export function ProductManagement({
                 value={draft.fabric}
                 onChange={(event) => setField("fabric", event.target.value)}
                 className="field"
+                placeholder="Exact fabric, e.g. silk blend with cotton lining"
                 required
               />
+              <p className="mt-2 text-xs leading-5 text-white/55">
+                Use confirmed material names. Avoid “appears,” “style,” “or” and other uncertain wording.
+              </p>
             </div>
             <div>
               <label htmlFor="product-sizes" className="field-label">
@@ -406,6 +410,10 @@ export function ProductManagement({
                 maxLength={5000}
                 required
               />
+              <p className="mt-2 text-xs leading-5 text-white/55">
+                State the included pieces, lining, work, colour, garment length,
+                care instructions and model measurements when known.
+              </p>
             </div>
             <div className="sm:col-span-2">
               <span className="field-label">Images</span>

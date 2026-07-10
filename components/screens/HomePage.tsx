@@ -1,24 +1,21 @@
 import {
-  BadgeCheck,
   HeartHandshake,
   type LucideIcon,
   MessageCircle,
   PackageCheck,
   Ruler,
   ShieldCheck,
-  Star,
   Truck,
 } from "lucide-react";
 import Link from "next/link";
 
 import About from "@/components/About";
-import Collection from "@/components/Collection";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
 import Hero from "@/components/Hero";
 import { ProductImage } from "@/components/product/product-image";
 import { siteConfig } from "@/config/site";
-import { getProductPrice } from "@/lib/commerce";
+import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
 
 function CustomFitSection() {
@@ -85,9 +82,9 @@ function CustomFitSection() {
 
 function TrustSection({ image }: { image: string }) {
   const cards: Array<[string, string, LucideIcon]> = [
-    ["Verified buyer reviews", "No reviews yet", BadgeCheck],
-    ["Delivery/package photos", "Shared after fulfilment", PackageCheck],
-    ["Human fit support", "WhatsApp measurement help", HeartHandshake],
+    ["Live availability", "Stock is displayed on every product page.", PackageCheck],
+    ["Private order tracking", "Use your order ID and matching phone number.", ShieldCheck],
+    ["Human fit support", "Get measurement help before or after ordering.", HeartHandshake],
   ];
 
   return (
@@ -95,15 +92,15 @@ function TrustSection({ image }: { image: string }) {
       <div className="section-shell">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="eyebrow">Loved by customers across India</p>
+            <p className="eyebrow">Order with more certainty</p>
             <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
-              New label, real care, clear ordering.
+              Know what happens before you place an order.
             </h2>
           </div>
           <p className="text-sm leading-7 text-[#6F6255]">
-            Review and delivery-photo spaces are ready for verified buyers.
-            Until more real reviews arrive, DARAJNI keeps the promise simple:
-            honest details, human support and careful fulfilment.
+            DARAJNI does not publish placeholder testimonials or ratings. The
+            current trust promise is practical: live availability, clear order
+            totals, private tracking and direct support when you need it.
           </p>
         </div>
 
@@ -111,18 +108,10 @@ function TrustSection({ image }: { image: string }) {
           {cards.map(([title, text, Icon]) => (
             <article key={title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6">
               <Icon className="h-5 w-5 text-[#B8893B]" />
-              <div className="mt-5 flex gap-1 text-[#B8893B]" aria-hidden="true">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star key={index} className="h-4 w-4" />
-                ))}
-              </div>
               <h3 className="font-display mt-4 text-2xl text-[#171717]">
                 {title}
               </h3>
               <p className="mt-2 text-sm text-[#6F6255]">{text}</p>
-              <p className="mt-4 inline-flex rounded-full bg-[#F6E9DD] px-3 py-1 text-[0.65rem] font-extrabold uppercase text-[#6E0F1A]">
-                Verified buyer structure
-              </p>
             </article>
           ))}
         </div>
@@ -196,6 +185,9 @@ function PolicyPreview() {
 
 export default async function HomePage() {
   const { products, categories } = await getCatalog();
+  const availableCategories = categories.filter((category) =>
+    products.some((product) => product.category.id === category.id),
+  );
   const featured = products.filter((product) => product.isFeatured).slice(0, 4);
   const fallbackFeatured = featured.length ? featured : products.slice(0, 4);
   const trustImage = products.find((product) => product.images[0])?.images[0] || "/logo.webp";
@@ -223,7 +215,9 @@ export default async function HomePage() {
       name: "DARAJNI designer collection",
       url: siteConfig.siteUrl,
       description:
-        "A live catalog of DARAJNI designer lehengas, sarees, anarkalis and gowns.",
+        `A live catalog of DARAJNI ${availableCategories
+          .map((category) => category.name.toLowerCase())
+          .join(", ") || "designer occasion wear"}.`,
       mainEntity: {
         "@type": "ItemList",
         numberOfItems: products.length,
@@ -248,7 +242,9 @@ export default async function HomePage() {
           "@type": "Product",
           name: product.name,
           image: product.images,
-          description: product.description,
+          description: isProductInformationUncertain(product.description)
+            ? `${product.name} by DARAJNI Designer House.`
+            : product.description,
           category: product.category.name,
           brand: { "@type": "Brand", name: siteConfig.shortName },
           offers: {
@@ -277,7 +273,7 @@ export default async function HomePage() {
       <main id="main-content">
         <Hero products={products} />
 
-        <DressShowcase products={products} categories={categories} />
+        <DressShowcase products={products} categories={availableCategories} />
 
         {fallbackFeatured.length > 0 && (
           <section className="bg-[#FFF8EF] py-20 sm:py-28">
@@ -307,8 +303,6 @@ export default async function HomePage() {
         )}
 
         <CustomFitSection />
-
-        <Collection products={products} categories={categories} />
 
         <TrustSection image={trustImage} />
 

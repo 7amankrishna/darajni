@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
 
 const tabs = [
@@ -24,6 +25,10 @@ const sizeRows = [
 
 export function ProductInfoTabs({ product }: { product: Product }) {
   const [active, setActive] = useState(tabs[0]);
+  const descriptionNeedsConfirmation = isProductInformationUncertain(
+    product.description,
+  );
+  const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
 
   return (
     <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4 sm:p-6">
@@ -50,7 +55,11 @@ export function ProductInfoTabs({ product }: { product: Product }) {
             <h3 className="font-display text-3xl leading-none text-[#171717]">
               About this design
             </h3>
-            <p className="mt-4">{product.description}</p>
+            <p className="mt-4">
+              {descriptionNeedsConfirmation
+                ? "Ask DARAJNI support to confirm the exact material, included pieces and finish for this design before ordering."
+                : product.description}
+            </p>
           </div>
         )}
 
@@ -64,13 +73,19 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                 <dt className="text-xs font-extrabold uppercase text-[#B8893B]">
                   Fabric
                 </dt>
-                <dd className="mt-2">{product.fabric}</dd>
+                <dd className="mt-2">
+                  {fabricNeedsConfirmation
+                    ? "Contact DARAJNI for exact fabric confirmation."
+                    : product.fabric}
+                </dd>
               </div>
               <div className="rounded-xl bg-[#F6E9DD] p-4">
                 <dt className="text-xs font-extrabold uppercase text-[#B8893B]">
-                  Care
+                  Garment care
                 </dt>
-                <dd className="mt-2">Dry clean preferred for festive wear.</dd>
+                <dd className="mt-2">
+                  Confirm the garment-specific care instructions with support.
+                </dd>
               </div>
             </dl>
           </div>
@@ -120,8 +135,8 @@ export function ProductInfoTabs({ product }: { product: Product }) {
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {[
                 "Pan-India delivery with tracking updates.",
-                "Delivery time can vary by location and customization.",
-                "Exchange requests require unused product and intact packaging.",
+                "Most deliveries are estimated within 7–12 calendar days.",
+                "Exchange requests must be raised within seven days of delivery.",
                 "Custom-size rules are explained on the return and exchange page.",
               ].map((item) => (
                 <li key={item} className="rounded-xl bg-[#F6E9DD] p-4">

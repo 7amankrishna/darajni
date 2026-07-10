@@ -4,7 +4,6 @@ import {
   MessageCircle,
   Ruler,
   Sparkles,
-  Star,
   Truck,
 } from "lucide-react";
 import Link from "next/link";
@@ -14,8 +13,13 @@ import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductInfoTabs } from "@/components/product/product-info-tabs";
 import { ProductPurchase } from "@/components/product/product-purchase";
 import { formatPrice, siteConfig, whatsappSupportLink } from "@/config/site";
-import { formatDate, getEstimatedDelivery, getProductPrice } from "@/lib/commerce";
-import type { Product } from "@/types/commerce";
+import {
+  formatDate,
+  getEstimatedDelivery,
+  getProductPrice,
+  isProductInformationUncertain,
+} from "@/lib/commerce";
+import type { Product, StoreSettings } from "@/types/commerce";
 
 const sizeRows = [
   ["XS", "32", "26", "34", "Custom"],
@@ -27,13 +31,17 @@ const sizeRows = [
 ];
 
 function ProductFacts({ product }: { product: Product }) {
+  const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
   const facts = [
     ["Category", product.category.name],
-    ["Fabric finish", product.fabric],
-    ["Includes", "Outfit shown in product images"],
-    ["Work", "Festive trim and occasion-wear detailing"],
-    ["Occasion", "Wedding, festive and cultural events"],
-    ["Care", "Dry clean preferred"],
+    [
+      "Fabric",
+      fabricNeedsConfirmation
+        ? "Exact fabric confirmation is available from DARAJNI support before ordering."
+        : product.fabric,
+    ],
+    ["Available sizes", product.sizes.join(", ") || "Custom size"],
+    ["Availability", product.stock > 0 ? `${product.stock} available` : "Sold out"],
   ];
 
   return (
@@ -160,12 +168,22 @@ export default function ProductPage({
   product,
   related,
   supportNumber,
+  settings,
 }: {
   product: Product;
   related: Product[];
   supportNumber: string;
+  settings: StoreSettings;
 }) {
   const price = getProductPrice(product);
+  const descriptionNeedsConfirmation = isProductInformationUncertain(
+    product.description,
+  );
+  const priceNote = settings.taxRate > 0
+    ? `Tax (${settings.taxRate}%) and shipping are shown before payment`
+    : settings.shippingCharge > 0
+      ? `Applicable taxes included · ${formatPrice(settings.shippingCharge)} shipping at checkout`
+      : "Inclusive of applicable taxes · Free shipping";
 
   return (
     <main className="bg-[#FFF8EF] py-6 sm:py-10">
@@ -216,7 +234,7 @@ export default function ProductPage({
                   {formatPrice(price)}
                 </p>
                 <p className="pb-1 text-xs font-semibold uppercase text-[#6F6255]">
-                  Inclusive of all taxes
+                  {priceNote}
                 </p>
                 {product.discount > 0 && (
                   <span className="mb-1 rounded-full bg-[#F6E9DD] px-3 py-1 text-[0.62rem] font-extrabold uppercase text-[#6E0F1A]">
@@ -224,21 +242,27 @@ export default function ProductPage({
                   </span>
                 )}
               </div>
-              <div className="mt-5 flex items-center gap-3 text-sm text-[#6F6255]">
-                <span className="flex gap-1 text-[#B8893B]" aria-hidden="true">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <Star key={index} className="h-4 w-4" />
-                  ))}
-                </span>
-                <span>No reviews yet</span>
+              <div className="mt-6">
+                <ProductPurchase
+                  product={product}
+                  supportNumber={supportNumber}
+                  settings={settings}
+                />
               </div>
-              <p className="mt-5 text-sm leading-7 text-[#5F5348]">
-                {product.description}
-              </p>
+              {descriptionNeedsConfirmation ? (
+                <p className="mt-5 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
+                  Some material details for this design still require studio
+                  confirmation. Please ask DARAJNI support to confirm the exact
+                  fabric, included pieces and finish before ordering.
+                </p>
+              ) : (
+                <p className="mt-5 text-sm leading-7 text-[#5F5348]">
+                  {product.description}
+                </p>
+              )}
             </div>
 
             <ProductFacts product={product} />
-            <ProductPurchase product={product} supportNumber={supportNumber} />
           </div>
 
           <StickyHelpPanel product={product} supportNumber={supportNumber} />

@@ -19,18 +19,7 @@ import BrandLogo from "@/components/BrandLogo";
 import { useCart } from "@/components/cart/cart-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
-import { siteConfig, whatsappSupportLink } from "@/config/site";
-
-const navLinks = [
-  { label: "New Arrivals", href: "/collection" },
-  { label: "Lehengas", href: "/collection" },
-  { label: "Gowns", href: "/collection" },
-  { label: "Sarees", href: "/collection" },
-  { label: "Anarkalis", href: "/collection" },
-  { label: "Custom Fit", href: "/size-guide" },
-  { label: "Sale", href: "/collection" },
-  { label: "Track Order", href: "/track" },
-];
+import { formatPrice, siteConfig, whatsappSupportLink } from "@/config/site";
 
 const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
@@ -49,7 +38,19 @@ function Badge({ count }: { count: number }) {
   );
 }
 
-export default function Navbar({ supportNumber }: { supportNumber: string }) {
+export default function Navbar({
+  supportNumber,
+  shippingCharge,
+  codEnabled,
+  availableCategories,
+  hasSaleProducts,
+}: {
+  supportNumber: string;
+  shippingCharge: number;
+  codEnabled: boolean;
+  availableCategories: Array<{ name: string; slug: string }>;
+  hasSaleProducts: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -60,14 +61,31 @@ export default function Navbar({ supportNumber }: { supportNumber: string }) {
   const supportLabel = supportNumber
     ? `WhatsApp Support: +${supportNumber}`
     : `Support: ${siteConfig.email}`;
+  const navLinks = [
+    { label: "New Arrivals", href: "/collection?sort=newest" },
+    ...availableCategories.slice(0, 4).map((category) => ({
+      label: category.name,
+      href: `/collection?category=${encodeURIComponent(category.slug)}`,
+    })),
+    { label: "Custom Fit", href: "/size-guide" },
+    ...(hasSaleProducts
+      ? [{ label: "Sale", href: "/collection?sale=true" }]
+      : []),
+    { label: "Track Order", href: "/track" },
+  ];
+  const shippingLabel = shippingCharge > 0
+    ? `${formatPrice(shippingCharge)} shipping Pan India`
+    : "Free shipping Pan India";
 
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#E9DCCB] bg-[#FFF8EF]/94 backdrop-blur-xl">
         <div className="hidden bg-[#171717] text-[#FFFDF8] md:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
-            <span>Free shipping Pan India</span>
-            <span>COD Available | Secure Payments | Easy 7-Day Exchange</span>
+            <span>{shippingLabel}</span>
+            <span>
+              {codEnabled ? "COD Available | " : ""}Secure Payments | Exchange Support
+            </span>
             <a
               href={whatsappHref}
               target={supportNumber ? "_blank" : undefined}

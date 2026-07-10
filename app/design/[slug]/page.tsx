@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import ProductPage from "@/components/screens/ProductPage";
 import { siteConfig } from "@/config/site";
+import { isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog, getProductBySlug, getStoreSettings } from "@/lib/data/catalog";
 
 export async function generateMetadata({
@@ -14,14 +15,17 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug);
 
   if (!product) return { title: "Product not found", robots: { index: false } };
+  const description = isProductInformationUncertain(product.description)
+    ? `View ${product.name} from DARAJNI Designer House with size support, secure checkout and Pan-India delivery.`
+    : product.description.slice(0, 155);
 
   return {
     title: `${product.name} – ${product.category.name}`,
-    description: product.description.slice(0, 155),
+    description,
     alternates: { canonical: `/design/${product.slug}` },
     openGraph: {
       title: product.name,
-      description: product.description.slice(0, 155),
+      description,
       url: `${siteConfig.siteUrl}/design/${product.slug}`,
       images: product.images[0] ? [product.images[0]] : ["/og-cover.svg"],
     },
@@ -47,12 +51,15 @@ export default async function DesignPage({
         item.id !== product.id && item.category.id === product.category.id,
     )
     .slice(0, 3);
+  const structuredDescription = isProductInformationUncertain(product.description)
+    ? `${product.name} by DARAJNI Designer House.`
+    : product.description;
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description,
+    description: structuredDescription,
     image: product.images,
     sku: product.id,
     category: product.category.name,
@@ -81,6 +88,7 @@ export default async function DesignPage({
         product={product}
         related={related}
         supportNumber={settings.designerSupportNumber || settings.developerSupportNumber}
+        settings={settings}
       />
     </>
   );

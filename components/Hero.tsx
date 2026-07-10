@@ -64,12 +64,12 @@ export default function Hero({
             Don&apos;t just wear clothes. Wear confidence.
           </p>
           <p className="mt-7 max-w-xl text-base leading-8 text-[#5F5348] md:text-lg">
-            Premium lehengas, gowns, sarees and occasion wear, custom-sized
-            with clear communication and delivered across India.
+            Indian occasion wear from the live DARAJNI collection, with custom
+            sizing support, clear communication and delivery across India.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/collection" className="primary-button sm:min-w-48">
+            <Link href="/collection?sort=newest" className="primary-button sm:min-w-48">
               Shop New Arrivals
               <ShoppingBag className="h-4 w-4" />
             </Link>

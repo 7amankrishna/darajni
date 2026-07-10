@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ProductImage } from "@/components/product/product-image";
 import { useWishlist } from "@/components/wishlist/wishlist-provider";
 import { formatPrice } from "@/config/site";
-import { getProductPrice } from "@/lib/commerce";
+import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
 
 export default function DesignCard({ product }: { product: Product }) {
@@ -18,6 +18,9 @@ export default function DesignCard({ product }: { product: Product }) {
   const customSize =
     product.sizes.length === 0 ||
     product.sizes.some((size) => size.toLowerCase().includes("custom"));
+  const fabricSummary = isProductInformationUncertain(product.fabric)
+    ? "Fabric confirmation available"
+    : product.fabric;
 
   return (
     <article className="product-card-3d group overflow-hidden rounded-2xl">
@@ -95,7 +98,9 @@ export default function DesignCard({ product }: { product: Product }) {
 
         <div className="mt-3 flex items-end justify-between gap-3">
           <div>
-            <p className="text-xs leading-5 text-[#6F6255]">{product.fabric}</p>
+            <p className="line-clamp-2 text-xs leading-5 text-[#6F6255]">
+              {fabricSummary}
+            </p>
             <p className="mt-1 text-xs font-semibold text-[#6F6255]">
               {product.stock > 0
                 ? `${product.stock} available · ${customSize ? "Custom size" : product.sizes.join(", ")}`
@@ -113,10 +118,6 @@ export default function DesignCard({ product }: { product: Product }) {
             )}
           </div>
         </div>
-
-        <p className="product-card-description mt-3 text-xs leading-6 text-[#6F6255]">
-          {product.description}
-        </p>
 
         <Link
           href={`/design/${product.slug}`}

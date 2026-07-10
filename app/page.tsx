@@ -6,7 +6,11 @@ import { getCatalog } from "@/lib/data/catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { products, categories } = await getCatalog();
-  const categoryNames = categories.map((category) => category.name);
+  const categoryNames = categories
+    .filter((category) =>
+      products.some((product) => product.category.id === category.id),
+    )
+    .map((category) => category.name);
   const productNames = products.slice(0, 8).map((product) => product.name);
   const description = products.length
     ? `Explore ${products.length} DARAJNI designer dresses, including ${categoryNames

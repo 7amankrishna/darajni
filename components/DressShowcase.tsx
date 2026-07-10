@@ -15,15 +15,16 @@ export default function DressShowcase({
 }) {
   const productsWithImages = products.filter((product) => product.images.length > 0);
   const runwayProducts = productsWithImages.slice(0, 5);
-  const categoryShowcases = categories.map((category) => {
+  const categoryShowcases = categories.flatMap((category) => {
     const categoryProducts = productsWithImages.filter(
       (product) => product.category.slug === category.slug,
     );
-    return {
+    if (!categoryProducts.length) return [];
+    return [{
       category,
       products: categoryProducts,
-      image: categoryProducts[0]?.images[0] || "/logo.webp",
-    };
+      image: categoryProducts[0].images[0],
+    }];
   });
 
   if (products.length === 0 && categories.length === 0) return null;
@@ -39,15 +40,13 @@ export default function DressShowcase({
             </h2>
           </div>
           <p className="max-w-3xl text-sm leading-7 text-[#6F6255] lg:justify-self-end">
-            Browse the current DARAJNI catalog by lehenga, gown, saree and
-            occasion-wear categories. Empty categories are clearly marked while
-            new designs are being prepared.
+            Browse only the categories that currently have designs available.
+            Every category opens a filtered, shareable collection page.
           </p>
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categoryShowcases.map(({ category, products: categoryProducts, image }) => {
-            const available = categoryProducts.length > 0;
             const content = (
               <article className="category-depth-card">
                 <div className="category-preview-stack" aria-hidden="true">
@@ -70,29 +69,23 @@ export default function DressShowcase({
                 </div>
                 <div className="relative z-10 max-w-[68%]">
                   <span className="text-[0.62rem] font-extrabold uppercase text-[#B8893B]">
-                    {available
-                      ? `${categoryProducts.length} design${categoryProducts.length === 1 ? "" : "s"}`
-                      : "Coming soon"}
+                    {categoryProducts.length} design{categoryProducts.length === 1 ? "" : "s"}
                   </span>
                   <h3 className="font-display mt-4 text-4xl leading-none text-[#171717]">
                     {category.name}
                   </h3>
                   <p className="mt-3 text-xs font-semibold text-[#6F6255]">
-                    {available ? "Explore" : "New pieces are being added"}
+                    Explore
                   </p>
                 </div>
-                {available && (
-                  <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-[#B8893B]" />
-                )}
+                <ArrowUpRight className="absolute bottom-5 right-5 h-5 w-5 text-[#B8893B]" />
               </article>
             );
 
-            return available ? (
-              <Link key={category.id} href="/collection">
+            return (
+              <Link key={category.id} href={`/collection?category=${encodeURIComponent(category.slug)}`}>
                 {content}
               </Link>
-            ) : (
-              <div key={category.id}>{content}</div>
             );
           })}
         </div>

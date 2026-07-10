@@ -29,8 +29,9 @@ export default async function Page() {
             Easy exchange, clearly explained.
           </h1>
           <p className="mt-5 text-sm leading-7 text-[#6F6255]">
-            Please read the eligibility and custom-size rules before placing an
-            order or starting an exchange request.
+            Contact DARAJNI within seven calendar days of delivery. Eligibility
+            depends on the product condition, the issue reported and whether
+            the outfit was made to your measurements.
           </p>
         </div>
 
@@ -41,10 +42,10 @@ export default async function Page() {
               Exchange eligibility
             </h2>
             <ul className="mt-5 grid gap-3 text-sm leading-7 text-[#5F5348]">
-              <li>Product should be unused.</li>
-              <li>Tags and package should be intact.</li>
-              <li>Request should be raised within the allowed period.</li>
-              <li>Damage must be reported with opening video or clear photos.</li>
+              <li>Raise the request within seven calendar days of delivery.</li>
+              <li>The product must be unused, unwashed and unaltered.</li>
+              <li>Original tags and packaging must remain intact.</li>
+              <li>Share clear photos; an opening video is helpful for damage or a wrong item.</li>
             </ul>
           </article>
 
@@ -55,10 +56,37 @@ export default async function Page() {
             </h2>
             <p className="mt-5 text-sm leading-7 text-white/72">
               Custom-size outfits are made using your shared measurements.
-              Eligibility for return, exchange, alteration or final-sale
-              treatment depends on the confirmed customization and issue
-              reported. DARAJNI support will review each request with your
-              order ID and photos/video.
+              They are not automatically eligible for a change-of-mind return
+              or standard-size exchange. Fit corrections, alteration support,
+              damage, a manufacturing issue or a wrong item are reviewed using
+              the confirmed measurements, order ID and photos/video.
+            </p>
+          </article>
+        </section>
+
+        <section className="mt-5 grid gap-5 md:grid-cols-2">
+          <article className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+            <p className="eyebrow">Shipping & resolution</p>
+            <h2 className="font-display mt-4 text-3xl leading-none text-[#171717]">
+              Confirm the resolution before sending anything.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#5F5348]">
+              Support will confirm whether the approved resolution is an
+              alteration, exchange, replacement or refund, along with the
+              return address and who pays reverse shipping. Do not send a
+              product without that confirmation.
+            </p>
+          </article>
+          <article className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+            <p className="eyebrow">Refund timing</p>
+            <h2 className="font-display mt-4 text-3xl leading-none text-[#171717]">
+              Timing is confirmed after inspection.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#5F5348]">
+              If a refund is approved, DARAJNI support will confirm the method
+              and processing estimate after the returned product is received
+              and inspected. Bank or payment-provider posting time can be
+              additional.
             </p>
           </article>
         </section>

@@ -19,14 +19,16 @@ import { toast } from "sonner";
 import { useCart } from "@/components/cart/cart-provider";
 import { formatPrice, whatsappSupportLink } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
-import type { Product } from "@/types/commerce";
+import type { Product, StoreSettings } from "@/types/commerce";
 
 export function ProductPurchase({
   product,
   supportNumber,
+  settings,
 }: {
   product: Product;
   supportNumber: string;
+  settings: StoreSettings;
 }) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -44,9 +46,14 @@ export function ProductPurchase({
   );
   const trustItems: Array<[string, LucideIcon]> = [
     ["Secure payment", ShieldCheck],
-    ["COD availability", ShoppingBag],
-    ["Easy exchange", Ruler],
-    ["Pan-India delivery", Truck],
+    [settings.codEnabled ? "COD available" : "Online payment", ShoppingBag],
+    ["Exchange policy", Ruler],
+    [
+      settings.shippingCharge > 0
+        ? `${formatPrice(settings.shippingCharge)} shipping`
+        : "Free shipping",
+      Truck,
+    ],
   ];
 
   const add = () => {
@@ -175,6 +182,25 @@ export function ProductPurchase({
           ? "This product is currently sold out."
           : `${product.stock} available · ${formatPrice(price * quantity)} total`}
       </p>
+
+      {!soldOut && (
+        <div className="fixed inset-x-0 bottom-[3.85rem] z-[45] border-t border-[#E9DCCB] bg-[#FFFDF8]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden">
+          <div className="mx-auto flex max-w-lg items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[0.65rem] font-bold uppercase text-[#6F6255]">
+                {size} · Qty {quantity}
+              </p>
+              <p className="font-display text-xl font-semibold text-[#171717]">
+                {formatPrice(price * quantity)}
+              </p>
+            </div>
+            <button type="button" onClick={add} className="primary-button !min-h-11 shrink-0">
+              <ShoppingBag className="h-4 w-4" />
+              Add to cart
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

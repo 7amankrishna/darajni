@@ -1,5 +1,4 @@
 import {
-  AtSign,
   Mail,
   MapPin,
   MessageCircle,
@@ -12,16 +11,6 @@ import BrandLogo from "@/components/BrandLogo";
 import { siteConfig, whatsappSupportLink } from "@/config/site";
 
 const columns = [
-  {
-    title: "Shop",
-    links: [
-      ["New Arrivals", "/collection"],
-      ["Lehengas", "/collection"],
-      ["Gowns", "/collection"],
-      ["Sarees", "/collection"],
-      ["Custom Fit", "/size-guide"],
-    ],
-  },
   {
     title: "Customer Care",
     links: [
@@ -51,11 +40,31 @@ const columns = [
   },
 ];
 
-export default function Footer({ supportNumber }: { supportNumber: string }) {
+export default function Footer({
+  supportNumber,
+  availableCategories,
+}: {
+  supportNumber: string;
+  availableCategories: Array<{ name: string; slug: string }>;
+}) {
   const whatsappHref = whatsappSupportLink(
     supportNumber,
     "Hello DARAJNI, I need customer support.",
   );
+  const footerColumns = [
+    {
+      title: "Shop",
+      links: [
+        ["New Arrivals", "/collection?sort=newest"],
+        ...availableCategories.map((category) => [
+          category.name,
+          `/collection?category=${encodeURIComponent(category.slug)}`,
+        ]),
+        ["Custom Fit", "/size-guide"],
+      ],
+    },
+    ...columns,
+  ];
 
   return (
     <footer className="border-t border-[#E9DCCB] bg-[#171717] pb-24 pt-14 text-[#FFFDF8] md:pb-10">
@@ -87,20 +96,11 @@ export default function Footer({ supportNumber }: { supportNumber: string }) {
               <MapPin className="h-4 w-4 text-[#D9B56B]" />
               {siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}
             </span>
-            <a
-              href="https://www.instagram.com/bruhh.aman/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 hover:text-white"
-            >
-              <AtSign className="h-4 w-4 text-[#D9B56B]" />
-              Instagram @bruhh.aman
-            </a>
           </div>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {columns.map((column) => (
+          {footerColumns.map((column) => (
             <div key={column.title}>
               <p className="text-[0.68rem] font-extrabold uppercase text-[#D9B56B]">
                 {column.title}
@@ -132,18 +132,6 @@ export default function Footer({ supportNumber }: { supportNumber: string }) {
           <p>
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
-          </p>
-          <p>
-            Built and maintained by{" "}
-            <a
-              href="https://www.instagram.com/bruhh.aman/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#D9B56B] hover:text-white"
-            >
-              Aman Krishna (@bruhh.aman)
-            </a>
-            .
           </p>
         </div>
       </div>
