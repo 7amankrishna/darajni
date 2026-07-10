@@ -13,49 +13,27 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/cart/cart-provider";
 import { MeasurementFigure } from "@/components/product/measurement-figure";
 import { formatPrice, whatsappSupportLink } from "@/config/site";
 import { getProductPrice } from "@/lib/commerce";
+import {
+  EMPTY_MEASUREMENTS,
+  MEASUREMENT_FIELDS,
+  MEASUREMENT_STORAGE_KEY,
+  type MeasurementDraft,
+  parseSavedMeasurementProfile,
+  validateMeasurementDraft,
+} from "@/lib/measurements";
 import type {
   CustomMeasurements,
   FitPreference,
   Product,
   StoreSettings,
 } from "@/types/commerce";
-
-type MeasurementDraft = Record<
-  "shoulder" | "bust" | "waist" | "hips" | "outfitLength" | "sleeveLength" | "height",
-  string
->;
-
-const initialMeasurements: MeasurementDraft = {
-  shoulder: "",
-  bust: "",
-  waist: "",
-  hips: "",
-  outfitLength: "",
-  sleeveLength: "",
-  height: "",
-};
-
-const measurementFields: Array<{
-  key: keyof MeasurementDraft;
-  label: string;
-  hint: string;
-  required?: boolean;
-}> = [
-  { key: "shoulder", label: "Shoulder", hint: "Back, edge to edge", required: true },
-  { key: "bust", label: "Bust", hint: "Around the fullest part", required: true },
-  { key: "waist", label: "Waist", hint: "Around the natural waist", required: true },
-  { key: "hips", label: "Hips", hint: "Around the fullest part", required: true },
-  { key: "outfitLength", label: "Outfit length", hint: "Shoulder to desired hem", required: true },
-  { key: "sleeveLength", label: "Sleeve length", hint: "Shoulder point to cuff" },
-  { key: "height", label: "Your height", hint: "Barefoot, head to floor" },
-];
 
 export function ProductPurchase({
   product,
@@ -70,7 +48,9 @@ export function ProductPurchase({
   const { addItem } = useCart();
   const size = "Custom Size";
   const [quantity, setQuantity] = useState(1);
-  const [measurements, setMeasurements] = useState(initialMeasurements);
+  const [measurements, setMeasurements] = useState<MeasurementDraft>({
+    ...EMPTY_MEASUREMENTS,
+  });
   const [fitPreference, setFitPreference] = useState<FitPreference>("regular");
   const [measurementNotes, setMeasurementNotes] = useState("");
   const [measurementsConfirmed, setMeasurementsConfirmed] = useState(false);
@@ -92,7 +72,28 @@ export function ProductPurchase({
     ],
   ];
 
+  useEffect(() => {
+    const saved = parseSavedMeasurementProfile(
+      window.localStorage.getItem(MEASUREMENT_STORAGE_KEY),
+    );
+    if (!saved) return;
+    setMeasurements(saved.values);
+    setFitPreference(saved.fitPreference);
+    setMeasurementNotes(saved.notes);
+    setMeasurementsConfirmed(saved.customerConfirmed);
+  }, []);
+
   const buildMeasurements = (): CustomMeasurements | null => {
+    const validationError = validateMeasurementDraft(measurements);
+    if (validationError) {
+      toast.error(validationError);
+      return null;
+    }
+    if (!measurementsConfirmed) {
+      toast.error("Confirm that you measured and checked every required value twice.");
+      return null;
+    }
+
     const values = Object.fromEntries(
       Object.entries(measurements).map(([key, value]) => [
         key,
@@ -100,31 +101,30 @@ export function ProductPurchase({
       ]),
     ) as Record<keyof MeasurementDraft, number | undefined>;
 
-    if (
-      !values.shoulder ||
-      !values.bust ||
-      !values.waist ||
-      !values.hips ||
-      !values.outfitLength ||
-      !measurementsConfirmed
-    ) {
-      toast.error("Enter the five required measurements and confirm them.");
-      return null;
-    }
-
-    return {
+    const confirmedMeasurements: CustomMeasurements = {
       unit: "in",
-      shoulder: values.shoulder,
-      bust: values.bust,
-      waist: values.waist,
-      hips: values.hips,
-      outfitLength: values.outfitLength,
+      shoulder: values.shoulder!,
+      bust: values.bust!,
+      waist: values.waist!,
+      hips: values.hips!,
+      outfitLength: values.outfitLength!,
       sleeveLength: values.sleeveLength,
       height: values.height,
       fitPreference,
       notes: measurementNotes.trim() || undefined,
       customerConfirmed: true,
     };
+    window.localStorage.setItem(
+      MEASUREMENT_STORAGE_KEY,
+      JSON.stringify({
+        values: measurements,
+        fitPreference,
+        notes: measurementNotes.trim(),
+        customerConfirmed: true,
+        savedAt: Date.now(),
+      }),
+    );
+    return confirmedMeasurements;
   };
 
   const add = () => {
@@ -174,7 +174,10 @@ export function ProductPurchase({
             Custom Size
           </span>
           <Link href="/size-guide" className="secondary-button !min-h-10 !py-2">
-            Open Size Guide
+            Body Reference Chart
+          </Link>
+          <Link href="/measurements" className="secondary-button !min-h-10 !py-2">
+            Interactive Measurement Guide
           </Link>
           <a href={whatsappHref} className="whatsapp-button !min-h-10 !py-2">
             WhatsApp Measurement Help
@@ -185,7 +188,7 @@ export function ProductPurchase({
           <MeasurementFigure className="!min-h-[25rem]" />
           <div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {measurementFields.map((field) => (
+              {MEASUREMENT_FIELDS.map((field) => (
                 <div key={field.key}>
                   <label htmlFor={`measurement-${field.key}`} className="field-label">
                     {field.label} {field.required ? "*" : "(optional)"}
@@ -194,17 +197,18 @@ export function ProductPurchase({
                     <input
                       id={`measurement-${field.key}`}
                       type="number"
-                      min="1"
-                      max="90"
+                      min={field.min}
+                      max={field.max}
                       step="0.25"
                       inputMode="decimal"
                       value={measurements[field.key]}
-                      onChange={(event) =>
+                      onChange={(event) => {
                         setMeasurements((current) => ({
                           ...current,
                           [field.key]: event.target.value,
-                        }))
-                      }
+                        }));
+                        setMeasurementsConfirmed(false);
+                      }}
                       className="field !pr-12"
                       required={field.required}
                     />
@@ -220,7 +224,10 @@ export function ProductPurchase({
                 <select
                   id="measurement-fit"
                   value={fitPreference}
-                  onChange={(event) => setFitPreference(event.target.value as FitPreference)}
+                  onChange={(event) => {
+                    setFitPreference(event.target.value as FitPreference);
+                    setMeasurementsConfirmed(false);
+                  }}
                   className="field"
                 >
                   <option value="close">Close fit</option>
@@ -233,7 +240,10 @@ export function ProductPurchase({
                 <textarea
                   id="measurement-notes"
                   value={measurementNotes}
-                  onChange={(event) => setMeasurementNotes(event.target.value)}
+                  onChange={(event) => {
+                    setMeasurementNotes(event.target.value);
+                    setMeasurementsConfirmed(false);
+                  }}
                   maxLength={500}
                   className="field min-h-20 resize-y"
                   placeholder="Neck depth, sleeve style, comfort or mobility notes"

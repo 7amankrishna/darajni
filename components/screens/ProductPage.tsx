@@ -79,7 +79,7 @@ function StickyHelpPanel({
       <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
         <div className="flex items-center gap-2">
           <Ruler className="h-5 w-5 text-[#B8893B]" />
-          <h2 className="font-display text-2xl text-[#171717]">Size Guide</h2>
+          <h2 className="font-display text-2xl text-[#171717]">Body Reference</h2>
         </div>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[260px] text-left text-[0.68rem] text-[#5F5348]">
@@ -105,8 +105,11 @@ function StickyHelpPanel({
             </tbody>
           </table>
         </div>
-        <Link href="/size-guide" className="secondary-button mt-4 w-full">
-          How to Measure
+        <p className="mt-3 text-xs leading-5 text-[#6F6255]">
+          Reference only. Custom Size is the sole ordering option.
+        </p>
+        <Link href="/measurements" className="secondary-button mt-4 w-full">
+          Interactive Measurement Guide
         </Link>
       </section>
 

@@ -72,6 +72,21 @@ const actions: Partial<
   shipped: [{ status: "delivered", label: "Deliver", icon: Check }],
 };
 
+function confirmationBlockReason(order: AdminOrder) {
+  if (order.paymentMethod === "razorpay" && order.paymentStatus !== "paid") {
+    return "Online payment must be paid first.";
+  }
+  if (
+    !order.items.length ||
+    order.items.some(
+      (item) => !item.measurements || item.measurementStatus !== "confirmed",
+    )
+  ) {
+    return "Approve every item measurement first.";
+  }
+  return "";
+}
+
 export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
   const router = useRouter();
   const [selected, setSelected] = useState<AdminOrder | null>(null);
@@ -209,11 +224,19 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                       </button>
                       {(actions[order.status] ?? []).map((action) => {
                         const Icon = action.icon;
+                        const blockReason =
+                          action.status === "confirmed"
+                            ? confirmationBlockReason(order)
+                            : "";
                         return (
                           <button
                             type="button"
                             key={action.status}
-                            disabled={busy === `${order.id}:${action.status}`}
+                            disabled={
+                              busy === `${order.id}:${action.status}` ||
+                              Boolean(blockReason)
+                            }
+                            title={blockReason || undefined}
                             onClick={() => void updateStatus(order, action.status)}
                             className={`inline-flex h-9 items-center gap-1 rounded-full border px-3 text-xs font-semibold ${
                               action.danger
@@ -344,6 +367,11 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                 </p>
               </div>
             </section>
+            {selected.status === "pending" && confirmationBlockReason(selected) && (
+              <p className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-xs leading-5 text-amber-100">
+                Confirmation locked: {confirmationBlockReason(selected)}
+              </p>
+            )}
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/orders/${selected.id}/invoice`}
@@ -363,10 +391,16 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
               </Link>
               {(actions[selected.status] ?? []).map((action) => {
                 const Icon = action.icon;
+                const blockReason =
+                  action.status === "confirmed"
+                    ? confirmationBlockReason(selected)
+                    : "";
                 return (
                   <button
                     type="button"
                     key={action.status}
+                    disabled={Boolean(blockReason)}
+                    title={blockReason || undefined}
                     onClick={() => void updateStatus(selected, action.status)}
                     className={action.danger ? "danger-button" : "primary-button"}
                   >

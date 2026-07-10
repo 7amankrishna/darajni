@@ -26,6 +26,16 @@ export async function PATCH(
   const supabase = createSupabaseServiceClient();
   if (!supabase) return apiError("Order management is temporarily unavailable.", 503);
 
+  const { data: order, error: orderError } = await supabase
+    .from("orders")
+    .select("status")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (orderError || !order) return apiError("Order not found.", 404);
+  if (order.status !== "pending") {
+    return apiError("Measurements are locked after order confirmation.", 409);
+  }
+
   const { data, error } = await supabase
     .from("order_items")
     .update({ measurement_status: parsed.data.status })

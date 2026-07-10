@@ -108,7 +108,7 @@ export default function Collection({
         (priceRange === "5000" && price > 5000);
       const customMatches =
         !customOnly ||
-        product.sizes.some((size) => size.toLowerCase().includes("custom"));
+        product.sizes.includes("Custom Size");
       const saleMatches = !saleOnly || product.discount > 0;
 
       return (

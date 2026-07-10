@@ -10,16 +10,8 @@ import {
 } from "lucide-react";
 
 import type { OrderStatus } from "@/types/database";
-
-const steps = [
-  { key: "placed", label: "Order placed", icon: CircleDot },
-  { key: "payment", label: "Payment confirmed", icon: Check },
-  { key: "measurements", label: "Measurements", icon: Ruler },
-  { key: "preparation", label: "Preparation", icon: Scissors },
-  { key: "packed", label: "Packed", icon: Package },
-  { key: "shipped", label: "Shipped", icon: Truck },
-  { key: "delivered", label: "Delivered", icon: PackageCheck },
-];
+import type { MeasurementStatus } from "@/types/commerce";
+import type { PaymentMethod, PaymentStatus } from "@/types/database";
 
 const statusIndex: Record<Exclude<OrderStatus, "cancelled">, number> = {
   pending: 0,
@@ -29,7 +21,17 @@ const statusIndex: Record<Exclude<OrderStatus, "cancelled">, number> = {
   delivered: 6,
 };
 
-export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
+export function OrderStatusTimeline({
+  status,
+  paymentMethod,
+  paymentStatus,
+  measurementStatuses = [],
+}: {
+  status: OrderStatus;
+  paymentMethod?: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  measurementStatuses?: Array<MeasurementStatus | null>;
+}) {
   if (status === "cancelled") {
     return (
       <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-5 text-red-800">
@@ -48,7 +50,32 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
     );
   }
 
-  const activeIndex = statusIndex[status];
+  const steps = [
+    { key: "placed", label: "Order placed", icon: CircleDot },
+    {
+      key: "payment",
+      label: paymentMethod === "cod" ? "COD selected" : "Payment received",
+      icon: Check,
+    },
+    { key: "measurements", label: "Measurements approved", icon: Ruler },
+    { key: "preparation", label: "Preparation", icon: Scissors },
+    { key: "packed", label: "Packed", icon: Package },
+    { key: "shipped", label: "Shipped", icon: Truck },
+    { key: "delivered", label: "Delivered", icon: PackageCheck },
+  ];
+  const paymentComplete =
+    paymentMethod === "cod" || paymentStatus === "paid";
+  const measurementsComplete =
+    measurementStatuses.length > 0 &&
+    measurementStatuses.every((itemStatus) => itemStatus === "confirmed");
+  const activeIndex =
+    status === "pending"
+      ? measurementsComplete
+        ? 2
+        : paymentComplete
+          ? 1
+          : 0
+      : statusIndex[status];
 
   return (
     <div className="grid gap-5 sm:grid-cols-7">

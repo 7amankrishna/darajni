@@ -1,5 +1,6 @@
 import { MessageCircle, Ruler } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { MeasurementFigure } from "@/components/product/measurement-figure";
 import { whatsappSupportLink } from "@/config/site";
@@ -41,8 +42,8 @@ export default async function Page() {
             Find your perfect fit
           </h1>
           <p className="mt-5 text-sm leading-7 text-[#6F6255]">
-            Use this guide to measure at home. For help, our team can guide you
-            on WhatsApp.
+            Use this body reference chart to understand proportions, then enter
+            your own measurements. Custom Size is the only ordering option.
           </p>
         </div>
 
@@ -50,7 +51,7 @@ export default async function Page() {
           <MeasurementFigure />
 
           <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
-            <p className="eyebrow">Size chart</p>
+            <p className="eyebrow">Body reference chart — not ordering sizes</p>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[680px] text-left text-sm text-[#5F5348]">
                 <thead className="bg-[#F6E9DD] text-xs uppercase text-[#6F6255]">
@@ -120,6 +121,9 @@ export default async function Page() {
               <MessageCircle className="h-4 w-4" />
               Get measurement help on WhatsApp
             </a>
+            <Link href="/measurements" className="primary-button">
+              Open interactive guide
+            </Link>
           </div>
         </section>
       </div>

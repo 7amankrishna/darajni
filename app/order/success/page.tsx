@@ -13,7 +13,7 @@ import { getStoreSettings } from "@/lib/data/catalog";
 import { getOrderByAccessToken } from "@/lib/data/orders";
 
 export const metadata: Metadata = {
-  title: "Order confirmed",
+  title: "Order placed",
   robots: { index: false, follow: false },
 };
 
@@ -61,7 +61,12 @@ export default async function Page({
         </div>
 
         <section className="mt-9 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
-          <OrderStatusTimeline status={order.status} />
+          <OrderStatusTimeline
+            status={order.status}
+            paymentMethod={order.paymentMethod}
+            paymentStatus={order.paymentStatus}
+            measurementStatuses={order.items.map((item) => item.measurementStatus)}
+          />
           <div className="mt-8 grid gap-4 border-t border-[#E9DCCB] pt-6 sm:grid-cols-4">
             <div>
               <p className="field-label">Order ID</p>
@@ -161,8 +166,8 @@ export default async function Page({
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-4">
             {[
+              "We review and approve your measurements",
               "We confirm your order",
-              "We review and confirm your measurements",
               "We prepare and pack your outfit",
               "We ship and share tracking",
             ].map((step, index) => (

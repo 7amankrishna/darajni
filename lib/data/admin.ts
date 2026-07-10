@@ -38,7 +38,7 @@ function mapProduct(row: Record<string, unknown>): Product {
     workDetails: String(row.work_details),
     lining: String(row.lining),
     careInstructions: String(row.care_instructions),
-    sizes: Array.isArray(row.size) ? row.size.map(String) : [],
+    sizes: ["Custom Size"],
     stock: Number(row.stock),
     price: Number(row.price),
     discount: Number(row.discount),

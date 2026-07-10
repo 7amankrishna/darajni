@@ -35,7 +35,7 @@ export async function PATCH(
 
   const { data: order, error: readError } = await supabase
     .from("orders")
-    .select("status")
+    .select("status, payment_method, payment_status")
     .eq("id", id)
     .maybeSingle();
   if (readError || !order) {
@@ -52,9 +52,15 @@ export async function PATCH(
   }
 
   if (parsed.data.status === "confirmed") {
+    if (
+      order.payment_method === "razorpay" &&
+      order.payment_status !== "paid"
+    ) {
+      return apiError("Online payment must be paid before confirming this order.", 409);
+    }
     const { data: measurementItems, error: measurementReadError } = await supabase
       .from("order_items")
-      .select("measurement_status")
+      .select("measurements, measurement_status")
       .eq("order_id", id);
     if (measurementReadError) {
       return internalApiError(
@@ -66,7 +72,10 @@ export async function PATCH(
     }
     if (
       !measurementItems?.length ||
-      measurementItems.some((item) => item.measurement_status !== "confirmed")
+      measurementItems.some(
+        (item) =>
+          !item.measurements || item.measurement_status !== "confirmed",
+      )
     ) {
       return apiError(
         "Confirm every item measurement before confirming this order.",

@@ -86,7 +86,7 @@ current database values during checkout.
 - Daily and weekly order/revenue analytics calculated in India time
 - Active-order count, top products, and low-stock alerts
 - Order detail view with customer, address, items, payment, and totals
-- Controlled order-status transitions
+- Item-level measurement approval/revision review and controlled order-status transitions
 - Printable A4 invoices and packing slips
 - Product creation, editing, activation, featuring, and deletion
 - Multiple product images from Supabase Storage or existing HTTPS URLs
@@ -223,6 +223,9 @@ security boundary.
 |---|---|---|
 | `/` | Home, categories, featured products, arrivals, and complete collection | Public |
 | `/design/[slug]` | Product details, gallery, sizing, stock, and cart actions | Public |
+| `/measurements` | Interactive dressed-model guide with browser-saved measurements | Public |
+| `/taking-measurements` | Legacy measurement-guide redirect to `/measurements` | Public |
+| `/size-guide` | Body-reference chart and measuring instructions | Public |
 | `/cart` | Persistent guest cart and estimated totals | Public |
 | `/checkout` | Guest delivery form and payment selection | Public |
 | `/order/success?token=...` | Private order confirmation and item summary | Valid signed token |
@@ -231,6 +234,7 @@ security boundary.
 | `/forgot-password` | Request a customer password-reset email | Public |
 | `/reset-password` | Choose a new password from a valid recovery link | Valid Supabase recovery session |
 | `/support` | Developer and designer support contacts | Public |
+| `/about` | Brand story and website management credit | Public |
 | `/privacy` | Privacy information | Public |
 | `/terms` | Store terms | Public |
 | `/admin/login` | Administrator authentication | Public form |
@@ -247,6 +251,7 @@ engine indexing through metadata and `robots.txt`.
 | Method and route | Purpose | Protection |
 |---|---|---|
 | `POST /api/checkout` | Validate input, create an atomic order, reserve stock, and begin COD or Razorpay flow | Same-origin, validation, per-IP rate limit, server service role |
+| `POST /api/checkout/pincode` | Validate a delivery pincode and return delivery/COD messaging | Same-origin, validation, rate limit |
 | `POST /api/checkout/promo` | Preview an order-wide coupon or voucher discount against current catalog prices | Same-origin, validation, rate limit, server service role |
 | `POST /api/checkout/cancel` | Cancel a pending Razorpay reservation | Same-origin and signed order token |
 | `POST /api/account/profile` | Save a signed-in customer's basic contact and delivery details | Auth session, same-origin, validation, rate limit |
@@ -258,6 +263,7 @@ engine indexing through metadata and `robots.txt`.
 | `PUT /api/admin/products/[id]` | Update a product | Administrator and same-origin |
 | `DELETE /api/admin/products/[id]` | Delete an unreferenced product | Administrator and same-origin |
 | `PATCH /api/admin/orders/[id]/status` | Apply an allowed order transition | Administrator and same-origin |
+| `PATCH /api/admin/orders/[id]/measurements` | Approve or request revision of a pending order item's measurements | Administrator and same-origin |
 | `POST /api/admin/promos` | Create a coupon or voucher | Administrator and same-origin |
 | `PUT /api/admin/promos/[id]` | Update a coupon or voucher | Administrator and same-origin |
 | `DELETE /api/admin/promos/[id]` | Deactivate a coupon or voucher | Administrator and same-origin |
@@ -323,11 +329,11 @@ Next.js application
 | Table | Purpose |
 |---|---|
 | `categories` | Product grouping and protected fixed categories |
-| `products` | Product content, sizes, stock, pricing, discounts, images, category, and visibility |
+| `products` | Product content, required detail fields, canonical Custom Size option, stock, pricing, discounts, images, category, and visibility |
 | `admin_users` | Allow-list of Supabase Auth UUIDs permitted to administer the store |
 | `customer_profiles` | Basic signed-in customer contact and delivery details without profile images |
 | `orders` | Active guest or linked customer order, delivery, payment, amount, and status data |
-| `order_items` | Immutable product-name, size, quantity, and price snapshots |
+| `order_items` | Product, quantity, price, confirmed-measurement, and tailoring-review snapshots |
 | `promo_codes` | Admin-managed coupons and fixed-value vouchers |
 | `promo_redemptions` | Authoritative coupon/voucher usage records for global and per-phone limits |
 | `archived_orders` | Minimal delivered-order archive retained after active cleanup |
@@ -371,7 +377,11 @@ percentage | fixed_amount
 - `cancel_order_reservation(order_id, payment_failed)` cancels an eligible
   pending Razorpay order.
 - `confirm_razorpay_payment(order_id, razorpay_order_id, payment_id)` marks a
-  valid pending Razorpay order paid and confirmed.
+  valid pending Razorpay order paid while leaving its order status pending for
+  measurement approval.
+- Database triggers prevent order confirmation until every item measurement is
+  approved, lock measurements after confirmation, and enforce Custom Size as
+  the only product ordering size.
 - `restore_stock_after_cancellation()` restores item quantities whenever an
   order first transitions to `cancelled`.
 - `release_promo_after_cancellation()` releases coupon/voucher usage when an
@@ -394,15 +404,16 @@ percentage | fixed_amount
 
 ### Common checkout flow
 
-1. The browser submits customer details, product UUIDs, selected sizes,
-   quantities, the requested payment method, and an optional coupon/voucher
-   code.
+1. The browser submits customer details, product UUIDs, the canonical Custom
+   Size option, quantities, customer-confirmed measurements, the requested
+   payment method, and an optional coupon/voucher code.
 2. `/api/checkout` verifies same-origin access and required server
    configuration.
 3. Zod validates the request:
    - 1–20 cart lines
    - 1–10 units per submitted line
    - UUID product IDs
+   - bounded required measurements in inches and explicit customer confirmation
    - valid Indian-style 10-digit phone normalization
    - six-digit PIN code
    - bounded delivery and contact fields
@@ -411,13 +422,16 @@ percentage | fixed_amount
    do not consume the order-creation quota.
 5. `create_checkout_order` locks products in a stable order to avoid overselling
    and deadlock-prone lock ordering.
-6. PostgreSQL verifies active products, selected sizes, stock, and COD
+6. PostgreSQL verifies active products, the Custom Size option, stock, and COD
    availability.
 7. PostgreSQL calculates discounted unit prices, subtotal, optional
    coupon/voucher discount, fixed shipping, percentage tax, and total.
 8. The order and item snapshots are inserted and stock is decremented in the
    same database transaction.
-9. The server creates a 24-hour HMAC-signed order-access token.
+9. The server attaches the validated measurement snapshot to every order item
+   with `customer_submitted` review status. A failure cancels the reservation
+   and restores stock.
+10. The server creates a 24-hour HMAC-signed order-access token.
 
 Coupon/voucher previews use `/api/checkout/promo`, but the preview is only a
 convenience. The final code eligibility, redemption limits, and discount amount
@@ -428,7 +442,8 @@ are recomputed by `create_checkout_order`.
 - The server returns a private success URL containing the signed token.
 - The browser clears the cart and opens the order summary.
 - A new COD order begins with order status `pending`.
-- An administrator confirms and advances it through fulfilment.
+- An administrator approves every item measurement before confirming and
+  advancing it through fulfilment.
 - COD payment status currently remains `pending`; there is no separate
   cash-collected action in the present dashboard.
 
@@ -442,9 +457,11 @@ are recomputed by `create_checkout_order`.
    - the signed order-access token;
    - the Razorpay HMAC signature;
    - the expected local order and Razorpay order ID.
-5. The database marks payment `paid` and order status `confirmed`.
+5. The database marks payment `paid`; order status remains `pending`.
 6. The signed Razorpay webhook provides asynchronous confirmation for
    `payment.captured` and `order.paid`.
+7. An administrator approves every item measurement, then explicitly confirms
+   the order for preparation.
 
 If the payment window fails to load or the customer dismisses it, the client
 requests reservation cancellation. Cancellation restores reserved stock.
@@ -465,13 +482,18 @@ cancelled → terminal
 
 Additional behavior:
 
+- `pending → confirmed` is rejected until every order item has a confirmed
+  measurement snapshot; unpaid Razorpay orders are also rejected.
+- Measurement review is editable only while the order is pending and is locked
+  after confirmation.
 - `delivered_at` is set when the order becomes delivered.
 - `cancelled_at` is set when the order becomes cancelled.
 - Stock is restored exactly when an order first transitions to cancelled.
 - Coupon/voucher redemptions are released exactly when an order first
   transitions to cancelled.
-- Product names, selected sizes, quantities, and prices are snapshotted in
-  `order_items`; later catalog edits do not rewrite order history.
+- Product names, Custom Size, quantities, prices, measurements, and measurement
+  review states are snapshotted in `order_items`; later catalog edits do not
+  rewrite order history.
 - Products referenced by an order cannot be deleted because of foreign-key
   protection. Mark them inactive instead.
 - A Vercel Cron request to `/api/cron/store-maintenance` calls
@@ -480,7 +502,9 @@ Additional behavior:
     active orders table;
   - archived rows older than 90 days are deleted;
   - stale pending Razorpay reservations older than 1 hour are cancelled.
-- Browser carts are local-only and self-expire after 48 hours.
+- Browser carts are local-only and self-expire after 48 hours. Reusable
+  measurement drafts are stored separately under `darajni-measurements-v1` and
+  require reconfirmation whenever a value is edited.
 
 ## Security model
 
@@ -784,14 +808,20 @@ body before processing the event.
 ### Post-deployment checklist
 
 - Home page displays categories and active products.
-- A product detail page loads and can add a selected size to the cart.
-- Cart totals display shipping and tax settings.
+- A product detail page requires valid, confirmed custom measurements before
+  adding an item to the cart.
+- Saved measurements prefill product ordering and remain visible in cart,
+  checkout, success, customer orders, and admin review.
+- Cart totals display shipping and tax calculated on discounted merchandise.
+- Checkout requires a pincode check and reports delivery/COD eligibility.
 - COD checkout creates one order and opens its success page.
-- Razorpay test checkout confirms payment and opens its success page.
+- Razorpay test checkout records payment while the order remains pending and
+  opens its success page.
 - Cancelling Razorpay restores stock.
 - Tracking requires both the correct order number and phone.
 - `/admin/login` accepts a promoted administrator.
-- Admin analytics, orders, products, settings, invoices, and packing slips load.
+- Admin measurement approval blocks order confirmation until every item is
+  approved; analytics, products, settings, invoices, and packing slips load.
 - Image upload accepts a valid image and rejects invalid or oversized files.
 - Razorpay webhook delivery reports a successful response.
 - `ORDER_ACCESS_SECRET` is present in every Vercel environment used for checkout.
@@ -974,13 +1004,14 @@ app/
 ├── api/
 │   ├── account/                   Customer profile updates
 │   ├── admin/                     Admin verification and mutations
-│   ├── checkout/                  Order creation and reservation cancellation
+│   ├── checkout/                  Pincode, promo, order, and reservation APIs
 │   ├── payments/razorpay/         Browser verification and webhook
 │   └── track/                     Private-by-pair order tracking
 ├── cart/                          Guest cart page
 ├── checkout/                      Guest and account checkout page
 ├── design/[slug]/                 Product page
 ├── login/                         Customer account and order progress
+├── measurements/                  Interactive measurement entry and saving
 ├── order/success/                 Signed private order summary
 ├── support/                       Support contacts
 ├── track/                         Order tracking
@@ -993,12 +1024,15 @@ components/
 ├── checkout/                      Checkout and Razorpay browser flow
 ├── layout/                        Shared site shell
 ├── order/                         Tracking and order status UI
-├── product/                       Product image, gallery, and purchase UI
+├── product/                       Product image, measurement, gallery, purchase UI
 ├── screens/                       Main page compositions
 └── ui/                            Reusable interface primitives
 
 config/
 └── site.ts                        Brand, canonical URL, contact, price helpers
+
+lib/
+└── measurements.ts               Shared fields, ranges, saved-draft parsing
 
 lib/
 ├── auth/                          Admin session and authorization helpers
