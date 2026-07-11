@@ -47,9 +47,9 @@ export default async function Page() {
               communication and Pan-India delivery. The brand is built for
               customers who want a boutique experience without confusion.
             </p>
-            <div className="mt-8 flex items-center gap-3 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 text-[#5F5348]">
+            <div className="mt-8 flex min-w-0 items-center gap-3 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 text-[#5F5348]">
               <MapPin className="h-5 w-5 text-[#B8893B]" />
-              Bihar Sharif, Bihar 803111
+              <span className="min-w-0">Bihar Sharif, Bihar 803111</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

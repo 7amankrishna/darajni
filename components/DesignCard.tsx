@@ -67,7 +67,7 @@ export default function DesignCard({ product }: { product: Product }) {
                 : `${product.name} removed from wishlist`,
             );
           }}
-          className={`absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border backdrop-blur ${
+          className={`absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full border backdrop-blur ${
             wished
               ? "border-[#6E0F1A] bg-[#6E0F1A] text-white"
               : "border-[#FFFDF8]/60 bg-[#FFFDF8]/90 text-[#171717]"

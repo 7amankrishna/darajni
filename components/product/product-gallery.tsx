@@ -42,8 +42,8 @@ export function ProductGallery({
   }
 
   return (
-    <div className="grid gap-3 md:grid-cols-[5rem_1fr]">
-      <div className="order-2 flex gap-2 overflow-x-auto md:order-1 md:flex-col">
+    <div className="grid min-w-0 gap-3 md:grid-cols-[5rem_minmax(0,1fr)]">
+      <div className="order-2 flex min-w-0 gap-2 overflow-x-auto md:order-1 md:flex-col">
         {gallery.map((image, index) => (
           <button
             type="button"
@@ -107,7 +107,7 @@ export function ProductGallery({
             </span>
           </button>
         </DialogTrigger>
-        <DialogContent className="h-[92svh] max-w-6xl overflow-hidden p-3 sm:p-5">
+        <DialogContent className="h-[92svh] max-h-[92dvh] max-w-6xl overflow-hidden p-3 sm:p-5">
           <DialogTitle className="sr-only">{name} image viewer</DialogTitle>
           <DialogDescription className="sr-only">
             Full-screen product image. Use the arrow buttons to browse all views.

@@ -393,7 +393,7 @@ export function CheckoutForm({
     <main className="bg-[#FFF8EF] py-12 sm:py-16">
       <form
         onSubmit={submit}
-        className="section-shell grid gap-8 lg:grid-cols-[1fr_400px]"
+        className="section-shell grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]"
       >
         <div>
           <p className="eyebrow">
@@ -656,7 +656,7 @@ export function CheckoutForm({
           </section>
         </div>
 
-        <aside className="h-fit rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] lg:sticky lg:top-32">
+        <aside className="h-fit min-w-0 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-6 lg:sticky lg:top-32">
           <p className="eyebrow">Your order</p>
           <div className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
             {items.map((item) => (
@@ -696,7 +696,7 @@ export function CheckoutForm({
                   setPromoInput(event.target.value.toUpperCase());
                   if (appliedPromo) setAppliedPromo(null);
                 }}
-                className="field"
+                className="field min-w-0 flex-1"
                 placeholder="DARAJNI10"
                 maxLength={32}
                 autoComplete="off"
@@ -719,7 +719,7 @@ export function CheckoutForm({
             </div>
             {appliedPromo && (
               <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-xs text-emerald-800">
-                <span>
+                <span className="min-w-0">
                   {appliedPromo.message}: {appliedPromo.code} saves{" "}
                   {formatPrice(totals.discount)}
                 </span>

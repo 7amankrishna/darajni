@@ -41,15 +41,15 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border border-white/10 bg-[#11110f] p-6 text-white shadow-2xl outline-none",
+          "fixed left-1/2 top-1/2 z-50 grid max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-white/10 bg-[#11110f] p-5 text-white shadow-2xl outline-none sm:p-6",
           className,
         )}
         {...props}
       >
         {children}
         {showCloseButton && (
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-1 text-white/80 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#caaa70]">
-            <XIcon />
+          <DialogPrimitive.Close className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full text-white/80 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#caaa70] sm:right-4 sm:top-4">
+            <XIcon className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}

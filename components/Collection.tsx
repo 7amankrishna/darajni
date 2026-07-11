@@ -240,16 +240,16 @@ export default function Collection({
           id="collection-filters"
           className="collection-toolbar mt-5 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8]/82 p-4"
         >
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
               <SlidersHorizontal className="h-4 w-4 text-[#B8893B]" />
               {filtered.length} product{filtered.length === 1 ? "" : "s"} available
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
               <select
                 value={occasion}
                 onChange={(event) => setOccasion(event.target.value)}
-                className="field !min-h-10 !py-2 text-xs"
+                className="field !min-h-11 !py-2 text-xs"
                 aria-label="Filter by occasion"
               >
                 <option value="all">All occasions</option>
@@ -262,7 +262,7 @@ export default function Collection({
               <select
                 value={priceRange}
                 onChange={(event) => setPriceRange(event.target.value as PriceRange)}
-                className="field !min-h-10 !py-2 text-xs"
+                className="field !min-h-11 !py-2 text-xs"
                 aria-label="Filter by price"
               >
                 <option value="all">All prices</option>
@@ -273,7 +273,7 @@ export default function Collection({
               <select
                 value={color}
                 onChange={(event) => setColor(event.target.value)}
-                className="field !min-h-10 !py-2 text-xs"
+                className="field !min-h-11 !py-2 text-xs"
                 aria-label="Filter by color"
               >
                 <option value="all">All colors</option>
@@ -286,7 +286,7 @@ export default function Collection({
               <select
                 value={fabric}
                 onChange={(event) => setFabric(event.target.value)}
-                className="field !min-h-10 !py-2 text-xs"
+                className="field !min-h-11 !py-2 text-xs"
                 aria-label="Filter by fabric"
               >
                 <option value="all">All fabrics</option>
@@ -299,7 +299,7 @@ export default function Collection({
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as SortOption)}
-                className="field !min-h-10 !py-2 text-xs"
+                className="field !min-h-11 !py-2 text-xs"
                 aria-label="Sort products"
               >
                 <option value="newest">Newest first</option>
@@ -309,7 +309,7 @@ export default function Collection({
               <button
                 type="button"
                 onClick={resetFilters}
-                className="secondary-button !min-h-10 !py-2 text-xs"
+                className="secondary-button !min-h-11 !py-2 text-xs"
               >
                 <X className="h-3.5 w-3.5" />
                 Reset
@@ -317,8 +317,8 @@ export default function Collection({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-4 border-t border-[#E9DCCB] pt-4">
-            <label className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-[#E9DCCB] pt-4">
+            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
               <input
                 type="checkbox"
                 checked={inStockOnly}
@@ -327,7 +327,7 @@ export default function Collection({
               />
               In stock only
             </label>
-            <label className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
+            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
               <input
                 type="checkbox"
                 checked={customOnly}
@@ -337,7 +337,7 @@ export default function Collection({
               Custom size available
             </label>
             {products.some((product) => product.discount > 0) && (
-              <label className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
+              <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
                 <input
                   type="checkbox"
                   checked={saleOnly}

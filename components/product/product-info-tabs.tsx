@@ -32,13 +32,13 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
   return (
     <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4 sm:p-6">
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex min-w-0 gap-2 overflow-x-auto pb-2">
         {tabs.map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActive(tab)}
-            className={`shrink-0 rounded-xl border px-4 py-2 text-xs font-extrabold uppercase ${
+            className={`min-h-11 shrink-0 rounded-xl border px-4 py-2 text-xs font-extrabold uppercase ${
               active === tab
                 ? "border-[#111111] bg-[#111111] text-white"
                 : "border-[#E9DCCB] text-[#6F6255]"
@@ -96,7 +96,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
             <h3 className="font-display text-3xl leading-none text-[#171717]">
               Standard reference chart
             </h3>
-            <div className="mt-5 overflow-x-auto">
+            <div className="table-scroll mt-5">
               <table className="w-full min-w-[520px] text-left text-xs">
                 <thead className="bg-[#F6E9DD] text-[#6F6255]">
                   <tr>

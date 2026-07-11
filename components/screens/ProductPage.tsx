@@ -77,13 +77,13 @@ function StickyHelpPanel({
   );
 
   return (
-    <aside className="space-y-4 lg:sticky lg:top-32">
+    <aside className="space-y-4 xl:sticky xl:top-32">
       <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
         <div className="flex items-center gap-2">
           <Ruler className="h-5 w-5 text-[#B8893B]" />
           <h2 className="font-display text-2xl text-[#171717]">Size Guide</h2>
         </div>
-        <div className="mt-4 overflow-x-auto">
+        <div className="table-scroll mt-4">
           <table className="w-full min-w-[260px] text-left text-[0.68rem] text-[#5F5348]">
             <thead className="bg-[#F6E9DD]">
               <tr>
@@ -205,10 +205,10 @@ export default function ProductPage({
           <span className="text-[#171717]">{product.name}</span>
         </nav>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)_minmax(17rem,0.55fr)]">
+        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)_minmax(17rem,0.55fr)]">
           <ProductGallery images={product.images} name={product.name} />
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <div>
               <div className="flex flex-wrap gap-2">
                 <span className="status-pill bg-[#6E0F1A] text-white">

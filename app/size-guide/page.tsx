@@ -46,12 +46,12 @@ export default async function Page() {
           </p>
         </div>
 
-        <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <section className="mt-12 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <MeasurementGuideFigure />
 
           <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
             <p className="eyebrow">Size chart</p>
-            <div className="mt-5 overflow-x-auto">
+            <div className="table-scroll mt-5">
               <table className="w-full min-w-[680px] text-left text-sm text-[#5F5348]">
                 <thead className="bg-[#F6E9DD] text-xs uppercase text-[#6F6255]">
                   <tr>
@@ -101,7 +101,7 @@ export default async function Page() {
         </section>
 
         <section className="mt-12 rounded-2xl border border-[#E9DCCB] bg-[#171717] p-7 text-white sm:p-9">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div>
               <p className="text-[0.68rem] font-extrabold uppercase text-[#D9B56B]">
                 Custom-size explanation

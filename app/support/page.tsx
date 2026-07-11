@@ -159,18 +159,18 @@ export default async function Page() {
                 className="flex items-center gap-3 rounded-xl border border-white/10 p-4 hover:bg-white/5"
               >
                 <MessageCircle className="h-5 w-5 shrink-0 text-[#35C66D]" />
-                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">WhatsApp support</small>{supportNumber ? `+${supportNumber}` : "Start a support conversation"}</span>
+                <span className="min-w-0"><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">WhatsApp support</small>{supportNumber ? `+${supportNumber}` : "Start a support conversation"}</span>
               </a>
               <a
                 href={`mailto:${siteConfig.email}`}
                 className="flex items-center gap-3 rounded-xl border border-white/10 p-4 hover:bg-white/5"
               >
                 <Mail className="h-5 w-5 shrink-0 text-[#D9B56B]" />
-                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Email</small>{siteConfig.email}</span>
+                <span className="min-w-0"><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Email</small>{siteConfig.email}</span>
               </a>
               <div className="flex items-center gap-3 rounded-xl border border-white/10 p-4">
                 <MapPin className="h-5 w-5 shrink-0 text-[#D9B56B]" />
-                <span><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
+                <span className="min-w-0"><small className="mb-1 block text-[0.62rem] font-extrabold uppercase text-[#D9B56B]">Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
               </div>
               <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-xs leading-6 text-white/72">
                 <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-[#D9B56B]" />

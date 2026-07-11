@@ -96,9 +96,9 @@ export default async function Page({
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-start justify-between gap-5 p-5 sm:p-6"
+                className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between sm:gap-5 sm:p-6"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-display text-2xl text-[#171717]">
                     {item.productName}
                   </p>
@@ -106,7 +106,7 @@ export default async function Page({
                     Size {item.selectedSize} | Quantity {item.quantity}
                   </p>
                 </div>
-                <p className="font-display text-2xl font-semibold text-[#171717]">
+                <p className="shrink-0 font-display text-2xl font-semibold text-[#171717] sm:text-right">
                   {formatPrice(item.lineTotal)}
                 </p>
               </div>

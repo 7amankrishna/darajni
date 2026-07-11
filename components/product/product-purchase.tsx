@@ -76,7 +76,7 @@ export function ProductPurchase({
   };
 
   return (
-    <div>
+    <div className={!soldOut ? "pb-36 md:pb-0" : undefined}>
       <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
@@ -99,7 +99,7 @@ export function ProductPurchase({
               type="button"
               key={option}
               onClick={() => setSize(option)}
-              className={`min-h-10 rounded-xl border px-4 text-xs font-extrabold transition ${
+              className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition ${
                 option === size
                   ? "border-[#111111] bg-[#111111] text-white"
                   : "border-[#E9DCCB] bg-white text-[#5F5348] hover:border-[#B8893B]"
@@ -108,10 +108,10 @@ export function ProductPurchase({
               {option}
             </button>
           ))}
-          <Link href="/size-guide" className="secondary-button !min-h-10 !py-2">
+          <Link href="/size-guide" className="secondary-button !min-h-11 !py-2">
             Open Size Guide
           </Link>
-          <a href={whatsappHref} className="whatsapp-button !min-h-10 !py-2">
+          <a href={whatsappHref} className="whatsapp-button !min-h-11 !py-2">
             WhatsApp Measurement Help
           </a>
         </div>
@@ -203,7 +203,7 @@ export function ProductPurchase({
       </p>
 
       {!soldOut && (
-        <div className="fixed inset-x-0 bottom-[3.85rem] z-[45] border-t border-[#E9DCCB] bg-[#FFFDF8]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden">
+        <div className="mobile-purchase-bar fixed inset-x-0 z-[45] border-t border-[#E9DCCB] bg-[#FFFDF8]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden">
           <div className="mx-auto flex max-w-lg items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="truncate text-[0.65rem] font-bold uppercase text-[#6F6255]">

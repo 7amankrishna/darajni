@@ -52,7 +52,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
   return (
     <main className="bg-[#FFF8EF] py-12 sm:py-16">
       <div className="section-shell">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
           <div>
             <p className="eyebrow">Your selection</p>
             <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
@@ -68,7 +68,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
           </button>
         </div>
 
-        <div className="mt-9 grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="mt-9 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
           <div className="space-y-4">
             {items.map((item) => (
               <article
@@ -77,7 +77,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
               >
                 <Link
                   href={`/design/${item.slug}`}
-                  className="relative block aspect-[4/5] w-full overflow-hidden rounded-xl bg-[#F6E9DD] sm:h-44 sm:w-32 sm:shrink-0"
+                  className="relative block h-56 w-full overflow-hidden rounded-xl bg-[#F6E9DD] sm:h-44 sm:w-32 sm:shrink-0"
                 >
                   <ProductImage
                     src={item.image}
@@ -88,7 +88,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                 </Link>
                 <div className="mt-4 flex min-w-0 flex-1 flex-col sm:mt-0">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <Link
                         href={`/design/${item.slug}`}
                         className="font-display text-3xl leading-tight text-[#171717] hover:text-[#6E0F1A]"
@@ -108,7 +108,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                     <button
                       type="button"
                       onClick={() => removeItem(item.key)}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#6F6255] hover:bg-red-50 hover:text-red-700"
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-[#6F6255] hover:bg-red-50 hover:text-red-700"
                       aria-label={`Remove ${item.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -121,7 +121,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                         onClick={() =>
                           updateQuantity(item.key, item.quantity - 1)
                         }
-                        className="grid h-10 w-10 place-items-center text-[#5F5348]"
+                        className="grid h-11 w-11 place-items-center text-[#5F5348]"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="h-3.5 w-3.5" />
@@ -134,13 +134,13 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                         onClick={() =>
                           updateQuantity(item.key, item.quantity + 1)
                         }
-                        className="grid h-10 w-10 place-items-center text-[#5F5348]"
+                        className="grid h-11 w-11 place-items-center text-[#5F5348]"
                         aria-label="Increase quantity"
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    <p className="font-display text-2xl font-semibold text-[#171717]">
+                    <p className="shrink-0 font-display text-2xl font-semibold text-[#171717]">
                       {formatPrice(item.unitPrice * item.quantity)}
                     </p>
                   </div>

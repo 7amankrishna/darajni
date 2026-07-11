@@ -98,7 +98,7 @@ export default function Navbar({
         </div>
 
         <nav
-          className="section-shell grid h-[74px] grid-cols-[auto_1fr_auto] items-center gap-3 md:flex md:justify-between"
+          className="section-shell grid h-[74px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 md:flex md:justify-between"
           aria-label="Main navigation"
         >
           <button
@@ -114,7 +114,7 @@ export default function Navbar({
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="mx-auto flex items-center gap-3 md:mx-0"
+            className="mx-auto flex min-w-0 items-center gap-3 md:mx-0"
             aria-label="DARAJNI home"
           >
             <BrandLogo className="h-11 w-11 border border-[#B8893B]/35 bg-[#FFFDF8]" />
@@ -140,17 +140,17 @@ export default function Navbar({
             ))}
           </div>
 
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             <Link
               href="/collection"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B]"
+              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B]"
               aria-label="Search collection"
             >
               <Search className="h-4 w-4" />
             </Link>
             <Link
               href="/wishlist"
-              className="relative hidden h-10 w-10 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
+              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
               aria-label={`Wishlist with ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`}
             >
               <Heart className="h-4 w-4" />
@@ -158,7 +158,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/login"
-              className="hidden h-10 w-10 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
+              className="hidden h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
               aria-label="Customer account"
             >
               <UserRound className="h-4 w-4" />
@@ -166,7 +166,7 @@ export default function Navbar({
             <ThemeToggle />
             <Link
               href="/cart"
-              className="relative grid h-10 w-10 place-items-center rounded-xl border border-[#B8893B]/45 bg-[#111111] text-[#FFFDF8] transition hover:bg-[#6E0F1A]"
+              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#B8893B]/45 bg-[#111111] text-[#FFFDF8] transition hover:bg-[#6E0F1A]"
               aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
               <ShoppingBag className="h-4 w-4" />
@@ -218,7 +218,7 @@ export default function Navbar({
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pb-2 pt-2 backdrop-blur-xl md:hidden">
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden">
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;
@@ -227,7 +227,7 @@ export default function Navbar({
               <Link
                 key={item.label}
                 href={item.href}
-                className="relative flex flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[0.62rem] font-bold text-[#5F5348]"
+                className="relative flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[0.62rem] font-bold text-[#5F5348]"
               >
                 <span className="relative">
                   <Icon className="h-4 w-4" />
