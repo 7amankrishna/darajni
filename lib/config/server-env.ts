@@ -32,6 +32,7 @@ const SERVER_SECRET_NAMES = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "SHIPROCKET_API_PASSWORD",
   "UPSTASH_REDIS_REST_TOKEN",
 ];
 
@@ -73,6 +74,42 @@ export function getRazorpayKeySecret() {
 
 export function getRazorpayWebhookSecret() {
   return dedicatedSecret("RAZORPAY_WEBHOOK_SECRET", 16);
+}
+
+function positiveNumber(name: string, minimum: number) {
+  const value = Number(clean(name));
+  return Number.isFinite(value) && value > minimum ? value : null;
+}
+
+export function getShiprocketEnvironment() {
+  const email = clean("SHIPROCKET_API_EMAIL");
+  const password = dedicatedSecret("SHIPROCKET_API_PASSWORD", 8);
+  const pickupLocation = clean("SHIPROCKET_PICKUP_LOCATION");
+  const weightKg = positiveNumber("SHIPROCKET_DEFAULT_WEIGHT_KG", 0);
+  const lengthCm = positiveNumber("SHIPROCKET_DEFAULT_LENGTH_CM", 0.5);
+  const breadthCm = positiveNumber("SHIPROCKET_DEFAULT_BREADTH_CM", 0.5);
+  const heightCm = positiveNumber("SHIPROCKET_DEFAULT_HEIGHT_CM", 0.5);
+
+  if (
+    !email ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    !password ||
+    !pickupLocation ||
+    pickupLocation.length > 100 ||
+    !weightKg ||
+    !lengthCm ||
+    !breadthCm ||
+    !heightCm
+  ) {
+    return null;
+  }
+
+  return {
+    email,
+    password,
+    pickupLocation,
+    parcel: { weightKg, lengthCm, breadthCm, heightCm },
+  };
 }
 
 export function getUpstashEnvironment() {

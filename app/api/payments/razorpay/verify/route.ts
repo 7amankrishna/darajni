@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { getRazorpayKeySecret } from "@/lib/config/server-env";
+import { syncShiprocketOrder } from "@/lib/shiprocket";
 import {
   apiError,
   internalApiError,
@@ -67,6 +68,8 @@ export async function POST(request: Request) {
       409,
     );
   }
+
+  after(() => syncShiprocketOrder(payload.orderId));
 
   return NextResponse.json({
     successUrl: `/order/success?token=${encodeURIComponent(parsed.data.token)}`,

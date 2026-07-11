@@ -27,6 +27,7 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 - [Local development](#local-development)
 - [Supabase setup and migrations](#supabase-setup-and-migrations)
 - [Razorpay setup](#razorpay-setup)
+- [Shiprocket setup](#shiprocket-setup)
 - [Deployment](#deployment)
 - [Administrator operations](#administrator-operations)
 - [Caching, SEO, and images](#caching-seo-and-images)
@@ -99,6 +100,7 @@ current database values during checkout.
 - Supabase Auth for administrators and optional customer accounts
 - Supabase Storage for product images
 - Razorpay for online payments
+- Shiprocket custom-order sync for fulfilment
 - Upstash Redis REST rate limiting in production with a bounded local fallback
 - Zod request validation
 - Vercel deployment configuration
@@ -259,7 +261,7 @@ engine indexing through metadata and `robots.txt`.
 | `DELETE /api/admin/promos/[id]` | Deactivate a coupon or voucher | Administrator and same-origin |
 | `PUT /api/admin/settings` | Update singleton store settings | Administrator and same-origin |
 | `POST /api/admin/uploads` | Upload a validated product image | Administrator and same-origin |
-| `GET /api/cron/store-maintenance` | Run lifecycle cleanup and archival automation | `CRON_SECRET` bearer token |
+| `GET /api/cron/store-maintenance` | Run lifecycle cleanup, archival automation, and Shiprocket retry attempts | `CRON_SECRET` bearer token |
 
 ## Architecture
 
@@ -295,6 +297,9 @@ Next.js application
         │   ├── Checkout.js
         │   └── signed webhooks
         │
+        ├── Shiprocket
+        │   └── server-to-server custom-order creation
+        │
         └── Upstash Redis (optional)
             └── distributed rate-limit counters
 ```
@@ -327,6 +332,7 @@ Next.js application
 | `promo_codes` | Admin-managed coupons and fixed-value vouchers |
 | `promo_redemptions` | Authoritative coupon/voucher usage records for global and per-phone limits |
 | `archived_orders` | Minimal delivered-order archive retained after active cleanup |
+| `shiprocket_order_syncs` | Server-only Shiprocket order/shipment IDs, retry state, and sanitized errors |
 | `settings` | Singleton row for shipping, COD, tax, and support numbers |
 
 Phase 2 removes the legacy `profiles` and `reviews` tables. Customer account
@@ -476,6 +482,10 @@ Additional behavior:
     active orders table;
   - archived rows older than 90 days are deleted;
   - stale pending Razorpay reservations older than 1 hour are cancelled.
+- Shiprocket order creation is attempted after COD checkout and after a verified
+  Razorpay payment. Failed attempts are retried by the maintenance cron; the
+  unique local order reference and an atomic claim prevent duplicate remote
+  orders when Razorpay verification and its webhook arrive together.
 - Browser carts are local-only and self-expire after 48 hours.
 
 ## Security model
@@ -498,6 +508,9 @@ Additional behavior:
   `is_admin()`.
 - Sensitive checkout, cancellation, confirmation, and tracking functions deny
   public execution and grant execution to `service_role`.
+- `shiprocket_order_syncs` has no anonymous or authenticated access. It stores
+  only Shiprocket identifiers and sanitized retry errors, never credentials,
+  tokens, or customer-address payloads.
 
 ### Signed order access
 
@@ -582,6 +595,13 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Public | For online payment | Razorpay test/live key ID |
 | `RAZORPAY_KEY_SECRET` | Server only | For online payment | Razorpay order creation and browser-response verification |
 | `RAZORPAY_WEBHOOK_SECRET` | Server only | For online payment | Razorpay webhook signature verification |
+| `SHIPROCKET_API_EMAIL` | Server only | For Shiprocket sync | Separate Shiprocket API-user email |
+| `SHIPROCKET_API_PASSWORD` | Server only | For Shiprocket sync | Separate Shiprocket API-user password |
+| `SHIPROCKET_PICKUP_LOCATION` | Server only | For Shiprocket sync | Exact name of an existing Shiprocket pickup location |
+| `SHIPROCKET_DEFAULT_WEIGHT_KG` | Server only | For Shiprocket sync | Actual packed parcel weight in kg; must be greater than zero |
+| `SHIPROCKET_DEFAULT_LENGTH_CM` | Server only | For Shiprocket sync | Actual packed parcel length in cm; must be greater than 0.5 |
+| `SHIPROCKET_DEFAULT_BREADTH_CM` | Server only | For Shiprocket sync | Actual packed parcel breadth in cm; must be greater than 0.5 |
+| `SHIPROCKET_DEFAULT_HEIGHT_CM` | Server only | For Shiprocket sync | Actual packed parcel height in cm; must be greater than 0.5 |
 | `UPSTASH_REDIS_REST_URL` | Server only | Yes in production | Distributed rate-limit store; configure together with its token |
 | `UPSTASH_REDIS_REST_TOKEN` | Server only | Yes in production | Upstash authorization token; configure together with its URL |
 | `NEXT_PUBLIC_DEVELOPER_SUPPORT_WHATSAPP` | Public | Optional fallback | Digits-only technical support number |
@@ -604,6 +624,14 @@ NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
 RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_KEY_SECRET
 RAZORPAY_WEBHOOK_SECRET=YOUR_WEBHOOK_SECRET
 
+SHIPROCKET_API_EMAIL=api-user@example.com
+SHIPROCKET_API_PASSWORD=UNIQUE_SHIPROCKET_API_PASSWORD
+SHIPROCKET_PICKUP_LOCATION=Primary Warehouse
+SHIPROCKET_DEFAULT_WEIGHT_KG=0.5
+SHIPROCKET_DEFAULT_LENGTH_CM=25
+SHIPROCKET_DEFAULT_BREADTH_CM=20
+SHIPROCKET_DEFAULT_HEIGHT_CM=5
+
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 
@@ -613,7 +641,7 @@ NEXT_PUBLIC_CONTACT_EMAIL=hello@example.com
 ```
 
 Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ORDER_ACCESS_SECRET`, `CRON_SECRET`,
-`RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, or Upstash credentials through
+Razorpay secrets, Shiprocket credentials/tokens, or Upstash credentials through
 a `NEXT_PUBLIC_` variable.
 
 Use a different random value for every server-side secret. `ORDER_ACCESS_SECRET`
@@ -626,10 +654,11 @@ npm run validate:env
 ```
 
 The validator rejects missing values, placeholders, malformed URLs, incomplete
-Razorpay/Upstash pairs, short or reused secrets, and secret-like variables with
-a `NEXT_PUBLIC_` prefix. Production deployments should configure Upstash;
-without it, rate limiting falls back to a bounded per-instance memory store and
-cannot coordinate limits across multiple server instances.
+Razorpay, Shiprocket, or Upstash configuration, short or reused secrets, and
+secret-like variables with a `NEXT_PUBLIC_` prefix. Production deployments
+should configure Upstash; without it, rate limiting falls back to a bounded
+per-instance memory store and cannot coordinate limits across multiple server
+instances.
 
 Restart the development server after changing `.env.local`. In Vercel, changing
 an environment variable requires a new deployment.
@@ -678,6 +707,7 @@ Migrations are stored in `supabase/migrations` and run in timestamp order:
 | `20260625020000_ecommerce_core.sql` | Guest-commerce schema, admins, normalized products, orders, settings, RLS, and Storage policies |
 | `20260625030000_checkout_functions.sql` | Atomic checkout, inventory restoration, cancellation, and payment confirmation |
 | `20260625040000_promos_lifecycle.sql` | Coupons, vouchers, promo redemptions, maintenance archival, and cleanup automation |
+| `20260711000000_shiprocket_order_sync.sql` | Server-only Shiprocket sync state, concurrency claim, and retry support |
 
 All migrations are required for a new database because later phases transform
 objects created by earlier phases.
@@ -755,6 +785,63 @@ The webhook secret entered in Razorpay must exactly match
 The route verifies `x-razorpay-signature` against the unmodified raw request
 body before processing the event.
 
+## Shiprocket setup
+
+The integration creates a Shiprocket **custom order** with the customer’s
+delivery address, ordered items, payment mode, server-calculated amount, and
+the configured pickup location. It does not expose a Shiprocket endpoint to the
+browser, create an AWB, select a courier, or schedule pickup automatically;
+those remain controlled in the Shiprocket panel.
+
+1. In the Shiprocket panel, add and verify your pickup address. Copy its pickup
+   location name exactly; it is case-sensitive configuration for
+   `SHIPROCKET_PICKUP_LOCATION`.
+2. Go to **Settings → API → Configure → Create API User**. Use a new email
+   address, not the main Shiprocket login, and grant only the **Orders** module
+   this integration needs. Choose the lowest Buyer Details API access that your
+   Shiprocket account permits for this custom-order creation flow; this app does
+   not call buyer search or address-update APIs.
+3. Add all seven `SHIPROCKET_*` values to `.env.local` locally and to every
+   Vercel environment used for checkout. Use your measured *packed* parcel
+   dimensions and weight—not an arbitrary product estimate.
+4. Apply the new database migration, deploy, and create a test COD order. In
+   Shiprocket, open **Orders → All Orders** and search the numeric reference
+   formed from the store order number (for example, `DJ-20260711-000001`
+   becomes `20260711000001`). The Shiprocket order ID and shipment ID are
+   recorded only in `shiprocket_order_syncs`.
+
+The integration sends an online order only after the Razorpay signature or
+signed Razorpay webhook has confirmed payment. COD orders are queued immediately
+after the database order is committed. The configured parcel profile applies to
+every order; add per-product/package dimensions before going live if your
+garments vary materially in packed size or weight. A Shiprocket failure never
+loses the customer order or exposes a failure message to the customer; it is
+retried by the protected maintenance cron with exponential backoff.
+
+For a controlled operational check, run this in the Supabase SQL editor as an
+administrator:
+
+```sql
+select
+  o.order_number,
+  s.status,
+  s.shiprocket_order_id,
+  s.shipment_id,
+  s.attempt_count,
+  s.last_error,
+  s.synced_at
+from public.shiprocket_order_syncs s
+join public.orders o on o.id = s.order_id
+order by s.updated_at desc;
+```
+
+Do not put Shiprocket credentials in source code, browser JavaScript, API
+responses, Git commits, or client-side analytics. Rotate the separate API user
+password immediately if it is ever exposed, update the environment variables,
+and redeploy. Shiprocket custom orders are not automatically cancelled when a
+store admin cancels an order; cancel a created Shiprocket order in its panel
+until you choose to add a reviewed cancellation workflow.
+
 ## Deployment
 
 ### Vercel
@@ -771,9 +858,11 @@ body before processing the event.
 5. Apply Supabase migrations separately.
 6. Promote at least one administrator.
 7. Configure the Razorpay webhook.
-8. Configure Upstash for reliable multi-instance production rate limiting.
-9. Deploy.
-10. Run the post-deployment checks below.
+8. Create the restricted Shiprocket API user and add all `SHIPROCKET_*`
+   variables if Shiprocket sync is enabled.
+9. Configure Upstash for reliable multi-instance production rate limiting.
+10. Deploy.
+11. Run the post-deployment checks below.
 
 `vercel.json` runs `npm run build` and applies baseline security headers.
 
@@ -784,6 +873,8 @@ body before processing the event.
 - Cart totals display shipping and tax settings.
 - COD checkout creates one order and opens its success page.
 - Razorpay test checkout confirms payment and opens its success page.
+- Test COD and Razorpay orders appear once in the Shiprocket Orders panel with
+  the correct address, payment mode, amount, pickup location, weight, and dimensions.
 - Cancelling Razorpay restores stock.
 - Tracking requires both the correct order number and phone.
 - `/admin/login` accepts a promoted administrator.

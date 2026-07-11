@@ -54,6 +54,42 @@ if (razorpayValues.every(Boolean)) {
   }
 }
 
+const shiprocketNames = [
+  "SHIPROCKET_API_EMAIL",
+  "SHIPROCKET_API_PASSWORD",
+  "SHIPROCKET_PICKUP_LOCATION",
+  "SHIPROCKET_DEFAULT_WEIGHT_KG",
+  "SHIPROCKET_DEFAULT_LENGTH_CM",
+  "SHIPROCKET_DEFAULT_BREADTH_CM",
+  "SHIPROCKET_DEFAULT_HEIGHT_CM",
+];
+const shiprocketValues = shiprocketNames.map(value);
+if (shiprocketValues.some(Boolean) && !shiprocketValues.every(Boolean)) {
+  errors.push(`Configure all Shiprocket variables together: ${shiprocketNames.join(", ")}.`);
+}
+if (shiprocketValues.every(Boolean)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shiprocketValues[0])) {
+    errors.push("SHIPROCKET_API_EMAIL must be a valid API-user email address.");
+  }
+  if (shiprocketValues[1].length < 8) {
+    errors.push("SHIPROCKET_API_PASSWORD must be at least 8 characters.");
+  }
+  if (shiprocketValues[2].length > 100) {
+    errors.push("SHIPROCKET_PICKUP_LOCATION must be 100 characters or fewer.");
+  }
+  for (const [name, minimum] of [
+    ["SHIPROCKET_DEFAULT_WEIGHT_KG", 0],
+    ["SHIPROCKET_DEFAULT_LENGTH_CM", 0.5],
+    ["SHIPROCKET_DEFAULT_BREADTH_CM", 0.5],
+    ["SHIPROCKET_DEFAULT_HEIGHT_CM", 0.5],
+  ]) {
+    const numeric = Number(value(name));
+    if (!Number.isFinite(numeric) || numeric <= minimum) {
+      errors.push(`${name} must be a number greater than ${minimum}.`);
+    }
+  }
+}
+
 const upstashUrl = value("UPSTASH_REDIS_REST_URL");
 const upstashToken = value("UPSTASH_REDIS_REST_TOKEN");
 if (Boolean(upstashUrl) !== Boolean(upstashToken)) {
@@ -77,6 +113,7 @@ const secrets = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "SHIPROCKET_API_PASSWORD",
   "UPSTASH_REDIS_REST_TOKEN",
 ].filter((name) => value(name));
 for (let index = 0; index < secrets.length; index += 1) {

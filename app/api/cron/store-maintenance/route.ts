@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { getCronSecret } from "@/lib/config/server-env";
+import { retryShiprocketOrderSyncs } from "@/lib/shiprocket";
 import {
   apiError,
   internalApiError,
@@ -44,10 +45,13 @@ export async function GET(request: Request) {
   }
 
   const result = Array.isArray(data) ? data[0] : data;
+  const shiprocket = await retryShiprocketOrderSyncs();
   return NextResponse.json({
     ok: true,
     archivedOrders: Number(result?.archived_orders ?? 0),
     deletedArchives: Number(result?.deleted_archives ?? 0),
     cancelledExpiredRazorpay: Number(result?.cancelled_expired_razorpay ?? 0),
+    shiprocketSyncAttempts: shiprocket.attempted,
+    shiprocketOrdersSynced: shiprocket.synced,
   });
 }

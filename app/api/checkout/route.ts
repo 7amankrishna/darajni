@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import {
   getCustomerUser,
   saveCheckoutProfileForUser,
 } from "@/lib/data/account";
 import { getRazorpayOrderEnvironment } from "@/lib/config/server-env";
+import { syncShiprocketOrder } from "@/lib/shiprocket";
 import {
   apiError,
   internalApiError,
@@ -163,6 +164,9 @@ export async function POST(request: Request) {
   }
 
   if (paymentMethod === "cod") {
+    // The customer order is committed before this side effect. Shiprocket
+    // failures are retained for retry and never invalidate a completed order.
+    after(() => syncShiprocketOrder(order.order_id));
     return NextResponse.json({
       mode: "cod",
       orderNumber: order.order_number,
