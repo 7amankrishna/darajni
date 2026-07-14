@@ -1,6 +1,14 @@
 "use client";
 
-import { ImagePlus, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  FolderPlus,
+  ImagePlus,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -89,6 +97,10 @@ export function ProductManagement({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categorySlug, setCategorySlug] = useState("");
+  const [categorySaving, setCategorySaving] = useState(false);
   const activeCount = useMemo(
     () => products.filter((product) => product.isActive).length,
     [products],
@@ -184,6 +196,34 @@ export function ProductManagement({
     router.refresh();
   };
 
+  const createCategory = () => {
+    setCategoryName("");
+    setCategorySlug("");
+    setCategoryOpen(true);
+  };
+
+  const saveCategory = async (event: FormEvent) => {
+    event.preventDefault();
+    setCategorySaving(true);
+    const response = await fetch("/api/admin/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: categoryName.trim(),
+        slug: categorySlug.trim(),
+      }),
+    });
+    const result = (await response.json()) as { error?: string };
+    setCategorySaving(false);
+    if (!response.ok) {
+      toast.error(result.error || "The category could not be created.");
+      return;
+    }
+    toast.success("Category created. It is ready to use for new products.");
+    setCategoryOpen(false);
+    router.refresh();
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -194,10 +234,16 @@ export function ProductManagement({
             {activeCount} active of {products.length} products
           </p>
         </div>
-        <button type="button" onClick={createProduct} className="primary-button">
-          <Plus className="h-4 w-4" />
-          Add product
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button type="button" onClick={createCategory} className="secondary-button">
+            <FolderPlus className="h-4 w-4" />
+            Add category
+          </button>
+          <button type="button" onClick={createProduct} className="primary-button">
+            <Plus className="h-4 w-4" />
+            Add product
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -511,6 +557,68 @@ export function ProductManagement({
                 "Save changes"
               ) : (
                 "Create product"
+              )}
+            </button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={categoryOpen} onOpenChange={setCategoryOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Create category</DialogTitle>
+            <DialogDescription>
+              Categories appear in the product editor after they are saved.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={saveCategory} className="grid gap-5">
+            <div>
+              <label htmlFor="category-name" className="field-label">
+                Category name
+              </label>
+              <input
+                id="category-name"
+                value={categoryName}
+                onChange={(event) => {
+                  const name = event.target.value;
+                  setCategoryName(name);
+                  setCategorySlug(slugify(name));
+                }}
+                className="field"
+                placeholder="e.g. Bridal lehengas"
+                minLength={2}
+                maxLength={60}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="category-slug" className="field-label">
+                Category slug
+              </label>
+              <input
+                id="category-slug"
+                value={categorySlug}
+                onChange={(event) => setCategorySlug(slugify(event.target.value))}
+                className="field"
+                placeholder="bridal-lehengas"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                required
+              />
+              <p className="mt-2 text-xs leading-5 text-white/55">
+                This must be unique and is used in collection links.
+              </p>
+            </div>
+            <button type="submit" disabled={categorySaving} className="primary-button">
+              {categorySaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating…
+                </>
+              ) : (
+                <>
+                  <FolderPlus className="h-4 w-4" />
+                  Create category
+                </>
               )}
             </button>
           </form>

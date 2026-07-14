@@ -32,6 +32,14 @@ export const productInputSchema = z.object({
   isActive: z.boolean(),
 });
 
+export const categoryInputSchema = z.object({
+  name: z.string().trim().min(2).max(60),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+});
+
 const transitions: Record<OrderStatus, OrderStatus[]> = {
   pending: ["confirmed", "cancelled"],
   confirmed: ["packed", "cancelled"],

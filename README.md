@@ -86,7 +86,7 @@ current database values during checkout.
 - Order detail view with customer, address, items, payment, and totals
 - Controlled order-status transitions
 - Printable A4 invoices and packing slips
-- Product creation, editing, activation, featuring, and deletion
+- Product-category creation plus product editing, activation, featuring, and deletion
 - Multiple product images from Supabase Storage or existing HTTPS URLs
 - Homepage launch management with ordering, visibility, scheduling, and CTA links
 - Store shipping, tax, COD, and support-number settings
