@@ -26,6 +26,11 @@ export function ProductGallery({
   const [hovering, setHovering] = useState(false);
   const [zoomPosition, setZoomPosition] = useState("50% 50%");
 
+  function startZoom(event: MouseEvent<HTMLButtonElement>) {
+    setHovering(true);
+    updateZoomPosition(event);
+  }
+
   function updateZoomPosition(event: MouseEvent<HTMLButtonElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX - rect.left) / rect.width) * 100;
@@ -74,7 +79,7 @@ export function ProductGallery({
         <DialogTrigger asChild>
           <button
             type="button"
-            onMouseEnter={() => setHovering(true)}
+            onMouseEnter={startZoom}
             onMouseMove={updateZoomPosition}
             onMouseLeave={() => {
               setHovering(false);
@@ -94,11 +99,24 @@ export function ProductGallery({
               aria-hidden="true"
               className="product-gallery-zoom absolute inset-0"
               style={{
-                backgroundImage: `url(${JSON.stringify(gallery[active])})`,
-                backgroundPosition: zoomPosition,
                 opacity: hovering ? 1 : 0,
               }}
-            />
+            >
+              <span
+                className="product-gallery-zoom-image absolute inset-0"
+                style={{
+                  transform: `scale(${hovering ? 2.1 : 1})`,
+                  transformOrigin: zoomPosition,
+                }}
+              >
+                <ProductImage
+                  src={gallery[active]}
+                  alt=""
+                  sizes="(max-width: 768px) 100vw, 45vw"
+                  className="object-cover"
+                />
+              </span>
+            </span>
             <span className="gallery-zoom-hint absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-[#FFFDF8]/60 bg-[#FFFDF8]/90 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-[#171717] shadow-sm backdrop-blur">
               <Search className="hidden h-4 w-4 sm:block" />
               <Maximize2 className="h-4 w-4 sm:hidden" />

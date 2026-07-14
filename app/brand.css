@@ -888,9 +888,15 @@ input[type="checkbox"] {
 
 .product-gallery-zoom {
   pointer-events: none;
-  background-repeat: no-repeat;
-  background-size: 210%;
+  overflow: hidden;
   transition: opacity 140ms ease;
+  will-change: opacity;
+}
+
+.product-gallery-zoom-image {
+  display: block;
+  transition: transform 100ms ease-out;
+  will-change: transform;
 }
 
 .footer-contact-row {
