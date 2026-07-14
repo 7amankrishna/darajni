@@ -41,6 +41,7 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 
 - Server-rendered product catalog backed by Supabase PostgreSQL
 - Featured products, new arrivals, category filters, search, and sorting
+- Scheduled, admin-managed homepage launch slider with image, copy, and CTA links
 - Product pages with images, description, fabric, sizes, stock, discount, and
   related products
 - Indian currency formatting and discounted-price presentation
@@ -87,6 +88,7 @@ current database values during checkout.
 - Printable A4 invoices and packing slips
 - Product creation, editing, activation, featuring, and deletion
 - Multiple product images from Supabase Storage or existing HTTPS URLs
+- Homepage launch management with ordering, visibility, scheduling, and CTA links
 - Store shipping, tax, COD, and support-number settings
 
 ## Technology stack

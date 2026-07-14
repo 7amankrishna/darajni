@@ -3,6 +3,7 @@
 import {
   BarChart3,
   LogOut,
+  Megaphone,
   Package,
   Settings,
   ShoppingBag,
@@ -12,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { AnalyticsPanel } from "@/components/admin/analytics-panel";
+import { HomepageSlideManagement } from "@/components/admin/homepage-slide-management";
 import { OrderManagement } from "@/components/admin/order-management";
 import { ProductManagement } from "@/components/admin/product-management";
 import { PromoManagement } from "@/components/admin/promo-management";
@@ -19,12 +21,19 @@ import { SettingsPanel } from "@/components/admin/settings-panel";
 import { supabase } from "@/lib/supabase/client";
 import type { AdminDashboardData } from "@/types/admin";
 
-type Tab = "analytics" | "orders" | "products" | "promos" | "settings";
+type Tab =
+  | "analytics"
+  | "orders"
+  | "products"
+  | "launches"
+  | "promos"
+  | "settings";
 
 const tabs: Array<{ value: Tab; label: string; icon: typeof BarChart3 }> = [
   { value: "analytics", label: "Analytics", icon: BarChart3 },
   { value: "orders", label: "Orders", icon: ShoppingBag },
   { value: "products", label: "Products", icon: Package },
+  { value: "launches", label: "Launches", icon: Megaphone },
   { value: "promos", label: "Promos", icon: Tag },
   { value: "settings", label: "Settings", icon: Settings },
 ];
@@ -98,6 +107,9 @@ export function AdminDashboard({
               products={data.products}
               categories={data.categories}
             />
+          )}
+          {tab === "launches" && (
+            <HomepageSlideManagement slides={data.homepageSlides} />
           )}
           {tab === "promos" && <PromoManagement promos={data.promos} />}
           {tab === "settings" && <SettingsPanel settings={data.settings} />}

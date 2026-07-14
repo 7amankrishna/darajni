@@ -2,11 +2,11 @@ import { z } from "zod";
 
 import type { OrderStatus } from "@/types/database";
 
-const imageUrlSchema = z
+export const imageUrlSchema = z
   .string()
   .trim()
   .refine((value) => {
-    if (value.startsWith("/")) return true;
+    if (value.startsWith("/") && !value.startsWith("//")) return true;
     try {
       return new URL(value).protocol === "https:";
     } catch {
@@ -111,6 +111,40 @@ export const promoInputSchema = z
       value.discountType !== "percentage" || value.discountValue <= 100,
     "Percentage discounts cannot exceed 100%.",
   )
+  .refine(
+    (value) =>
+      !value.startsAt ||
+      !value.endsAt ||
+      new Date(value.startsAt).getTime() < new Date(value.endsAt).getTime(),
+    "Start date must be before end date.",
+  );
+
+const homepageLinkSchema = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine((value) => {
+    if (value.startsWith("/") && !value.startsWith("//")) return true;
+    try {
+      return new URL(value).protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "Use a site path beginning with / or a secure HTTPS URL.");
+
+export const homepageSlideInputSchema = z
+  .object({
+    title: z.string().trim().min(2).max(120),
+    eyebrow: z.string().trim().max(60).nullable().optional(),
+    description: z.string().trim().max(320).nullable().optional(),
+    imageUrl: imageUrlSchema,
+    linkUrl: homepageLinkSchema,
+    ctaLabel: z.string().trim().min(2).max(40),
+    sortOrder: z.number().int().min(0).max(10_000),
+    startsAt: z.string().datetime().nullable().optional(),
+    endsAt: z.string().datetime().nullable().optional(),
+    isActive: z.boolean(),
+  })
   .refine(
     (value) =>
       !value.startsAt ||

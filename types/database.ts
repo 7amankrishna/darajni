@@ -286,6 +286,39 @@ export interface Database {
         };
         Update: never;
       };
+      homepage_slides: {
+        Row: {
+          id: string;
+          title: string;
+          eyebrow: string | null;
+          description: string | null;
+          image_url: string;
+          link_url: string;
+          cta_label: string;
+          sort_order: number;
+          starts_at: string | null;
+          ends_at: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          eyebrow?: string | null;
+          description?: string | null;
+          image_url: string;
+          link_url?: string;
+          cta_label?: string;
+          sort_order?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["homepage_slides"]["Insert"]>;
+      };
       settings: {
         Row: {
           id: boolean;

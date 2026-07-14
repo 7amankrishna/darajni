@@ -15,11 +15,13 @@ import About from "@/components/About";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
 import Hero from "@/components/Hero";
+import { HomepageLaunchSlider } from "@/components/homepage-launch-slider";
 import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { ProductImage } from "@/components/product/product-image";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
+import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
 
 function CustomFitSection() {
   const steps = [
@@ -217,7 +219,10 @@ function ClosingCta() {
 }
 
 export default async function HomePage() {
-  const { products, categories } = await getCatalog();
+  const [{ products, categories }, homepageSlides] = await Promise.all([
+    getCatalog(),
+    getActiveHomepageSlides(),
+  ]);
   const availableCategories = categories.filter((category) =>
     products.some((product) => product.category.id === category.id),
   );
@@ -305,6 +310,8 @@ export default async function HomePage() {
       />
       <main id="main-content">
         <Hero products={products} />
+
+        <HomepageLaunchSlider slides={homepageSlides} />
 
         <DressShowcase products={products} categories={availableCategories} />
 

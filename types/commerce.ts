@@ -37,6 +37,22 @@ export interface StoreSettings {
   designerSupportNumber: string;
 }
 
+export interface HomepageSlide {
+  id: string;
+  title: string;
+  eyebrow: string | null;
+  description: string | null;
+  imageUrl: string;
+  linkUrl: string;
+  ctaLabel: string;
+  sortOrder: number;
+  startsAt: string | null;
+  endsAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type PromoCodeType = "coupon" | "voucher";
 export type PromoDiscountType = "percentage" | "fixed_amount";
 

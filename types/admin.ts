@@ -5,7 +5,12 @@ import type {
   PromoCodeType,
   PromoDiscountType,
 } from "@/types/database";
-import type { Category, Product, StoreSettings } from "@/types/commerce";
+import type {
+  Category,
+  HomepageSlide,
+  Product,
+  StoreSettings,
+} from "@/types/commerce";
 
 export interface AdminOrderItem {
   id: string;
@@ -83,6 +88,7 @@ export interface AdminDashboardData {
   products: Product[];
   categories: Category[];
   promos: AdminPromoCode[];
+  homepageSlides: HomepageSlide[];
   settings: StoreSettings;
   analytics: AnalyticsSummary;
 }

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { requireAdminPage } from "@/lib/auth/admin";
+import { mapHomepageSlide } from "@/lib/data/homepage-slides";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type {
   AdminDashboardData,
@@ -150,6 +151,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     productsResult,
     categoriesResult,
     promosResult,
+    homepageSlidesResult,
     settingsResult,
   ] =
     await Promise.all([
@@ -176,6 +178,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         )
         .order("created_at", { ascending: false }),
       supabase
+        .from("homepage_slides")
+        .select(
+          "id, title, eyebrow, description, image_url, link_url, cta_label, sort_order, starts_at, ends_at, is_active, created_at, updated_at",
+        )
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true }),
+      supabase
         .from("settings")
         .select(
           "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number",
@@ -185,11 +194,15 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     ]);
 
   const promoTablesMissing = isMissingRelationError(promosResult.error);
+  const homepageSlidesTableMissing = isMissingRelationError(
+    homepageSlidesResult.error,
+  );
   const error =
     ordersResult.error ||
     productsResult.error ||
     categoriesResult.error ||
     (!promoTablesMissing ? promosResult.error : null) ||
+    (!homepageSlidesTableMissing ? homepageSlidesResult.error : null) ||
     settingsResult.error;
   if (error) throw new Error(error.message);
 
@@ -206,6 +219,11 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     ? []
     : (promosResult.data ?? []).map((row) =>
         mapPromo(row as unknown as Record<string, unknown>),
+      );
+  const homepageSlides = homepageSlidesTableMissing
+    ? []
+    : (homepageSlidesResult.data ?? []).map((row) =>
+        mapHomepageSlide(row as unknown as Record<string, unknown>),
       );
   const settingsRow = settingsResult.data;
   const settings: StoreSettings = {
@@ -250,6 +268,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     products,
     categories,
     promos,
+    homepageSlides,
     settings,
     analytics: {
       dailyOrders: daily.length,
