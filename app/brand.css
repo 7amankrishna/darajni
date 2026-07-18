@@ -142,7 +142,16 @@ canvas {
   max-width: 100%;
   min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
   -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll::-webkit-scrollbar {
+  height: 7px;
+}
+
+[id] {
+  scroll-margin-top: 7.75rem;
 }
 
 .field-label {
@@ -970,7 +979,7 @@ a.footer-contact-row:hover {
 
 .measurement-figure {
   position: relative;
-  min-height: 30rem;
+  min-height: 38rem;
   border: 1px solid var(--border);
   border-radius: 1rem;
   background:
@@ -982,7 +991,7 @@ a.footer-contact-row:hover {
 
 .measurement-person {
   position: absolute;
-  inset: 1rem 12% 0;
+  inset: 1rem 12% 5.75rem;
   z-index: 1;
   filter: drop-shadow(0 20px 22px rgba(83, 54, 22, 0.12));
 }
@@ -1180,6 +1189,7 @@ a.footer-contact-row:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  max-width: calc(50% - 1.25rem);
   border: 1px solid rgba(184, 137, 59, 0.28);
   border-radius: 999px;
   background: rgba(255, 253, 248, 0.92);
@@ -1187,6 +1197,7 @@ a.footer-contact-row:hover {
   color: var(--ink);
   font-size: 0.72rem;
   font-weight: 800;
+  line-height: 1.15;
   box-shadow: 0 10px 28px rgba(83, 54, 22, 0.08);
   z-index: 3;
 }
@@ -1246,8 +1257,18 @@ a.footer-contact-row:hover {
 
 .measure-length {
   left: 50%;
-  bottom: 4.65rem;
+  bottom: 7.25rem;
   transform: translateX(-50%);
+}
+
+.homepage-launch-controls {
+  flex-wrap: wrap;
+}
+
+.homepage-launch-dots {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .measure-shoulder::after,
@@ -1329,6 +1350,10 @@ a.footer-contact-row:hover {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
   }
 
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+
   .mobile-bottom-nav {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
@@ -1345,6 +1370,12 @@ a.footer-contact-row:hover {
 
   .section-shell {
     width: min(100% - 1.5rem, 80rem);
+  }
+
+  input.field,
+  select.field,
+  textarea.field {
+    font-size: 1rem;
   }
 
   .footer-contact-row {
@@ -1471,7 +1502,7 @@ a.footer-contact-row:hover {
   }
 
   .measurement-figure {
-    min-height: 32rem;
+    min-height: 38rem;
   }
 
   .measurement-dummy {
@@ -1481,10 +1512,11 @@ a.footer-contact-row:hover {
   }
 
   .measurement-person {
-    inset: 1.5rem 8% 1.4rem;
+    inset: 1.5rem 8% 5.75rem;
   }
 
   .measure-label {
+    max-width: calc(50% - 1rem);
     padding: 0.4rem 0.58rem;
     font-size: 0.66rem;
   }
@@ -1527,7 +1559,27 @@ a.footer-contact-row:hover {
   }
 
   .measure-length {
-    bottom: 4.65rem;
+    bottom: 7.25rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .measure-label {
+    gap: 0.32rem;
+    font-size: 0.61rem;
+  }
+
+  .measure-label::before {
+    width: 0.4rem;
+    height: 0.4rem;
+  }
+
+  .hero-proof-grid > div {
+    padding: 0.75rem;
+  }
+
+  .mobile-purchase-bar .primary-button {
+    padding-inline: 0.8rem;
   }
 }
 

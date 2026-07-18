@@ -86,7 +86,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
               </div>
 
               {slides.length > 1 && (
-                <div className="relative z-10 mt-9 flex items-center gap-3">
+                <div className="homepage-launch-controls relative z-10 mt-9 flex items-center gap-3">
                   <button
                     type="button"
                     onClick={showPrevious}
@@ -103,7 +103,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
-                  <div className="ml-2 flex gap-2" aria-label={`Slide ${activeIndex + 1} of ${slides.length}`}>
+                  <div className="homepage-launch-dots ml-2 flex min-w-0 gap-2" aria-label={`Slide ${activeIndex + 1} of ${slides.length}`}>
                     {slides.map((slide, index) => (
                       <button
                         type="button"
