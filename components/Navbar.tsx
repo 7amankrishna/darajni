@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BrandLogo from "@/components/BrandLogo";
 import { useCart } from "@/components/cart/cart-provider";
@@ -76,6 +76,53 @@ export default function Navbar({
   const shippingLabel = shippingCharge > 0
     ? `${formatPrice(shippingCharge)} shipping Pan India`
     : "Free shipping Pan India";
+
+  // State to track if purchase bar is visible (for adjusting WhatsApp button)
+  const [isPurchaseBarVisible, setIsPurchaseBarVisible] = useState(false);
+
+  useEffect(() => {
+    function checkPurchaseBarVisibility() {
+      // Check if we're on a product page and the purchase bar exists and is visible
+      if (typeof window !== 'undefined') {
+        const purchaseBar = document.querySelector('.mobile-purchase-bar');
+        const isProductPage = window.location.pathname.startsWith('/design/');
+
+        if (purchaseBar && isProductPage) {
+          // Check if the element is not hidden (not sold out)
+          const computedStyle = window.getComputedStyle(purchaseBar);
+          const isVisible = computedStyle.display !== 'none' &&
+                          !purchaseBar.classList.contains('md:hidden');
+
+          setIsPurchaseBarVisible(isVisible);
+        } else {
+          setIsPurchaseBarVisible(false);
+        }
+      }
+    }
+
+    // Check on mount
+    checkPurchaseBarVisibility();
+
+    // Check on resize and route changes
+    const observer = new MutationObserver(checkPurchaseBarVisibility);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const resizeObserver = new ResizeObserver(checkPurchaseBarVisibility);
+    resizeObserver.observe(document.body);
+
+    // Listen for route changes (if using Next.js router, we'd need to use usePathname)
+    // For simplicity, we'll also check on visibilitychange and focus
+    document.addEventListener('visibilitychange', checkPurchaseBarVisibility);
+    window.addEventListener('focus', checkPurchaseBarVisibility);
+
+    // Cleanup
+    return () => {
+      observer.disconnect();
+      resizeObserver.disconnect();
+      document.removeEventListener('visibilitychange', checkPurchaseBarVisibility);
+      window.removeEventListener('focus', checkPurchaseBarVisibility);
+    };
+  }, []);
 
   return (
     <>
@@ -212,13 +259,13 @@ export default function Navbar({
         href={whatsappHref}
         target={supportNumber ? "_blank" : undefined}
         rel="noreferrer"
-        className="fixed bottom-24 right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6"
+        className={`fixed ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-[24px]'} right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6 transition-all duration-300`}
         aria-label="Chat with DARAJNI on WhatsApp"
       >
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden">
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-[90px] z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden">
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;

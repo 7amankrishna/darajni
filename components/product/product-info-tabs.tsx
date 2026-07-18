@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
@@ -144,6 +146,30 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {active === "Reviews" && (
+          <div>
+            <h3 className="font-display text-3xl leading-none text-[#171717]">
+              Reviews
+            </h3>
+            <div className="mt-6 text-center py-12">
+              <p className="mb-4 text-sm leading-7 text-[#5F5348]">
+                No verified reviews yet. Be the first to share your experience!
+              </p>
+              <p className="mb-4 text-xs leading-5 text-[#6F6255]">
+                Reviews and delivery photos from verified buyers will appear here
+                after purchase.
+              </p>
+              <Link
+                href="/collection?sort=newest"
+                className="secondary-button inline-flex items-center gap-2"
+              >
+                Shop New Arrivals
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
           </div>
         )}
 

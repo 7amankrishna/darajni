@@ -54,32 +54,32 @@ export default function Hero({
         <div className="dress-model-vignette" />
       </div>
 
-      <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="hero-3d-copy max-w-3xl">
           <p className="eyebrow">Premium occasion wear from Bihar Sharif</p>
-          <h1 className="font-display mt-5 text-6xl font-semibold leading-[0.88] text-[#171717] sm:text-7xl lg:text-8xl">
+          <h1 className="font-display mt-5 text-5xl font-semibold leading-[0.90] text-[#171717] sm:text-6xl lg:text-7xl">
             DARAJNI Designer House
           </h1>
-          <p className="font-display mt-4 text-4xl leading-none text-[#6E0F1A] sm:text-5xl">
+          <p className="font-display mt-4 text-3xl leading-none text-[#6E0F1A] sm:text-4xl">
             Don&apos;t just wear clothes. Wear confidence.
           </p>
-          <p className="mt-7 max-w-xl text-base leading-8 text-[#5F5348] md:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-7 text-[#5F5348] md:text-sm">
             Indian occasion wear from the live DARAJNI collection, with custom
             sizing support, clear communication and delivery across India.
           </p>
 
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/collection?sort=newest" className="primary-button sm:min-w-48">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href="/collection?sort=newest" className="primary-button sm:min-w-44">
               Shop New Arrivals
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBag className="h-3.5 w-3.5" />
             </Link>
-            <Link href="/size-guide" className="secondary-button sm:min-w-48">
+            <Link href="/size-guide" className="secondary-button sm:min-w-44">
               How Custom Size Works
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
-          <div className="hero-proof-grid mt-10 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#E9DCCB] sm:grid-cols-4">
+          <div className="hero-proof-grid mt-8 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#E9DCCB] sm:grid-cols-3">
             {trustPoints.map(([title, Icon]) => (
               <div key={title as string} className="bg-[#FFFDF8]/86 p-4">
                 <Icon className="h-4 w-4 text-[#B8893B]" />

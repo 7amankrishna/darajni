@@ -23,7 +23,9 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         availableCategories={availableCategories}
         hasSaleProducts={hasSaleProducts}
       />
-      {children}
+      <div id="main-content" style={{ minHeight: '100vh' }}>
+        {children}
+      </div>
       <Footer
         supportNumber={supportNumber}
         availableCategories={availableCategories}

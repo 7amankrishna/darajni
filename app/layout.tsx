@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { useEffect, useState } from "react";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 
 import { SiteShell } from "@/components/layout/site-shell";
@@ -52,13 +53,16 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#FFF8EF",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en-IN" suppressHydrationWarning>
-      <body className={`${manrope.variable} ${cormorant.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${manrope.variable} ${cormorant.variable} antialiased`}>
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

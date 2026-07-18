@@ -77,13 +77,13 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
               >
                 <Link
                   href={`/design/${item.slug}`}
-                  className="relative block h-56 w-full overflow-hidden rounded-xl bg-[#F6E9DD] sm:h-44 sm:w-32 sm:shrink-0"
+                  className="relative shrink-0 flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 overflow-hidden rounded-xl bg-[#F6E9DD] mx-4"
                 >
                   <ProductImage
                     src={item.image}
                     alt={item.name}
-                    sizes="(max-width: 640px) 100vw, 128px"
-                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 80px"
+                    className="object-cover w-full h-full"
                   />
                 </Link>
                 <div className="mt-4 flex min-w-0 flex-1 flex-col sm:mt-0">

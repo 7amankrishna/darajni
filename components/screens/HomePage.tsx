@@ -226,8 +226,7 @@ export default async function HomePage() {
   const availableCategories = categories.filter((category) =>
     products.some((product) => product.category.id === category.id),
   );
-  const featured = products.filter((product) => product.isFeatured).slice(0, 4);
-  const fallbackFeatured = featured.length ? featured : products.slice(0, 4);
+  const featured = products.filter((product) => product.isFeatured).slice(0, 6); // Show 6 featured products
   const trustImage = products.find((product) => product.images[0])?.images[0] || "/logo.webp";
   const structuredData = [
     {
@@ -311,30 +310,67 @@ export default async function HomePage() {
       <main id="main-content">
         <Hero products={products} />
 
-        <HomepageLaunchSlider slides={homepageSlides} />
+        {/* Categories Section */}
+        <section className="pb-16 sm:pb-24">
+          <div className="section-shell">
+            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+              <div>
+                <p className="eyebrow">Explore by category</p>
+                <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+                  Shop our collections
+                </h2>
+              </div>
+              <Link href="/collection" className="secondary-button w-fit">
+                <ArrowRight className="h-4 w-4" />
+                View all categories
+              </Link>
+            </div>
+            <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {availableCategories.map((category) => (
+                <Link
+                  key={category.slug}
+                  href={`/collection?category=${encodeURIComponent(category.slug)}`}
+                  className="relative group"
+                >
+                  <div className="aspect-w-16 aspect-h-9 bg-[#F6E9DD] rounded-2xl overflow-hidden">
+                    {/* Category image would go here - for now using placeholder */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <p className="text-center text-white font-display text-xl">
+                        {category.name}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-center font-display text-xl text-[#171717]">
+                    {category.name}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        <DressShowcase products={products} categories={availableCategories} />
-
-        {fallbackFeatured.length > 0 && (
+        {/* Featured Products (4-6 products) */}
+        {featured.length > 0 && (
           <section className="bg-[#FFF8EF] py-20 sm:py-28">
             <div className="section-shell">
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow">Featured Designs</p>
+                  <p className="eyebrow">Featured designs</p>
                   <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
-                    Occasion wear with custom-size support.
+                    New arrivals & customer favorites
                   </h2>
                 </div>
                 <Link
-                  href="/collection"
+                  href="/collection?sort=newest"
                   className="secondary-button w-fit"
-                  aria-label="View the full DARAJNI dress collection"
+                  aria-label="View new arrivals"
                 >
-                  View all designs
+                  View all
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              <div className="mt-9 grid grid-cols-1 gap-5 min-[520px]:grid-cols-2 lg:grid-cols-4">
-                {fallbackFeatured.map((product) => (
+              <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {featured.map((product) => (
                   <DesignCard key={product.id} product={product} />
                 ))}
               </div>
@@ -343,13 +379,9 @@ export default async function HomePage() {
         )}
 
         <CustomFitSection />
-
         <TrustSection image={trustImage} />
-
         <About />
-
         <PolicyPreview />
-
         <ClosingCta />
       </main>
     </>

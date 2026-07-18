@@ -255,20 +255,6 @@ export default function ProductPage({
 
         <section className="mt-12 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:gap-8">
           <div className="space-y-6">
-            <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 sm:p-6">
-              <p className="eyebrow">About this design</p>
-              {descriptionNeedsConfirmation ? (
-                <p className="mt-4 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
-                  Some material details for this design still require studio
-                  confirmation. Please ask DARAJNI support to confirm the exact
-                  fabric, included pieces and finish before ordering.
-                </p>
-              ) : (
-                <p className="mt-4 text-sm leading-7 text-[#5F5348]">
-                  {product.description}
-                </p>
-              )}
-            </section>
             <ProductFacts product={product} />
             <ProductInfoTabs product={product} />
           </div>

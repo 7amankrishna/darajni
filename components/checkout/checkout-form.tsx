@@ -408,18 +408,27 @@ export function CheckoutForm({
             order updates and delivery.
           </p>
 
-          <div className="mt-7 grid gap-3 sm:grid-cols-4">
-            {["Details", "Delivery", "Size", "Payment"].map((step, index) => (
-              <div key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4">
-                <span className="text-xs font-extrabold uppercase text-[#B8893B]">
-                  Step {index + 1}
-                </span>
-                <p className="font-display mt-1 text-2xl text-[#171717]">
-                  {step}
-                </p>
-              </div>
-            ))}
+          <div className="mt-7 flex flex-col space-x-4 sm:flex-row">
+          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#B8893B]">1</span>
+            <span className="ml-2 text-[0.87rem] font-medium">Details</span>
           </div>
+          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
+          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#B8893B]">2</span>
+            <span className="ml-2 text-[0.87rem] font-medium">Delivery</span>
+          </div>
+          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
+          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#B8893B]">3</span>
+            <span className="ml-2 text-[0.87rem] font-medium">Size</span>
+          </div>
+          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
+          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#B8893B]">4</span>
+            <span className="ml-2 text-[0.87rem] font-medium">Payment</span>
+          </div>
+        </div>
 
           <section className="mt-8 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
