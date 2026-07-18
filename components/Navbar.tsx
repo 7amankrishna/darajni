@@ -265,7 +265,7 @@ export default function Navbar({
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-[90px] z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden">
+      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden`}>
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;
