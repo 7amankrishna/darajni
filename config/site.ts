@@ -13,7 +13,7 @@ export const siteConfig = {
   whatsappNumber: configuredDesignerWhatsApp || "",
   designerSupportWhatsApp: configuredDesignerWhatsApp || "",
   developerSupportWhatsApp: configuredDeveloperWhatsApp || "",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "support@darajni.in",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "7amankrishna@gmail.com",
   locality: "Bihar Sharif",
   region: "Bihar",
   postalCode: "803111",
