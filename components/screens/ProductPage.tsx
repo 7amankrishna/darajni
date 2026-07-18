@@ -205,10 +205,10 @@ export default function ProductPage({
           <span className="text-[#171717]">{product.name}</span>
         </nav>
 
-        <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.85fr)_minmax(17rem,0.55fr)]">
+        <div className="grid min-w-0 items-start gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.72fr)] xl:gap-12">
           <ProductGallery images={product.images} name={product.name} />
 
-          <div className="min-w-0 space-y-6">
+          <div className="min-w-0">
             <div>
               <div className="flex flex-wrap gap-2">
                 <span className="status-pill bg-[#6E0F1A] text-white">
@@ -249,28 +249,31 @@ export default function ProductPage({
                   settings={settings}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+
+        <section className="mt-12 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:gap-8">
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 sm:p-6">
+              <p className="eyebrow">About this design</p>
               {descriptionNeedsConfirmation ? (
-                <p className="mt-5 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
+                <p className="mt-4 rounded-xl border border-[#B8893B]/35 bg-[#F6E9DD] p-4 text-sm leading-7 text-[#5F5348]">
                   Some material details for this design still require studio
                   confirmation. Please ask DARAJNI support to confirm the exact
                   fabric, included pieces and finish before ordering.
                 </p>
               ) : (
-                <p className="mt-5 text-sm leading-7 text-[#5F5348]">
+                <p className="mt-4 text-sm leading-7 text-[#5F5348]">
                   {product.description}
                 </p>
               )}
-            </div>
-
+            </section>
             <ProductFacts product={product} />
+            <ProductInfoTabs product={product} />
           </div>
-
           <StickyHelpPanel product={product} supportNumber={supportNumber} />
-        </div>
-
-        <div className="mt-12">
-          <ProductInfoTabs product={product} />
-        </div>
+        </section>
 
         {related.length > 0 && (
           <section className="py-20">
