@@ -207,14 +207,24 @@ async function createRemoteOrder(payload: ReturnType<typeof buildOrderPayload>) 
     }
 
     const data = await readJson(response);
+    // Shiprocket's own error message (e.g. "Wrong Pickup location entered")
+    // is generic and safe to retain; the payload itself is never stored.
+    const remoteMessage =
+      typeof data.message === "string" ? data.message.slice(0, 200) : "";
     if (!response.ok) {
       throw new ShiprocketSyncError(
-        `Shiprocket rejected the order (HTTP ${response.status}).`,
+        `Shiprocket rejected the order (HTTP ${response.status}${
+          remoteMessage ? `: ${remoteMessage}` : ""
+        }).`,
       );
     }
     const orderId = asSafeIdentifier(data.order_id);
     if (!orderId) {
-      throw new ShiprocketSyncError("Shiprocket did not return an order ID.");
+      throw new ShiprocketSyncError(
+        `Shiprocket did not return an order ID${
+          remoteMessage ? ` (${remoteMessage})` : ""
+        }.`,
+      );
     }
     return {
       orderId,
