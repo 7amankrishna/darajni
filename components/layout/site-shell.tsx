@@ -1,6 +1,7 @@
 import { Providers } from "@/components/providers";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { getCatalog, getStoreSettings } from "@/lib/data/catalog";
 
 export async function SiteShell({ children }: { children: React.ReactNode }) {
@@ -16,6 +17,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <Providers>
+      <ScrollReveal />
       <Navbar
         supportNumber={supportNumber}
         shippingCharge={settings.shippingCharge}

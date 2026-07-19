@@ -253,7 +253,7 @@ export default function ProductPage({
           </div>
         </div>
 
-        <section className="mt-12 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:gap-8">
+        <section data-reveal className="mt-12 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:gap-8">
           <div className="space-y-6">
             <ProductFacts product={product} />
             <ProductInfoTabs product={product} />
@@ -262,7 +262,7 @@ export default function ProductPage({
         </section>
 
         {related.length > 0 && (
-          <section className="py-20">
+          <section data-reveal className="py-20">
             <p className="eyebrow">Complete your look</p>
             <h2 className="font-display mt-3 text-5xl leading-none text-[#171717]">
               Similar designs

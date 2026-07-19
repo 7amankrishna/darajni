@@ -18,11 +18,11 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 const labels = ["Front", "Back", "Fabric", "Work", "Video"];
 const swipeThreshold = 44;
+const tapThreshold = 12;
 
 export function ProductGallery({
   images,
@@ -33,8 +33,8 @@ export function ProductGallery({
 }) {
   const gallery = images.length ? images : ["/logo.webp"];
   const [active, setActive] = useState(0);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
-  const didSwipe = useRef(false);
   const activeIndex = Math.min(active, gallery.length - 1);
 
   function goTo(index: number) {
@@ -58,7 +58,6 @@ export function ProductGallery({
 
   function beginSwipe(event: PointerEvent<HTMLButtonElement>) {
     pointerStart.current = { x: event.clientX, y: event.clientY };
-    didSwipe.current = false;
   }
 
   function finishSwipe(event: PointerEvent<HTMLButtonElement>) {
@@ -68,19 +67,28 @@ export function ProductGallery({
 
     const distanceX = event.clientX - start.x;
     const distanceY = event.clientY - start.y;
-    if (Math.abs(distanceX) < swipeThreshold || Math.abs(distanceX) < Math.abs(distanceY)) {
+
+    if (
+      Math.abs(distanceX) >= swipeThreshold &&
+      Math.abs(distanceX) > Math.abs(distanceY)
+    ) {
+      if (distanceX > 0) showPrevious();
+      else showNext();
       return;
     }
 
-    didSwipe.current = true;
-    if (distanceX > 0) showPrevious();
-    else showNext();
+    if (
+      Math.abs(distanceX) < tapThreshold &&
+      Math.abs(distanceY) < tapThreshold
+    ) {
+      setViewerOpen(true);
+    }
   }
 
-  function preventExpandAfterSwipe(event: MouseEvent<HTMLButtonElement>) {
-    if (!didSwipe.current) return;
-    event.preventDefault();
-    didSwipe.current = false;
+  function openFromKeyboard(event: MouseEvent<HTMLButtonElement>) {
+    // Keyboard activation (Enter/Space) fires a click with detail 0 and no
+    // preceding pointerup; pointer taps are already handled in finishSwipe.
+    if (event.detail === 0) setViewerOpen(true);
   }
 
   return (
@@ -107,50 +115,50 @@ export function ProductGallery({
         ))}
       </div>
 
-      <Dialog>
+      <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
         <div className="product-gallery-stage group relative order-1 aspect-[3/4] overflow-hidden rounded-md bg-[#F4F1EC] md:order-2">
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="absolute inset-0 block w-full cursor-zoom-in touch-pan-y"
-              aria-label={`Open full-screen view of ${name}`}
-              onPointerDown={beginSwipe}
-              onPointerUp={finishSwipe}
-              onPointerCancel={() => {
-                pointerStart.current = null;
-              }}
-              onClick={preventExpandAfterSwipe}
-              onKeyDown={(event) => {
-                if (event.key === "ArrowLeft") {
-                  event.preventDefault();
-                  showPrevious();
-                }
-                if (event.key === "ArrowRight") {
-                  event.preventDefault();
-                  showNext();
-                }
-              }}
-            >
-              <span className="product-gallery-viewport block h-full overflow-hidden">
-                <span
-                  className="product-gallery-track flex h-full"
-                  style={{ transform: `translate3d(-${activeIndex * 100}%, 0, 0)` }}
-                >
-                  {gallery.map((image, index) => (
-                    <span className="product-gallery-slide relative block h-full min-w-full" key={`${image}-${index}`}>
-                      <ProductImage
-                        src={image}
-                        alt={`${name}, ${labels[index] || `image ${index + 1}`}`}
-                        priority={index === 0}
-                        sizes="(max-width: 767px) 100vw, (max-width: 1279px) 56vw, 48vw"
-                        className="object-cover"
-                      />
-                    </span>
-                  ))}
-                </span>
+          <button
+            type="button"
+            className="absolute inset-0 block w-full cursor-zoom-in touch-pan-y"
+            aria-label={`Open full-screen view of ${name}`}
+            aria-haspopup="dialog"
+            aria-expanded={viewerOpen}
+            onPointerDown={beginSwipe}
+            onPointerUp={finishSwipe}
+            onPointerCancel={() => {
+              pointerStart.current = null;
+            }}
+            onClick={openFromKeyboard}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                showPrevious();
+              }
+              if (event.key === "ArrowRight") {
+                event.preventDefault();
+                showNext();
+              }
+            }}
+          >
+            <span className="product-gallery-viewport block h-full overflow-hidden">
+              <span
+                className="product-gallery-track flex h-full"
+                style={{ transform: `translate3d(-${activeIndex * 100}%, 0, 0)` }}
+              >
+                {gallery.map((image, index) => (
+                  <span className="product-gallery-slide relative block h-full min-w-full" key={`${image}-${index}`}>
+                    <ProductImage
+                      src={image}
+                      alt={`${name}, ${labels[index] || `image ${index + 1}`}`}
+                      priority={index === 0}
+                      sizes="(max-width: 767px) 100vw, (max-width: 1279px) 56vw, 48vw"
+                      className="object-cover"
+                    />
+                  </span>
+                ))}
               </span>
-            </button>
-          </DialogTrigger>
+            </span>
+          </button>
 
           {gallery.length > 1 && (
             <>

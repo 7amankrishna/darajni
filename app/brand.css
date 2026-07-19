@@ -14,6 +14,11 @@
   --blush: #f6e9dd;
   --green: #1faf54;
   --border: #e9dccb;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-soft: cubic-bezier(0.55, 0, 0.55, 0.2);
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-slow: 560ms;
 }
 
 .dark {
@@ -1688,6 +1693,113 @@ a.footer-contact-row:hover {
   .product-gallery-arrow {
     opacity: 1;
     transform: translateY(-50%) scale(1);
+  }
+}
+
+@keyframes dialog-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-overlay-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.965);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dialog-content-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.975);
+  }
+}
+
+[data-slot="dialog-overlay"][data-state="open"] {
+  animation: dialog-overlay-in var(--motion-base) var(--ease-out-soft) both;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"] {
+  animation: dialog-overlay-out var(--motion-fast) var(--ease-in-soft) both;
+}
+
+[data-slot="dialog-content"][data-state="open"] {
+  animation: dialog-content-in var(--motion-base) var(--ease-out-soft) both;
+}
+
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: dialog-content-out var(--motion-fast) var(--ease-in-soft) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-enter {
+  animation: page-enter var(--motion-slow) var(--ease-out-soft) both;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Only hide reveal targets once JS has confirmed it will reveal them. */
+html.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+html.js-reveal [data-reveal].is-revealed {
+  animation: reveal-up 640ms var(--ease-out-soft) both;
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }
 

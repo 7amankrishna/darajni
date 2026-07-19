@@ -31,7 +31,7 @@ function CustomFitSection() {
   ];
 
   return (
-    <section className="bg-[#F6E9DD] py-20 sm:py-28">
+    <section data-reveal className="bg-[#F6E9DD] py-20 sm:py-28">
       <div className="section-shell grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
         <div>
           <p className="eyebrow">Custom size ordering</p>
@@ -89,7 +89,7 @@ function TrustSection({ image }: { image: string }) {
   ];
 
   return (
-    <section className="bg-[#FFF8EF] py-20 sm:py-28">
+    <section data-reveal className="bg-[#FFF8EF] py-20 sm:py-28">
       <div className="section-shell">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
@@ -147,7 +147,7 @@ function PolicyPreview() {
   ];
 
   return (
-    <section className="bg-[#F6E9DD] py-20 sm:py-24">
+    <section data-reveal className="bg-[#F6E9DD] py-20 sm:py-24">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
@@ -186,7 +186,7 @@ function PolicyPreview() {
 
 function ClosingCta() {
   return (
-    <section className="bg-[#FFF8EF] px-4 py-16 sm:py-20">
+    <section data-reveal className="bg-[#FFF8EF] px-4 py-16 sm:py-20">
       <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-[#B8893B]/35 px-6 py-12 sm:px-10 lg:px-14">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
@@ -314,7 +314,7 @@ export default async function HomePage() {
 
         {/* Featured Products (4-6 products) */}
         {featured.length > 0 && (
-          <section className="bg-[#FFF8EF] py-20 sm:py-28">
+          <section data-reveal className="bg-[#FFF8EF] py-20 sm:py-28">
             <div className="section-shell">
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
                 <div>
