@@ -30,11 +30,8 @@ export default function Hero({
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/50" />
       </div>
 
-      {/* Empty Top Spacer for Navbar Breathing Room */}
-      <div className="relative z-10" />
-
       {/* Cinematic Center/Left Overlay Copy */}
-      <div className="section-shell relative z-10 py-16 animate-fade-up">
+      <div className="section-shell relative z-10 pt-28 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20 animate-fade-up">
         <div className="max-w-3xl">
           <p className="eyebrow text-accent">
             DARAJNI High Couture
