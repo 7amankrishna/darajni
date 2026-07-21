@@ -541,7 +541,7 @@ export function ProductManagement({
                 onChange={(event) => setField("isFeatured", event.target.checked)}
                 className="accent-[#B8893B]"
               />
-              Featured product
+              <span>Featured product <strong className="text-[#C8A97E] font-normal">(Sets Homepage Hero background &amp; Showcase)</strong></span>
             </label>
             <button
               type="submit"

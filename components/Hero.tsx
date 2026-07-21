@@ -9,7 +9,7 @@ export default function Hero({
 }: {
   products: Product[];
 }) {
-  const featuredProduct = products[0] ?? null;
+  const featuredProduct = products.find((product) => product.isFeatured) ?? products[0] ?? null;
   const heroImage = featuredProduct?.images[0] ?? "/logo.webp";
 
   return (

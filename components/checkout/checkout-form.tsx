@@ -626,8 +626,8 @@ export function CheckoutForm({
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
-            <p className="eyebrow">Payment</p>
+          <section className="mt-6 rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7 dark:bg-[#1B1612] dark:border-[#3B3026]">
+            <p className="eyebrow">Payment Options</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {settings.codEnabled && (
                 <button
@@ -635,14 +635,14 @@ export function CheckoutForm({
                   onClick={() => setPaymentMethod("cod")}
                   className={`rounded-2xl border p-5 text-left transition ${
                     paymentMethod === "cod"
-                      ? "border-[#111111] bg-[#111111] text-white"
-                      : "border-[#E9DCCB] bg-white text-[#171717]"
+                      ? "border-[#1E1E1E] bg-[#1E1E1E] text-white dark:border-[#C8A97E] dark:bg-[#C8A97E] dark:text-[#100D0B]"
+                      : "border-[#E8E2DA] bg-white text-[#1E1E1E] dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                   }`}
                 >
-                  <Truck className="h-5 w-5 text-[#B8893B]" />
-                  <p className="mt-3 text-sm font-semibold">Cash on delivery</p>
-                  <p className={`mt-2 text-xs leading-5 ${paymentMethod === "cod" ? "text-white/75" : "text-[#6F6255]"}`}>
-                    Pay when the order reaches you.
+                  <Truck className="h-5 w-5 text-[#C8A97E]" />
+                  <p className="mt-3 text-sm font-semibold">Cash on Delivery (COD)</p>
+                  <p className={`mt-2 text-xs leading-5 ${paymentMethod === "cod" ? "opacity-80" : "text-[#666666] dark:text-[#A89B8C]"}`}>
+                    Pay in cash when your custom outfit arrives.
                   </p>
                 </button>
               )}
@@ -651,16 +651,44 @@ export function CheckoutForm({
                 onClick={() => setPaymentMethod("razorpay")}
                 className={`rounded-2xl border p-5 text-left transition ${
                   paymentMethod === "razorpay"
-                    ? "border-[#111111] bg-[#111111] text-white"
-                    : "border-[#E9DCCB] bg-white text-[#171717]"
+                    ? "border-[#1E1E1E] bg-[#1E1E1E] text-white dark:border-[#C8A97E] dark:bg-[#C8A97E] dark:text-[#100D0B]"
+                    : "border-[#E8E2DA] bg-white text-[#1E1E1E] dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                 }`}
               >
-                <CreditCard className="h-5 w-5 text-[#B8893B]" />
-                <p className="mt-3 text-sm font-semibold">Pay securely online</p>
-                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "razorpay" ? "text-white/75" : "text-[#6F6255]"}`}>
-                  UPI, cards, net banking and supported wallets via Razorpay.
+                <CreditCard className="h-5 w-5 text-[#C8A97E]" />
+                <p className="mt-3 text-sm font-semibold">Instant Online Payment</p>
+                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "razorpay" ? "opacity-80" : "text-[#666666] dark:text-[#A89B8C]"}`}>
+                  UPI (GPay/PhonePe), Credit/Debit Cards, NetBanking via Razorpay.
                 </p>
               </button>
+            </div>
+            
+            {/* Authenticity & Accepted Card Logos */}
+            <div className="mt-5 pt-4 border-t border-[#E8E2DA] dark:border-[#3B3026]">
+              <p className="text-[0.65rem] font-bold uppercase tracking-wider text-[#666666] dark:text-[#A89B8C] mb-2.5">
+                Guaranteed Safe &amp; Encrypted Checkout
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#E8E2DA] bg-white px-2.5 text-[0.7rem] font-extrabold italic tracking-tight text-[#1A1F71] shadow-sm dark:border-[#3B3026] dark:bg-[#100D0B]">
+                  VISA
+                </span>
+                <span className="inline-flex h-8 items-center justify-center gap-1 rounded-lg border border-[#E8E2DA] bg-white px-2.5 shadow-sm dark:border-[#3B3026] dark:bg-[#100D0B]">
+                  <span className="h-3.5 w-3.5 rounded-full bg-[#EB001B]" />
+                  <span className="-ml-2 h-3.5 w-3.5 rounded-full bg-[#F79E1B] opacity-90" />
+                </span>
+                <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#E8E2DA] bg-white px-2.5 text-[0.7rem] font-black italic text-[#0066B3] shadow-sm dark:border-[#3B3026] dark:bg-[#100D0B]">
+                  RuPay<span className="text-[#F37021]">&gt;</span>
+                </span>
+                <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#E8E2DA] bg-[#008276] px-3 text-[0.7rem] font-black tracking-wider text-white shadow-sm">
+                  UPI
+                </span>
+                <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#E8E2DA] bg-white px-2.5 text-[0.65rem] font-bold text-[#1E1E1E] shadow-sm dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]">
+                  NetBanking
+                </span>
+                <span className="inline-flex h-8 items-center justify-center rounded-lg border border-[#C8A97E]/40 bg-[#C8A97E]/10 px-2.5 text-[0.65rem] font-extrabold text-[#C8A97E] shadow-sm">
+                  🔒 256-Bit SSL
+                </span>
+              </div>
             </div>
           </section>
         </div>

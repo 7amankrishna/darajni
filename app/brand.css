@@ -284,7 +284,9 @@ canvas {
 }
 
 .dark .bg-\[\#FFF8EF\],
-.dark .bg-\[\#FFF8EF\]\/94 {
+.dark .bg-\[\#FFF8EF\]\/94,
+.dark .bg-\[\#FAF7F2\],
+.dark .bg-\[\#F8F5F2\] {
   background-color: #100d0b !important;
 }
 
@@ -293,56 +295,72 @@ canvas {
 .dark .bg-\[\#FFFDF8\]\/86,
 .dark .bg-\[\#FFFDF8\]\/90,
 .dark .bg-\[\#FFFDF8\]\/92,
-.dark .bg-\[\#FFFDF8\]\/96 {
+.dark .bg-\[\#FFFDF8\]\/96,
+.dark .bg-white,
+.dark .bg-\[\#FFFFFF\] {
   background-color: #1b1612 !important;
 }
 
-.dark .bg-\[\#F6E9DD\] {
+.dark .bg-\[\#F6E9DD\],
+.dark .bg-\[\#F1E1D2\],
+.dark .bg-\[\#F5EFEB\],
+.dark .bg-\[\#E6D5C3\] {
   background-color: #241d17 !important;
-}
-
-.dark .bg-\[\#F1E1D2\] {
-  background-color: #241d17 !important;
-}
-
-.dark .bg-white {
-  background-color: #1b1612 !important;
 }
 
 .dark .text-\[\#171717\],
-.dark .text-\[\#5F5348\],
-.dark .text-\[\#6F6255\],
-.dark .text-\[\#8E8071\] {
+.dark .text-\[\#1E1E1E\],
+.dark .text-\[\#3A2E25\] {
   color: #f7eadb !important;
 }
 
+.dark .text-\[\#5F5348\],
+.dark .text-\[\#6F6255\],
+.dark .text-\[\#666666\],
+.dark .text-\[\#8E8071\] {
+  color: #b8a898 !important;
+}
+
 .dark .text-\[\#B8893B\],
+.dark .text-\[\#C8A97E\],
+.dark .text-\[\#A88656\],
 .dark .text-\[\#6E0F1A\] {
   color: #d9b56b !important;
 }
 
-.dark .border-\[\#E9DCCB\] {
+.dark .border-\[\#E9DCCB\],
+.dark .border-\[\#E8E2DA\],
+.dark .border-\[\#E2D7CB\] {
   border-color: #3b3026 !important;
 }
 
-.dark .divide-\[\#E9DCCB\] > :not([hidden]) ~ :not([hidden]) {
+.dark .divide-\[\#E9DCCB\] > :not([hidden]) ~ :not([hidden]),
+.dark .divide-\[\#E8E2DA\] > :not([hidden]) ~ :not([hidden]) {
   border-color: #3b3026 !important;
 }
 
 .dark .border-t-\[\#E9DCCB\],
-.dark .border-b-\[\#E9DCCB\] {
+.dark .border-b-\[\#E9DCCB\],
+.dark .border-t-\[\#E8E2DA\],
+.dark .border-b-\[\#E8E2DA\] {
   border-color: #3b3026 !important;
 }
 
 .dark .border-\[\#B8893B\]\/35,
 .dark .border-\[\#B8893B\]\/45,
-.dark .border-\[\#B8893B\]\/55 {
+.dark .border-\[\#B8893B\]\/55,
+.dark .border-\[\#C8A97E\]\/35,
+.dark .border-\[\#C8A97E\]\/45,
+.dark .border-\[\#C8A97E\]\/60 {
   border-color: rgba(217, 181, 107, 0.42) !important;
 }
 
-.dark .border-\[\#111111\].bg-\[\#111111\] {
+.dark .border-\[\#111111\].bg-\[\#111111\],
+.dark .border-\[\#1E1E1E\].bg-\[\#1E1E1E\] {
   border-color: #d9b56b !important;
   background-color: #d9b56b !important;
+  color: #100d0b !important;
+}
   color: #100d0b !important;
 }
 
