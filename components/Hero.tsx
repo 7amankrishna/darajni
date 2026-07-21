@@ -34,7 +34,7 @@ export default function Hero({
       <div className="relative z-10" />
 
       {/* Cinematic Center/Left Overlay Copy */}
-      <div className="section-shell relative z-10 py-16">
+      <div className="section-shell relative z-10 py-16 animate-fade-up">
         <div className="max-w-3xl">
           <p className="eyebrow text-accent">
             DARAJNI High Couture

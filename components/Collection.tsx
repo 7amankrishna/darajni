@@ -351,7 +351,7 @@ export default function Collection({
         </div>
 
         {filtered.length ? (
-          <div className="grid grid-cols-1 gap-5 pt-8 min-[520px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 pt-8 min-[520px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 stagger-children">
             {filtered.map((product) => (
               <DesignCard key={product.id} product={product} />
             ))}
