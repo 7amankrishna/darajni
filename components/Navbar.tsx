@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
 import BrandLogo from "@/components/BrandLogo";
 import { useCart } from "@/components/cart/cart-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
