@@ -75,7 +75,7 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
                     ? "bg-[#1FAF54] text-white shadow-sm"
                     : isCurrent
                     ? "bg-[#1FAF54] text-white ring-4 ring-[#1FAF54]/30 animate-pulse"
-                    : "border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
+                    : "border border-[#E8E2DA] bg-[#F9F9F9] dark:bg-[#241D17] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
                 }`}
               >
                 {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : <Icon className="h-4 w-4" />}
@@ -112,13 +112,13 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
                     ? "bg-[#1FAF54] text-white shadow-sm"
                     : isCurrent
                     ? "bg-[#1FAF54] text-white ring-4 ring-[#1FAF54]/30 animate-pulse"
-                    : "border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
+                    : "border border-[#E8E2DA] bg-[#F9F9F9] dark:bg-[#241D17] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
                 }`}
               >
                 {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : <Icon className="h-4 w-4" />}
               </div>
 
-              <div className="flex-1 rounded-xl border border-[#E8E2DA] bg-[#F5EFEB]/60 px-3.5 py-2.5 dark:border-[#3B3026] dark:bg-[#241D17]/60">
+              <div className="flex-1 rounded-xl border border-[#E8E2DA] bg-[#F9F9F9] dark:bg-[#241D17]/60 px-3.5 py-2.5 dark:border-[#3B3026] dark:bg-[#241D17]/60">
                 <div className="flex items-center justify-between">
                   <p
                     className={`text-xs font-bold uppercase tracking-wider ${

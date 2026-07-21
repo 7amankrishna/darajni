@@ -57,10 +57,10 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
   };
 
   return (
-    <section className="bg-[#FFF8EF] py-14 sm:py-20" aria-labelledby="homepage-launches-title">
+    <section className="bg-white dark:bg-[#100D0B] py-14 sm:py-20" aria-labelledby="homepage-launches-title">
       <div className="section-shell">
         <div
-          className="relative overflow-hidden rounded-[2rem] border border-[#B8893B]/30 bg-[#171717] text-[#FFFDF8] shadow-[0_28px_70px_rgba(83,54,22,0.16)]"
+          className="relative overflow-hidden rounded-[2rem] border border-[#C8A97E]/30 bg-[#171717] text-[#FFFDF8] shadow-[0_28px_70px_rgba(83,54,22,0.16)]"
           role="region"
           aria-roledescription="carousel"
           aria-label="Homepage launches"
@@ -123,7 +123,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
               )}
             </div>
 
-            <div className="relative order-1 min-h-72 overflow-hidden bg-[#F6E9DD] md:order-2">
+            <div className="relative order-1 min-h-72 overflow-hidden bg-[#F9F9F9] dark:bg-[#241D17] md:order-2">
               <ProductImage
                 src={activeSlide.imageUrl}
                 alt=""

@@ -77,16 +77,16 @@ export function ProductPurchase({
 
   return (
     <div className={!soldOut ? "pb-36 md:pb-0" : undefined}>
-      <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
+      <div className="rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-5">
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F9F9F9] dark:bg-[#241D17] text-[#C8A97E]">
             <Ruler className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="font-display text-3xl leading-none text-[#171717]">
+            <h2 className="font-display text-3xl leading-none text-[#1E1E1E] dark:text-[#F7EADB]">
               Select Your Size
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#6F6255]">
+            <p className="mt-2 text-sm leading-6 text-[#666666] dark:text-[#B8A898]">
               After placing your order, our team will contact you for
               measurements. You can also share them directly on WhatsApp.
             </p>
@@ -102,7 +102,7 @@ export function ProductPurchase({
               className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition ${
                 option === size
                   ? "border-[#111111] bg-[#111111] text-white"
-                  : "border-[#E9DCCB] bg-white text-[#5F5348] hover:border-[#B8893B]"
+                  : "border-[#E8E2DA] dark:border-[#3B3026] bg-white text-[#666666] dark:text-[#B8A898] hover:border-[#B8893B]"
               }`}
             >
               {option}
@@ -116,11 +116,11 @@ export function ProductPurchase({
           </a>
         </div>
 
-        <div className="mt-5 rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4">
-          <p className="text-xs font-extrabold uppercase text-[#B8893B]">
+        <div className="mt-5 rounded-xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#100D0B] p-4">
+          <p className="text-xs font-extrabold uppercase text-[#C8A97E]">
             Custom size measurements to keep ready
           </p>
-          <ul className="mt-3 grid gap-2 text-xs leading-5 text-[#5F5348] sm:grid-cols-2">
+          <ul className="mt-3 grid gap-2 text-xs leading-5 text-[#666666] dark:text-[#B8A898] sm:grid-cols-2">
             {[
               "Shoulder tip to shoulder tip",
               "Bust, waist and hip around the body",
@@ -138,11 +138,11 @@ export function ProductPurchase({
 
       <div className="mt-6">
         <span className="field-label">Quantity</span>
-        <div className="flex w-fit items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8]">
+        <div className="flex w-fit items-center rounded-xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612]">
           <button
             type="button"
             onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-            className="grid h-11 w-11 place-items-center text-[#5F5348]"
+            className="grid h-11 w-11 place-items-center text-[#666666] dark:text-[#B8A898]"
             aria-label="Decrease quantity"
           >
             <Minus className="h-4 w-4" />
@@ -153,7 +153,7 @@ export function ProductPurchase({
             onClick={() =>
               setQuantity((value) => Math.min(product.stock, value + 1))
             }
-            className="grid h-11 w-11 place-items-center text-[#5F5348]"
+            className="grid h-11 w-11 place-items-center text-[#666666] dark:text-[#B8A898]"
             aria-label="Increase quantity"
             disabled={quantity >= product.stock}
           >
@@ -187,33 +187,33 @@ export function ProductPurchase({
         </a>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2 text-[0.68rem] font-bold text-[#6F6255] sm:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-2 text-[0.68rem] font-bold text-[#666666] dark:text-[#B8A898] sm:grid-cols-4">
         {trustItems.map(([label, Icon]) => (
-          <span key={label} className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-2">
-            <Icon className="h-3.5 w-3.5 text-[#B8893B]" />
+          <span key={label} className="flex items-center gap-2 rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] p-2">
+            <Icon className="h-3.5 w-3.5 text-[#C8A97E]" />
             {label}
           </span>
         ))}
       </div>
 
-      <p className="mt-4 text-center text-xs text-[#6F6255]">
+      <p className="mt-4 text-center text-xs text-[#666666] dark:text-[#B8A898]">
         {soldOut
           ? "This product is currently sold out."
           : `${product.stock} available · ${formatPrice(price * quantity)} total`}
       </p>
 
       {!soldOut && (
-        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-[#E9DCCB] bg-[#FFFDF8]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
+        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
           <div className="mx-auto flex max-w-lg items-center gap-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[0.65rem] font-bold uppercase text-[#6F6255]">
+              <p className="truncate text-[0.65rem] font-bold uppercase text-[#666666] dark:text-[#B8A898]">
                 {size} · Qty {quantity}
               </p>
-              <p className="font-display text-xl font-semibold text-[#171717]">
+              <p className="font-display text-xl font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
                 {formatPrice(price * quantity)}
               </p>
             </div>
-            <div className="text-xs text-[#5F5348]">
+            <div className="text-xs text-[#666666] dark:text-[#B8A898]">
               Tap to view cart
             </div>
           </div>

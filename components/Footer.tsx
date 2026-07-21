@@ -69,11 +69,11 @@ export default function Footer({
   ];
 
   return (
-    <footer className="border-t border-[#E8E2DA] bg-[#FFFFFF] pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB] md:pb-10">
+    <footer className="border-t border-[#E8E2DA] bg-white pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB] md:pb-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-[#FFFFFF] dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
+            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-white dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
             <div>
               <p className="font-display text-3xl tracking-[0.08em] text-[#1E1E1E] dark:text-[#F7EADB]">DARAJNI</p>
               <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#C8A97E]">

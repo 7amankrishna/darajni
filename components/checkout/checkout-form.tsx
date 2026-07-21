@@ -368,7 +368,7 @@ export function CheckoutForm({
 
   if (!ready) {
     return (
-      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF]">
+      <main className="grid min-h-[65vh] place-items-center bg-white dark:bg-[#100D0B]">
         <p className="eyebrow">Preparing checkout...</p>
       </main>
     );
@@ -376,9 +376,9 @@ export function CheckoutForm({
 
   if (!items.length) {
     return (
-      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF] px-4 text-center">
+      <main className="grid min-h-[65vh] place-items-center bg-white dark:bg-[#100D0B] px-4 text-center">
         <div>
-          <h1 className="font-display text-5xl text-[#171717]">
+          <h1 className="font-display text-5xl text-[#1E1E1E] dark:text-[#F7EADB]">
             Your cart is empty.
           </h1>
           <Link href="/collection" className="primary-button mt-7">
@@ -390,7 +390,7 @@ export function CheckoutForm({
   }
 
   return (
-    <main className="bg-[#FFF8EF] py-12 sm:py-16">
+    <main className="bg-white dark:bg-[#100D0B] py-12 sm:py-16">
       <form
         onSubmit={submit}
         className="section-shell grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]"
@@ -399,41 +399,41 @@ export function CheckoutForm({
           <p className="eyebrow">
             {customerProfile ? "Account checkout" : "Guest checkout"}
           </p>
-          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-3 text-5xl leading-none text-[#1E1E1E] dark:text-[#F7EADB] sm:text-6xl">
             Place your order securely.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-4 text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
             A guided checkout for contact details, delivery address,
             custom-size support and payment. We use this information only for
             order updates and delivery.
           </p>
 
           <div className="mt-7 flex flex-col space-x-4 sm:flex-row">
-          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
-            <span className="text-xs font-extrabold uppercase text-[#B8893B]">1</span>
+          <div className="flex-1 border-b border-[#E8E2DA] dark:border-[#3B3026] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#C8A97E]">1</span>
             <span className="ml-2 text-[0.87rem] font-medium">Details</span>
           </div>
-          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
-          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
-            <span className="text-xs font-extrabold uppercase text-[#B8893B]">2</span>
+          <span className="mx-2 text-[0.87rem] text-[#666666] dark:text-[#B8A898]">→</span>
+          <div className="flex-1 border-b border-[#E8E2DA] dark:border-[#3B3026] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#C8A97E]">2</span>
             <span className="ml-2 text-[0.87rem] font-medium">Delivery</span>
           </div>
-          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
-          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
-            <span className="text-xs font-extrabold uppercase text-[#B8893B]">3</span>
+          <span className="mx-2 text-[0.87rem] text-[#666666] dark:text-[#B8A898]">→</span>
+          <div className="flex-1 border-b border-[#E8E2DA] dark:border-[#3B3026] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#C8A97E]">3</span>
             <span className="ml-2 text-[0.87rem] font-medium">Size</span>
           </div>
-          <span className="mx-2 text-[0.87rem] text-[#5F5348]">→</span>
-          <div className="flex-1 border-b border-[#E9DCCB] pb-2">
-            <span className="text-xs font-extrabold uppercase text-[#B8893B]">4</span>
+          <span className="mx-2 text-[0.87rem] text-[#666666] dark:text-[#B8A898]">→</span>
+          <div className="flex-1 border-b border-[#E8E2DA] dark:border-[#3B3026] pb-2">
+            <span className="text-xs font-extrabold uppercase text-[#C8A97E]">4</span>
             <span className="ml-2 text-[0.87rem] font-medium">Payment</span>
           </div>
         </div>
 
-          <section className="mt-8 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+          <section className="mt-8 rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
-              <UserRound className="h-5 w-5 text-[#B8893B]" />
-              <h2 className="font-display text-3xl text-[#171717]">
+              <UserRound className="h-5 w-5 text-[#C8A97E]" />
+              <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                 Contact details
               </h2>
             </div>
@@ -482,26 +482,26 @@ export function CheckoutForm({
                   maxLength={254}
                 />
               </div>
-              <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
+              <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] p-4 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
                 <input
                   type="checkbox"
                   checked={whatsappSameAsPhone}
                   onChange={(event) => setWhatsappSameAsPhone(event.target.checked)}
-                  className="accent-[#B8893B]"
+                  className="accent-[#C8A97E]"
                 />
                 WhatsApp number is same as phone number
               </label>
             </div>
-            <p className="mt-4 text-xs leading-5 text-[#6F6255]">
+            <p className="mt-4 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
               We use this only for order updates, delivery and measurement
               confirmation.
             </p>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+          <section className="mt-6 rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
-              <Truck className="h-5 w-5 text-[#B8893B]" />
-              <h2 className="font-display text-3xl text-[#171717]">
+              <Truck className="h-5 w-5 text-[#C8A97E]" />
+              <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                 Delivery address
               </h2>
             </div>
@@ -522,7 +522,7 @@ export function CheckoutForm({
                   required
                 />
               </div>
-              <div className="rounded-xl bg-[#F6E9DD] p-4 text-xs leading-5 text-[#5F5348]">
+              <div className="rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] p-4 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
                 {customer.pincode.length === 6
                   ? "Delivery estimate will be confirmed after checkout for this pincode."
                   : "Enter pincode to help us confirm delivery timing."}
@@ -583,42 +583,42 @@ export function CheckoutForm({
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
+          <section className="mt-6 rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
-              <Ruler className="h-5 w-5 text-[#B8893B]" />
-              <h2 className="font-display text-3xl text-[#171717]">
+              <Ruler className="h-5 w-5 text-[#C8A97E]" />
+              <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                 Size and customization
               </h2>
             </div>
             <div className="mt-5 grid gap-5">
-              <div className="rounded-xl border border-[#E9DCCB] bg-[#F6E9DD] p-4">
-                <p className="text-xs font-extrabold uppercase text-[#B8893B]">
+              <div className="rounded-xl border border-[#E8E2DA] dark:border-[#3B3026] bg-[#F9F9F9] dark:bg-[#241D17] p-4">
+                <p className="text-xs font-extrabold uppercase text-[#C8A97E]">
                   Size option
                 </p>
-                <p className="mt-2 font-display text-3xl text-[#171717]">
+                <p className="mt-2 font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Custom
                 </p>
-                <p className="mt-2 text-sm leading-6 text-[#5F5348]">
+                <p className="mt-2 text-sm leading-6 text-[#666666] dark:text-[#B8A898]">
                   Measurements are collected after order. You can also share
                   measurement photos or notes with support.
                 </p>
               </div>
-              <div className="rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4 text-sm leading-6 text-[#5F5348]">
+              <div className="rounded-xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#100D0B] p-4 text-sm leading-6 text-[#666666] dark:text-[#B8A898]">
                 Share sleeve length, blouse length, fit preference or
                 measurement photos through WhatsApp support after checkout so
                 the team can confirm them before processing.
               </div>
-              <label className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
+              <label className="flex items-center gap-2 rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] p-4 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
                 <input
                   type="checkbox"
                   checked={needsMeasurementHelp}
                   onChange={(event) => setNeedsMeasurementHelp(event.target.checked)}
-                  className="accent-[#B8893B]"
+                  className="accent-[#C8A97E]"
                 />
                 I need help with measurements
               </label>
               {needsMeasurementHelp && (
-                <p className="rounded-xl border border-[#B8893B]/30 bg-[#FFF8EF] p-4 text-xs leading-5 text-[#5F5348]">
+                <p className="rounded-xl border border-[#C8A97E]/30 bg-white dark:bg-[#100D0B] p-4 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
                   DARAJNI support will guide you after checkout. Keep a soft
                   measuring tape ready if possible.
                 </p>
@@ -626,7 +626,7 @@ export function CheckoutForm({
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7 dark:bg-[#1B1612] dark:border-[#3B3026]">
+          <section className="mt-6 rounded-2xl border border-[#E8E2DA] bg-white p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7 dark:bg-[#1B1612] dark:border-[#3B3026]">
             <p className="eyebrow">Payment Options</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {settings.codEnabled && (
@@ -635,7 +635,7 @@ export function CheckoutForm({
                   onClick={() => setPaymentMethod("cod")}
                   className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
                     paymentMethod === "cod"
-                      ? "border-[#C8A97E] bg-[#FAF7F2] text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
+                      ? "border-[#C8A97E] bg-white text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
                       : "border-[#E8E2DA] bg-white text-[#1E1E1E] hover:border-[#C8A97E]/50 dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                   }`}
                 >
@@ -660,7 +660,7 @@ export function CheckoutForm({
                 onClick={() => setPaymentMethod("razorpay")}
                 className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
                   paymentMethod === "razorpay"
-                    ? "border-[#C8A97E] bg-[#FAF7F2] text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
+                    ? "border-[#C8A97E] bg-white text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
                     : "border-[#E8E2DA] bg-white text-[#1E1E1E] hover:border-[#C8A97E]/50 dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                 }`}
               >
@@ -711,12 +711,12 @@ export function CheckoutForm({
           </section>
         </div>
 
-        <aside className="h-fit min-w-0 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-6 lg:sticky lg:top-32">
+        <aside className="h-fit min-w-0 rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-6 lg:sticky lg:top-32">
           <p className="eyebrow">Your order</p>
           <div className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
             {items.map((item) => (
               <div key={item.key} className="flex gap-3">
-                <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-[#F6E9DD]">
+                <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-lg bg-[#F9F9F9] dark:bg-[#241D17]">
                   <ProductImage
                     src={item.image}
                     alt=""
@@ -725,21 +725,21 @@ export function CheckoutForm({
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-[#171717]">
+                  <p className="truncate text-sm font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
                     {item.name}
                   </p>
-                  <p className="mt-1 text-xs text-[#6F6255]">
+                  <p className="mt-1 text-xs text-[#666666] dark:text-[#B8A898]">
                     {item.size} | Qty {item.quantity}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-[#171717]">
+                <p className="text-sm font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
                   {formatPrice(item.unitPrice * item.quantity)}
                 </p>
               </div>
             ))}
           </div>
           <div className="my-5 h-px bg-[#E9DCCB]" />
-          <div className="rounded-2xl border border-[#E9DCCB] bg-[#F6E9DD] p-4">
+          <div className="rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-[#F9F9F9] dark:bg-[#241D17] p-4">
             <label htmlFor="checkout-promo" className="field-label">
               Coupon or voucher
             </label>
@@ -794,7 +794,7 @@ export function CheckoutForm({
           </div>
           <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="space-y-3 text-sm">
-            <div className="flex justify-between text-[#6F6255]">
+            <div className="flex justify-between text-[#666666] dark:text-[#B8A898]">
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
@@ -804,21 +804,21 @@ export function CheckoutForm({
                 <span>-{formatPrice(totals.discount)}</span>
               </div>
             )}
-            <div className="flex justify-between text-[#6F6255]">
+            <div className="flex justify-between text-[#666666] dark:text-[#B8A898]">
               <span>Shipping</span>
               <span>
                 {totals.shipping ? formatPrice(totals.shipping) : "Free"}
               </span>
             </div>
-            <div className="flex justify-between text-[#6F6255]">
+            <div className="flex justify-between text-[#666666] dark:text-[#B8A898]">
               <span>Tax ({settings.taxRate}%)</span>
               <span>{formatPrice(totals.tax)}</span>
             </div>
           </div>
           <div className="my-5 h-px bg-[#E9DCCB]" />
           <div className="flex items-end justify-between">
-            <span className="font-semibold text-[#171717]">Estimated total</span>
-            <span className="font-display text-3xl font-semibold text-[#171717]">
+            <span className="font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">Estimated total</span>
+            <span className="font-display text-3xl font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
               {formatPrice(totals.total)}
             </span>
           </div>
@@ -847,7 +847,7 @@ export function CheckoutForm({
               </>
             )}
           </button>
-          <div className="mt-4 rounded-xl bg-[#F6E9DD] p-4 text-center text-[0.68rem] leading-5 text-[#5F5348]">
+          <div className="mt-4 rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] p-4 text-center text-[0.68rem] leading-5 text-[#666666] dark:text-[#B8A898]">
             Razorpay secure payment | Order total rechecked | WhatsApp support
           </div>
           <Link href="/support" className="secondary-button mt-3 w-full">

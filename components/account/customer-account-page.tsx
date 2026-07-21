@@ -77,7 +77,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
             Placed {formatDate(order.createdAt)}
           </p>
         </div>
-        <span className="status-pill border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB]">
+        <span className="status-pill border border-[#E8E2DA] bg-[#F9F9F9] dark:bg-[#241D17] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB]">
           {order.status}
         </span>
       </div>
@@ -86,7 +86,7 @@ function OrderCard({ order }: { order: OrderSummary }) {
         <OrderStatusTimeline status={order.status} />
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-2xl bg-[#F5EFEB] p-4 text-xs text-[#666666] sm:grid-cols-3 dark:bg-[#241D17] dark:text-[#B8A898]">
+      <div className="mt-6 grid gap-3 rounded-2xl bg-[#F9F9F9] dark:bg-[#241D17] p-4 text-xs text-[#666666] sm:grid-cols-3 dark:bg-[#241D17] dark:text-[#B8A898]">
         <div>
           <p className="field-label !mb-1 text-[0.62rem]">Updated</p>
           <p className="font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">{formatDate(order.updatedAt)}</p>
@@ -259,9 +259,9 @@ export function CustomerAccountPage({
 
   if (!user) {
     return (
-      <main className="min-h-[78vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B] flex items-center justify-center">
+      <main className="min-h-[78vh] bg-white py-8 sm:py-16 dark:bg-[#100D0B] flex items-center justify-center">
         <div className="w-full max-w-md px-4 sm:px-6">
-          <section className="premium-card rounded-3xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 sm:p-9 shadow-[0_20px_60px_rgba(58,46,37,0.08)] dark:border-[#3B3026] dark:bg-[#1B1612]">
+          <section className="premium-card rounded-3xl border border-[#E8E2DA] bg-white p-6 sm:p-9 shadow-[0_20px_60px_rgba(58,46,37,0.08)] dark:border-[#3B3026] dark:bg-[#1B1612]">
             <div className="text-center">
               <span className="eyebrow text-[#C8A97E]">DARAJNI Couture</span>
               <h1 className="font-display mt-2 text-3xl font-light text-[#1E1E1E] sm:text-4xl dark:text-[#F7EADB]">
@@ -275,7 +275,7 @@ export function CustomerAccountPage({
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl bg-[#F5EFEB] p-1.5 dark:bg-[#241D17]">
+            <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl bg-[#F9F9F9] dark:bg-[#241D17] p-1.5 dark:bg-[#241D17]">
               <button
                 type="button"
                 onClick={() => {
@@ -434,12 +434,12 @@ export function CustomerAccountPage({
   }
 
   return (
-    <main className="min-h-[80vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B]">
+    <main className="min-h-[80vh] bg-white py-8 sm:py-16 dark:bg-[#100D0B]">
       <div className="section-shell max-w-5xl">
         {/* Welcome Banner */}
         <div className="mb-8 flex flex-col justify-between gap-4 rounded-3xl border border-[#E8E2DA] bg-white p-6 shadow-sm sm:flex-row sm:items-center dark:border-[#3B3026] dark:bg-[#1B1612]">
           <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[#C8A97E]/40 bg-[#F5EFEB] font-display text-2xl font-semibold text-[#C8A97E] dark:bg-[#241D17]">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[#C8A97E]/40 bg-[#F9F9F9] dark:bg-[#241D17] font-display text-2xl font-semibold text-[#C8A97E] dark:bg-[#241D17]">
               {initials(profileForm.fullName, accountEmail)}
             </div>
             <div className="min-w-0">

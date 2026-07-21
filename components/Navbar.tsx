@@ -125,8 +125,8 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-[#E8E2DA] bg-[#FFFFFF]/94 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95">
-        <div className="hidden border-b border-[#E8E2DA] bg-[#FAF7F2] text-[#1E1E1E] md:block dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]">
+      <header className="sticky top-0 z-50 border-b border-[#E8E2DA] bg-white/94 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95">
+        <div className="hidden border-b border-[#E8E2DA] bg-white dark:bg-[#100D0B] text-[#1E1E1E] md:block dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
@@ -163,7 +163,7 @@ export default function Navbar({
             className="mx-auto flex min-w-0 items-center gap-3 md:mx-0"
             aria-label="DARAJNI home"
           >
-            <BrandLogo className="h-11 w-11 border border-[#C8A97E]/35 bg-[#FFFFFF] dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
+            <BrandLogo className="h-11 w-11 border border-[#C8A97E]/35 bg-white dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
             <span className="hidden sm:block">
               <span className="font-display block text-[1.55rem] leading-none tracking-[0.08em] text-[#1E1E1E] dark:text-[#F7EADB]">
                 DARAJNI
@@ -189,14 +189,14 @@ export default function Navbar({
           <div className="flex shrink-0 items-center justify-end gap-2">
             <Link
               href="/collection"
-              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB]"
+              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-white text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB]"
               aria-label="Search collection"
             >
               <Search className="h-4 w-4" />
             </Link>
             <Link
               href="/wishlist"
-              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB] md:grid"
+              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-white text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB] md:grid"
               aria-label={`Wishlist with ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`}
             >
               <Heart className="h-4 w-4" />
@@ -204,7 +204,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/login"
-              className="hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB] md:grid"
+              className="hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-white text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB] md:grid"
               aria-label="Customer account"
             >
               <UserRound className="h-4 w-4" />
@@ -212,7 +212,7 @@ export default function Navbar({
             <ThemeToggle />
             <Link
               href="/cart"
-              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB]"
+              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-white text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB]"
               aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
               <ShoppingBag className="h-4 w-4" />
@@ -222,14 +222,14 @@ export default function Navbar({
         </nav>
 
         {open && (
-          <div className="border-t border-[#E8E2DA] bg-[#FFFFFF] px-5 py-5 dark:border-[#3B3026] dark:bg-[#1B1612] md:hidden">
+          <div className="border-t border-[#E8E2DA] bg-white px-5 py-5 dark:border-[#3B3026] dark:bg-[#1B1612] md:hidden">
             <div className="grid gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-3 text-sm font-semibold text-[#666666] hover:bg-[#F5EFEB] dark:text-[#B8A898] dark:hover:bg-[#241D17]"
+                  className="rounded-xl px-3 py-3 text-sm font-semibold text-[#666666] hover:bg-[#F9F9F9] dark:bg-[#241D17] dark:text-[#B8A898] dark:hover:bg-[#241D17]"
                 >
                   {link.label}
                 </Link>
@@ -243,7 +243,7 @@ export default function Navbar({
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp support
               </a>
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-[#F5EFEB] px-3 py-2 dark:bg-[#241D17]">
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-[#F9F9F9] dark:bg-[#241D17] px-3 py-2 dark:bg-[#241D17]">
                 <span className="text-xs font-extrabold uppercase text-[#666666] dark:text-[#B8A898]">
                   Theme
                 </span>
@@ -264,7 +264,7 @@ export default function Navbar({
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-[#E8E2DA] bg-[#FFFFFF]/96 px-2 pt-2 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95 md:hidden`}>
+      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-[#E8E2DA] bg-white/96 px-2 pt-2 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95 md:hidden`}>
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;

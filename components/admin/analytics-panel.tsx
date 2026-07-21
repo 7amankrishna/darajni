@@ -44,7 +44,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 <p className="text-xs font-bold uppercase tracking-wider text-white/75">
                   {card.label}
                 </p>
-                <Icon className="h-4 w-4 text-[#B8893B]" />
+                <Icon className="h-4 w-4 text-[#C8A97E]" />
               </div>
               <p className="font-display mt-4 text-4xl text-[#D9B56B]">
                 {card.value}
@@ -65,7 +65,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                   className="flex items-center justify-between gap-4 rounded-xl border border-white/8 p-4"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-display text-2xl text-[#B8893B]">
+                    <span className="font-display text-2xl text-[#C8A97E]">
                       {index + 1}
                     </span>
                     <div>

@@ -3,18 +3,18 @@ import { siteConfig } from "@/config/site";
 export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
   const privacy = type === "privacy";
   return (
-    <main className="min-h-[65vh] bg-[#FFF8EF] py-14 sm:py-20">
-      <article className="section-shell max-w-3xl rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-9">
+    <main className="min-h-[65vh] bg-white dark:bg-[#100D0B] py-14 sm:py-20">
+      <article className="section-shell max-w-3xl rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-9">
         <p className="eyebrow">DARAJNI Designer House</p>
-        <h1 className="font-display mt-4 text-5xl leading-none text-[#171717]">
+        <h1 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E] dark:text-[#F7EADB]">
           {privacy ? "Privacy policy" : "Terms of use"}
         </h1>
-        <p className="mt-4 text-sm text-[#6F6255]">Effective July 21, 2026</p>
-        <div className="mt-9 space-y-7 text-sm leading-8 text-[#5F5348]">
+        <p className="mt-4 text-sm text-[#666666] dark:text-[#B8A898]">Effective July 21, 2026</p>
+        <div className="mt-9 space-y-7 text-sm leading-8 text-[#666666] dark:text-[#B8A898]">
           {privacy ? (
             <>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Information we collect
                 </h2>
                 <p className="mt-2">
@@ -25,7 +25,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   How we use it
                 </h2>
                 <p className="mt-2">
@@ -36,7 +36,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Public dress requests
                 </h2>
                 <p className="mt-2">
@@ -49,7 +49,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Your choices
                 </h2>
                 <p className="mt-2">
@@ -63,7 +63,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
           ) : (
             <>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Product information
                 </h2>
                 <p className="mt-2">
@@ -73,7 +73,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Payments and fulfilment
                 </h2>
                 <p className="mt-2">
@@ -84,7 +84,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Acceptable use
                 </h2>
                 <p className="mt-2">
@@ -94,7 +94,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   User-submitted dress references
                 </h2>
                 <p className="mt-2">
@@ -114,7 +114,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   No production promise or endorsement
                 </h2>
                 <p className="mt-2">
@@ -126,7 +126,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 </p>
               </section>
               <section>
-                <h2 className="font-display text-3xl text-[#171717]">
+                <h2 className="font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                   Responsibility and limitation of liability
                 </h2>
                 <p className="mt-2">

@@ -530,7 +530,7 @@ export function ProductManagement({
                 type="checkbox"
                 checked={draft.isActive}
                 onChange={(event) => setField("isActive", event.target.checked)}
-                className="accent-[#B8893B]"
+                className="accent-[#C8A97E]"
               />
               Visible in storefront
             </label>
@@ -539,7 +539,7 @@ export function ProductManagement({
                 type="checkbox"
                 checked={draft.isFeatured}
                 onChange={(event) => setField("isFeatured", event.target.checked)}
-                className="accent-[#B8893B]"
+                className="accent-[#C8A97E]"
               />
               <span>Featured product <strong className="text-[#C8A97E] font-normal">(Sets Homepage Hero background &amp; Showcase)</strong></span>
             </label>
