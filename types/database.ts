@@ -325,7 +325,7 @@ export interface Database {
           image_url: string;
           storage_path: string;
           description: string | null;
-          status: "published" | "hidden";
+          status: "pending" | "published" | "hidden" | "rejected";
           consented_at: string;
           created_at: string;
         };
@@ -334,11 +334,28 @@ export interface Database {
           image_url: string;
           storage_path: string;
           description?: string | null;
-          status?: "published" | "hidden";
+          status?: "pending" | "published" | "hidden" | "rejected";
           consented_at: string;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["requested_dresses"]["Insert"]>;
+      };
+      requested_dress_comments: {
+        Row: {
+          id: string;
+          requested_dress_id: string;
+          comment_text: string;
+          status: "pending" | "approved" | "rejected";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          requested_dress_id: string;
+          comment_text: string;
+          status?: "pending" | "approved" | "rejected";
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["requested_dress_comments"]["Insert"]>;
       };
       settings: {
         Row: {

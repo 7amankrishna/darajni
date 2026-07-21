@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  CheckCircle,
   LogOut,
   Megaphone,
   Package,
@@ -13,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { AnalyticsPanel } from "@/components/admin/analytics-panel";
+import { ApprovalsManagement } from "@/components/admin/approvals-management";
 import { HomepageSlideManagement } from "@/components/admin/homepage-slide-management";
 import { OrderManagement } from "@/components/admin/order-management";
 import { ProductManagement } from "@/components/admin/product-management";
@@ -25,14 +27,16 @@ type Tab =
   | "analytics"
   | "orders"
   | "products"
+  | "approvals"
   | "launches"
   | "promos"
   | "settings";
 
-const tabs: Array<{ value: Tab; label: string; icon: typeof BarChart3 }> = [
+const tabs: Array<{ value: Tab; label: string; icon: any }> = [
   { value: "analytics", label: "Analytics", icon: BarChart3 },
   { value: "orders", label: "Orders", icon: ShoppingBag },
   { value: "products", label: "Products", icon: Package },
+  { value: "approvals", label: "Approvals", icon: CheckCircle },
   { value: "launches", label: "Launches", icon: Megaphone },
   { value: "promos", label: "Promos", icon: Tag },
   { value: "settings", label: "Settings", icon: Settings },
@@ -83,8 +87,8 @@ export function AdminDashboard({
                 onClick={() => setTab(item.value)}
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-xs font-bold uppercase tracking-wider transition ${
                   tab === item.value
-                    ? "border-[#B8893B] bg-[#B8893B] text-black"
-                    : "border-white/10 text-white/50 hover:border-[#B8893B]/40"
+                    ? "border-accent bg-accent text-black"
+                    : "border-white/10 text-white/50 hover:border-accent/40"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -106,6 +110,12 @@ export function AdminDashboard({
             <ProductManagement
               products={data.products}
               categories={data.categories}
+            />
+          )}
+          {tab === "approvals" && (
+            <ApprovalsManagement
+              dresses={data.requestedDresses}
+              comments={data.dressComments}
             />
           )}
           {tab === "launches" && (

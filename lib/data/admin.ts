@@ -153,6 +153,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     promosResult,
     homepageSlidesResult,
     settingsResult,
+    dressesResult,
+    commentsResult,
   ] =
     await Promise.all([
       supabase
@@ -191,6 +193,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         )
         .eq("id", true)
         .single(),
+      supabase.from("requested_dresses").select("*").order("created_at", { ascending: false }),
+      supabase.from("requested_dress_comments").select("*").order("created_at", { ascending: false }),
     ]);
 
   const promoTablesMissing = isMissingRelationError(promosResult.error);
@@ -235,6 +239,24 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     ),
     designerSupportNumber: String(settingsRow.designer_support_number || ""),
   };
+
+  const requestedDresses = (dressesResult?.data ?? []).map((row: any) => ({
+    id: String(row.id),
+    imageUrl: String(row.image_url),
+    storagePath: String(row.storage_path),
+    description: row.description ? String(row.description) : null,
+    status: row.status,
+    consentedAt: String(row.consented_at),
+    createdAt: String(row.created_at),
+  }));
+
+  const dressComments = (commentsResult?.data ?? []).map((row: any) => ({
+    id: String(row.id),
+    requestedDressId: String(row.requested_dress_id),
+    commentText: String(row.comment_text),
+    status: row.status,
+    createdAt: String(row.created_at),
+  }));
 
   const today = startOfToday().getTime();
   const week = startOfWeek().getTime();
@@ -286,6 +308,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .sort((a, b) => b.quantity - a.quantity)
         .slice(0, 5),
     },
+    requestedDresses,
+    dressComments,
   };
 }
 

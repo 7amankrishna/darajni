@@ -53,7 +53,7 @@ export default function Hero({
               Explore Collection
               <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/requested-dresses" className="secondary-button !bg-transparent !border-surface/50 !text-surface backdrop-blur-sm hover:!bg-surface hover:!text-primary">
+            <Link href="/requested-dresses" className="secondary-button !bg-transparent !border-surface/50 !text-surface backdrop-blur-md hover:!bg-surface hover:!text-primary shadow-sm">
               Request a Custom Dress
             </Link>
           </div>

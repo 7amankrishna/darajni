@@ -83,6 +83,24 @@ export interface AnalyticsSummary {
   }>;
 }
 
+export interface AdminRequestedDress {
+  id: string;
+  imageUrl: string;
+  storagePath: string;
+  description: string | null;
+  status: "pending" | "published" | "hidden" | "rejected";
+  consentedAt: string;
+  createdAt: string;
+}
+
+export interface AdminDressComment {
+  id: string;
+  requestedDressId: string;
+  commentText: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
+
 export interface AdminDashboardData {
   orders: AdminOrder[];
   products: Product[];
@@ -91,4 +109,6 @@ export interface AdminDashboardData {
   homepageSlides: HomepageSlide[];
   settings: StoreSettings;
   analytics: AnalyticsSummary;
+  requestedDresses: AdminRequestedDress[];
+  dressComments: AdminDressComment[];
 }

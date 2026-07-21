@@ -232,19 +232,24 @@ canvas {
 }
 
 .primary-button {
-  background: var(--primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--primary) 85%, transparent);
   color: #FFFFFF;
-  border: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .primary-button:hover {
   background: var(--primary-hover);
   transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .dark .primary-button {
-  background: var(--primary);
+  background: color-mix(in srgb, var(--primary) 90%, transparent);
   color: #121212;
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .dark .primary-button:hover {
@@ -252,16 +257,29 @@ canvas {
 }
 
 .secondary-button {
-  border: 1px solid var(--border);
-  background: var(--surface-alt);
+  border: 1px solid rgba(184, 137, 59, 0.3);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-primary);
   border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .secondary-button:hover {
   border-color: var(--primary);
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
+}
+
+.dark .secondary-button {
+  background: rgba(28, 28, 30, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .secondary-button:hover {
+  background: rgba(28, 28, 30, 0.6);
+  border-color: var(--primary);
 }
 
 .danger-button {
