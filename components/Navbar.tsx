@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -52,6 +53,8 @@ export default function Navbar({
   availableCategories: Array<{ name: string; slug: string }>;
   hasSaleProducts: boolean;
 }) {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const [open, setOpen] = useState(false);
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -120,7 +123,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 h-24 border-b border-border bg-background/96 transition-colors backdrop-blur-md lg:h-[118px]">
+      <header className={cn("inset-x-0 top-0 z-40 h-[74px] border-b border-border bg-background/95 transition-colors backdrop-blur-md lg:h-[109px]", isHome ? "fixed" : "sticky")}>
         <div className="hidden border-b border-border bg-surface-alt text-text-primary md:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
@@ -259,7 +262,7 @@ export default function Navbar({
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-border bg-background/96 px-2 pt-2 backdrop-blur-xl md:hidden`}>
+      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur-xl md:hidden`}>
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;

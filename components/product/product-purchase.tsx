@@ -203,7 +203,7 @@ export function ProductPurchase({
       </p>
 
       {!soldOut && (
-        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-border bg-background/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
+        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-border bg-background/95 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-[0.65rem] font-bold uppercase text-text-secondary">
