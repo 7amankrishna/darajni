@@ -258,15 +258,23 @@ export function CustomerAccountPage({
 
   if (!user) {
     return (
-      <main className="bg-[#FFF8EF] py-12 sm:py-16">
-        <div className="section-shell grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
-          <section className="premium-card p-6 sm:p-8">
-            <p className="eyebrow">Customer account</p>
-            <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
-              Sign in to DARAJNI
-            </h1>
+      <main className="min-h-[78vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B] flex items-center justify-center">
+        <div className="w-full max-w-md px-4 sm:px-6">
+          <section className="premium-card rounded-3xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 sm:p-9 shadow-[0_20px_60px_rgba(58,46,37,0.08)] dark:border-[#3B3026] dark:bg-[#1B1612]">
+            <div className="text-center">
+              <span className="eyebrow text-[#C8A97E]">DARAJNI Couture</span>
+              <h1 className="font-display mt-2 text-3xl font-light text-[#1E1E1E] sm:text-4xl dark:text-[#F7EADB]">
+                {mode === "signin" ? "Sign in to account" : "Create your account"}
+              </h1>
+              <p className="mt-2 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+                {mode === "signin"
+                  ? "Access your saved custom measurements & order history"
+                  : "Join DARAJNI to track orders & save custom fit details"}
+              </p>
+            </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl bg-[#F6E9DD] p-2">
+            {/* Mode Switcher Tabs */}
+            <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl bg-[#F5EFEB] p-1.5 dark:bg-[#241D17]">
               <button
                 type="button"
                 onClick={() => {
@@ -274,13 +282,15 @@ export function CustomerAccountPage({
                   setAuthError("");
                   setAuthNotice("");
                 }}
-                className={`secondary-button !min-h-10 !py-2 ${
-                  mode === "signin" ? "!border-[#111111] !bg-[#111111] !text-white" : ""
+                className={`flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all ${
+                  mode === "signin"
+                    ? "bg-[#1E1E1E] text-white shadow-sm dark:bg-[#C8A97E] dark:text-[#100D0B]"
+                    : "text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
                 }`}
                 aria-pressed={mode === "signin"}
               >
                 <LogIn className="h-4 w-4" />
-                Sign in
+                Sign In
               </button>
               <button
                 type="button"
@@ -289,21 +299,23 @@ export function CustomerAccountPage({
                   setAuthError("");
                   setAuthNotice("");
                 }}
-                className={`secondary-button !min-h-10 !py-2 ${
-                  mode === "signup" ? "!border-[#111111] !bg-[#111111] !text-white" : ""
+                className={`flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all ${
+                  mode === "signup"
+                    ? "bg-[#1E1E1E] text-white shadow-sm dark:bg-[#C8A97E] dark:text-[#100D0B]"
+                    : "text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
                 }`}
                 aria-pressed={mode === "signup"}
               >
                 <UserPlus className="h-4 w-4" />
-                Create
+                Create Account
               </button>
             </div>
 
-            <form onSubmit={submitAuth} className="mt-6 space-y-5">
+            <form onSubmit={submitAuth} className="mt-6 space-y-4">
               {mode === "signup" && (
                 <div>
                   <label htmlFor="account-name" className="field-label">
-                    Full name
+                    Full Name
                   </label>
                   <input
                     id="account-name"
@@ -314,7 +326,8 @@ export function CustomerAccountPage({
                         fullName: event.target.value,
                       }))
                     }
-                    className="field"
+                    className="field min-h-12"
+                    placeholder="Your Full Name"
                     autoComplete="name"
                     minLength={2}
                     maxLength={100}
@@ -324,7 +337,7 @@ export function CustomerAccountPage({
               )}
               <div>
                 <label htmlFor="account-email" className="field-label">
-                  Email
+                  Email Address
                 </label>
                 <input
                   id="account-email"
@@ -336,20 +349,21 @@ export function CustomerAccountPage({
                       email: event.target.value,
                     }))
                   }
-                  className="field"
+                  className="field min-h-12"
+                  placeholder="name@example.com"
                   autoComplete="email"
                   required
                 />
               </div>
               <div>
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor="account-password" className="field-label">
+                <div className="flex items-center justify-between gap-4 mb-1">
+                  <label htmlFor="account-password" className="field-label !mb-0">
                     Password
                   </label>
                   {mode === "signin" && (
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-semibold text-[#6E0F1A] underline-offset-4 hover:underline"
+                      className="text-xs font-bold text-[#C8A97E] transition hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -365,7 +379,8 @@ export function CustomerAccountPage({
                       password: event.target.value,
                     }))
                   }
-                  className="field"
+                  className="field min-h-12"
+                  placeholder="••••••••"
                   autoComplete={mode === "signin" ? "current-password" : "new-password"}
                   minLength={6}
                   required
@@ -373,53 +388,43 @@ export function CustomerAccountPage({
               </div>
 
               {authError && (
-                <p className="rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-800">
+                <p className="rounded-xl border border-red-500/25 bg-red-500/10 p-3.5 text-xs font-medium text-red-800 dark:text-red-300">
                   {authError}
                 </p>
               )}
               {authNotice && (
-                <p className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-800">
+                <p className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
                   {authNotice}
                 </p>
               )}
 
-              <button type="submit" disabled={authBusy} className="primary-button w-full">
+              <button type="submit" disabled={authBusy} className="primary-button min-h-12 w-full text-xs font-bold tracking-wider">
                 {authBusy ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Please wait
+                    Authenticating…
                   </>
                 ) : mode === "signin" ? (
                   <>
                     <LogIn className="h-4 w-4" />
-                    Sign in
+                    Sign in to Account
                   </>
                 ) : (
                   <>
                     <UserPlus className="h-4 w-4" />
-                    Create account
+                    Create New Account
                   </>
                 )}
               </button>
             </form>
-          </section>
 
-          <section className="grid gap-4">
-            <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
-              <div className="flex items-center gap-3">
-                <UserRound className="h-5 w-5 text-[#B8893B]" />
-                <h2 className="font-display text-3xl text-[#171717]">
-                  Your details
-                </h2>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
-              <div className="flex items-center gap-3">
-                <PackageCheck className="h-5 w-5 text-[#B8893B]" />
-                <h2 className="font-display text-3xl text-[#171717]">
-                  Order progress
-                </h2>
-              </div>
+            <div className="mt-6 pt-5 border-t border-[#E8E2DA] dark:border-[#3B3026] text-center">
+              <p className="text-xs text-[#666666] dark:text-[#B8A898]">
+                Need help with your order?{" "}
+                <Link href="/support" className="font-bold text-[#C8A97E] hover:underline">
+                  Contact Support
+                </Link>
+              </p>
             </div>
           </section>
         </div>

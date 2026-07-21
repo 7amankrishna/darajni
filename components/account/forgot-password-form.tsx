@@ -37,20 +37,21 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <main className="bg-[#FFF8EF] py-12 sm:py-16">
-      <div className="section-shell mx-auto max-w-2xl">
-        <section className="premium-card p-6 sm:p-9">
-          <div className="grid h-12 w-12 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+    <main className="min-h-[75vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B] flex items-center justify-center">
+      <div className="w-full max-w-md px-4 sm:px-6">
+        <section className="premium-card rounded-3xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 sm:p-9 shadow-[0_20px_60px_rgba(58,46,37,0.08)] dark:border-[#3B3026] dark:bg-[#1B1612]">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#F5EFEB] text-[#C8A97E] dark:bg-[#241D17]">
             <Mail className="h-5 w-5" />
           </div>
-          <p className="eyebrow mt-6">Customer account</p>
-          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
-            Reset your password
-          </h1>
-          <p className="mt-4 max-w-lg text-sm leading-7 text-[#6F6255]">
-            Enter the email used for your DARAJNI account. We will send you a
-            secure link to choose a new password.
-          </p>
+          <div className="text-center mt-4">
+            <span className="eyebrow text-[#C8A97E]">Account Security</span>
+            <h1 className="font-display mt-2 text-3xl font-light text-[#1E1E1E] sm:text-4xl dark:text-[#F7EADB]">
+              Reset password
+            </h1>
+            <p className="mt-2 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+              Enter the email used for your DARAJNI account to receive a secure reset link.
+            </p>
+          </div>
 
           {sent ? (
             <div className="mt-7">
