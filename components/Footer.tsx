@@ -15,6 +15,7 @@ const columns = [
   {
     title: "Customer Care",
     links: [
+      ["Request a Dress", "/#requested-dresses"],
       ["Track Order", "/track"],
       ["Size Guide", "/size-guide"],
       ["WhatsApp Support", "/support"],

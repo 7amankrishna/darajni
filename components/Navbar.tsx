@@ -68,6 +68,7 @@ export default function Navbar({
       href: `/collection?category=${encodeURIComponent(category.slug)}`,
     })),
     { label: "Custom Fit", href: "/size-guide" },
+    { label: "Request a Dress", href: "/#requested-dresses" },
     ...(hasSaleProducts
       ? [{ label: "Sale", href: "/collection?sale=true" }]
       : []),
