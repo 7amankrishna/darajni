@@ -319,6 +319,27 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["homepage_slides"]["Insert"]>;
       };
+      requested_dresses: {
+        Row: {
+          id: string;
+          image_url: string;
+          storage_path: string;
+          description: string | null;
+          status: "published" | "hidden";
+          consented_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          image_url: string;
+          storage_path: string;
+          description?: string | null;
+          status?: "published" | "hidden";
+          consented_at: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["requested_dresses"]["Insert"]>;
+      };
       settings: {
         Row: {
           id: boolean;

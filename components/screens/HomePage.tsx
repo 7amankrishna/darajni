@@ -18,10 +18,12 @@ import Hero from "@/components/Hero";
 import { HomepageLaunchSlider } from "@/components/homepage-launch-slider";
 import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { ProductImage } from "@/components/product/product-image";
+import { RequestedDressesSection } from "@/components/requested-dresses-section";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
 import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
+import { getRequestedDresses } from "@/lib/data/requested-dresses";
 
 function CustomFitSection() {
   const steps = [
@@ -219,9 +221,10 @@ function ClosingCta() {
 }
 
 export default async function HomePage() {
-  const [{ products, categories }, homepageSlides] = await Promise.all([
+  const [{ products, categories }, homepageSlides, requestedDresses] = await Promise.all([
     getCatalog(),
     getActiveHomepageSlides(),
+    getRequestedDresses(),
   ]);
   const availableCategories = categories.filter((category) =>
     products.some((product) => product.category.id === category.id),
@@ -342,6 +345,7 @@ export default async function HomePage() {
         )}
 
         <CustomFitSection />
+        <RequestedDressesSection initialRequests={requestedDresses} />
         <TrustSection image={trustImage} />
         <About />
         <PolicyPreview />

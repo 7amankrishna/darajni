@@ -51,6 +51,7 @@ export const RATE_LIMITS = {
   maintenance: { scope: "maintenance", limit: 10, windowSeconds: 60 * 60 },
   paymentVerify: { scope: "payment-verify", limit: 10, windowSeconds: 15 * 60 },
   paymentWebhook: { scope: "payment-webhook", limit: 300, windowSeconds: 60 },
+  requestedDressUpload: { scope: "requested-dress-upload", limit: 3, windowSeconds: 60 * 60 },
   tracking: { scope: "tracking", limit: 12, windowSeconds: 15 * 60 },
 } as const satisfies Record<string, RateLimitPolicy>;
 

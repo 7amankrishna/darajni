@@ -19,6 +19,10 @@ export interface OptimizedImage {
   wasCompressed: boolean;
 }
 
+export interface OptimizeImageOptions {
+  forceCompression?: boolean;
+}
+
 function calculateSize(width: number, height: number) {
   const scale = Math.min(1, MAX_IMAGE_WIDTH / width, MAX_IMAGE_HEIGHT / height);
   return {
@@ -87,7 +91,10 @@ function optimizedFileName(originalName: string, type: string) {
   return `${baseName || "product-image"}.${extensionByType[type] || "webp"}`;
 }
 
-export async function optimizeImage(file: File): Promise<OptimizedImage> {
+export async function optimizeImage(
+  file: File,
+  options: OptimizeImageOptions = {},
+): Promise<OptimizedImage> {
   if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
     throw new Error("Choose a JPG, PNG, or WebP image.");
   }
@@ -131,6 +138,7 @@ export async function optimizeImage(file: File): Promise<OptimizedImage> {
 
   const resized = canvas.width !== image.naturalWidth || canvas.height !== image.naturalHeight;
   const shouldKeepOriginal =
+    !options.forceCompression &&
     !resized &&
     file.size <= smallestBlob.size &&
     file.size <= MAX_OUTPUT_BYTES;

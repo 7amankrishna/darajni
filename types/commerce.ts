@@ -53,6 +53,13 @@ export interface HomepageSlide {
   updatedAt: string;
 }
 
+export interface RequestedDress {
+  id: string;
+  imageUrl: string;
+  description: string | null;
+  createdAt: string;
+}
+
 export type PromoCodeType = "coupon" | "voucher";
 export type PromoDiscountType = "percentage" | "fixed_amount";
 
