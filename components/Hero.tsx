@@ -1,96 +1,75 @@
-import {
-  ArrowRight,
-  type LucideIcon,
-  MessageCircle,
-  Ruler,
-  ShieldCheck,
-  ShoppingBag,
-  Truck,
-} from "lucide-react";
+import { ChevronDown, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
 import type { Product } from "@/types/commerce";
-
-const trustPoints: Array<[string, LucideIcon]> = [
-  ["Secure Checkout", ShieldCheck],
-  ["Custom Size Available", Ruler],
-  ["Pan-India Delivery", Truck],
-  ["WhatsApp Support", MessageCircle],
-];
 
 export default function Hero({
   products,
 }: {
   products: Product[];
 }) {
-  const heroProducts = products.filter((product) => product.images.length > 0).slice(0, 6);
-  const featuredProduct = heroProducts[0] ?? products[0] ?? null;
-  const posterImage = featuredProduct?.images[0] ?? "/logo.webp";
+  const featuredProduct = products[0] ?? null;
+  const heroImage = featuredProduct?.images[0] ?? "/logo.webp";
 
   return (
     <section
       id="home"
-      className="home-hero relative isolate overflow-hidden"
+      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-[#111111] text-[#F8F5F2]"
     >
-      <div className="hero-model-layer hero-poster-layer" aria-hidden="true">
-        <div className="dress-model-grid" />
-        <div className="hero-poster-frame">
-          <ProductImage
-            src={posterImage}
-            alt=""
-            sizes="(max-width: 640px) 82vw, (max-width: 1024px) 42vw, 30vw"
-            priority
-            className="object-cover"
-          />
-          {featuredProduct && (
-            <div className="hero-poster-caption">
-              <span>{featuredProduct.category.name}</span>
-              <strong>{featuredProduct.name}</strong>
-            </div>
-          )}
-        </div>
-        <div className="hero-poster-accent" />
-        <div className="dress-model-vignette" />
+      {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
+      <div className="absolute inset-0 z-0">
+        <ProductImage
+          src={heroImage}
+          alt="DARAJNI High Couture Collection"
+          sizes="100vw"
+          priority
+          className="h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#111111]/80 via-transparent to-[#111111]/50" />
       </div>
 
-      <div className="section-shell hero-3d-shell grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="hero-3d-copy max-w-3xl">
-          <p className="eyebrow">Premium occasion wear from Bihar Sharif</p>
-          <h1 className="font-display mt-5 text-5xl font-semibold leading-[0.90] text-[#171717] sm:text-6xl lg:text-7xl">
-            DARAJNI Designer House
+      {/* Empty Top Spacer for Navbar Breathing Room */}
+      <div className="relative z-10" />
+
+      {/* Cinematic Center/Left Overlay Copy */}
+      <div className="section-shell relative z-10 py-16">
+        <div className="max-w-3xl">
+          <p className="eyebrow text-[#C8A97E]">
+            DARAJNI High Couture
+          </p>
+
+          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-[#F8F5F2] sm:text-7xl lg:text-8xl">
+            Timeless Indian Couture
           </h1>
-          <p className="font-display mt-4 text-3xl leading-none text-[#6E0F1A] sm:text-4xl">
-            Don&apos;t just wear clothes. Wear confidence.
-          </p>
-          <p className="mt-6 max-w-xl text-base leading-7 text-[#5F5348] md:text-sm">
-            Indian occasion wear from the live DARAJNI collection, with custom
-            sizing support, clear communication and delivery across India.
+
+          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-[#E6D5C3] sm:text-3xl">
+            Designed for celebrations, crafted exclusively for you.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/collection?sort=newest" className="primary-button sm:min-w-44">
-              Shop New Arrivals
-              <ShoppingBag className="h-3.5 w-3.5" />
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Link href="/collection" className="primary-button bg-[#111111] text-[#F8F5F2] hover:bg-[#C8A97E] hover:text-[#111111]">
+              Explore Collection
+              <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/size-guide" className="secondary-button sm:min-w-44">
-              How Custom Size Works
-              <ArrowRight className="h-3.5 w-3.5" />
+            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#F8F5F2] hover:bg-[#F8F5F2] hover:text-[#111111]">
+              Request a Custom Dress
             </Link>
-          </div>
-
-          <div className="hero-proof-grid mt-8 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#E9DCCB] sm:grid-cols-3">
-            {trustPoints.map(([title, Icon]) => (
-              <div key={title as string} className="bg-[#FFFDF8]/86 p-4">
-                <Icon className="h-4 w-4 text-[#B8893B]" />
-                <p className="mt-3 text-xs font-extrabold uppercase text-[#171717]">
-                  {title as string}
-                </p>
-              </div>
-            ))}
           </div>
         </div>
-        <div className="hero-3d-aside" aria-hidden="true" />
+      </div>
+
+      {/* Minimal Scroll Down Indicator */}
+      <div className="relative z-10 pb-8 text-center">
+        <a
+          href="#collection-preview"
+          className="inline-flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#C8A97E]/80 transition hover:text-[#C8A97E]"
+          aria-label="Scroll to collection"
+        >
+          <span>Discover</span>
+          <ChevronDown className="h-4 w-4 animate-bounce text-[#C8A97E]" />
+        </a>
       </div>
     </section>
   );

@@ -329,3 +329,72 @@ export function RequestedDressesSection({
     </section>
   );
 }
+
+export function RequestedDressesHomepageTeaser({
+  requests,
+}: {
+  requests: RequestedDress[];
+}) {
+  const displayRequests = requests.slice(0, 4);
+
+  return (
+    <section className="bg-[#E6D5C3]/40 py-20 sm:py-28 text-[#3A2E25]">
+      <div className="section-shell">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <p className="eyebrow text-[#A88656]">Community Inspiration Studio</p>
+            <h2 className="font-display mt-3 text-4xl font-light text-[#111111] sm:text-6xl">
+              Requested Dresses Preview
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#6F6255]">
+              Dress references submitted by clients seeking custom tailoring. Upload your favorite design inspiration to be reviewed by our Bihar Sharif atelier.
+            </p>
+          </div>
+          <Link href="/requested-dresses" className="primary-button shrink-0">
+            Submit Your Dress Request
+            <Sparkles className="h-4 w-4" />
+          </Link>
+        </div>
+
+        {displayRequests.length > 0 ? (
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {displayRequests.map((request) => (
+              <article
+                key={request.id}
+                className="group relative overflow-hidden rounded-2xl border border-[#E2D7CB] bg-[#F8F5F2] shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#E6D5C3]">
+                  <ProductImage
+                    src={request.imageUrl}
+                    alt={request.description || "Requested dress reference"}
+                    sizes="(max-width: 640px) 100vw, 25vw"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute left-3 top-3">
+                    <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-[#C8A97E] backdrop-blur-sm">
+                      In Studio Review
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="line-clamp-2 text-xs leading-relaxed text-[#5F5348]">
+                    {request.description || "Reference design shared for custom bridal tailoring."}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-10 rounded-2xl border border-dashed border-[#C8A97E]/50 bg-[#F8F5F2] p-10 text-center">
+            <Sparkles className="mx-auto h-8 w-8 text-[#C8A97E]" />
+            <h3 className="font-display mt-3 text-3xl text-[#111111]">Be the First to Request a Design</h3>
+            <p className="mt-2 text-sm text-[#6F6255]">Upload an inspiration photo to request custom tailoring from DARAJNI.</p>
+            <Link href="/requested-dresses" className="primary-button mt-6">
+              Upload Inspiration Image
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

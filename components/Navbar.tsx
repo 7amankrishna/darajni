@@ -62,16 +62,14 @@ export default function Navbar({
     ? `WhatsApp Support: +${supportNumber}`
     : `Support: ${siteConfig.email}`;
   const navLinks = [
-    { label: "New Arrivals", href: "/collection?sort=newest" },
+    { label: "Collection", href: "/collection" },
     ...availableCategories.slice(0, 4).map((category) => ({
       label: category.name,
       href: `/collection?category=${encodeURIComponent(category.slug)}`,
     })),
+    { label: "About", href: "/about" },
     { label: "Custom Fit", href: "/size-guide" },
-    { label: "Request a Dress", href: "/#requested-dresses" },
-    ...(hasSaleProducts
-      ? [{ label: "Sale", href: "/collection?sale=true" }]
-      : []),
+    { label: "Request a Dress", href: "/requested-dresses" },
     { label: "Track Order", href: "/track" },
   ];
   const shippingLabel = shippingCharge > 0

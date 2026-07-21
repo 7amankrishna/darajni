@@ -18,7 +18,7 @@ import Hero from "@/components/Hero";
 import { HomepageLaunchSlider } from "@/components/homepage-launch-slider";
 import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { ProductImage } from "@/components/product/product-image";
-import { RequestedDressesSection } from "@/components/requested-dresses-section";
+import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-section";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
@@ -313,17 +313,20 @@ export default async function HomePage() {
       <main id="main-content">
         <Hero products={products} />
         <HomepageLaunchSlider slides={homepageSlides} />
+        
+        {/* Collection Section ID anchor */}
+        <div id="collection-preview" />
         <DressShowcase products={products} categories={availableCategories} />
 
-        {/* Featured Products (4-6 products) */}
+        {/* Featured Products */}
         {featured.length > 0 && (
-          <section data-reveal className="bg-[#FFF8EF] py-20 sm:py-28">
+          <section data-reveal className="bg-[#F8F5F2] py-20 sm:py-28">
             <div className="section-shell">
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow">Featured designs</p>
-                  <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
-                    New arrivals & customer favorites
+                  <p className="eyebrow text-[#C8A97E]">Curated Occasions</p>
+                  <h2 className="font-display mt-3 text-4xl font-light text-[#111111] sm:text-6xl">
+                    New Arrivals &amp; Couture Picks
                   </h2>
                 </div>
                 <Link
@@ -331,11 +334,11 @@ export default async function HomePage() {
                   className="secondary-button w-fit"
                   aria-label="View new arrivals"
                 >
-                  View all
+                  Explore Catalog
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 {featured.map((product) => (
                   <DesignCard key={product.id} product={product} />
                 ))}
@@ -345,7 +348,7 @@ export default async function HomePage() {
         )}
 
         <CustomFitSection />
-        <RequestedDressesSection initialRequests={requestedDresses} />
+        <RequestedDressesHomepageTeaser requests={requestedDresses} />
         <TrustSection image={trustImage} />
         <About />
         <PolicyPreview />
