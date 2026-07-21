@@ -69,23 +69,23 @@ export default function Footer({
   ];
 
   return (
-    <footer className="border-t border-[#E8E2DA] bg-[#181818] pb-24 pt-14 text-[#FFFFFF] md:pb-10">
+    <footer className="border-t border-[#E8E2DA] bg-[#F5EFEB] pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#15110F] dark:text-[#F7EADB] md:pb-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-[#FFFFFF]" />
+            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-[#FFFFFF] dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
             <div>
-              <p className="font-display text-3xl tracking-[0.08em]">DARAJNI</p>
+              <p className="font-display text-3xl tracking-[0.08em] text-[#1E1E1E] dark:text-[#F7EADB]">DARAJNI</p>
               <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#C8A97E]">
                 Designer House
               </p>
             </div>
           </div>
-          <p className="mt-4 max-w-md text-sm leading-7 text-white/72">
+          <p className="mt-4 max-w-md text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
             Premium Indian occasion wear from Bihar Sharif, custom-sized with
             clear communication and delivered Pan India.
           </p>
-          <div className="mt-6 grid max-w-md gap-2 text-xs text-white/78">
+          <div className="mt-6 grid max-w-md gap-2 text-xs text-[#666666] dark:text-[#B8A898]">
             <a href={whatsappHref} className="footer-contact-row group">
               <MessageCircle className="h-4 w-4 text-[#35C66D]" />
               <span><small>Customer support</small>{supportNumber ? `+${supportNumber}` : "WhatsApp support"}</span>
@@ -107,9 +107,9 @@ export default function Footer({
               <p className="text-[0.68rem] font-extrabold uppercase text-[#C8A97E]">
                 {column.title}
               </p>
-              <div className="mt-4 grid gap-3 text-sm text-white/72">
+              <div className="mt-4 grid gap-3 text-sm text-[#666666] dark:text-[#B8A898]">
                 {column.links.map(([label, href]) => (
-                  <Link key={label} href={href} className="hover:text-white">
+                  <Link key={label} href={href} className="hover:text-[#1E1E1E] dark:hover:text-[#F7EADB]">
                     {label}
                   </Link>
                 ))}
@@ -119,7 +119,7 @@ export default function Footer({
         </div>
       </div>
 
-      <div className="section-shell mt-10 grid gap-4 border-t border-white/10 pt-6 text-xs text-white/64 md:grid-cols-[1fr_auto] md:items-center">
+      <div className="section-shell mt-10 grid gap-4 border-t border-[#E8E2DA] pt-6 text-xs text-[#666666] dark:border-[#3B3026] dark:text-[#B8A898] md:grid-cols-[1fr_auto] md:items-center">
         <div className="flex flex-wrap gap-4">
           <span className="inline-flex items-center gap-2">
             <Truck className="h-3.5 w-3.5 text-[#C8A97E]" />
@@ -135,14 +135,14 @@ export default function Footer({
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
           </p>
-          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2">
+          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-[#E8E2DA] bg-white px-3 py-2 dark:border-[#3B3026] dark:bg-[#1B1612]">
             <span>Website crafted &amp; managed by Aman Krishna</span>
-            <span className="hidden text-white/35 sm:inline">•</span>
+            <span className="hidden text-[#666666]/35 sm:inline dark:text-[#B8A898]/35">•</span>
             <a
               href="https://www.instagram.com/bruhh.aman/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-[#C8A97E] transition hover:text-white"
+              className="inline-flex items-center gap-1.5 font-bold text-[#C8A97E] transition hover:text-[#1E1E1E] dark:hover:text-[#F7EADB]"
             >
               <AtSign className="h-3.5 w-3.5" />
               @bruhh.aman

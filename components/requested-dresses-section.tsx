@@ -119,13 +119,13 @@ export function RequestedDressesSection({
     <section
       id="requested-dresses"
       data-reveal
-      className="bg-[#171717] py-20 text-[#FFF8EF] sm:py-28"
+      className="bg-[#FAF7F2] py-20 text-[#1E1E1E] transition-colors dark:bg-[#100D0B] dark:text-[#F7EADB] sm:py-28"
       aria-labelledby="requested-dresses-title"
     >
       <div className="section-shell">
         <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
           <div className="lg:sticky lg:top-28">
-            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.15em] text-[#E7C47F]">
+            <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.15em] text-[#C8A97E]">
               Your inspiration, our next idea
             </p>
             <h2
@@ -134,29 +134,29 @@ export function RequestedDressesSection({
             >
               Request a dress
             </h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-white/72">
+            <p className="mt-5 max-w-xl text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
               Upload a dress-only reference image of a design you would like DARAJNI to make.
               Your compressed image and note will be showcased publicly in
               the Requested dresses section on our homepage below.
             </p>
 
-            <div className="mt-7 rounded-2xl border border-amber-300/40 bg-amber-400/10 p-5 backdrop-blur-sm">
+            <div className="mt-7 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 backdrop-blur-sm dark:border-amber-300/40 dark:bg-amber-400/10">
               <div className="flex gap-3">
-                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" />
                 <div>
-                  <h3 className="font-bold text-amber-100">Important instructions for public dress requests</h3>
-                  <ul className="mt-2 space-y-2 text-xs leading-5 text-amber-50/90">
+                  <h3 className="font-bold text-amber-950 dark:text-amber-100">Important instructions for public dress requests</h3>
+                  <ul className="mt-2 space-y-2 text-xs leading-5 text-amber-900/90 dark:text-amber-50/90">
                     <li>
-                      <strong className="text-amber-200">Do NOT upload personal photos:</strong> Do not upload images containing yourself, your face, children, address, or private personal information.
+                      <strong className="text-amber-950 dark:text-amber-200">Do NOT upload personal photos:</strong> Do not upload images containing yourself, your face, children, address, or private personal information.
                     </li>
                     <li>
-                      <strong className="text-amber-200">Public showcase on homepage:</strong> Uploaded reference dresses will be showcased publicly in the Requested dresses section on the homepage.
+                      <strong className="text-amber-950 dark:text-amber-200">Public showcase on homepage:</strong> Uploaded reference dresses will be showcased publicly in the Requested dresses section on the homepage.
                     </li>
                     <li>
-                      <strong className="text-amber-200">User responsibility & liability:</strong> Users are solely responsible for their uploads and activity. DARAJNI takes no charge or liability for user-submitted images or content.
+                      <strong className="text-amber-950 dark:text-amber-200">User responsibility & liability:</strong> Users are solely responsible for their uploads and activity. DARAJNI takes no charge or liability for user-submitted images or content.
                     </li>
                     <li>
-                      <strong className="text-amber-200">Dress inspiration only:</strong> Uploading only dress reference images you own or have rights to share. Posting does not guarantee production.
+                      <strong className="text-amber-950 dark:text-amber-200">Dress inspiration only:</strong> Uploading only dress reference images you own or have rights to share. Posting does not guarantee production.
                     </li>
                   </ul>
                 </div>
@@ -166,11 +166,11 @@ export function RequestedDressesSection({
 
           <form
             onSubmit={submitRequest}
-            className="rounded-[2rem] border border-white/12 bg-white/[0.06] p-5 shadow-2xl sm:p-7"
+            className="rounded-[2rem] border border-[#E8E2DA] bg-white p-5 shadow-xl dark:border-[#3B3026] dark:bg-[#1B1612] sm:p-7"
           >
             <label
               htmlFor="requested-dress-image"
-              className="block cursor-pointer overflow-hidden rounded-2xl border border-dashed border-[#D9B56B]/55 bg-black/25 transition hover:border-[#E7C47F]"
+              className="block cursor-pointer overflow-hidden rounded-2xl border border-dashed border-[#C8A97E]/55 bg-[#F5EFEB] transition hover:border-[#C8A97E] dark:bg-[#241D17]"
             >
               {previewUrl ? (
                 <div className="relative aspect-[4/3]">
@@ -181,7 +181,7 @@ export function RequestedDressesSection({
                     alt="Selected dress reference preview"
                     className="h-full w-full object-contain"
                   />
-                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold">
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold text-white">
                     Choose another
                   </span>
                 </div>
@@ -189,14 +189,14 @@ export function RequestedDressesSection({
                 <span className="grid min-h-64 place-items-center p-8 text-center">
                   <span>
                     {preparing ? (
-                      <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#E7C47F]" />
+                      <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#C8A97E]" />
                     ) : (
-                      <ImagePlus className="mx-auto h-9 w-9 text-[#E7C47F]" />
+                      <ImagePlus className="mx-auto h-9 w-9 text-[#C8A97E]" />
                     )}
-                    <span className="mt-4 block font-display text-3xl">
+                    <span className="mt-4 block font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
                       {preparing ? "Compressing your image…" : "Choose a dress image"}
                     </span>
-                    <span className="mt-2 block text-xs leading-5 text-white/60">
+                    <span className="mt-2 block text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
                       JPG, PNG, or WebP up to 25 MB. It will be resized, converted,
                       and stripped of embedded metadata before upload.
                     </span>
@@ -216,15 +216,15 @@ export function RequestedDressesSection({
             </label>
 
             {optimized && (
-              <p className="mt-3 flex items-center gap-2 text-xs text-emerald-200">
+              <p className="mt-3 flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
                 <CheckCircle2 className="h-4 w-4" />
                 Prepared at {optimized.width} × {optimized.height}: {formatBytes(optimized.originalBytes)} → {formatBytes(optimized.optimizedBytes)}
               </p>
             )}
 
             <div className="mt-5">
-              <label htmlFor="request-description" className="text-xs font-bold uppercase tracking-wide text-white/75">
-                What do you like about it? <span className="font-normal normal-case text-white/45">(optional)</span>
+              <label htmlFor="request-description" className="text-xs font-bold uppercase tracking-wide text-[#1E1E1E] dark:text-[#F7EADB]">
+                What do you like about it? <span className="font-normal normal-case text-[#666666] dark:text-[#B8A898]">(optional)</span>
               </label>
               <textarea
                 id="request-description"
@@ -232,34 +232,34 @@ export function RequestedDressesSection({
                 onChange={(event) => setDescription(event.target.value)}
                 maxLength={160}
                 rows={3}
-                className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#D9B56B]"
+                className="mt-2 w-full rounded-xl border border-[#E8E2DA] bg-[#F5EFEB] px-4 py-3 text-sm text-[#1E1E1E] outline-none transition placeholder:text-[#666666]/60 focus:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB] dark:placeholder:text-[#B8A898]/50"
                 placeholder="For example: I love the neckline and would like a similar style in maroon."
               />
-              <p className="mt-1 text-right text-[0.68rem] text-white/40">{description.length}/160</p>
+              <p className="mt-1 text-right text-[0.68rem] text-[#666666] dark:text-[#B8A898]">{description.length}/160</p>
             </div>
 
-            <div className="mt-4 space-y-3 text-xs leading-5 text-white/70">
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3">
+            <div className="mt-4 space-y-3 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
                 <input
                   type="checkbox"
                   checked={publicConsent}
                   onChange={(event) => setPublicConsent(event.target.checked)}
-                  className="mt-1 accent-[#B8893B]"
+                  className="mt-1 accent-[#C8A97E]"
                   required
                 />
                 <span>I understand this image and note will be publicly visible on the DARAJNI homepage.</span>
               </label>
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
                 <input
                   type="checkbox"
                   checked={termsAccepted}
                   onChange={(event) => setTermsAccepted(event.target.checked)}
-                  className="mt-1 accent-[#B8893B]"
+                  className="mt-1 accent-[#C8A97E]"
                   required
                 />
                 <span>
                   I am responsible for this upload and agree to the{" "}
-                  <Link href="/terms" className="font-semibold text-[#E7C47F] underline">
+                  <Link href="/terms" className="font-semibold text-[#C8A97E] underline">
                     Terms of use
                   </Link>
                   .
@@ -281,15 +281,15 @@ export function RequestedDressesSection({
           </form>
         </div>
 
-        <div className="mt-16 border-t border-white/12 pt-10">
+        <div className="mt-16 border-t border-[#E8E2DA] pt-10 dark:border-[#3B3026]">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#E7C47F]">
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#C8A97E]">
                 <Sparkles className="h-4 w-4" /> Community inspiration
               </p>
               <h3 className="font-display mt-3 text-4xl sm:text-5xl">Requested dresses</h3>
             </div>
-            <p className="max-w-md text-xs leading-6 text-white/55">
+            <p className="max-w-md text-xs leading-6 text-[#666666] dark:text-[#B8A898]">
               These references were submitted publicly by visitors. DARAJNI does not endorse ownership or guarantee production of any design shown.
             </p>
           </div>
@@ -297,8 +297,8 @@ export function RequestedDressesSection({
           {requests.length ? (
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {requests.map((request) => (
-                <article key={request.id} className="overflow-hidden rounded-2xl border border-white/12 bg-white/[0.06]">
-                  <div className="relative aspect-[4/5] bg-black/30">
+                <article key={request.id} className="overflow-hidden rounded-2xl border border-[#E8E2DA] bg-white shadow-sm dark:border-[#3B3026] dark:bg-[#1B1612]">
+                  <div className="relative aspect-[4/5] bg-[#F5EFEB] dark:bg-[#241D17]">
                     <ProductImage
                       src={request.imageUrl}
                       alt={request.description ? `Requested dress: ${request.description}` : "Publicly requested dress reference"}
@@ -307,8 +307,8 @@ export function RequestedDressesSection({
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-[#D9B56B]">Public request</p>
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/72">
+                    <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-[#C8A97E]">Public request</p>
+                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#666666] dark:text-[#B8A898]">
                       {request.description || "Dress reference shared for inspiration."}
                     </p>
                   </div>
@@ -316,11 +316,11 @@ export function RequestedDressesSection({
               ))}
             </div>
           ) : (
-            <div className="mt-8 grid min-h-56 place-items-center rounded-2xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center">
+            <div className="mt-8 grid min-h-56 place-items-center rounded-2xl border border-dashed border-[#C8A97E]/50 bg-white p-8 text-center dark:bg-[#1B1612]">
               <div>
-                <ImagePlus className="mx-auto h-8 w-8 text-[#D9B56B]" />
+                <ImagePlus className="mx-auto h-8 w-8 text-[#C8A97E]" />
                 <p className="font-display mt-4 text-3xl">Be the first to share a dress reference.</p>
-                <p className="mt-2 text-sm text-white/55">Your public request will appear here after upload.</p>
+                <p className="mt-2 text-sm text-[#666666] dark:text-[#B8A898]">Your public request will appear here after upload.</p>
               </div>
             </div>
           )}
@@ -338,15 +338,15 @@ export function RequestedDressesHomepageTeaser({
   const displayRequests = requests.slice(0, 4);
 
   return (
-    <section className="bg-[#E6D5C3]/40 py-20 sm:py-28 text-[#3A2E25]">
+    <section className="bg-[#F5EFEB]/70 py-20 text-[#1E1E1E] transition-colors dark:bg-[#15110F] dark:text-[#F7EADB] sm:py-28">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="eyebrow text-[#A88656]">Community Inspiration Studio</p>
-            <h2 className="font-display mt-3 text-4xl font-light text-[#111111] sm:text-6xl">
+            <p className="eyebrow text-[#C8A97E]">Community Inspiration Studio</p>
+            <h2 className="font-display mt-3 text-4xl font-light text-[#1E1E1E] dark:text-[#F7EADB] sm:text-6xl">
               Requested Dresses Preview
             </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#6F6255]">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#666666] dark:text-[#B8A898]">
               Dress references submitted by clients seeking custom tailoring. Upload your favorite design inspiration to be reviewed by our Bihar Sharif atelier.
             </p>
           </div>
@@ -361,9 +361,9 @@ export function RequestedDressesHomepageTeaser({
             {displayRequests.map((request) => (
               <article
                 key={request.id}
-                className="group relative overflow-hidden rounded-2xl border border-[#E2D7CB] bg-[#F8F5F2] shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="group relative overflow-hidden rounded-2xl border border-[#E8E2DA] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-[#3B3026] dark:bg-[#1B1612]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden bg-[#E6D5C3]">
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#F5EFEB] dark:bg-[#241D17]">
                   <ProductImage
                     src={request.imageUrl}
                     alt={request.description || "Requested dress reference"}
@@ -371,13 +371,13 @@ export function RequestedDressesHomepageTeaser({
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div className="absolute left-3 top-3">
-                    <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-[#C8A97E] backdrop-blur-sm">
+                    <span className="rounded-full bg-[#1E1E1E]/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-[#C8A97E] backdrop-blur-sm dark:bg-[#C8A97E]/20 dark:text-[#C8A97E]">
                       In Studio Review
                     </span>
                   </div>
                 </div>
                 <div className="p-4">
-                  <p className="line-clamp-2 text-xs leading-relaxed text-[#5F5348]">
+                  <p className="line-clamp-2 text-xs leading-relaxed text-[#666666] dark:text-[#B8A898]">
                     {request.description || "Reference design shared for custom bridal tailoring."}
                   </p>
                 </div>
@@ -385,10 +385,10 @@ export function RequestedDressesHomepageTeaser({
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-2xl border border-dashed border-[#C8A97E]/50 bg-[#F8F5F2] p-10 text-center">
+          <div className="mt-10 rounded-2xl border border-dashed border-[#C8A97E]/50 bg-white p-10 text-center dark:bg-[#1B1612]">
             <Sparkles className="mx-auto h-8 w-8 text-[#C8A97E]" />
-            <h3 className="font-display mt-3 text-3xl text-[#111111]">Be the First to Request a Design</h3>
-            <p className="mt-2 text-sm text-[#6F6255]">Upload an inspiration photo to request custom tailoring from DARAJNI.</p>
+            <h3 className="font-display mt-3 text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">Be the First to Request a Design</h3>
+            <p className="mt-2 text-sm text-[#666666] dark:text-[#B8A898]">Upload an inspiration photo to request custom tailoring from DARAJNI.</p>
             <Link href="/requested-dresses" className="primary-button mt-6">
               Upload Inspiration Image
             </Link>
