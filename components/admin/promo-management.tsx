@@ -276,7 +276,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
         {!promos.length && (
           <div className="glass-panel grid min-h-64 place-items-center p-8 text-center lg:col-span-2">
             <div>
-              <Tag className="mx-auto h-9 w-9 text-[#C8A97E]" />
+              <Tag className="mx-auto h-9 w-9 text-[#B8893B]" />
               <h3 className="font-display mt-4 text-3xl">No promo codes yet.</h3>
               <p className="mt-3 text-sm text-white/75">
                 Add a coupon or voucher after running the Stage 5 SQL migration.
@@ -482,7 +482,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 type="checkbox"
                 checked={draft.isActive}
                 onChange={(event) => setField("isActive", event.target.checked)}
-                className="h-5 w-5 accent-[#C8A97E]"
+                className="h-5 w-5 accent-[#B8893B]"
               />
             </label>
             <button type="submit" disabled={saving} className="primary-button sm:col-span-2">

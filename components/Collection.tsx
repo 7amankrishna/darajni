@@ -182,7 +182,7 @@ export default function Collection({
         <div className="flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
           <div>
             {mode === "page" && (
-              <p className="mb-4 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
+              <p className="mb-4 text-xs font-semibold text-[#6F6255]">
                 Home / Collection
               </p>
             )}
@@ -190,7 +190,7 @@ export default function Collection({
               {mode === "page" ? "Explore DARAJNI Collection" : "All available designs"}
             </p>
             {mode === "page" ? (
-              <h1 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E] dark:text-[#F7EADB] sm:text-6xl">
+              <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
                 {activeCategory === "all"
                   ? saleOnly
                     ? "Sale collection"
@@ -198,11 +198,11 @@ export default function Collection({
                   : `${activeCategoryName} collection`}
               </h1>
             ) : (
-              <h2 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E] dark:text-[#F7EADB] sm:text-6xl">
+              <h2 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
                 Find your custom-fit celebration piece.
               </h2>
             )}
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#6F6255]">
               Browse live designs by category, fabric, price and availability.
               Every product page includes stock, size and checkout details.
             </p>
@@ -238,11 +238,11 @@ export default function Collection({
 
         <div
           id="collection-filters"
-          className="collection-toolbar mt-5 rounded-2xl border border-[#E8E2DA] dark:border-[#3B3026] bg-white dark:bg-[#1B1612]/82 p-4"
+          className="collection-toolbar mt-5 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8]/82 p-4"
         >
           <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
-              <SlidersHorizontal className="h-4 w-4 text-[#C8A97E]" />
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#6F6255]">
+              <SlidersHorizontal className="h-4 w-4 text-[#B8893B]" />
               {filtered.length} product{filtered.length === 1 ? "" : "s"} available
             </div>
             <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
@@ -317,32 +317,32 @@ export default function Collection({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2 border-t border-[#E8E2DA] dark:border-[#3B3026] pt-4">
-            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#666666] dark:text-[#B8A898] hover:bg-[#F9F9F9] dark:bg-[#241D17]">
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-[#E9DCCB] pt-4">
+            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
               <input
                 type="checkbox"
                 checked={inStockOnly}
                 onChange={(event) => setInStockOnly(event.target.checked)}
-                className="accent-[#C8A97E]"
+                className="accent-[#B8893B]"
               />
               In stock only
             </label>
-            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#666666] dark:text-[#B8A898] hover:bg-[#F9F9F9] dark:bg-[#241D17]">
+            <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
               <input
                 type="checkbox"
                 checked={customOnly}
                 onChange={(event) => setCustomOnly(event.target.checked)}
-                className="accent-[#C8A97E]"
+                className="accent-[#B8893B]"
               />
               Custom size available
             </label>
             {products.some((product) => product.discount > 0) && (
-              <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#666666] dark:text-[#B8A898] hover:bg-[#F9F9F9] dark:bg-[#241D17]">
+              <label className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-[#6F6255] hover:bg-[#F6E9DD]">
                 <input
                   type="checkbox"
                   checked={saleOnly}
                   onChange={(event) => setSaleOnly(event.target.checked)}
-                  className="accent-[#C8A97E]"
+                  className="accent-[#B8893B]"
                 />
                 Sale designs only
               </label>
@@ -357,13 +357,13 @@ export default function Collection({
             ))}
           </div>
         ) : (
-          <div className="mt-8 rounded-2xl border border-dashed border-[#D8C6B1] bg-white dark:bg-[#1B1612]/70 py-20 text-center">
-            <p className="font-display text-4xl text-[#1E1E1E] dark:text-[#F7EADB]">
+          <div className="mt-8 rounded-2xl border border-dashed border-[#D8C6B1] bg-[#FFFDF8]/70 py-20 text-center">
+            <p className="font-display text-4xl text-[#171717]">
               {activeCategory === "all"
                 ? "No matching products"
                 : `No ${activeCategoryName.toLowerCase()} available right now`}
             </p>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-[#6F6255]">
               New designs are being added soon. You can clear filters to view
               every available outfit.
             </p>

@@ -33,7 +33,7 @@ function CustomFitSection() {
   ];
 
   return (
-    <section data-reveal className="bg-[#F9F9F9] dark:bg-[#241D17] py-24 sm:py-32">
+    <section data-reveal className="bg-[#F5EFEB] py-24 sm:py-32">
       <div className="section-shell grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
         <div>
           <p className="eyebrow">Custom size ordering</p>
@@ -46,7 +46,7 @@ function CustomFitSection() {
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {steps.map(([title, text], index) => (
-              <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-white p-5">
+              <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5">
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-[#1E1E1E] text-sm font-bold text-white">
                   {index + 1}
                 </span>
@@ -91,7 +91,7 @@ function TrustSection({ image }: { image: string }) {
   ];
 
   return (
-    <section data-reveal className="bg-white py-24 sm:py-32">
+    <section data-reveal className="bg-[#FFFFFF] py-24 sm:py-32">
       <div className="section-shell">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
@@ -109,7 +109,7 @@ function TrustSection({ image }: { image: string }) {
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {cards.map(([title, text, Icon]) => (
-            <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-white p-6">
+            <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-6">
               <Icon className="h-5 w-5 text-[#C8A97E]" />
               <h3 className="font-display mt-4 text-2xl text-[#1E1E1E]">
                 {title}
@@ -119,8 +119,8 @@ function TrustSection({ image }: { image: string }) {
           ))}
         </div>
 
-        <div className="mt-8 grid gap-5 rounded-2xl border border-[#E8E2DA] bg-white p-5 md:grid-cols-[0.7fr_1.3fr] md:p-7">
-          <div className="relative min-h-72 overflow-hidden rounded-2xl bg-[#F9F9F9] dark:bg-[#241D17]">
+        <div className="mt-8 grid gap-5 rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5 md:grid-cols-[0.7fr_1.3fr] md:p-7">
+          <div className="relative min-h-72 overflow-hidden rounded-2xl bg-[#F5EFEB]">
             <ProductImage src={image} alt="" sizes="(max-width: 768px) 100vw, 28vw" className="object-cover" />
           </div>
           <div className="flex flex-col justify-center">
@@ -149,7 +149,7 @@ function PolicyPreview() {
   ];
 
   return (
-    <section data-reveal className="bg-[#F9F9F9] dark:bg-[#241D17] py-24 sm:py-32">
+    <section data-reveal className="bg-[#F5EFEB] py-24 sm:py-32">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
@@ -168,7 +168,7 @@ function PolicyPreview() {
             <Link
               key={title}
               href={href}
-              className="rounded-2xl border border-[#E8E2DA] bg-white p-6 transition hover:-translate-y-1 hover:border-[#C8A97E]"
+              className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 transition hover:-translate-y-1 hover:border-[#C8A97E]"
             >
               <Icon className="h-5 w-5 text-[#C8A97E]" />
               <h3 className="font-display mt-5 text-2xl text-[#1E1E1E]">
@@ -188,11 +188,11 @@ function PolicyPreview() {
 
 function ClosingCta() {
   return (
-    <section data-reveal className="bg-white px-4 py-16 sm:py-20">
+    <section data-reveal className="bg-[#FFFFFF] px-4 py-16 sm:py-20">
       <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-[#C8A97E]/35 px-6 py-12 sm:px-10 lg:px-14">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A97E]/35 bg-white/82 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-[#6E0F1A]">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A97E]/35 bg-[#FFFFFF]/82 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-[#6E0F1A]">
               <Sparkles className="h-3.5 w-3.5 text-[#C8A97E]" />
               Your occasion, your fit
             </span>
@@ -311,7 +311,7 @@ export default async function HomePage() {
         }}
       />
       <main id="main-content">
-        <Hero slides={homepageSlides} />
+        <Hero products={products} />
         <HomepageLaunchSlider slides={homepageSlides} />
         
         {/* Collection Section ID anchor */}

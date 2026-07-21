@@ -128,7 +128,7 @@ export function SettingsPanel({ settings }: { settings: StoreSettings }) {
                 codEnabled: event.target.checked,
               }))
             }
-            className="h-5 w-5 accent-[#C8A97E]"
+            className="h-5 w-5 accent-[#B8893B]"
           />
         </label>
         <button type="submit" disabled={saving} className="primary-button sm:col-span-2">

@@ -2,14 +2,15 @@ import { ChevronDown, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
-import type { HomepageSlide } from "@/types/commerce";
+import type { Product } from "@/types/commerce";
 
 export default function Hero({
-  slides,
+  products,
 }: {
-  slides: HomepageSlide[];
+  products: Product[];
 }) {
-  const heroImage = slides[0]?.imageUrl ?? "/logo.webp";
+  const featuredProduct = products.find((product) => product.isFeatured) ?? products[0] ?? null;
+  const heroImage = featuredProduct?.images[0] ?? "/logo.webp";
 
   return (
     <section
@@ -52,7 +53,7 @@ export default function Hero({
               Explore Collection
               <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#FAF7F2] hover:bg-white dark:bg-[#100D0B] hover:text-[#111111]">
+            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#FAF7F2] hover:bg-[#FAF7F2] hover:text-[#111111]">
               Request a Custom Dress
             </Link>
           </div>
