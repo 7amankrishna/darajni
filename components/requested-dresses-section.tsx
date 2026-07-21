@@ -338,15 +338,15 @@ export function RequestedDressesHomepageTeaser({
   const displayRequests = requests.slice(0, 4);
 
   return (
-    <section className="bg-[#FAF7F2] py-20 text-[#1E1E1E] transition-colors dark:bg-[#100D0B] dark:text-[#F7EADB] sm:py-28">
+    <section className="bg-background py-20 transition-colors sm:py-28">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="eyebrow text-[#C8A97E]">Community Inspiration Studio</p>
-            <h2 className="font-display mt-3 text-4xl font-light text-[#1E1E1E] dark:text-[#F7EADB] sm:text-6xl">
+            <p className="eyebrow text-accent">Community Inspiration Studio</p>
+            <h2 className="font-display mt-3 text-4xl font-light text-text-primary sm:text-6xl">
               Requested Dresses Preview
             </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#666666] dark:text-[#B8A898]">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-secondary">
               Dress references submitted by clients seeking custom tailoring. Upload your favorite design inspiration to be reviewed by our Bihar Sharif atelier.
             </p>
           </div>
@@ -361,9 +361,9 @@ export function RequestedDressesHomepageTeaser({
             {displayRequests.map((request) => (
               <article
                 key={request.id}
-                className="group relative overflow-hidden rounded-2xl border border-[#E8E2DA] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-[#3B3026] dark:bg-[#1B1612]"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="relative aspect-[3/4] overflow-hidden bg-[#F5EFEB] dark:bg-[#241D17]">
+                <div className="relative aspect-[3/4] overflow-hidden bg-surface-alt">
                   <ProductImage
                     src={request.imageUrl}
                     alt={request.description || "Requested dress reference"}
@@ -371,13 +371,13 @@ export function RequestedDressesHomepageTeaser({
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div className="absolute left-3 top-3">
-                    <span className="rounded-full bg-[#1E1E1E]/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-[#C8A97E] backdrop-blur-sm dark:bg-[#C8A97E]/20 dark:text-[#C8A97E]">
+                    <span className="rounded-full bg-surface-alt/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-accent backdrop-blur-sm">
                       In Studio Review
                     </span>
                   </div>
                 </div>
                 <div className="p-4">
-                  <p className="line-clamp-2 text-xs leading-relaxed text-[#666666] dark:text-[#B8A898]">
+                  <p className="line-clamp-2 text-xs leading-relaxed text-text-secondary">
                     {request.description || "Reference design shared for custom bridal tailoring."}
                   </p>
                 </div>
@@ -385,10 +385,10 @@ export function RequestedDressesHomepageTeaser({
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-2xl border border-dashed border-[#C8A97E]/50 bg-white p-10 text-center dark:bg-[#1B1612]">
-            <Sparkles className="mx-auto h-8 w-8 text-[#C8A97E]" />
-            <h3 className="font-display mt-3 text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">Be the First to Request a Design</h3>
-            <p className="mt-2 text-sm text-[#666666] dark:text-[#B8A898]">Upload an inspiration photo to request custom tailoring from DARAJNI.</p>
+          <div className="mt-10 rounded-2xl border border-dashed border-accent/50 bg-surface p-10 text-center">
+            <Sparkles className="mx-auto h-8 w-8 text-accent" />
+            <h3 className="font-display mt-3 text-3xl text-text-primary">Be the First to Request a Design</h3>
+            <p className="mt-2 text-sm text-text-secondary">Upload an inspiration photo to request custom tailoring from DARAJNI.</p>
             <Link href="/requested-dresses" className="primary-button mt-6">
               Upload Inspiration Image
             </Link>

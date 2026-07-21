@@ -69,33 +69,33 @@ export default function Footer({
   ];
 
   return (
-    <footer className="border-t border-[#E8E2DA] bg-[#FFFFFF] pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB] md:pb-10">
+    <footer className="mt-auto border-t border-border bg-background pb-24 pt-14 text-text-primary transition-colors md:pb-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-[#FFFFFF] dark:border-[#C8A97E]/40 dark:bg-[#1B1612]" />
+            <BrandLogo className="h-14 w-14 border border-accent/35 bg-background" />
             <div>
-              <p className="font-display text-3xl tracking-[0.08em] text-[#1E1E1E] dark:text-[#F7EADB]">DARAJNI</p>
-              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#C8A97E]">
+              <h4 className="font-display text-lg font-bold text-text-primary">DARAJNI</h4>
+              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-accent">
                 Designer House
               </p>
             </div>
           </div>
-          <p className="mt-4 max-w-md text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
+          <p className="mt-4 max-w-xs text-sm leading-6 text-text-secondary">
             Premium Indian occasion wear from Bihar Sharif, custom-sized with
             clear communication and delivered Pan India.
           </p>
-          <div className="mt-6 grid max-w-md gap-2 text-xs text-[#666666] dark:text-[#B8A898]">
+          <div className="mt-6 grid max-w-md gap-2 text-xs text-text-secondary">
             <a href={whatsappHref} className="footer-contact-row group">
               <MessageCircle className="h-4 w-4 text-[#35C66D]" />
               <span><small>Customer support</small>{supportNumber ? `+${supportNumber}` : "WhatsApp support"}</span>
             </a>
             <a href={`mailto:${siteConfig.email}`} className="footer-contact-row group">
-              <Mail className="h-4 w-4 text-[#C8A97E]" />
+              <Mail className="h-4 w-4 text-accent" />
               <span><small>Email</small>{siteConfig.email}</span>
             </a>
             <span className="footer-contact-row">
-              <MapPin className="h-4 w-4 text-[#C8A97E]" />
+              <MapPin className="h-4 w-4 text-accent" />
               <span><small>Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
             </span>
           </div>
@@ -104,12 +104,12 @@ export default function Footer({
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {footerColumns.map((column) => (
             <div key={column.title}>
-              <p className="text-[0.68rem] font-extrabold uppercase text-[#C8A97E]">
+              <p className="text-[0.68rem] font-extrabold uppercase text-text-secondary transition hover:text-accent">
                 {column.title}
               </p>
-              <div className="mt-4 grid gap-3 text-sm text-[#666666] dark:text-[#B8A898]">
+              <div className="mt-4 grid gap-3 text-sm text-text-secondary">
                 {column.links.map(([label, href]) => (
-                  <Link key={label} href={href} className="hover:text-[#1E1E1E] dark:hover:text-[#F7EADB]">
+                  <Link key={label} href={href} className="hover:text-text-primary">
                     {label}
                   </Link>
                 ))}
@@ -119,14 +119,14 @@ export default function Footer({
         </div>
       </div>
 
-      <div className="section-shell mt-10 grid gap-4 border-t border-[#E8E2DA] pt-6 text-xs text-[#666666] dark:border-[#3B3026] dark:text-[#B8A898] md:grid-cols-[1fr_auto] md:items-center">
+      <div className="section-shell mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-text-secondary sm:flex-row">
         <div className="flex flex-wrap gap-4">
           <span className="inline-flex items-center gap-2">
-            <Truck className="h-3.5 w-3.5 text-[#C8A97E]" />
+            <Truck className="h-3.5 w-3.5 text-accent" />
             Pan-India delivery
           </span>
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#C8A97E]" />
+            <ShieldCheck className="h-3.5 w-3.5 text-accent" />
             Secure checkout
           </span>
         </div>
@@ -135,14 +135,14 @@ export default function Footer({
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
           </p>
-          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-[#E8E2DA] bg-white px-3 py-2 dark:border-[#3B3026] dark:bg-[#1B1612]">
-            <span>Website crafted &amp; managed by Aman Krishna</span>
-            <span className="hidden text-[#666666]/35 sm:inline dark:text-[#B8A898]/35">•</span>
+          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-background px-3 py-2">
+            <span className="text-sm text-text-secondary transition hover:text-accent">Website crafted &amp; managed by Aman Krishna</span>
+            <span className="hidden text-text-secondary/35 sm:inline">•</span>
             <a
               href="https://www.instagram.com/bruhh.aman/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-[#C8A97E] transition hover:text-[#1E1E1E] dark:hover:text-[#F7EADB]"
+              className="inline-flex items-center gap-1.5 font-bold text-accent transition hover:text-text-primary"
             >
               <AtSign className="h-3.5 w-3.5" />
               @bruhh.aman

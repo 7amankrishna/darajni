@@ -66,18 +66,18 @@ function OrderCard({ order }: { order: OrderSummary }) {
   const hiddenItemCount = Math.max(0, order.items.length - visibleItems.length);
 
   return (
-    <article className="rounded-3xl border border-[#E8E2DA] bg-white p-5 shadow-sm sm:p-6 dark:border-[#3B3026] dark:bg-[#1B1612]">
+    <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
-          <p className="eyebrow text-[#C8A97E]">Order</p>
-          <h3 className="font-display mt-1 text-3xl font-light text-[#1E1E1E] dark:text-[#F7EADB]">
+          <p className="eyebrow text-accent">Order</p>
+          <h3 className="font-display mt-1 text-3xl font-light text-text-primary">
             {order.orderNumber}
           </h3>
-          <p className="mt-1 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
+          <p className="mt-1 text-xs font-semibold text-text-secondary">
             Placed {formatDate(order.createdAt)}
           </p>
         </div>
-        <span className="status-pill border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB]">
+        <span className="status-pill border border-border bg-surface-alt text-text-secondary">
           {order.status}
         </span>
       </div>
@@ -86,44 +86,44 @@ function OrderCard({ order }: { order: OrderSummary }) {
         <OrderStatusTimeline status={order.status} />
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-2xl bg-[#F5EFEB] p-4 text-xs text-[#666666] sm:grid-cols-3 dark:bg-[#241D17] dark:text-[#B8A898]">
+      <div className="mt-6 grid gap-3 rounded-2xl bg-surface-alt p-4 text-xs text-text-secondary sm:grid-cols-3">
         <div>
           <p className="field-label !mb-1 text-[0.62rem]">Updated</p>
-          <p className="font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">{formatDate(order.updatedAt)}</p>
+          <p className="font-semibold text-text-primary">{formatDate(order.updatedAt)}</p>
         </div>
         <div>
           <p className="field-label !mb-1 text-[0.62rem]">Payment</p>
-          <p className="capitalize font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
+          <p className="capitalize font-semibold text-text-primary">
             {order.paymentMethod === "cod" ? "Cash on Delivery" : order.paymentStatus}
           </p>
         </div>
         <div>
           <p className="field-label !mb-1 text-[0.62rem]">Total</p>
-          <p className="font-semibold text-[#1E1E1E] dark:text-[#C8A97E]">{formatPrice(order.total)}</p>
+          <p className="font-semibold text-accent">{formatPrice(order.total)}</p>
         </div>
       </div>
 
-      <div className="mt-5 divide-y divide-[#E8E2DA] border-t border-[#E8E2DA] pt-2 dark:divide-[#3B3026] dark:border-[#3B3026]">
+      <div className="mt-5 divide-y divide-border border-t border-border pt-2">
         {visibleItems.map((item) => (
           <div
             key={item.id}
             className="flex items-start justify-between gap-4 py-3 text-sm"
           >
             <div className="min-w-0">
-              <p className="truncate font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
+              <p className="truncate font-semibold text-text-primary">
                 {item.productName}
               </p>
-              <p className="mt-1 text-xs text-[#666666] dark:text-[#B8A898]">
+              <p className="mt-1 text-xs text-text-secondary">
                 Size {item.selectedSize} | Qty {item.quantity}
               </p>
             </div>
-            <p className="shrink-0 font-semibold text-[#1E1E1E] dark:text-[#F7EADB]">
+            <p className="shrink-0 font-semibold text-text-primary">
               {formatPrice(item.lineTotal)}
             </p>
           </div>
         ))}
         {hiddenItemCount > 0 && (
-          <p className="py-3 text-xs font-semibold text-[#666666] dark:text-[#B8A898]">
+          <p className="py-3 text-xs font-semibold text-text-secondary">
             +{hiddenItemCount} more item{hiddenItemCount === 1 ? "" : "s"}
           </p>
         )}
@@ -259,15 +259,15 @@ export function CustomerAccountPage({
 
   if (!user) {
     return (
-      <main className="min-h-[78vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B] flex items-center justify-center">
-        <div className="w-full max-w-md px-4 sm:px-6">
-          <section className="premium-card rounded-3xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 sm:p-9 shadow-[0_20px_60px_rgba(58,46,37,0.08)] dark:border-[#3B3026] dark:bg-[#1B1612]">
+      <main className="min-h-[78vh] bg-background py-8 sm:py-16 flex items-center justify-center">
+        <div className="w-full max-w-sm px-4 sm:px-6">
+          <section className="premium-card rounded-3xl border border-border bg-surface p-6 sm:p-8 shadow-[0_20px_60px_rgba(58,46,37,0.08)]">
             <div className="text-center">
-              <span className="eyebrow text-[#C8A97E]">DARAJNI Couture</span>
-              <h1 className="font-display mt-2 text-3xl font-light text-[#1E1E1E] sm:text-4xl dark:text-[#F7EADB]">
+              <span className="eyebrow text-accent">DARAJNI Couture</span>
+              <h1 className="font-display mt-2 text-3xl font-light text-text-primary sm:text-4xl">
                 {mode === "signin" ? "Sign in to account" : "Create your account"}
               </h1>
-              <p className="mt-2 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+              <p className="mt-2 text-xs leading-5 text-text-secondary">
                 {mode === "signin"
                   ? "Access your saved custom measurements & order history"
                   : "Join DARAJNI to track orders & save custom fit details"}
@@ -275,7 +275,7 @@ export function CustomerAccountPage({
             </div>
 
             {/* Mode Switcher Tabs */}
-            <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl bg-[#F5EFEB] p-1.5 dark:bg-[#241D17]">
+            <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl bg-surface-alt p-1.5">
               <button
                 type="button"
                 onClick={() => {
@@ -285,8 +285,8 @@ export function CustomerAccountPage({
                 }}
                 className={`flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all ${
                   mode === "signin"
-                    ? "bg-[#1E1E1E] text-white shadow-sm dark:bg-[#C8A97E] dark:text-[#100D0B]"
-                    : "text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-text-secondary hover:text-text-primary"
                 }`}
                 aria-pressed={mode === "signin"}
               >
@@ -302,8 +302,8 @@ export function CustomerAccountPage({
                 }}
                 className={`flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-bold transition-all ${
                   mode === "signup"
-                    ? "bg-[#1E1E1E] text-white shadow-sm dark:bg-[#C8A97E] dark:text-[#100D0B]"
-                    : "text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-text-secondary hover:text-text-primary"
                 }`}
                 aria-pressed={mode === "signup"}
               >
@@ -364,7 +364,7 @@ export function CustomerAccountPage({
                   {mode === "signin" && (
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-bold text-[#C8A97E] transition hover:underline"
+                      className="text-xs font-bold text-accent transition hover:underline"
                     >
                       Forgot password?
                     </Link>
@@ -419,10 +419,10 @@ export function CustomerAccountPage({
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-[#E8E2DA] dark:border-[#3B3026] text-center">
-              <p className="text-xs text-[#666666] dark:text-[#B8A898]">
+            <div className="mt-6 pt-5 border-t border-border text-center">
+              <p className="text-xs text-text-secondary">
                 Need help with your order?{" "}
-                <Link href="/support" className="font-bold text-[#C8A97E] hover:underline">
+                <Link href="/support" className="font-bold text-accent hover:underline">
                   Contact Support
                 </Link>
               </p>
@@ -434,20 +434,20 @@ export function CustomerAccountPage({
   }
 
   return (
-    <main className="min-h-[80vh] bg-[#FAF7F2] py-8 sm:py-16 dark:bg-[#100D0B]">
+    <main className="min-h-[80vh] bg-background py-8 sm:py-16">
       <div className="section-shell max-w-5xl">
         {/* Welcome Banner */}
-        <div className="mb-8 flex flex-col justify-between gap-4 rounded-3xl border border-[#E8E2DA] bg-white p-6 shadow-sm sm:flex-row sm:items-center dark:border-[#3B3026] dark:bg-[#1B1612]">
+        <div className="mb-8 flex flex-col justify-between gap-4 rounded-3xl border border-border bg-surface p-6 shadow-sm sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[#C8A97E]/40 bg-[#F5EFEB] font-display text-2xl font-semibold text-[#C8A97E] dark:bg-[#241D17]">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-accent/40 bg-surface-alt font-display text-2xl font-semibold text-accent">
               {initials(profileForm.fullName, accountEmail)}
             </div>
             <div className="min-w-0">
-              <span className="eyebrow text-[#C8A97E]">Logged in Customer</span>
-              <h1 className="font-display mt-0.5 text-2xl font-light text-[#1E1E1E] sm:text-3xl dark:text-[#F7EADB]">
+              <span className="eyebrow text-accent">Logged in Customer</span>
+              <h1 className="font-display mt-0.5 text-2xl font-light text-text-primary sm:text-3xl">
                 Welcome back, {profileForm.fullName.split(" ")[0] || "Customer"}
               </h1>
-              <p className="truncate text-xs text-[#666666] dark:text-[#B8A898]">
+              <p className="truncate text-xs text-text-secondary">
                 {accountEmail} • {orders.length} saved orders
               </p>
             </div>
@@ -459,14 +459,14 @@ export function CustomerAccountPage({
         </div>
 
         {/* Dashboard Tabs */}
-        <div className="mb-8 flex border-b border-[#E8E2DA] dark:border-[#3B3026]">
+        <div className="mb-8 flex border-b border-border">
           <button
             type="button"
             onClick={() => setActiveTab("orders")}
             className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all ${
               activeTab === "orders"
-                ? "border-[#1E1E1E] text-[#1E1E1E] dark:border-[#C8A97E] dark:text-[#C8A97E]"
-                : "border-transparent text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
+                ? "border-primary text-primary"
+                : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
             <ShoppingBag className="h-4 w-4" />
@@ -477,8 +477,8 @@ export function CustomerAccountPage({
             onClick={() => setActiveTab("profile")}
             className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all ${
               activeTab === "profile"
-                ? "border-[#1E1E1E] text-[#1E1E1E] dark:border-[#C8A97E] dark:text-[#C8A97E]"
-                : "border-transparent text-[#666666] hover:text-[#1E1E1E] dark:text-[#B8A898] dark:hover:text-[#F7EADB]"
+                ? "border-primary text-primary"
+                : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
             <UserRound className="h-4 w-4" />
@@ -491,10 +491,10 @@ export function CustomerAccountPage({
           <section className="space-y-6">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <h2 className="font-display text-3xl font-light text-[#1E1E1E] dark:text-[#F7EADB]">
+                <h2 className="font-display text-3xl font-light text-text-primary">
                   Order History
                 </h2>
-                <p className="text-xs text-[#666666] dark:text-[#B8A898]">
+                <p className="text-xs text-text-secondary">
                   Track production, size confirmation &amp; delivery updates for all your orders
                 </p>
               </div>
@@ -507,12 +507,12 @@ export function CustomerAccountPage({
               {orders.length ? (
                 orders.map((order) => <OrderCard key={order.id} order={order} />)
               ) : (
-                <div className="rounded-3xl border border-[#E8E2DA] bg-white p-10 text-center shadow-sm dark:border-[#3B3026] dark:bg-[#1B1612]">
-                  <PackageCheck className="mx-auto h-12 w-12 text-[#C8A97E]" />
-                  <h3 className="font-display mt-4 text-3xl font-light text-[#1E1E1E] dark:text-[#F7EADB]">
+                <div className="rounded-3xl border border-border bg-surface p-10 text-center shadow-sm">
+                  <PackageCheck className="mx-auto h-12 w-12 text-accent" />
+                  <h3 className="font-display mt-4 text-3xl font-light text-text-primary">
                     No saved orders yet
                   </h3>
-                  <p className="mt-2 text-xs text-[#666666] dark:text-[#B8A898]">
+                  <p className="mt-2 text-xs text-text-secondary">
                     Explore our couture collection and place your first custom outfit order.
                   </p>
                   <Link href="/collection" className="primary-button mt-6 text-xs">
@@ -526,12 +526,12 @@ export function CustomerAccountPage({
 
         {/* Tab Content 2: Saved Address & Profile */}
         {activeTab === "profile" && (
-          <section className="rounded-3xl border border-[#E8E2DA] bg-white p-6 sm:p-9 shadow-sm dark:border-[#3B3026] dark:bg-[#1B1612]">
+          <section className="rounded-3xl border border-border bg-surface p-6 sm:p-9 shadow-sm">
             <div>
-              <h2 className="font-display text-3xl font-light text-[#1E1E1E] dark:text-[#F7EADB]">
+              <h2 className="font-display text-3xl font-light text-text-primary">
                 Saved Address &amp; Measurements
               </h2>
-              <p className="mt-1 text-xs text-[#666666] dark:text-[#B8A898]">
+              <p className="mt-1 text-xs text-text-secondary">
                 Default shipping details prefilled during your next checkout.
               </p>
             </div>
@@ -559,7 +559,7 @@ export function CustomerAccountPage({
                     Mobile Number
                   </label>
                   <div className="relative">
-                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#C8A97E]" />
+                    <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-accent" />
                     <input
                       id="profile-phone"
                       type="tel"

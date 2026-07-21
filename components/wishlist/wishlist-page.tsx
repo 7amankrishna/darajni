@@ -13,22 +13,22 @@ export function WishlistPage({ products }: { products: Product[] }) {
 
   if (!ready) {
     return (
-      <main className="grid min-h-[65vh] place-items-center bg-[#FFF8EF]">
+      <main className="grid min-h-[65vh] place-items-center bg-background">
         <p className="eyebrow">Loading wishlist...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-[70vh] bg-[#FFF8EF] py-14 sm:py-20">
+    <main className="min-h-[70vh] bg-background py-14 sm:py-20">
       <div className="section-shell">
-        <div className="mx-auto max-w-2xl text-center">
-          <Heart className="mx-auto h-10 w-10 text-[#B8893B]" />
-          <p className="eyebrow mt-5">Wishlist</p>
-          <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
-            Saved designs
+        <div className="text-center">
+          <Heart className="mx-auto h-10 w-10 text-accent" />
+          <p className="eyebrow mt-5">Your Favorites</p>
+          <h1 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
+            Wishlist
           </h1>
-          <p className="mt-5 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-5 text-sm leading-7 text-text-secondary">
             Your wishlist is saved on this device so you can return to favorite
             designs before ordering.
           </p>
@@ -41,12 +41,12 @@ export function WishlistPage({ products }: { products: Product[] }) {
             ))}
           </div>
         ) : (
-          <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-8 text-center">
-            <ShoppingBag className="mx-auto h-10 w-10 text-[#B8893B]" />
-            <h2 className="font-display mt-5 text-4xl leading-none text-[#171717]">
-              No saved designs yet.
+          <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-surface p-8 text-center">
+            <ShoppingBag className="mx-auto h-10 w-10 text-accent" />
+            <h2 className="font-display mt-5 text-4xl leading-none text-text-primary">
+              Your wishlist is empty
             </h2>
-            <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+            <p className="mt-4 text-sm leading-7 text-text-secondary">
               Tap the heart on any product card to keep it here.
             </p>
             <Link href="/collection" className="primary-button mt-7">

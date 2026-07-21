@@ -33,27 +33,27 @@ function CustomFitSection() {
   ];
 
   return (
-    <section data-reveal className="bg-[#F5EFEB] py-24 sm:py-32">
+    <section data-reveal className="bg-surface-alt py-24 sm:py-32">
       <div className="section-shell grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
         <div>
           <p className="eyebrow">Custom size ordering</p>
-          <h2 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E] sm:text-6xl">
+          <h2 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
             Your size. Your fit. Made just for you.
           </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-[#666666]">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-text-secondary">
             Most DARAJNI pieces are prepared around your measurements, so the
             order feels personal instead of guessing from standard sizes.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {steps.map(([title, text], index) => (
-              <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#1E1E1E] text-sm font-bold text-white">
+              <article key={title} className="rounded-2xl border border-border bg-surface p-5">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-bold text-surface">
                   {index + 1}
                 </span>
-                <h3 className="font-display mt-5 text-2xl leading-none text-[#1E1E1E]">
+                <h3 className="font-display mt-5 text-2xl leading-none text-text-primary">
                   {title}
                 </h3>
-                <p className="mt-3 text-xs leading-6 text-[#666666]">{text}</p>
+                <p className="mt-3 text-xs leading-6 text-text-secondary">{text}</p>
               </article>
             ))}
           </div>
@@ -91,16 +91,16 @@ function TrustSection({ image }: { image: string }) {
   ];
 
   return (
-    <section data-reveal className="bg-[#FFFFFF] py-24 sm:py-32">
+    <section data-reveal className="bg-surface py-24 sm:py-32">
       <div className="section-shell">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
             <p className="eyebrow">Order with more certainty</p>
-            <h2 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E] sm:text-6xl">
+            <h2 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
               Know what happens before you place an order.
             </h2>
           </div>
-          <p className="text-sm leading-7 text-[#666666]">
+          <p className="text-sm leading-7 text-text-secondary">
             DARAJNI does not publish placeholder testimonials or ratings. The
             current trust promise is practical: live availability, clear order
             totals, private tracking and direct support when you need it.
@@ -109,26 +109,26 @@ function TrustSection({ image }: { image: string }) {
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {cards.map(([title, text, Icon]) => (
-            <article key={title} className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-6">
-              <Icon className="h-5 w-5 text-[#C8A97E]" />
-              <h3 className="font-display mt-4 text-2xl text-[#1E1E1E]">
+            <article key={title} className="rounded-2xl border border-border bg-surface p-6">
+              <Icon className="h-5 w-5 text-accent" />
+              <h3 className="font-display mt-4 text-2xl text-text-primary">
                 {title}
               </h3>
-              <p className="mt-2 text-sm text-[#666666]">{text}</p>
+              <p className="mt-2 text-sm text-text-secondary">{text}</p>
             </article>
           ))}
         </div>
 
-        <div className="mt-8 grid gap-5 rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-5 md:grid-cols-[0.7fr_1.3fr] md:p-7">
-          <div className="relative min-h-72 overflow-hidden rounded-2xl bg-[#F5EFEB]">
+        <div className="mt-8 grid gap-5 rounded-2xl border border-border bg-surface p-5 md:grid-cols-[0.7fr_1.3fr] md:p-7">
+          <div className="relative min-h-72 overflow-hidden rounded-2xl bg-surface-alt">
             <ProductImage src={image} alt="" sizes="(max-width: 768px) 100vw, 28vw" className="object-cover" />
           </div>
           <div className="flex flex-col justify-center">
             <p className="eyebrow">Care before scale</p>
-            <h3 className="font-display mt-3 text-4xl leading-none text-[#1E1E1E]">
+            <h3 className="font-display mt-3 text-4xl leading-none text-text-primary">
               Every order has a clear next step.
             </h3>
-            <p className="mt-4 text-sm leading-7 text-[#666666]">
+            <p className="mt-4 text-sm leading-7 text-text-secondary">
               Customers can browse available products, place guest checkout
               orders, receive secure payment or COD options and track their
               order status with the same phone number used at checkout.
@@ -149,12 +149,12 @@ function PolicyPreview() {
   ];
 
   return (
-    <section data-reveal className="bg-[#F5EFEB] py-24 sm:py-32">
+    <section data-reveal className="bg-surface-alt py-24 sm:py-32">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="eyebrow">Before you order</p>
-            <h2 className="font-display mt-4 text-5xl leading-none text-[#1E1E1E]">
+            <h2 className="font-display mt-4 text-5xl leading-none text-text-primary">
               Clear policies, easy support.
             </h2>
           </div>
@@ -168,14 +168,14 @@ function PolicyPreview() {
             <Link
               key={title}
               href={href}
-              className="rounded-2xl border border-[#E8E2DA] bg-[#FFFFFF] p-6 transition hover:-translate-y-1 hover:border-[#C8A97E]"
+              className="rounded-2xl border border-border bg-surface p-6 transition hover:-translate-y-1 hover:border-accent"
             >
-              <Icon className="h-5 w-5 text-[#C8A97E]" />
-              <h3 className="font-display mt-5 text-2xl text-[#1E1E1E]">
+              <Icon className="h-5 w-5 text-accent" />
+              <h3 className="font-display mt-5 text-2xl text-text-primary">
                 {title}
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[#666666]">{text}</p>
-              <span className="mt-5 inline-flex text-xs font-extrabold uppercase text-[#6E0F1A]">
+              <p className="mt-2 text-sm leading-6 text-text-secondary">{text}</p>
+              <span className="mt-5 inline-flex text-xs font-extrabold uppercase text-primary">
                 View policy
               </span>
             </Link>
@@ -188,18 +188,18 @@ function PolicyPreview() {
 
 function ClosingCta() {
   return (
-    <section data-reveal className="bg-[#FFFFFF] px-4 py-16 sm:py-20">
-      <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-[#C8A97E]/35 px-6 py-12 sm:px-10 lg:px-14">
+    <section data-reveal className="bg-surface px-4 py-16 sm:py-20">
+      <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-accent/35 px-6 py-12 sm:px-10 lg:px-14">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#C8A97E]/35 bg-[#FFFFFF]/82 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-[#6E0F1A]">
-              <Sparkles className="h-3.5 w-3.5 text-[#C8A97E]" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-surface/82 px-3 py-2 text-[0.68rem] font-extrabold uppercase text-primary">
+              <Sparkles className="h-3.5 w-3.5 text-accent" />
               Your occasion, your fit
             </span>
-            <h2 className="font-display mt-5 text-5xl leading-none text-[#1E1E1E] sm:text-6xl">
+            <h2 className="font-display mt-5 text-5xl leading-none text-text-primary sm:text-6xl">
               Find a design you love. We&apos;ll help with the fit.
             </h2>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#666666]">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-text-secondary">
               Explore the live collection, check every product closely, and
               order with sizing support from a real DARAJNI team member.
             </p>
@@ -320,12 +320,12 @@ export default async function HomePage() {
 
         {/* Featured Products */}
         {featured.length > 0 && (
-          <section data-reveal className="bg-[#F8F5F2] py-24 sm:py-32">
+          <section data-reveal className="bg-background py-24 sm:py-32">
             <div className="section-shell">
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
                 <div>
-                  <p className="eyebrow text-[#C8A97E]">Curated Occasions</p>
-                  <h2 className="font-display mt-3 text-4xl font-light text-[#111111] sm:text-6xl">
+                  <p className="eyebrow text-accent">Curated Occasions</p>
+                  <h2 className="font-display mt-3 text-4xl font-light text-text-primary sm:text-6xl">
                     New Arrivals &amp; Couture Picks
                   </h2>
                 </div>

@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { useEffect, useState } from "react";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 
 import { SiteShell } from "@/components/layout/site-shell";
 import { siteConfig } from "@/config/site";
 
 import "./globals.css";
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-body",
 });
@@ -62,7 +61,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${manrope.variable} ${cormorant.variable} antialiased`}>
+      <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

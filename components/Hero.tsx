@@ -15,7 +15,7 @@ export default function Hero({
   return (
     <section
       id="home"
-      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-[#111111] text-[#FAF7F2]"
+      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-primary text-surface"
     >
       {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
       <div className="absolute inset-0 z-0">
@@ -26,8 +26,8 @@ export default function Hero({
           priority
           className="h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/35 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#111111]/80 via-transparent to-[#111111]/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/50" />
       </div>
 
       {/* Empty Top Spacer for Navbar Breathing Room */}
@@ -36,24 +36,24 @@ export default function Hero({
       {/* Cinematic Center/Left Overlay Copy */}
       <div className="section-shell relative z-10 py-16">
         <div className="max-w-3xl">
-          <p className="eyebrow text-[#C8A97E]">
+          <p className="eyebrow text-accent">
             DARAJNI High Couture
           </p>
 
-          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-[#FAF7F2] sm:text-7xl lg:text-8xl">
+          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-surface sm:text-7xl lg:text-8xl">
             Timeless Indian Couture
           </h1>
 
-          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-[#F5EFEB] sm:text-3xl">
+          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-surface-alt sm:text-3xl">
             Designed for celebrations, crafted exclusively for you.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/collection" className="primary-button bg-[#111111] text-[#FAF7F2] hover:bg-[#C8A97E] hover:text-[#111111]">
+            <Link href="/collection" className="primary-button">
               Explore Collection
               <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#FAF7F2] hover:bg-[#FAF7F2] hover:text-[#111111]">
+            <Link href="/requested-dresses" className="secondary-button !border-accent/60 !text-surface hover:!bg-surface hover:!text-primary">
               Request a Custom Dress
             </Link>
           </div>
@@ -64,11 +64,11 @@ export default function Hero({
       <div className="relative z-10 pb-8 text-center">
         <a
           href="#collection-preview"
-          className="inline-flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#C8A97E]/80 transition hover:text-[#C8A97E]"
+          className="inline-flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent/80 transition hover:text-accent"
           aria-label="Scroll to collection"
         >
           <span>Discover</span>
-          <ChevronDown className="h-4 w-4 animate-bounce text-[#C8A97E]" />
+          <ChevronDown className="h-4 w-4 animate-bounce text-accent" />
         </a>
       </div>
     </section>

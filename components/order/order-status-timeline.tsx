@@ -65,17 +65,17 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
               {index > 0 && (
                 <div
                   className={`absolute right-1/2 top-4 -z-0 h-0.5 w-full ${
-                    index <= activeIndex ? "bg-[#1FAF54]" : "bg-[#E8E2DA] dark:bg-[#3B3026]"
+                    index <= activeIndex ? "bg-success" : "bg-border"
                   }`}
                 />
               )}
               <div
                 className={`relative z-10 mx-auto grid h-9 w-9 place-items-center rounded-full transition-all ${
                   isDone
-                    ? "bg-[#1FAF54] text-white shadow-sm"
+                    ? "bg-success text-white shadow-sm"
                     : isCurrent
-                    ? "bg-[#1FAF54] text-white ring-4 ring-[#1FAF54]/30 animate-pulse"
-                    : "border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
+                    ? "bg-success text-white ring-4 ring-success/30 animate-pulse"
+                    : "border border-border bg-surface-alt text-text-secondary"
                 }`}
               >
                 {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : <Icon className="h-4 w-4" />}
@@ -83,8 +83,8 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
               <p
                 className={`mt-2 text-[0.65rem] font-bold uppercase tracking-tight ${
                   isDone || isCurrent
-                    ? "text-[#1E1E1E] dark:text-[#F7EADB]"
-                    : "text-[#666666] dark:text-[#B8A898]/70"
+                    ? "text-text-primary"
+                    : "text-text-secondary/70"
                 }`}
               >
                 {item.label}
@@ -97,7 +97,7 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
       {/* Mobile Vertical Stepper View with Clear Green Stage Indicators */}
       <div className="relative space-y-4 sm:hidden pl-2">
         {/* Vertical Connecting Line */}
-        <div className="absolute left-[1.125rem] top-3 bottom-3 w-0.5 bg-[#E8E2DA] dark:bg-[#3B3026]" />
+        <div className="absolute left-[1.125rem] top-3 bottom-3 w-0.5 bg-border" />
 
         {steps.map((item, index) => {
           const Icon = item.icon;
@@ -109,33 +109,33 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
               <div
                 className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition-all ${
                   isDone
-                    ? "bg-[#1FAF54] text-white shadow-sm"
+                    ? "bg-success text-white shadow-sm"
                     : isCurrent
-                    ? "bg-[#1FAF54] text-white ring-4 ring-[#1FAF54]/30 animate-pulse"
-                    : "border border-[#E8E2DA] bg-[#F5EFEB] text-[#666666] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#B8A898]"
+                    ? "bg-success text-white ring-4 ring-success/30 animate-pulse"
+                    : "border border-border bg-surface-alt text-text-secondary"
                 }`}
               >
                 {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : <Icon className="h-4 w-4" />}
               </div>
 
-              <div className="flex-1 rounded-xl border border-[#E8E2DA] bg-[#F5EFEB]/60 px-3.5 py-2.5 dark:border-[#3B3026] dark:bg-[#241D17]/60">
+              <div className="flex-1 rounded-xl border border-border bg-surface-alt/60 px-3.5 py-2.5">
                 <div className="flex items-center justify-between">
                   <p
                     className={`text-xs font-bold uppercase tracking-wider ${
                       isDone || isCurrent
-                        ? "text-[#1E1E1E] dark:text-[#F7EADB]"
-                        : "text-[#666666] dark:text-[#B8A898]"
+                        ? "text-text-primary"
+                        : "text-text-secondary"
                     }`}
                   >
                     {item.label}
                   </p>
                   {isCurrent && (
-                    <span className="rounded-full bg-[#1FAF54]/15 px-2 py-0.5 text-[0.6rem] font-black uppercase text-[#1FAF54]">
+                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-[0.6rem] font-black uppercase text-success">
                       Current Stage
                     </span>
                   )}
                   {isDone && (
-                    <span className="text-[0.65rem] font-bold text-[#1FAF54]">
+                    <span className="text-[0.65rem] font-bold text-success">
                       Completed ✓
                     </span>
                   )}

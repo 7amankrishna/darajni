@@ -203,18 +203,18 @@ export function ProductPurchase({
       </p>
 
       {!soldOut && (
-        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-[#E9DCCB] bg-[#FFFDF8]/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
-          <div className="mx-auto flex max-w-lg items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[0.65rem] font-bold uppercase text-[#6F6255]">
-                {size} · Qty {quantity}
+        <div className="mobile-purchase-bar fixed inset-x-0 bottom-[20px] z-[45] border-t border-border bg-background/96 p-3 shadow-[0_-12px_35px_rgba(83,54,22,0.12)] backdrop-blur-xl md:hidden" onClick={() => router.push('/cart')}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-[0.65rem] font-bold uppercase text-text-secondary">
+                {product.name}
               </p>
-              <p className="font-display text-xl font-semibold text-[#171717]">
+              <p className="font-display text-xl font-semibold text-text-primary">
                 {formatPrice(price * quantity)}
               </p>
             </div>
-            <div className="text-xs text-[#5F5348]">
-              Tap to view cart
+            <div className="text-xs text-text-secondary">
+              Added to Cart
             </div>
           </div>
         </div>
