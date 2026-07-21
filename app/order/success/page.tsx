@@ -39,47 +39,47 @@ export default async function Page({
   );
 
   return (
-    <main className="bg-[#FFF8EF] py-12 sm:py-16">
+    <main className="bg-background py-12 sm:py-16">
       <div className="section-shell max-w-5xl">
         <div className="text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-[#1FAF54]" />
+          <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
           <p className="eyebrow mt-5">
             {order.paymentMethod === "cod"
               ? "Order placed successfully"
               : "Payment confirmed"}
           </p>
-          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-3 text-5xl leading-none text-text-primary sm:text-6xl">
             Thank you, {order.customerName.split(" ")[0]}.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-4 text-sm leading-7 text-text-secondary">
             Your order ID is{" "}
-            <strong className="select-all text-[#6E0F1A]">
+            <strong className="select-all text-accent">
               {order.orderNumber}
             </strong>
             . Keep it with your phone number for tracking.
           </p>
         </div>
 
-        <section className="mt-9 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
+        <section className="mt-9 rounded-2xl border border-border bg-surface p-4 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
           <OrderStatusTimeline status={order.status} />
-          <div className="mt-8 grid gap-4 border-t border-[#E9DCCB] pt-6 sm:grid-cols-4">
+          <div className="mt-8 grid gap-4 border-t border-border pt-6 sm:grid-cols-4">
             <div>
               <p className="field-label">Order ID</p>
-              <p className="text-sm font-semibold text-[#171717]">{order.orderNumber}</p>
+              <p className="text-sm font-semibold text-text-primary">{order.orderNumber}</p>
             </div>
             <div>
               <p className="field-label">Placed</p>
-              <p className="text-sm text-[#5F5348]">{formatDate(order.createdAt)}</p>
+              <p className="text-sm text-text-secondary">{formatDate(order.createdAt)}</p>
             </div>
             <div>
               <p className="field-label">Estimated delivery</p>
-              <p className="text-sm text-[#5F5348]">
+              <p className="text-sm text-text-secondary">
                 {formatDate(estimate.earliest)} to {formatDate(estimate.latest)}
               </p>
             </div>
             <div>
               <p className="field-label">Payment</p>
-              <p className="text-sm capitalize text-[#5F5348]">
+              <p className="text-sm capitalize text-text-secondary">
                 {order.paymentMethod === "cod"
                   ? "Cash on delivery"
                   : order.paymentStatus}
@@ -88,8 +88,8 @@ export default async function Page({
           </div>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] shadow-[0_18px_50px_rgba(83,54,22,0.08)]">
-          <div className="border-b border-[#E9DCCB] p-5 sm:p-6">
+        <section className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_18px_50px_rgba(83,54,22,0.08)]">
+          <div className="border-b border-border p-5 sm:p-6">
             <p className="eyebrow">Order items</p>
           </div>
           <div className="divide-y divide-[#E9DCCB]">
@@ -99,22 +99,22 @@ export default async function Page({
                 className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:justify-between sm:gap-5 sm:p-6"
               >
                 <div className="min-w-0">
-                  <p className="font-display text-2xl text-[#171717]">
+                  <p className="font-display text-2xl text-text-primary">
                     {item.productName}
                   </p>
-                  <p className="mt-2 text-xs text-[#6F6255]">
+                  <p className="mt-2 text-xs text-text-secondary">
                     Size {item.selectedSize} | Quantity {item.quantity}
                   </p>
                 </div>
-                <p className="shrink-0 font-display text-2xl font-semibold text-[#171717] sm:text-right">
+                <p className="shrink-0 font-display text-2xl font-semibold text-text-primary sm:text-right">
                   {formatPrice(item.lineTotal)}
                 </p>
               </div>
             ))}
           </div>
-          <div className="border-t border-[#E9DCCB] p-5 sm:p-6">
+          <div className="border-t border-border p-5 sm:p-6">
             <div className="ml-auto max-w-xs space-y-2 text-sm">
-              <div className="flex justify-between text-[#6F6255]">
+              <div className="flex justify-between text-text-secondary">
                 <span>Subtotal</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
@@ -126,15 +126,15 @@ export default async function Page({
                   <span>-{formatPrice(order.discountAmount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-[#6F6255]">
+              <div className="flex justify-between text-text-secondary">
                 <span>Shipping</span>
                 <span>{formatPrice(order.shippingFee)}</span>
               </div>
-              <div className="flex justify-between text-[#6F6255]">
+              <div className="flex justify-between text-text-secondary">
                 <span>Tax</span>
                 <span>{formatPrice(order.taxAmount)}</span>
               </div>
-              <div className="flex justify-between border-t border-[#E9DCCB] pt-3 font-semibold text-[#171717]">
+              <div className="flex justify-between border-t border-border pt-3 font-semibold text-text-primary">
                 <span>Total</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
@@ -142,10 +142,10 @@ export default async function Page({
           </div>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#F6E9DD] p-6">
+        <section className="mt-6 rounded-2xl border border-border bg-surface-alt p-6">
           <div className="flex items-center gap-3">
-            <PackageCheck className="h-5 w-5 text-[#B8893B]" />
-            <h2 className="font-display text-3xl text-[#171717]">
+            <PackageCheck className="h-5 w-5 text-accent" />
+            <h2 className="font-display text-3xl text-text-primary">
               What happens next?
             </h2>
           </div>
@@ -156,8 +156,8 @@ export default async function Page({
               "We prepare and pack your outfit",
               "We ship and share tracking",
             ].map((step, index) => (
-              <div key={step} className="rounded-xl bg-[#FFFDF8] p-4 text-sm text-[#5F5348]">
-                <span className="font-display text-2xl text-[#6E0F1A]">
+              <div key={step} className="rounded-xl bg-surface p-4 text-sm text-text-secondary">
+                <span className="font-display text-2xl text-accent">
                   {index + 1}
                 </span>
                 <p className="mt-2">{step}</p>

@@ -77,16 +77,16 @@ export function ProductPurchase({
 
   return (
     <div className={!soldOut ? "pb-36 md:pb-0" : undefined}>
-      <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
+      <div className="rounded-2xl border border-border bg-surface p-5">
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-alt text-accent">
             <Ruler className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="font-display text-3xl leading-none text-[#171717]">
+            <h2 className="font-display text-3xl leading-none text-text-primary">
               Select Your Size
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#6F6255]">
+            <p className="mt-2 text-sm leading-6 text-text-secondary">
               After placing your order, our team will contact you for
               measurements. You can also share them directly on WhatsApp.
             </p>
@@ -101,8 +101,8 @@ export function ProductPurchase({
               onClick={() => setSize(option)}
               className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition ${
                 option === size
-                  ? "border-[#111111] bg-[#111111] text-white"
-                  : "border-[#E9DCCB] bg-white text-[#5F5348] hover:border-[#B8893B]"
+                  ? "border-text-primary bg-text-primary text-surface text-white"
+                  : "border-border bg-white text-text-secondary hover:border-[#B8893B]"
               }`}
             >
               {option}
@@ -116,11 +116,11 @@ export function ProductPurchase({
           </a>
         </div>
 
-        <div className="mt-5 rounded-xl border border-[#E9DCCB] bg-[#FFF8EF] p-4">
-          <p className="text-xs font-extrabold uppercase text-[#B8893B]">
+        <div className="mt-5 rounded-xl border border-border bg-background p-4">
+          <p className="text-xs font-extrabold uppercase text-accent">
             Custom size measurements to keep ready
           </p>
-          <ul className="mt-3 grid gap-2 text-xs leading-5 text-[#5F5348] sm:grid-cols-2">
+          <ul className="mt-3 grid gap-2 text-xs leading-5 text-text-secondary sm:grid-cols-2">
             {[
               "Shoulder tip to shoulder tip",
               "Bust, waist and hip around the body",
@@ -138,11 +138,11 @@ export function ProductPurchase({
 
       <div className="mt-6">
         <span className="field-label">Quantity</span>
-        <div className="flex w-fit items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8]">
+        <div className="flex w-fit items-center rounded-xl border border-border bg-surface">
           <button
             type="button"
             onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-            className="grid h-11 w-11 place-items-center text-[#5F5348]"
+            className="grid h-11 w-11 place-items-center text-text-secondary"
             aria-label="Decrease quantity"
           >
             <Minus className="h-4 w-4" />
@@ -153,7 +153,7 @@ export function ProductPurchase({
             onClick={() =>
               setQuantity((value) => Math.min(product.stock, value + 1))
             }
-            className="grid h-11 w-11 place-items-center text-[#5F5348]"
+            className="grid h-11 w-11 place-items-center text-text-secondary"
             aria-label="Increase quantity"
             disabled={quantity >= product.stock}
           >
@@ -187,16 +187,16 @@ export function ProductPurchase({
         </a>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-2 text-[0.68rem] font-bold text-[#6F6255] sm:grid-cols-4">
+      <div className="mt-5 grid grid-cols-2 gap-2 text-[0.68rem] font-bold text-text-secondary sm:grid-cols-4">
         {trustItems.map(([label, Icon]) => (
-          <span key={label} className="flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-2">
-            <Icon className="h-3.5 w-3.5 text-[#B8893B]" />
+          <span key={label} className="flex items-center gap-2 rounded-xl bg-surface-alt p-2">
+            <Icon className="h-3.5 w-3.5 text-accent" />
             {label}
           </span>
         ))}
       </div>
 
-      <p className="mt-4 text-center text-xs text-[#6F6255]">
+      <p className="mt-4 text-center text-xs text-text-secondary">
         {soldOut
           ? "This product is currently sold out."
           : `${product.stock} available · ${formatPrice(price * quantity)} total`}

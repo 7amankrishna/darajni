@@ -42,7 +42,7 @@ export function TrackingForm() {
     <div className="mx-auto max-w-4xl">
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-border bg-surface p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8"
+        className="rounded-2xl border border-border bg-surface p-4 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8"
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -102,7 +102,7 @@ export function TrackingForm() {
       </form>
 
       {result && (
-        <section className="mt-6 rounded-2xl border border-border bg-surface p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
+        <section className="mt-6 rounded-2xl border border-border bg-surface p-4 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow">Order found</p>
