@@ -179,7 +179,10 @@ canvas {
 }
 
 .field::placeholder {
-  color: rgba(58, 46, 37, 0.4);
+  color: rgba(30, 30, 30, 0.4);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .field:focus {
