@@ -2,13 +2,13 @@
 
 :root {
   color-scheme: light;
-  background: #F8F5F2;
-  color: #3A2E25;
-  --ivory: #F8F5F2;
-  --cream: #E6D5C3;
-  --ink: #3A2E25;
+  background: #FAF7F2;
+  color: #1E1E1E;
+  --ivory: #FAF7F2;
+  --cream: #F5EFEB;
+  --ink: #1E1E1E;
   --deep-black: #111111;
-  --muted: #6F6255;
+  --muted: #666666;
   --gold: #C8A97E;
   --gold-dark: #A88656;
   --maroon: #6E0F1A;

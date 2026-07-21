@@ -20,9 +20,9 @@ export default function DesignCard({ product }: { product: Product }) {
     : product.fabric;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#E2D7CB]/70 bg-[#F8F5F2] shadow-[0_10px_30px_rgba(58,46,37,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#C8A97E]/60 hover:shadow-[0_20px_48px_rgba(58,46,37,0.1)]">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#E8E2DA]/70 bg-[#FAF7F2] shadow-[0_10px_30px_rgba(58,46,37,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#C8A97E]/60 hover:shadow-[0_20px_48px_rgba(58,46,37,0.1)]">
       {/* Media Box with Portrait 3:4 Ratio & Slow Cinematic Scale */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#E6D5C3]">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5EFEB]">
         <Link href={`/design/${product.slug}`} className="block h-full w-full">
           <ProductImage
             src={image}
@@ -35,7 +35,7 @@ export default function DesignCard({ product }: { product: Product }) {
 
         {/* Top Badges */}
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#F8F5F2] backdrop-blur-sm">
+          <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#FAF7F2] backdrop-blur-sm">
             {fabricTag}
           </span>
         </div>
@@ -53,7 +53,7 @@ export default function DesignCard({ product }: { product: Product }) {
           }}
           className={`absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border backdrop-blur-md transition-all duration-200 ${
             wished
-              ? "border-[#6E0F1A] bg-[#6E0F1A] text-[#F8F5F2]"
+              ? "border-[#6E0F1A] bg-[#6E0F1A] text-[#FAF7F2]"
               : "border-white/40 bg-white/70 text-[#111111] hover:bg-white"
           }`}
           aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
@@ -88,19 +88,19 @@ export default function DesignCard({ product }: { product: Product }) {
             )}
           </div>
 
-          <h3 className="font-display mt-1 text-2xl font-normal leading-snug text-[#3A2E25]">
+          <h3 className="font-display mt-1 text-2xl font-normal leading-snug text-[#1E1E1E]">
             <Link href={`/design/${product.slug}`} className="transition hover:text-[#C8A97E]">
               {product.name}
             </Link>
           </h3>
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-[#E2D7CB]/60 pt-3">
+        <div className="mt-4 flex items-baseline justify-between border-t border-[#E8E2DA]/60 pt-3">
           <span className="font-display text-2xl font-semibold text-[#111111]">
             {formatPrice(price)}
           </span>
           {product.discount > 0 && (
-            <span className="text-xs text-[#6F6255] line-through">
+            <span className="text-xs text-[#666666] line-through">
               {formatPrice(product.price)}
             </span>
           )}

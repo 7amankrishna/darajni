@@ -125,8 +125,8 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-[#E9DCCB] bg-[#FFF8EF]/94 backdrop-blur-xl">
-        <div className="hidden bg-[#171717] text-[#FFFDF8] md:block">
+      <header className="sticky top-0 z-50 border-b border-[#E8E2DA] bg-[#FFFFFF]/94 backdrop-blur-xl">
+        <div className="hidden bg-[#1E1E1E] text-[#FFFFFF] md:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
@@ -136,7 +136,7 @@ export default function Navbar({
               href={whatsappHref}
               target={supportNumber ? "_blank" : undefined}
               rel="noreferrer"
-              className="text-[#E7C47F] hover:text-white"
+              className="text-[#C8A97E] hover:text-white"
             >
               {supportLabel}
             </a>
@@ -149,7 +149,7 @@ export default function Navbar({
         >
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] text-[#171717] md:hidden"
+            className="grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] text-[#1E1E1E] md:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-label="Toggle navigation"
@@ -163,12 +163,12 @@ export default function Navbar({
             className="mx-auto flex min-w-0 items-center gap-3 md:mx-0"
             aria-label="DARAJNI home"
           >
-            <BrandLogo className="h-11 w-11 border border-[#B8893B]/35 bg-[#FFFDF8]" />
+            <BrandLogo className="h-11 w-11 border border-[#C8A97E]/35 bg-[#FFFFFF]" />
             <span className="hidden sm:block">
-              <span className="font-display block text-[1.55rem] leading-none tracking-[0.08em] text-[#171717]">
+              <span className="font-display block text-[1.55rem] leading-none tracking-[0.08em] text-[#1E1E1E]">
                 DARAJNI
               </span>
-              <span className="mt-1 block text-[0.52rem] font-bold uppercase tracking-[0.18em] text-[#B8893B]">
+              <span className="mt-1 block text-[0.52rem] font-bold uppercase tracking-[0.18em] text-[#C8A97E]">
                 Designer House
               </span>
             </span>
@@ -179,7 +179,7 @@ export default function Navbar({
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-[0.72rem] font-bold uppercase text-[#5F5348] transition hover:text-[#6E0F1A]"
+                className="text-[0.72rem] font-bold uppercase text-[#666666] transition hover:text-[#6E0F1A]"
               >
                 {link.label}
               </Link>
@@ -189,14 +189,14 @@ export default function Navbar({
           <div className="flex shrink-0 items-center justify-end gap-2">
             <Link
               href="/collection"
-              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B]"
+              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E]"
               aria-label="Search collection"
             >
               <Search className="h-4 w-4" />
             </Link>
             <Link
               href="/wishlist"
-              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
+              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] md:grid"
               aria-label={`Wishlist with ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`}
             >
               <Heart className="h-4 w-4" />
@@ -204,7 +204,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/login"
-              className="hidden h-11 w-11 place-items-center rounded-xl border border-[#E9DCCB] bg-[#FFFDF8] text-[#171717] transition hover:border-[#B8893B] md:grid"
+              className="hidden h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] md:grid"
               aria-label="Customer account"
             >
               <UserRound className="h-4 w-4" />
@@ -212,7 +212,7 @@ export default function Navbar({
             <ThemeToggle />
             <Link
               href="/cart"
-              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#B8893B]/45 bg-[#111111] text-[#FFFDF8] transition hover:bg-[#6E0F1A]"
+              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#C8A97E]/45 bg-[#111111] text-[#FFFFFF] transition hover:bg-[#6E0F1A]"
               aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
               <ShoppingBag className="h-4 w-4" />
@@ -222,14 +222,14 @@ export default function Navbar({
         </nav>
 
         {open && (
-          <div className="border-t border-[#E9DCCB] bg-[#FFFDF8] px-5 py-5 md:hidden">
+          <div className="border-t border-[#E8E2DA] bg-[#FFFFFF] px-5 py-5 md:hidden">
             <div className="grid gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-3 text-sm font-semibold text-[#5F5348] hover:bg-[#F6E9DD]"
+                  className="rounded-xl px-3 py-3 text-sm font-semibold text-[#666666] hover:bg-[#F5EFEB]"
                 >
                   {link.label}
                 </Link>
@@ -243,8 +243,8 @@ export default function Navbar({
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp support
               </a>
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-[#F6E9DD] px-3 py-2">
-                <span className="text-xs font-extrabold uppercase text-[#5F5348]">
+              <div className="mt-3 flex items-center justify-between rounded-xl bg-[#F5EFEB] px-3 py-2">
+                <span className="text-xs font-extrabold uppercase text-[#666666]">
                   Theme
                 </span>
                 <ThemeToggle />
@@ -264,7 +264,7 @@ export default function Navbar({
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-[#E9DCCB] bg-[#FFFDF8]/96 px-2 pt-2 backdrop-blur-xl md:hidden`}>
+      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-[#E8E2DA] bg-[#FFFFFF]/96 px-2 pt-2 backdrop-blur-xl md:hidden`}>
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;
@@ -273,7 +273,7 @@ export default function Navbar({
               <Link
                 key={item.label}
                 href={item.href}
-                className="relative flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[0.62rem] font-bold text-[#5F5348]"
+                className="relative flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[0.62rem] font-bold text-[#666666]"
               >
                 <span className="relative">
                   <Icon className="h-4 w-4" />

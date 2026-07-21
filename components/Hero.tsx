@@ -15,7 +15,7 @@ export default function Hero({
   return (
     <section
       id="home"
-      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-[#111111] text-[#F8F5F2]"
+      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-[#111111] text-[#FAF7F2]"
     >
       {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
       <div className="absolute inset-0 z-0">
@@ -40,20 +40,20 @@ export default function Hero({
             DARAJNI High Couture
           </p>
 
-          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-[#F8F5F2] sm:text-7xl lg:text-8xl">
+          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-[#FAF7F2] sm:text-7xl lg:text-8xl">
             Timeless Indian Couture
           </h1>
 
-          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-[#E6D5C3] sm:text-3xl">
+          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-[#F5EFEB] sm:text-3xl">
             Designed for celebrations, crafted exclusively for you.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/collection" className="primary-button bg-[#111111] text-[#F8F5F2] hover:bg-[#C8A97E] hover:text-[#111111]">
+            <Link href="/collection" className="primary-button bg-[#111111] text-[#FAF7F2] hover:bg-[#C8A97E] hover:text-[#111111]">
               Explore Collection
               <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#F8F5F2] hover:bg-[#F8F5F2] hover:text-[#111111]">
+            <Link href="/requested-dresses" className="secondary-button border-[#C8A97E]/60 text-[#FAF7F2] hover:bg-[#FAF7F2] hover:text-[#111111]">
               Request a Custom Dress
             </Link>
           </div>

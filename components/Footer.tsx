@@ -69,14 +69,14 @@ export default function Footer({
   ];
 
   return (
-    <footer className="border-t border-[#E9DCCB] bg-[#171717] pb-24 pt-14 text-[#FFFDF8] md:pb-10">
+    <footer className="border-t border-[#E8E2DA] bg-[#181818] pb-24 pt-14 text-[#FFFFFF] md:pb-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <BrandLogo className="h-14 w-14 border border-[#B8893B]/35 bg-[#FFFDF8]" />
+            <BrandLogo className="h-14 w-14 border border-[#C8A97E]/35 bg-[#FFFFFF]" />
             <div>
               <p className="font-display text-3xl tracking-[0.08em]">DARAJNI</p>
-              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#D9B56B]">
+              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#C8A97E]">
                 Designer House
               </p>
             </div>
@@ -91,11 +91,11 @@ export default function Footer({
               <span><small>Customer support</small>{supportNumber ? `+${supportNumber}` : "WhatsApp support"}</span>
             </a>
             <a href={`mailto:${siteConfig.email}`} className="footer-contact-row group">
-              <Mail className="h-4 w-4 text-[#D9B56B]" />
+              <Mail className="h-4 w-4 text-[#C8A97E]" />
               <span><small>Email</small>{siteConfig.email}</span>
             </a>
             <span className="footer-contact-row">
-              <MapPin className="h-4 w-4 text-[#D9B56B]" />
+              <MapPin className="h-4 w-4 text-[#C8A97E]" />
               <span><small>Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
             </span>
           </div>
@@ -104,7 +104,7 @@ export default function Footer({
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {footerColumns.map((column) => (
             <div key={column.title}>
-              <p className="text-[0.68rem] font-extrabold uppercase text-[#D9B56B]">
+              <p className="text-[0.68rem] font-extrabold uppercase text-[#C8A97E]">
                 {column.title}
               </p>
               <div className="mt-4 grid gap-3 text-sm text-white/72">
@@ -122,11 +122,11 @@ export default function Footer({
       <div className="section-shell mt-10 grid gap-4 border-t border-white/10 pt-6 text-xs text-white/64 md:grid-cols-[1fr_auto] md:items-center">
         <div className="flex flex-wrap gap-4">
           <span className="inline-flex items-center gap-2">
-            <Truck className="h-3.5 w-3.5 text-[#D9B56B]" />
+            <Truck className="h-3.5 w-3.5 text-[#C8A97E]" />
             Pan-India delivery
           </span>
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#D9B56B]" />
+            <ShieldCheck className="h-3.5 w-3.5 text-[#C8A97E]" />
             Secure checkout
           </span>
         </div>
@@ -142,7 +142,7 @@ export default function Footer({
               href="https://www.instagram.com/bruhh.aman/"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-[#E7C47F] transition hover:text-white"
+              className="inline-flex items-center gap-1.5 font-bold text-[#C8A97E] transition hover:text-white"
             >
               <AtSign className="h-3.5 w-3.5" />
               @bruhh.aman
