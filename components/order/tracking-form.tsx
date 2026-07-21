@@ -42,7 +42,7 @@ export function TrackingForm() {
     <div className="mx-auto max-w-4xl">
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8"
+        className="rounded-2xl border border-border bg-surface p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8"
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -93,31 +93,31 @@ export function TrackingForm() {
             </>
           )}
         </button>
-        <p className="mt-4 text-center text-xs text-[#6F6255]">
+        <p className="mt-4 text-center text-xs text-text-secondary">
           Forgot your order ID?{" "}
-          <Link href="/support" className="font-bold text-[#6E0F1A]">
+          <Link href="/support" className="font-bold text-accent">
             Contact support
           </Link>
         </p>
       </form>
 
       {result && (
-        <section className="mt-6 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
+        <section className="mt-6 rounded-2xl border border-border bg-surface p-6 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow">Order found</p>
-              <h2 className="font-display mt-2 text-4xl text-[#171717]">
+              <h2 className="font-display mt-2 text-4xl text-text-primary">
                 {result.orderNumber}
               </h2>
             </div>
-            <p className="text-xs font-semibold text-[#6F6255]">
+            <p className="text-xs font-semibold text-text-secondary">
               Last updated {formatDate(result.updatedAt)}
             </p>
           </div>
           <div className="mt-8">
             <OrderStatusTimeline status={result.status} />
           </div>
-          <div className="mt-8 grid gap-4 rounded-2xl bg-[#F6E9DD] p-5 text-sm text-[#5F5348] sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 rounded-2xl bg-surface-alt p-5 text-sm text-text-primary sm:grid-cols-3">
             <div>
               <p className="field-label">Placed</p>
               <p>{formatDate(result.createdAt)}</p>

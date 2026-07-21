@@ -128,7 +128,7 @@ export default async function Page({
   };
 
   return (
-    <main className="bg-[#FFF8EF]">
+    <main className="bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
