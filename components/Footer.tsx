@@ -69,7 +69,7 @@ export default function Footer({
   ];
 
   return (
-    <footer className="border-t border-[#E8E2DA] bg-[#F5EFEB] pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#15110F] dark:text-[#F7EADB] md:pb-10">
+    <footer className="border-t border-[#E8E2DA] bg-[#FFFFFF] pb-24 pt-14 text-[#1E1E1E] transition-colors dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB] md:pb-10">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">

@@ -338,7 +338,7 @@ export function RequestedDressesHomepageTeaser({
   const displayRequests = requests.slice(0, 4);
 
   return (
-    <section className="bg-[#F5EFEB]/70 py-20 text-[#1E1E1E] transition-colors dark:bg-[#15110F] dark:text-[#F7EADB] sm:py-28">
+    <section className="bg-[#FAF7F2] py-20 text-[#1E1E1E] transition-colors dark:bg-[#100D0B] dark:text-[#F7EADB] sm:py-28">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>

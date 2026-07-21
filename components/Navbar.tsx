@@ -126,7 +126,7 @@ export default function Navbar({
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#E8E2DA] bg-[#FFFFFF]/94 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95">
-        <div className="hidden border-b border-[#E8E2DA] bg-[#F5EFEB] text-[#1E1E1E] md:block dark:border-[#3B3026] dark:bg-[#15110F] dark:text-[#F7EADB]">
+        <div className="hidden border-b border-[#E8E2DA] bg-[#FAF7F2] text-[#1E1E1E] md:block dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
