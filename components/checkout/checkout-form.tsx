@@ -633,15 +633,24 @@ export function CheckoutForm({
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("cod")}
-                  className={`rounded-2xl border p-5 text-left transition ${
+                  className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
                     paymentMethod === "cod"
-                      ? "border-[#1E1E1E] bg-[#1E1E1E] text-white dark:border-[#C8A97E] dark:bg-[#C8A97E] dark:text-[#100D0B]"
-                      : "border-[#E8E2DA] bg-white text-[#1E1E1E] dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
+                      ? "border-[#C8A97E] bg-[#FAF7F2] text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
+                      : "border-[#E8E2DA] bg-white text-[#1E1E1E] hover:border-[#C8A97E]/50 dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                   }`}
                 >
-                  <Truck className="h-5 w-5 text-[#C8A97E]" />
+                  <div className="flex items-center justify-between">
+                    <Truck className="h-5 w-5 text-[#C8A97E]" />
+                    <span className={`grid h-5 w-5 place-items-center rounded-full border ${
+                      paymentMethod === "cod"
+                        ? "border-[#C8A97E] bg-[#C8A97E] text-white"
+                        : "border-[#E8E2DA] dark:border-[#3B3026]"
+                    }`}>
+                      {paymentMethod === "cod" && <span className="h-2 w-2 rounded-full bg-white" />}
+                    </span>
+                  </div>
                   <p className="mt-3 text-sm font-semibold">Cash on Delivery (COD)</p>
-                  <p className={`mt-2 text-xs leading-5 ${paymentMethod === "cod" ? "opacity-80" : "text-[#666666] dark:text-[#A89B8C]"}`}>
+                  <p className="mt-1 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
                     Pay in cash when your custom outfit arrives.
                   </p>
                 </button>
@@ -649,15 +658,24 @@ export function CheckoutForm({
               <button
                 type="button"
                 onClick={() => setPaymentMethod("razorpay")}
-                className={`rounded-2xl border p-5 text-left transition ${
+                className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
                   paymentMethod === "razorpay"
-                    ? "border-[#1E1E1E] bg-[#1E1E1E] text-white dark:border-[#C8A97E] dark:bg-[#C8A97E] dark:text-[#100D0B]"
-                    : "border-[#E8E2DA] bg-white text-[#1E1E1E] dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
+                    ? "border-[#C8A97E] bg-[#FAF7F2] text-[#1E1E1E] shadow-sm dark:border-[#C8A97E] dark:bg-[#241D17] dark:text-[#F7EADB]"
+                    : "border-[#E8E2DA] bg-white text-[#1E1E1E] hover:border-[#C8A97E]/50 dark:border-[#3B3026] dark:bg-[#100D0B] dark:text-[#F7EADB]"
                 }`}
               >
-                <CreditCard className="h-5 w-5 text-[#C8A97E]" />
+                <div className="flex items-center justify-between">
+                  <CreditCard className="h-5 w-5 text-[#C8A97E]" />
+                  <span className={`grid h-5 w-5 place-items-center rounded-full border ${
+                    paymentMethod === "razorpay"
+                      ? "border-[#C8A97E] bg-[#C8A97E] text-white"
+                      : "border-[#E8E2DA] dark:border-[#3B3026]"
+                  }`}>
+                    {paymentMethod === "razorpay" && <span className="h-2 w-2 rounded-full bg-white" />}
+                  </span>
+                </div>
                 <p className="mt-3 text-sm font-semibold">Instant Online Payment</p>
-                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "razorpay" ? "opacity-80" : "text-[#666666] dark:text-[#A89B8C]"}`}>
+                <p className="mt-1 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
                   UPI (GPay/PhonePe), Credit/Debit Cards, NetBanking via Razorpay.
                 </p>
               </button>
