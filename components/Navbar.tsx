@@ -219,38 +219,44 @@ export default function Navbar({
           </div>
         </nav>
 
-        {open && (
-          <div className={cn("fixed inset-0 top-[74px] z-40 bg-background transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:hidden")}>
-            <div className="grid gap-1 px-5 py-5">
-              {navLinks.map((link) => (
+      </header>
+
+      {open && (
+        <div className="fixed inset-0 z-30 mt-[74px] flex flex-col bg-background/98 backdrop-blur-xl animate-in slide-in-from-top-2 fade-in duration-300 xl:hidden">
+          <div className="flex-1 overflow-y-auto px-5 py-6">
+            <div className="grid gap-2">
+              {navLinks.map((link, index) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-3 text-sm font-semibold text-text-primary hover:bg-surface-alt"
+                  className="rounded-xl px-4 py-3.5 text-[0.85rem] font-bold tracking-wide text-text-primary transition-all hover:bg-surface-alt hover:text-accent hover:translate-x-1"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {link.label}
                 </Link>
               ))}
+            </div>
+            <div className="mt-8 border-t border-border pt-6">
               <a
                 href={whatsappHref}
                 target={supportNumber ? "_blank" : undefined}
                 rel="noreferrer"
-                className="whatsapp-button mt-3 w-full"
+                className="whatsapp-button w-full shadow-lg shadow-success/20"
               >
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp support
               </a>
-              <div className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6">
-                <span className="px-4 py-2.5 text-xs font-extrabold uppercase tracking-[0.1em] transition">
-                  Theme
-                </span>
-                <ThemeToggle />
-              </div>
+            </div>
+            <div className="mt-6 flex h-16 items-center justify-between rounded-xl border border-border bg-surface-alt/50 px-4">
+              <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-text-primary">
+                Theme
+              </span>
+              <ThemeToggle />
             </div>
           </div>
-        )}
-      </header>
+        </div>
+      )}
 
       <a
         href={whatsappHref}
