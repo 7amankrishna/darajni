@@ -147,7 +147,7 @@ export default function Navbar({
         >
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-xl border border-border text-text-primary md:hidden"
+            className="grid h-11 w-11 place-items-center rounded-xl border border-border text-text-primary xl:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-label="Toggle navigation"
@@ -163,21 +163,21 @@ export default function Navbar({
           >
             <BrandLogo className="h-10 w-10 border border-accent/35 bg-surface transition-transform group-hover:scale-105 sm:h-12 sm:w-12" />
             <span className="hidden sm:block">
-              <span className="font-display block text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
+              <span className="font-display block whitespace-nowrap text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
                 DARAJNI
               </span>
-              <span className="block text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
+              <span className="block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
                 Designer House
               </span>
             </span>
           </Link>
 
-          <div className="hidden items-center justify-center gap-5 lg:flex">
+          <div className="hidden items-center justify-center gap-4 xl:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="relative p-2.5 text-text-primary transition hover:text-accent"
+                className="relative whitespace-nowrap p-2.5 text-text-primary transition hover:text-accent"
               >
                 {link.label}
               </Link>
@@ -220,7 +220,7 @@ export default function Navbar({
         </nav>
 
         {open && (
-          <div className={cn("fixed inset-0 top-[74px] z-40 bg-background transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden")}>
+          <div className={cn("fixed inset-0 top-[74px] z-40 bg-background transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:hidden")}>
             <div className="grid gap-1 px-5 py-5">
               {navLinks.map((link) => (
                 <Link
