@@ -126,7 +126,7 @@ export default function Navbar({
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#E8E2DA] bg-[#FFFFFF]/94 backdrop-blur-xl dark:border-[#3B3026] dark:bg-[#100D0B]/95">
-        <div className="hidden bg-[#1E1E1E] text-[#FFFFFF] md:block dark:bg-[#15110F] dark:text-[#F7EADB]">
+        <div className="hidden border-b border-[#E8E2DA] bg-[#F5EFEB] text-[#1E1E1E] md:block dark:border-[#3B3026] dark:bg-[#15110F] dark:text-[#F7EADB]">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>
@@ -136,7 +136,7 @@ export default function Navbar({
               href={whatsappHref}
               target={supportNumber ? "_blank" : undefined}
               rel="noreferrer"
-              className="text-[#C8A97E] hover:text-white"
+              className="text-[#C8A97E] hover:text-[#1E1E1E] dark:hover:text-white"
             >
               {supportLabel}
             </a>
@@ -212,7 +212,7 @@ export default function Navbar({
             <ThemeToggle />
             <Link
               href="/cart"
-              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#C8A97E]/45 bg-[#111111] text-[#FFFFFF] transition hover:bg-[#C8A97E] hover:text-[#111111] dark:bg-[#C8A97E] dark:text-[#100D0B]"
+              className="relative grid h-11 w-11 place-items-center rounded-xl border border-[#E8E2DA] bg-[#FFFFFF] text-[#1E1E1E] transition hover:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#1B1612] dark:text-[#F7EADB]"
               aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
               <ShoppingBag className="h-4 w-4" />
