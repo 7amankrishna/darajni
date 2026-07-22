@@ -33,6 +33,7 @@ const SERVER_SECRET_NAMES = [
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
   "SHIPROCKET_API_PASSWORD",
+  "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
 ];
 
@@ -74,6 +75,10 @@ export function getRazorpayKeySecret() {
 
 export function getRazorpayWebhookSecret() {
   return dedicatedSecret("RAZORPAY_WEBHOOK_SECRET", 16);
+}
+
+export function getShiprocketWebhookToken() {
+  return dedicatedSecret("SHIPROCKET_WEBHOOK_TOKEN", 16);
 }
 
 function positiveNumber(name: string, minimum: number) {

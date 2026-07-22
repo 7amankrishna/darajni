@@ -90,6 +90,11 @@ if (shiprocketValues.every(Boolean)) {
   }
 }
 
+const shiprocketWebhookToken = value("SHIPROCKET_WEBHOOK_TOKEN");
+if (shiprocketWebhookToken && shiprocketWebhookToken.length < 16) {
+  errors.push("SHIPROCKET_WEBHOOK_TOKEN must be at least 16 characters.");
+}
+
 const upstashUrl = value("UPSTASH_REDIS_REST_URL");
 const upstashToken = value("UPSTASH_REDIS_REST_TOKEN");
 if (Boolean(upstashUrl) !== Boolean(upstashToken)) {
@@ -114,6 +119,7 @@ const secrets = [
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
   "SHIPROCKET_API_PASSWORD",
+  "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
 ].filter((name) => value(name));
 for (let index = 0; index < secrets.length; index += 1) {

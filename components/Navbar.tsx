@@ -27,7 +27,7 @@ const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
   { label: "Categories", href: "/collection", icon: Grid2X2 },
   { label: "Wishlist", href: "/wishlist", icon: Heart },
-  { label: "Orders", href: "/track", icon: PackageSearch },
+  { label: "Orders", href: "/dashboard", icon: PackageSearch },
   { label: "Account", href: "/login", icon: UserRound },
 ];
 

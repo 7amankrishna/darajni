@@ -8,6 +8,7 @@ import {
   MapPin,
   PackageCheck,
   Phone,
+  RefreshCw,
   Save,
   ShoppingBag,
   UserPlus,
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 
 import { OrderStatusTimeline } from "@/components/order/order-status-timeline";
 import { formatPrice } from "@/config/site";
+import { useLiveOrders } from "@/hooks/use-live-orders";
 import { formatDate } from "@/lib/commerce";
 import { supabase } from "@/lib/supabase/client";
 import type {
@@ -154,8 +156,17 @@ export function CustomerAccountPage({
   const [activeTab, setActiveTab] = useState<"orders" | "profile">("orders");
 
   const user = initialAccount.user;
-  const orders = initialAccount.orders;
+  const { orders, live } = useLiveOrders(initialAccount.orders, user?.id);
   const accountEmail = user?.email || initialAccount.profile?.email || "";
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshOrders = () => {
+    setRefreshing(true);
+    router.refresh();
+    // The server component re-renders and feeds fresh orders back through the
+    // hook; clear the spinner shortly after so the control feels responsive.
+    setTimeout(() => setRefreshing(false), 800);
+  };
 
   useEffect(() => {
     setProfileForm(profileToForm(initialAccount.profile, accountEmail));
@@ -491,16 +502,44 @@ export function CustomerAccountPage({
           <section className="space-y-6">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
-                <h2 className="font-display text-3xl font-light text-text-primary">
-                  Order History
-                </h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-3xl font-light text-text-primary">
+                    Order History
+                  </h2>
+                  {live && (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-2.5 py-1 text-[0.6rem] font-black uppercase tracking-wider text-success"
+                      title="Order progress updates automatically"
+                    >
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+                      </span>
+                      Live
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-text-secondary">
                   Track production, size confirmation &amp; delivery updates for all your orders
                 </p>
               </div>
-              <Link href="/track" className="secondary-button shrink-0 text-xs">
-                Track by Order ID
-              </Link>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={refreshOrders}
+                  disabled={refreshing}
+                  className="secondary-button text-xs"
+                  aria-label="Refresh orders"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                  />
+                  Refresh
+                </button>
+                <Link href="/track" className="secondary-button text-xs">
+                  Track by Order ID
+                </Link>
+              </div>
             </div>
 
             <div className="grid gap-5">
