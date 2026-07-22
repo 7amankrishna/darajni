@@ -91,6 +91,10 @@ export interface AdminRequestedDress {
   status: "pending" | "published" | "hidden" | "rejected";
   consentedAt: string;
   createdAt: string;
+  userId?: string | null;
+  userName?: string | null;
+  userEmail?: string | null;
+  userPhone?: string | null;
 }
 
 export interface AdminDressComment {

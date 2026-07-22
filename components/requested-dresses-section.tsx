@@ -94,18 +94,27 @@ export function RequestedDressesSection({
         request?: RequestedDress;
         error?: string;
       };
-      if (!response.ok || !result.request) {
+      if (response.status === 401) {
+        toast.error("Please sign in to submit a dress request so we can save your contact details.", {
+          action: {
+            label: "Sign In",
+            onClick: () => window.location.href = "/account",
+          },
+        });
+        return;
+      }
+
+      if (!response.ok) {
         throw new Error(result.error || "Your dress request could not be posted.");
       }
 
-      setRequests((current) => [result.request!, ...current].slice(0, 12));
       setOptimized(null);
       setPreviewUrl(null);
       setDescription("");
       setPublicConsent(false);
       setTermsAccepted(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      toast.success("Your reference dress is now visible in Requested dresses.");
+      toast.success("Your dress request has been submitted successfully! It will be reviewed by our admin team before being published.");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Your request could not be posted.",

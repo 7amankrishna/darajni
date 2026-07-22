@@ -6,6 +6,7 @@ import { mapRequestedDress } from "@/lib/data/requested-dresses";
 import { apiError, internalApiError, rateLimitError } from "@/lib/security/api-response";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { isSameOrigin } from "@/lib/security/request";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
@@ -28,6 +29,17 @@ export async function POST(request: Request) {
 
   const limit = await rateLimitRequest(request, RATE_LIMITS.requestedDressUpload);
   if (!limit.success) return rateLimitError(limit);
+
+  // Authenticate the user before allowing upload
+  const authClient = await createSupabaseServerClient();
+  if (!authClient) return apiError("Authentication service is unavailable.", 503);
+
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+  if (!user) {
+    return apiError("Please sign in to submit a dress request.", 401);
+  }
 
   const declaredLength = Number(request.headers.get("content-length") || 0);
   if (declaredLength > 2.25 * 1024 * 1024) {
@@ -68,6 +80,24 @@ export async function POST(request: Request) {
   const supabase = createSupabaseServiceClient();
   if (!supabase) return apiError("Dress requests are temporarily unavailable.", 503);
 
+  // Fetch profile for additional user details (full_name, phone)
+  const { data: profile } = await supabase
+    .from("customer_profiles")
+    .select("full_name, phone, email")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const userEmail = (profile?.email || user.email || "").toLowerCase();
+  const userName =
+    profile?.full_name ||
+    (typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : "") ||
+    userEmail.split("@")[0] ||
+    "Customer";
+  const userPhone =
+    profile?.phone ||
+    (typeof user.user_metadata?.phone === "string" ? user.user_metadata.phone : "") ||
+    null;
+
   const now = new Date();
   const storagePath = `${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, "0")}/${randomUUID()}.${definition.extension}`;
   const { error: uploadError } = await supabase.storage
@@ -89,14 +119,19 @@ export async function POST(request: Request) {
   const { data: publicUrlData } = supabase.storage
     .from("requested-dresses")
     .getPublicUrl(storagePath);
+
   const { data, error: insertError } = await supabase
     .from("requested_dresses")
     .insert({
       image_url: publicUrlData.publicUrl,
       storage_path: storagePath,
       description: description || null,
-      status: "published",
+      status: "pending",
       consented_at: now.toISOString(),
+      user_id: user.id,
+      user_email: userEmail || null,
+      user_name: userName || null,
+      user_phone: userPhone || null,
     })
     .select("id, image_url, description, created_at")
     .single();
@@ -112,6 +147,7 @@ export async function POST(request: Request) {
 
   revalidateTag("requested-dresses");
   revalidatePath("/");
+  revalidatePath("/admin");
   return NextResponse.json(
     { request: mapRequestedDress(data as unknown as Record<string, unknown>) },
     { status: 201 },

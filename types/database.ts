@@ -328,6 +328,10 @@ export interface Database {
           status: "pending" | "published" | "hidden" | "rejected";
           consented_at: string;
           created_at: string;
+          user_id?: string | null;
+          user_name?: string | null;
+          user_email?: string | null;
+          user_phone?: string | null;
         };
         Insert: {
           id?: string;
@@ -337,6 +341,10 @@ export interface Database {
           status?: "pending" | "published" | "hidden" | "rejected";
           consented_at: string;
           created_at?: string;
+          user_id?: string | null;
+          user_name?: string | null;
+          user_email?: string | null;
+          user_phone?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["requested_dresses"]["Insert"]>;
       };

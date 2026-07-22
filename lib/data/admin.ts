@@ -248,6 +248,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     status: row.status,
     consentedAt: String(row.consented_at),
     createdAt: String(row.created_at),
+    userId: row.user_id ? String(row.user_id) : null,
+    userName: row.user_name ? String(row.user_name) : null,
+    userEmail: row.user_email ? String(row.user_email) : null,
+    userPhone: row.user_phone ? String(row.user_phone) : null,
   }));
 
   const dressComments = (commentsResult?.data ?? []).map((row: any) => ({
