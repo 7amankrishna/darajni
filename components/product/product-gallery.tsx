@@ -34,6 +34,9 @@ export function ProductGallery({
   const gallery = images.length ? images : ["/logo.webp"];
   const [active, setActive] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const activeIndex = Math.min(active, gallery.length - 1);
 
@@ -54,6 +57,21 @@ export function ProductGallery({
       (current) =>
         (Math.min(current, gallery.length - 1) + 1) % gallery.length,
     );
+  }
+
+  function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+  }
+
+  function handleMouseEnter() {
+    setIsHovered(true);
+  }
+
+  function handleMouseLeave() {
+    setIsHovered(false);
   }
 
   function beginSwipe(event: PointerEvent<HTMLButtonElement>) {
@@ -86,8 +104,6 @@ export function ProductGallery({
   }
 
   function openFromKeyboard(event: MouseEvent<HTMLButtonElement>) {
-    // Keyboard activation (Enter/Space) fires a click with detail 0 and no
-    // preceding pointerup; pointer taps are already handled in finishSwipe.
     if (event.detail === 0) setViewerOpen(true);
   }
 
@@ -119,7 +135,7 @@ export function ProductGallery({
         <div className="product-gallery-stage group relative order-1 aspect-[3/4] overflow-hidden rounded-md bg-[#F4F1EC] md:order-2">
           <button
             type="button"
-            className="absolute inset-0 block w-full cursor-zoom-in touch-pan-y"
+            className="absolute inset-0 block w-full cursor-crosshair touch-pan-y overflow-hidden"
             aria-label={`Open full-screen view of ${name}`}
             aria-haspopup="dialog"
             aria-expanded={viewerOpen}
@@ -128,6 +144,9 @@ export function ProductGallery({
             onPointerCancel={() => {
               pointerStart.current = null;
             }}
+            onMouseEnter={handleMouseEnter}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
             onClick={openFromKeyboard}
             onKeyDown={(event) => {
               if (event.key === "ArrowLeft") {
@@ -146,13 +165,24 @@ export function ProductGallery({
                 style={{ transform: `translate3d(-${activeIndex * 100}%, 0, 0)` }}
               >
                 {gallery.map((image, index) => (
-                  <span className="product-gallery-slide relative block h-full min-w-full" key={`${image}-${index}`}>
+                  <span className="product-gallery-slide relative block h-full min-w-full overflow-hidden" key={`${image}-${index}`}>
                     <ProductImage
                       src={image}
                       alt={`${name}, ${labels[index] || `image ${index + 1}`}`}
                       priority={index === 0}
                       sizes="(max-width: 767px) 100vw, (max-width: 1279px) 56vw, 48vw"
-                      className="object-cover"
+                      className="object-cover transition-transform duration-200 ease-out"
+                      style={
+                        isHovered && activeIndex === index
+                          ? {
+                              transform: "scale(2.2)",
+                              transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
+                            }
+                          : {
+                              transform: "scale(1)",
+                              transformOrigin: "center center",
+                            }
+                      }
                     />
                   </span>
                 ))}
@@ -184,9 +214,18 @@ export function ProductGallery({
           <span className="product-gallery-count" aria-live="polite">
             {activeIndex + 1} / {gallery.length}
           </span>
-          <span className="product-gallery-expand" aria-hidden="true">
-            <Maximize2 className="h-3.5 w-3.5" />
-          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setViewerOpen(true);
+            }}
+            className="product-gallery-expand group/expand transition-all duration-200 hover:scale-115 hover:bg-black/90 hover:text-white"
+            aria-label={`Enlarge ${name} image`}
+            title="Click to view full screen"
+          >
+            <Maximize2 className="h-3.5 w-3.5 transition-transform duration-200 group-hover/expand:scale-110" />
+          </button>
         </div>
 
         <DialogContent className="h-[92svh] max-h-[92dvh] max-w-6xl overflow-hidden p-3 sm:p-5">

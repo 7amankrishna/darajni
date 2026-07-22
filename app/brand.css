@@ -939,6 +939,14 @@ input[type="checkbox"] {
   right: 0.85rem;
   width: 2rem;
   min-width: 2rem;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease;
+}
+
+.product-gallery-expand:hover {
+  transform: scale(1.15);
+  background: rgba(23, 23, 23, 0.9);
+  color: #ffffff;
 }
 
 .footer-contact-row {

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 function canOptimize(src: string) {
   if (src.startsWith("/")) return true;
@@ -15,12 +16,14 @@ export function ProductImage({
   sizes,
   priority = false,
   className = "object-cover",
+  style,
 }: {
   src: string;
   alt: string;
   sizes: string;
   priority?: boolean;
   className?: string;
+  style?: CSSProperties;
 }) {
   if (canOptimize(src)) {
     return (
@@ -31,6 +34,7 @@ export function ProductImage({
         sizes={sizes}
         priority={priority}
         className={className}
+        style={style}
       />
     );
   }
@@ -46,6 +50,7 @@ export function ProductImage({
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"
       className={`absolute inset-0 h-full w-full ${className}`}
+      style={style}
     />
   );
 }
