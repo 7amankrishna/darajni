@@ -21,16 +21,16 @@ export function ApprovalsManagement({
 }) {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<"dresses" | "comments">("dresses");
-  const [dressStatusFilter, setDressStatusFilter] = useState<
-    "pending" | "published" | "rejected" | "all"
-  >("pending");
-
   const pendingDressesCount = dresses.filter(
     (d) => d.status === "pending" || d.status === "hidden",
   ).length;
   const pendingCommentsCount = comments.filter(
     (c) => c.status === "pending",
   ).length;
+
+  const [dressStatusFilter, setDressStatusFilter] = useState<
+    "pending" | "published" | "rejected" | "all"
+  >(pendingDressesCount > 0 ? "pending" : "all");
 
   const filteredDresses = dresses.filter((dress) => {
     if (dressStatusFilter === "pending") {

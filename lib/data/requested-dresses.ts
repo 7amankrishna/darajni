@@ -3,6 +3,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
+import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type { RequestedDress } from "@/types/commerce";
 
 function createPublicClient() {
@@ -29,7 +30,7 @@ export function mapRequestedDress(
 
 export const getRequestedDresses = unstable_cache(
   async (): Promise<RequestedDress[]> => {
-    const supabase = createPublicClient();
+    const supabase = createSupabaseServiceClient() || createPublicClient();
     if (!supabase) return [];
 
     const { data, error } = await supabase
@@ -39,7 +40,6 @@ export const getRequestedDresses = unstable_cache(
       .order("created_at", { ascending: false })
       .limit(12);
 
-    // Keep the homepage available before the migration is applied.
     if (error) return [];
     return (data ?? []).map((row) =>
       mapRequestedDress(row as unknown as Record<string, unknown>),
