@@ -5,8 +5,10 @@ import {
   CheckCircle2,
   ImagePlus,
   Loader2,
+  Lock,
   Sparkles,
   Upload,
+  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -24,6 +26,7 @@ import {
   optimizeImage,
   type OptimizedImage,
 } from "@/lib/imageCompression";
+import { supabase } from "@/lib/supabase/client";
 import type { RequestedDress } from "@/types/commerce";
 
 function formatBytes(bytes: number) {
@@ -45,6 +48,8 @@ export function RequestedDressesSection({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [userChecked, setUserChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -52,9 +57,34 @@ export function RequestedDressesSection({
     };
   }, [previewUrl]);
 
+  useEffect(() => {
+    if (!supabase) {
+      setUserChecked(true);
+      return;
+    }
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(Boolean(user && !user.is_anonymous));
+      setUserChecked(true);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(Boolean(session?.user && !session.user.is_anonymous));
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
   const chooseImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!isAuthenticated) {
+      toast.error("Only registered DARAJNI accounts can upload dress requests. Please sign in or register.");
+      event.target.value = "";
+      return;
+    }
 
     setPreparing(true);
     try {
@@ -76,6 +106,16 @@ export function RequestedDressesSection({
 
   const submitRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isAuthenticated) {
+      toast.error("Only registered accounts can upload dress requests. Please sign in or register.", {
+        action: {
+          label: "Sign In",
+          onClick: () => window.location.href = "/account",
+        },
+      });
+      return;
+    }
+
     if (!optimized || !publicConsent || !termsAccepted) return;
 
     setSubmitting(true);
@@ -95,7 +135,7 @@ export function RequestedDressesSection({
         error?: string;
       };
       if (response.status === 401) {
-        toast.error("Please sign in to submit a dress request so we can save your contact details.", {
+        toast.error("Only registered accounts can upload dress requests. Please sign in or register.", {
           action: {
             label: "Sign In",
             onClick: () => window.location.href = "/account",
@@ -145,27 +185,26 @@ export function RequestedDressesSection({
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
               Upload a dress-only reference image of a design you would like DARAJNI to make.
-              Your compressed image and note will be showcased publicly in
-              the Requested dresses section on our homepage below.
+              Only registered DARAJNI accounts can submit requests so we have your contact details for custom tailoring.
             </p>
 
             <div className="mt-7 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 backdrop-blur-sm dark:border-amber-300/40 dark:bg-amber-400/10">
               <div className="flex gap-3">
                 <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" />
                 <div>
-                  <h3 className="font-bold text-amber-950 dark:text-amber-100">Important instructions for public dress requests</h3>
+                  <h3 className="font-bold text-amber-950 dark:text-amber-100">Important instructions for dress requests</h3>
                   <ul className="mt-2 space-y-2 text-xs leading-5 text-amber-900/90 dark:text-amber-50/90">
+                    <li>
+                      <strong className="text-amber-950 dark:text-amber-200">Registered users only:</strong> You must be signed in with a registered DARAJNI account to upload images.
+                    </li>
                     <li>
                       <strong className="text-amber-950 dark:text-amber-200">Do NOT upload personal photos:</strong> Do not upload images containing yourself, your face, children, address, or private personal information.
                     </li>
                     <li>
-                      <strong className="text-amber-950 dark:text-amber-200">Public showcase on homepage:</strong> Uploaded reference dresses will be showcased publicly in the Requested dresses section on the homepage.
+                      <strong className="text-amber-950 dark:text-amber-200">Admin review & public showcase:</strong> Uploaded reference dresses are reviewed by our admin team before being showcased publicly.
                     </li>
                     <li>
-                      <strong className="text-amber-950 dark:text-amber-200">User responsibility & liability:</strong> Users are solely responsible for their uploads and activity. DARAJNI takes no charge or liability for user-submitted images or content.
-                    </li>
-                    <li>
-                      <strong className="text-amber-950 dark:text-amber-200">Dress inspiration only:</strong> Uploading only dress reference images you own or have rights to share. Posting does not guarantee production.
+                      <strong className="text-amber-950 dark:text-amber-200">User responsibility & liability:</strong> Users are solely responsible for their uploads and activity. DARAJNI takes no charge or liability for user-submitted images.
                     </li>
                   </ul>
                 </div>
@@ -173,121 +212,143 @@ export function RequestedDressesSection({
             </div>
           </div>
 
-          <form
-            onSubmit={submitRequest}
-            className="rounded-[2rem] border border-[#E8E2DA] bg-white p-5 shadow-xl dark:border-[#3B3026] dark:bg-[#1B1612] sm:p-7"
-          >
-            <label
-              htmlFor="requested-dress-image"
-              className="block cursor-pointer overflow-hidden rounded-2xl border border-dashed border-[#C8A97E]/55 bg-[#F5EFEB] transition hover:border-[#C8A97E] dark:bg-[#241D17]"
-            >
-              {previewUrl ? (
-                <div className="relative aspect-[4/3]">
-                  {/* Preview is a local object URL and is never sent until submission. */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={previewUrl}
-                    alt="Selected dress reference preview"
-                    className="h-full w-full object-contain"
-                  />
-                  <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold text-white">
-                    Choose another
-                  </span>
-                </div>
-              ) : (
-                <span className="grid min-h-64 place-items-center p-8 text-center">
-                  <span>
-                    {preparing ? (
-                      <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#C8A97E]" />
-                    ) : (
-                      <ImagePlus className="mx-auto h-9 w-9 text-[#C8A97E]" />
-                    )}
-                    <span className="mt-4 block font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
-                      {preparing ? "Compressing your image…" : "Choose a dress image"}
-                    </span>
-                    <span className="mt-2 block text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
-                      JPG, PNG, or WebP up to 25 MB. It will be resized, converted,
-                      and stripped of embedded metadata before upload.
-                    </span>
-                  </span>
-                </span>
-              )}
-              <input
-                ref={fileInputRef}
-                id="requested-dress-image"
-                type="file"
-                accept={IMAGE_UPLOAD_ACCEPT}
-                onChange={(event) => void chooseImage(event)}
-                className="sr-only"
-                disabled={preparing || submitting}
-                required={!optimized}
-              />
-            </label>
-
-            {optimized && (
-              <p className="mt-3 flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
-                <CheckCircle2 className="h-4 w-4" />
-                Prepared at {optimized.width} × {optimized.height}: {formatBytes(optimized.originalBytes)} → {formatBytes(optimized.optimizedBytes)}
+          {userChecked && !isAuthenticated ? (
+            <div className="rounded-[2rem] border border-[#E8E2DA] bg-white p-8 text-center shadow-xl dark:border-[#3B3026] dark:bg-[#1B1612] sm:p-10">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F5EFEB] text-[#C8A97E] dark:bg-[#241D17]">
+                <Lock className="h-8 w-8" />
+              </div>
+              <h3 className="font-display mt-6 text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
+                Registered accounts only
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-[#666666] dark:text-[#B8A898]">
+                Only registered DARAJNI customers can submit reference dress images. Please sign in or create an account so our team has your verified contact details for custom tailoring.
               </p>
-            )}
-
-            <div className="mt-5">
-              <label htmlFor="request-description" className="text-xs font-bold uppercase tracking-wide text-[#1E1E1E] dark:text-[#F7EADB]">
-                What do you like about it? <span className="font-normal normal-case text-[#666666] dark:text-[#B8A898]">(optional)</span>
-              </label>
-              <textarea
-                id="request-description"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                maxLength={160}
-                rows={3}
-                className="mt-2 w-full rounded-xl border border-[#E8E2DA] bg-[#F5EFEB] px-4 py-3 text-sm text-[#1E1E1E] outline-none transition placeholder:text-[#666666]/60 focus:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB] dark:placeholder:text-[#B8A898]/50"
-                placeholder="For example: I love the neckline and would like a similar style in maroon."
-              />
-              <p className="mt-1 text-right text-[0.68rem] text-[#666666] dark:text-[#B8A898]">{description.length}/160</p>
+              <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/account"
+                  className="primary-button w-full sm:w-auto px-8 py-3.5 text-xs font-bold uppercase tracking-wider"
+                >
+                  <UserCheck className="h-4 w-4" />
+                  Sign In or Create Account
+                </Link>
+              </div>
             </div>
-
-            <div className="mt-4 space-y-3 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
-                <input
-                  type="checkbox"
-                  checked={publicConsent}
-                  onChange={(event) => setPublicConsent(event.target.checked)}
-                  className="mt-1 accent-[#C8A97E]"
-                  required
-                />
-                <span>I understand this image and note will be publicly visible on the DARAJNI homepage.</span>
-              </label>
-              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
-                <input
-                  type="checkbox"
-                  checked={termsAccepted}
-                  onChange={(event) => setTermsAccepted(event.target.checked)}
-                  className="mt-1 accent-[#C8A97E]"
-                  required
-                />
-                <span>
-                  I am responsible for this upload and agree to the{" "}
-                  <Link href="/terms" className="font-semibold text-[#C8A97E] underline">
-                    Terms of use
-                  </Link>
-                  .
-                </span>
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              disabled={!optimized || !publicConsent || !termsAccepted || preparing || submitting}
-              className="primary-button mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
+          ) : (
+            <form
+              onSubmit={submitRequest}
+              className="rounded-[2rem] border border-[#E8E2DA] bg-white p-5 shadow-xl dark:border-[#3B3026] dark:bg-[#1B1612] sm:p-7"
             >
-              {submitting ? (
-                <><Loader2 className="h-4 w-4 animate-spin" />Posting request…</>
-              ) : (
-                <><Upload className="h-4 w-4" />Post to Requested dresses</>
+              <label
+                htmlFor="requested-dress-image"
+                className="block cursor-pointer overflow-hidden rounded-2xl border border-dashed border-[#C8A97E]/55 bg-[#F5EFEB] transition hover:border-[#C8A97E] dark:bg-[#241D17]"
+              >
+                {previewUrl ? (
+                  <div className="relative aspect-[4/3]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewUrl}
+                      alt="Selected dress reference preview"
+                      className="h-full w-full object-contain"
+                    />
+                    <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold text-white">
+                      Choose another
+                    </span>
+                  </div>
+                ) : (
+                  <span className="grid min-h-64 place-items-center p-8 text-center">
+                    <span>
+                      {preparing ? (
+                        <Loader2 className="mx-auto h-9 w-9 animate-spin text-[#C8A97E]" />
+                      ) : (
+                        <ImagePlus className="mx-auto h-9 w-9 text-[#C8A97E]" />
+                      )}
+                      <span className="mt-4 block font-display text-3xl text-[#1E1E1E] dark:text-[#F7EADB]">
+                        {preparing ? "Compressing your image…" : "Choose a dress image"}
+                      </span>
+                      <span className="mt-2 block text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+                        JPG, PNG, or WebP up to 25 MB. It will be resized, converted,
+                        and stripped of embedded metadata before upload.
+                      </span>
+                    </span>
+                  </span>
+                )}
+                <input
+                  ref={fileInputRef}
+                  id="requested-dress-image"
+                  type="file"
+                  accept={IMAGE_UPLOAD_ACCEPT}
+                  onChange={(event) => void chooseImage(event)}
+                  className="sr-only"
+                  disabled={preparing || submitting || !isAuthenticated}
+                  required={!optimized}
+                />
+              </label>
+
+              {optimized && (
+                <p className="mt-3 flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Prepared at {optimized.width} × {optimized.height}: {formatBytes(optimized.originalBytes)} → {formatBytes(optimized.optimizedBytes)}
+                </p>
               )}
-            </button>
-          </form>
+
+              <div className="mt-5">
+                <label htmlFor="request-description" className="text-xs font-bold uppercase tracking-wide text-[#1E1E1E] dark:text-[#F7EADB]">
+                  What do you like about it? <span className="font-normal normal-case text-[#666666] dark:text-[#B8A898]">(optional)</span>
+                </label>
+                <textarea
+                  id="request-description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  maxLength={160}
+                  rows={3}
+                  className="mt-2 w-full rounded-xl border border-[#E8E2DA] bg-[#F5EFEB] px-4 py-3 text-sm text-[#1E1E1E] outline-none transition placeholder:text-[#666666]/60 focus:border-[#C8A97E] dark:border-[#3B3026] dark:bg-[#241D17] dark:text-[#F7EADB] dark:placeholder:text-[#B8A898]/50"
+                  placeholder="For example: I love the neckline and would like a similar style in maroon."
+                />
+                <p className="mt-1 text-right text-[0.68rem] text-[#666666] dark:text-[#B8A898]">{description.length}/160</p>
+              </div>
+
+              <div className="mt-4 space-y-3 text-xs leading-5 text-[#666666] dark:text-[#B8A898]">
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
+                  <input
+                    type="checkbox"
+                    checked={publicConsent}
+                    onChange={(event) => setPublicConsent(event.target.checked)}
+                    className="mt-1 accent-[#C8A97E]"
+                    required
+                  />
+                  <span>I understand this image and note will be publicly visible on the DARAJNI homepage after admin approval.</span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E8E2DA] bg-[#FAF7F2] p-3 dark:border-[#3B3026] dark:bg-[#241D17]">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(event) => setTermsAccepted(event.target.checked)}
+                    className="mt-1 accent-[#C8A97E]"
+                    required
+                  />
+                  <span>
+                    I am responsible for this upload and agree to the{" "}
+                    <Link href="/terms" className="font-semibold text-[#C8A97E] underline">
+                      Terms of use
+                    </Link>
+                    .
+                  </span>
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={!optimized || !publicConsent || !termsAccepted || preparing || submitting || !isAuthenticated}
+                className="primary-button mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {submitting ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" />Posting request…</>
+                ) : (
+                  <><Upload className="h-4 w-4" />Post to Requested dresses</>
+                )}
+              </button>
+            </form>
+          )}
         </div>
 
         <div className="mt-16 border-t border-[#E8E2DA] pt-10 dark:border-[#3B3026]">
@@ -299,7 +360,7 @@ export function RequestedDressesSection({
               <h3 className="font-display mt-3 text-4xl sm:text-5xl">Requested dresses</h3>
             </div>
             <p className="max-w-md text-xs leading-6 text-[#666666] dark:text-[#B8A898]">
-              These references were submitted publicly by visitors. DARAJNI does not endorse ownership or guarantee production of any design shown.
+              These references were submitted publicly by visitors and approved by our master artisans. DARAJNI does not endorse ownership or guarantee production.
             </p>
           </div>
 
@@ -316,7 +377,7 @@ export function RequestedDressesSection({
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-[#C8A97E]">Public request</p>
+                    <p className="text-[0.65rem] font-extrabold uppercase tracking-wider text-[#C8A97E]">Approved Request</p>
                     <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#666666] dark:text-[#B8A898]">
                       {request.description || "Dress reference shared for inspiration."}
                     </p>
@@ -329,7 +390,7 @@ export function RequestedDressesSection({
               <div>
                 <ImagePlus className="mx-auto h-8 w-8 text-[#C8A97E]" />
                 <p className="font-display mt-4 text-3xl">Be the first to share a dress reference.</p>
-                <p className="mt-2 text-sm text-[#666666] dark:text-[#B8A898]">Your public request will appear here after upload.</p>
+                <p className="mt-2 text-sm text-[#666666] dark:text-[#B8A898]">Your public request will appear here after approval.</p>
               </div>
             </div>
           )}
@@ -356,7 +417,7 @@ export function RequestedDressesHomepageTeaser({
               Requested Dresses Preview
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-secondary">
-              Dress references submitted by clients seeking custom tailoring. Upload your favorite design inspiration to be reviewed by our Bihar Sharif atelier.
+              Dress references submitted by registered clients seeking custom tailoring. Upload your favorite design inspiration to be reviewed by our Bihar Sharif atelier.
             </p>
           </div>
           <Link href="/requested-dresses" className="primary-button shrink-0">
@@ -381,7 +442,7 @@ export function RequestedDressesHomepageTeaser({
                   />
                   <div className="absolute left-3 top-3">
                     <span className="rounded-full bg-surface-alt/85 px-3 py-1 text-[0.6rem] font-bold uppercase tracking-wider text-accent backdrop-blur-sm">
-                      In Studio Review
+                      Approved Request
                     </span>
                   </div>
                 </div>

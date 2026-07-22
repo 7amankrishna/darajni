@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Mail, Phone, User, X } from "lucide-react";
+import { Check, Mail, Phone, Trash2, User, X } from "lucide-react";
 import Image from "next/image";
 import { useState, useTransition } from "react";
 
@@ -213,15 +213,14 @@ export function ApprovalsManagement({
                           <Check className="h-4 w-4" /> Approve
                         </button>
                       )}
-                      {dress.status !== "rejected" && (
-                        <button
-                          onClick={() => handleRejectDress(dress.id)}
-                          disabled={isPending}
-                          className="danger-button flex-1 text-xs py-2"
-                        >
-                          <X className="h-4 w-4" /> Reject
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleRejectDress(dress.id)}
+                        disabled={isPending}
+                        className="danger-button flex-1 text-xs py-2"
+                        title="Disapprove and permanently delete image file and record"
+                      >
+                        <Trash2 className="h-4 w-4" /> Disapprove & Delete
+                      </button>
                     </div>
                   </div>
                 </div>

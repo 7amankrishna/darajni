@@ -37,8 +37,8 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await authClient.auth.getUser();
-  if (!user) {
-    return apiError("Please sign in to submit a dress request.", 401);
+  if (!user || user.is_anonymous) {
+    return apiError("Only registered DARAJNI accounts can upload dress requests. Please sign in or register an account.", 401);
   }
 
   const declaredLength = Number(request.headers.get("content-length") || 0);
