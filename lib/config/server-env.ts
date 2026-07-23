@@ -79,7 +79,13 @@ export function getPayUEnvironment() {
     payuEnv === "production"
       ? "https://secure.payu.in/_payment"
       : "https://test.payu.in/_payment";
-  return key && salt && salt.length >= 6 ? { key, salt, payuEnv, actionUrl } : null;
+  const verificationUrl =
+    payuEnv === "production"
+      ? "https://info.payu.in/merchant/postservice.php?form=2"
+      : "https://test.payu.in/merchant/postservice.php?form=2";
+  return key && salt && salt.length >= 6
+    ? { key, salt, payuEnv, actionUrl, verificationUrl }
+    : null;
 }
 
 export function getPublicSiteUrl() {

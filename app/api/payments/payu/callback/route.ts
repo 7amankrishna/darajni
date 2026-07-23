@@ -1,7 +1,8 @@
 import { after, NextResponse } from "next/server";
 
 import { getPayUEnvironment } from "@/lib/config/server-env";
-import { verifyPayUResponseHash } from "@/lib/security/payu";
+import { verifyOrderAccessToken } from "@/lib/security/order-token";
+import { verifyPayUPayment, verifyPayUResponseHash } from "@/lib/security/payu";
 import { createOrderAccessToken } from "@/lib/security/order-token";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { syncShiprocketOrder } from "@/lib/shiprocket";
@@ -33,39 +34,11 @@ async function processPayUReturn(request: Request, body: PayUFields) {
   if (!limit.success) return redirectToCheckout(request, "confirmation-pending");
 
   const payuEnv = getPayUEnvironment();
-  if (!payuEnv || !txnid || !body.hash || body.key !== payuEnv.key) {
+  if (!payuEnv || !txnid) {
     return redirectToCheckout(request, "verification-failed");
   }
 
-  const isValidHash = verifyPayUResponseHash({
-    key: body.key,
-    txnid,
-    amount: body.amount || "",
-    productinfo: body.productinfo || "",
-    firstname: body.firstname || "",
-    email: body.email || "",
-    status: body.status || "",
-    hash: body.hash,
-    salt: payuEnv.salt,
-    udf1: body.udf1 || "",
-    udf2: body.udf2 || "",
-    udf3: body.udf3 || "",
-    udf4: body.udf4 || "",
-    udf5: body.udf5 || "",
-    additionalCharges: body.additional_charges || body.additionalCharges || "",
-  });
-
   const supabase = createSupabaseServiceClient();
-  if (!isValidHash || body.status.toLowerCase() !== "success") {
-    if (body.udf1 && supabase) {
-      await supabase.rpc("cancel_order_reservation", {
-        p_order_id: body.udf1,
-        p_payment_failed: true,
-      });
-    }
-    return redirectToCheckout(request, "failed");
-  }
-
   if (!supabase) return redirectToCheckout(request, "confirmation-pending");
 
   const { data: order, error: orderError } = await supabase
@@ -78,23 +51,77 @@ async function processPayUReturn(request: Request, body: PayUFields) {
     !order ||
     order.payment_method !== "payu" ||
     order.payu_txn_id !== txnid ||
-    order.id !== body.udf1 ||
-    Math.round(Number(order.total) * 100) !== Math.round(Number(body.amount) * 100)
+    (body.udf1 && order.id !== body.udf1)
   ) {
     return redirectToCheckout(request, "verification-failed");
   }
 
-  const paymentId = body.mihpayid || body.payuMoneyId;
-  if (!paymentId || !/^[A-Za-z0-9_-]{1,100}$/.test(paymentId)) {
+  // New checkout attempts include the short-lived signed access token in
+  // udf2. Older attempts are accepted only when their signed PayU return
+  // hash is valid, so an order number alone cannot trigger confirmation.
+  const accessToken = verifyOrderAccessToken(body.udf2 || "");
+  const hasValidAccessToken = accessToken?.orderId === order.id;
+  const hasValidReturnHash =
+    Boolean(body.hash && body.key === payuEnv.key) &&
+    verifyPayUResponseHash({
+      key: body.key,
+      txnid,
+      amount: body.amount || "",
+      productinfo: body.productinfo || "",
+      firstname: body.firstname || "",
+      email: body.email || "",
+      status: body.status || "",
+      hash: body.hash,
+      salt: payuEnv.salt,
+      udf1: body.udf1 || "",
+      udf2: body.udf2 || "",
+      udf3: body.udf3 || "",
+      udf4: body.udf4 || "",
+      udf5: body.udf5 || "",
+      additionalCharges: body.additional_charges || body.additionalCharges || "",
+    });
+  if (!hasValidAccessToken && !hasValidReturnHash) {
+    return redirectToCheckout(request, "verification-failed");
+  }
+
+  // The browser callback only identifies the reserved order. PayU's
+  // server-to-server Verify Payment response is the authority for status,
+  // amount, and payment ID below.
+  const verification = await verifyPayUPayment(payuEnv, txnid);
+  if (verification.outcome === "unavailable") {
     return redirectToCheckout(request, "confirmation-pending");
   }
 
-  const { error: confirmError } = await supabase.rpc("confirm_payu_payment", {
-    p_order_id: order.id,
-    p_payu_txn_id: txnid,
-    p_payu_payment_id: paymentId,
-  });
-  if (confirmError) return redirectToCheckout(request, "confirmation-pending");
+  if (verification.status === "failure") {
+    if (order.payment_status === "pending") {
+      await supabase.rpc("cancel_order_reservation", {
+        p_order_id: order.id,
+        p_payment_failed: true,
+      });
+    }
+    return redirectToCheckout(request, "failed");
+  }
+
+  if (
+    verification.status !== "success" ||
+    verification.transactionId !== txnid ||
+    !verification.amount ||
+    Math.round(Number(order.total) * 100) !==
+      Math.round(Number(verification.amount) * 100) ||
+    !verification.paymentId ||
+    !/^[A-Za-z0-9_-]{1,100}$/.test(verification.paymentId)
+  ) {
+    return redirectToCheckout(request, "confirmation-pending");
+  }
+
+  if (order.payment_status !== "paid") {
+    const { error: confirmError } = await supabase.rpc("confirm_payu_payment", {
+      p_order_id: order.id,
+      p_payu_txn_id: txnid,
+      p_payu_payment_id: verification.paymentId,
+    });
+    if (confirmError) return redirectToCheckout(request, "confirmation-pending");
+  }
 
   after(() => syncShiprocketOrder(order.id));
   try {

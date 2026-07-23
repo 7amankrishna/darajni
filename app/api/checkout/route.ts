@@ -206,6 +206,7 @@ export async function POST(request: Request) {
         email,
         salt: payuEnvironment.salt,
         udf1: order.order_id,
+        udf2: token,
       });
 
       const { error: updateError } = await supabase
@@ -236,7 +237,7 @@ export async function POST(request: Request) {
         // PayU hashes all five UDF positions. Send the blank positions as
         // explicit fields too, so the payload exactly matches the sequence
         // used to generate the server-side hash.
-        udf2: "",
+        udf2: token,
         udf3: "",
         udf4: "",
         udf5: "",
