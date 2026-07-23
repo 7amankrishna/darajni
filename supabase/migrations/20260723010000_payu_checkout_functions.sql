@@ -86,7 +86,10 @@ begin
       add constraint orders_payu_reference_check check (
         payment_method <> 'payu'
         or (
-          (payu_txn_id is null or payu_txn_id ~ '^payu[a-f0-9]{20}$')
+          -- Keep historic/manual PayU transaction references readable. New
+          -- checkout IDs are strictly validated by the server before PayU
+          -- verification and before the confirmation RPC is invoked.
+          (payu_txn_id is null or char_length(payu_txn_id) between 1 and 100)
           and (payu_payment_id is null or char_length(payu_payment_id) between 1 and 100)
         )
       );
