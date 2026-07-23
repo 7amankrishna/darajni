@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     )
     .join("");
   const response = new NextResponse(
-    `<!doctype html><html><head><meta charset="utf-8"><title>Redirecting to PayU</title></head><body><form id="payu" method="post" action="${escapeHtml(environment.actionUrl)}">${inputs}</form><p>Redirecting to secure payment…</p><script>document.getElementById('payu').submit();</script></body></html>`,
+    `<!doctype html><html><head><meta charset="utf-8"><title>Redirecting to PayU</title><script src="/payments/payu/redirect/script" defer></script></head><body><form id="payu" method="post" action="${escapeHtml(environment.actionUrl)}">${inputs}<button type="submit">Continue to PayU</button></form><p>Redirecting to secure payment…</p></body></html>`,
     {
       headers: {
         "Content-Type": "text/html; charset=utf-8",
