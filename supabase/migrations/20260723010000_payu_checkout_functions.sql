@@ -28,16 +28,71 @@ begin
 end;
 $$;
 
-alter table public.orders
-  add constraint orders_payu_txn_id_key unique (payu_txn_id),
-  add constraint orders_payu_payment_id_key unique (payu_payment_id),
-  add constraint orders_payu_reference_check check (
-    payment_method <> 'payu'
-    or (
-      (payu_txn_id is null or payu_txn_id ~ '^payu[a-f0-9]{20}$')
-      and (payu_payment_id is null or char_length(payu_payment_id) between 1 and 100)
-    )
-  );
+-- Make a manually re-run migration safe: PostgreSQL creates an index for a
+-- unique constraint, and a previous partial/manual run may have created it.
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.orders'::regclass
+      and conname = 'orders_payu_txn_id_key'
+  ) then
+    if exists (
+      select 1
+      from pg_indexes
+      where schemaname = 'public'
+        and tablename = 'orders'
+        and indexname = 'orders_payu_txn_id_key'
+    ) then
+      alter table public.orders
+        add constraint orders_payu_txn_id_key
+        unique using index orders_payu_txn_id_key;
+    else
+      alter table public.orders
+        add constraint orders_payu_txn_id_key unique (payu_txn_id);
+    end if;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.orders'::regclass
+      and conname = 'orders_payu_payment_id_key'
+  ) then
+    if exists (
+      select 1
+      from pg_indexes
+      where schemaname = 'public'
+        and tablename = 'orders'
+        and indexname = 'orders_payu_payment_id_key'
+    ) then
+      alter table public.orders
+        add constraint orders_payu_payment_id_key
+        unique using index orders_payu_payment_id_key;
+    else
+      alter table public.orders
+        add constraint orders_payu_payment_id_key unique (payu_payment_id);
+    end if;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.orders'::regclass
+      and conname = 'orders_payu_reference_check'
+  ) then
+    alter table public.orders
+      add constraint orders_payu_reference_check check (
+        payment_method <> 'payu'
+        or (
+          (payu_txn_id is null or payu_txn_id ~ '^payu[a-f0-9]{20}$')
+          and (payu_payment_id is null or char_length(payu_payment_id) between 1 and 100)
+        )
+      );
+  end if;
+end;
+$$;
 
 create or replace function public.confirm_payu_payment(
   p_order_id uuid,
