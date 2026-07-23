@@ -347,8 +347,8 @@ export function CheckoutForm({
         });
 
         document.body.appendChild(form);
-        clearCart();
         form.submit();
+        clearCart();
         return;
       }
 

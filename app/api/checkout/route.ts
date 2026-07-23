@@ -227,7 +227,6 @@ export async function POST(request: Request) {
           furl: `${siteUrl}/api/payments/payu/callback`,
           hash,
           udf1: order.order_id,
-          service_provider: "payu_paisa",
         },
         token,
       });
