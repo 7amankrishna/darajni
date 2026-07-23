@@ -67,9 +67,10 @@ export function getPayUEnvironment() {
   // Support both variable naming conventions so a valid existing deployment
   // does not silently disable online payments during the PayU migration.
   const key = clean("PAYU_KEY") || clean("PAYU_MERCHANT_KEY");
-  const salt =
-    dedicatedSecret("PAYU_SALT", 6) ||
-    dedicatedSecret("PAYU_MERCHANT_SALT", 6);
+  // A PayU salt is a credential pair with the merchant key. Unlike unrelated
+  // service secrets, it is valid for deployments to retain it under both the
+  // old and new PayU variable names during migration.
+  const salt = clean("PAYU_SALT") || clean("PAYU_MERCHANT_SALT");
   const configuredMode = (
     clean("PAYU_ENVIRONMENT") || clean("PAYU_ENV") || "test"
   ).toLowerCase();
@@ -78,7 +79,7 @@ export function getPayUEnvironment() {
     payuEnv === "production"
       ? "https://secure.payu.in/_payment"
       : "https://test.payu.in/_payment";
-  return key && salt ? { key, salt, payuEnv, actionUrl } : null;
+  return key && salt && salt.length >= 6 ? { key, salt, payuEnv, actionUrl } : null;
 }
 
 export function getPublicSiteUrl() {

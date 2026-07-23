@@ -93,10 +93,13 @@ export async function POST(request: Request) {
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
   const payuEnvironment = getPayUEnvironment();
-  const siteUrl = getPublicSiteUrl();
+  // The configured canonical URL is preferred. The request origin is a safe
+  // production fallback that prevents a missing public build variable from
+  // blocking the payment handoff.
+  const siteUrl = getPublicSiteUrl() || new URL(request.url).origin;
   const razorpayEnvironment = getRazorpayOrderEnvironment();
 
-  if (paymentMethod === "payu" && (!payuEnvironment || !siteUrl)) {
+  if (paymentMethod === "payu" && !payuEnvironment) {
     return apiError("PayU online payment is temporarily unavailable.", 503);
   }
 
