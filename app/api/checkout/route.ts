@@ -230,7 +230,6 @@ export async function POST(request: Request) {
           surl: `${siteUrl}/api/payments/payu/callback`,
           furl: `${siteUrl}/api/payments/payu/callback`,
           curl: `${siteUrl}/api/payments/payu/callback`,
-          api_version: "7",
           address1: customer.address.trim(),
           city: customer.city.trim(),
           state: customer.state.trim(),
