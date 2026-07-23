@@ -241,23 +241,12 @@ export async function POST(request: Request) {
         udf4: "",
         udf5: "",
       };
-      const handoff = Buffer.from(JSON.stringify(paymentFields)).toString(
-        "base64url",
-      );
-      const response = NextResponse.json({
+      return NextResponse.json({
         mode: "payu",
-        redirectUrl: "/payments/payu/redirect",
+        actionUrl: payuEnvironment.actionUrl,
+        params: paymentFields,
+        token,
       });
-      response.cookies.set({
-        name: "payu_handoff",
-        value: handoff,
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 5 * 60,
-        path: "/payments/payu",
-      });
-      return response;
     } catch (payuError) {
       await cancelReservation(order.order_id);
       return internalApiError(

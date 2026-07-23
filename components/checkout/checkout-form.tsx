@@ -323,7 +323,8 @@ export function CheckoutForm({
         mode?: "cod" | "payu" | "razorpay";
         successUrl?: string;
         error?: string;
-        redirectUrl?: string;
+        actionUrl?: string;
+        params?: Record<string, string>;
         keyId?: string;
         amount?: number;
         currency?: string;
@@ -344,8 +345,23 @@ export function CheckoutForm({
         return;
       }
 
-      if (result.mode === "payu" && result.redirectUrl) {
-        window.location.assign(result.redirectUrl);
+      if (result.mode === "payu" && result.actionUrl && result.params) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = result.actionUrl;
+
+        Object.entries(result.params).forEach(([name, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        // Use the native implementation so an input name can never shadow the
+        // form's submit method.
+        HTMLFormElement.prototype.submit.call(form);
         return;
       }
 
