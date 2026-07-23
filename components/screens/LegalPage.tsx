@@ -20,7 +20,7 @@ export default function LegalPage({ type }: { type: "privacy" | "terms" }) {
                 <p className="mt-2">
                   We collect the name, phone number, delivery address and
                   optional email you provide during guest checkout. Payment
-                  processing is handled through Razorpay when online payment is
+                  processing is handled through PayU when online payment is
                   selected, and order records are stored through Supabase.
                 </p>
               </section>

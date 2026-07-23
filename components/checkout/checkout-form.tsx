@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useCart } from "@/components/cart/cart-provider";
@@ -24,35 +24,6 @@ import type {
   CustomerProfile,
   StoreSettings,
 } from "@/types/commerce";
-
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayOptions) => {
-      open: () => void;
-    };
-  }
-}
-
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  prefill: {
-    name: string;
-    email?: string;
-    contact: string;
-  };
-  theme: { color: string };
-  handler: (response: {
-    razorpay_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_signature: string;
-  }) => void | Promise<void>;
-  modal: { ondismiss: () => void };
-}
 
 const initialCustomer: CheckoutCustomer = {
   customerName: "",
@@ -81,27 +52,6 @@ function customerFromProfile(
   };
 }
 
-function loadRazorpay() {
-  if (window.Razorpay) return Promise.resolve(true);
-  return new Promise<boolean>((resolve) => {
-    const existing = document.querySelector(
-      'script[src="https://checkout.razorpay.com/v1/checkout.js"]',
-    );
-    if (existing) {
-      existing.addEventListener("load", () => resolve(true), { once: true });
-      existing.addEventListener("error", () => resolve(false), { once: true });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
-
 export function CheckoutForm({
   settings,
   customerProfile,
@@ -110,13 +60,12 @@ export function CheckoutForm({
   customerProfile?: CustomerProfile | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, ready, subtotal, clearCart } = useCart();
   const [customer, setCustomer] = useState<CheckoutCustomer>(() =>
     customerFromProfile(customerProfile),
   );
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">(
-    settings.codEnabled ? "cod" : "razorpay",
-  );
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "payu">("payu");
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<CheckoutPromoQuote | null>(
     null,
@@ -138,6 +87,18 @@ export function CheckoutForm({
   useEffect(() => {
     setAppliedPromo(null);
   }, [cartSignature]);
+
+  useEffect(() => {
+    const messages: Record<string, string> = {
+      failed: "Payment was not completed. No online order was placed.",
+      "confirmation-pending":
+        "Your payment is being verified. Do not pay again; contact support if this message remains after a few minutes.",
+      "verification-failed":
+        "We could not verify this payment response. No online order was confirmed.",
+    };
+    const message = messages[searchParams.get("payment") || ""];
+    if (message) setError(message);
+  }, [searchParams]);
 
   const totals = useMemo(() => {
     const shipping = items.length ? settings.shippingCharge : 0;
@@ -162,15 +123,6 @@ export function CheckoutForm({
 
   const setField = (field: keyof CheckoutCustomer, value: string) => {
     setCustomer((current) => ({ ...current, [field]: value }));
-  };
-
-  const cancelReservation = async (token: string, paymentFailed = false) => {
-    await fetch("/api/checkout/cancel", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, paymentFailed }),
-      keepalive: true,
-    }).catch(() => undefined);
   };
 
   const applyPromo = async () => {
@@ -219,71 +171,43 @@ export function CheckoutForm({
     }
   };
 
-  const startRazorpay = async (checkout: {
-    keyId: string;
-    amount: number;
-    currency: string;
-    storeName: string;
-    description: string;
-    razorpayOrderId: string;
-    token: string;
-    customer: { name: string; email?: string; phone: string };
-  }) => {
-    const loaded = await loadRazorpay();
-    if (!loaded || !window.Razorpay) {
-      await cancelReservation(checkout.token, true);
-      throw new Error("The secure payment window could not be loaded.");
+  const startPayU = (endpoint: string, fields: Record<string, string>) => {
+    const permittedEndpoints = new Set([
+      "https://test.payu.in/_payment",
+      "https://secure.payu.in/_payment",
+    ]);
+    const requiredFields = [
+      "key",
+      "txnid",
+      "amount",
+      "productinfo",
+      "firstname",
+      "email",
+      "phone",
+      "surl",
+      "furl",
+      "hash",
+    ];
+    if (
+      !permittedEndpoints.has(endpoint) ||
+      requiredFields.some((field) => !fields[field])
+    ) {
+      throw new Error("Checkout returned an invalid PayU payment request.");
     }
 
-    const razorpay = new window.Razorpay({
-      key: checkout.keyId,
-      amount: checkout.amount,
-      currency: checkout.currency,
-      name: checkout.storeName,
-      description: checkout.description,
-      order_id: checkout.razorpayOrderId,
-      prefill: {
-        name: checkout.customer.name,
-        email: checkout.customer.email,
-        contact: checkout.customer.phone,
-      },
-      theme: { color: "#B8893B" },
-      handler: async (response) => {
-        setBusy(true);
-        const verification = await fetch("/api/payments/razorpay/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token: checkout.token,
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          }),
-        });
-        const result = (await verification.json()) as {
-          successUrl?: string;
-          error?: string;
-        };
-        if (!verification.ok || !result.successUrl) {
-          setBusy(false);
-          setError(
-            result.error ||
-              "Payment was received but confirmation is delayed. Contact support with the payment ID.",
-          );
-          return;
-        }
-        clearCart();
-        router.push(result.successUrl);
-      },
-      modal: {
-        ondismiss: () => {
-          void cancelReservation(checkout.token);
-          setBusy(false);
-          setError("Payment was cancelled. No order was placed.");
-        },
-      },
-    });
-    razorpay.open();
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = endpoint;
+    form.style.display = "none";
+    for (const [name, value] of Object.entries(fields)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const submit = async (event: FormEvent) => {
@@ -308,17 +232,11 @@ export function CheckoutForm({
         }),
       });
       const result = (await response.json()) as {
-        mode?: "cod" | "razorpay";
+        mode?: "cod" | "payu";
         successUrl?: string;
         error?: string;
-        keyId?: string;
-        amount?: number;
-        currency?: string;
-        storeName?: string;
-        description?: string;
-        razorpayOrderId?: string;
-        token?: string;
-        customer?: { name: string; email?: string; phone: string };
+        payuEndpoint?: string;
+        payuFields?: Record<string, string>;
       };
 
       if (!response.ok || !result.mode) {
@@ -332,26 +250,11 @@ export function CheckoutForm({
       }
 
       if (
-        result.mode === "razorpay" &&
-        result.keyId &&
-        result.amount &&
-        result.currency &&
-        result.storeName &&
-        result.description &&
-        result.razorpayOrderId &&
-        result.token &&
-        result.customer
+        result.mode === "payu" &&
+        result.payuEndpoint &&
+        result.payuFields
       ) {
-        await startRazorpay({
-          keyId: result.keyId,
-          amount: result.amount,
-          currency: result.currency,
-          storeName: result.storeName,
-          description: result.description,
-          razorpayOrderId: result.razorpayOrderId,
-          token: result.token,
-          customer: result.customer,
-        });
+        startPayU(result.payuEndpoint, result.payuFields);
         return;
       }
 
@@ -470,7 +373,10 @@ export function CheckoutForm({
               </div>
               <div>
                 <label htmlFor="checkout-email" className="field-label">
-                  Email <span className="normal-case">(optional)</span>
+                  Email{" "}
+                  <span className="normal-case">
+                    {paymentMethod === "payu" ? "(required for online payment)" : "(optional)"}
+                  </span>
                 </label>
                 <input
                   id="checkout-email"
@@ -480,6 +386,7 @@ export function CheckoutForm({
                   className="field"
                   autoComplete="email"
                   maxLength={254}
+                  required={paymentMethod === "payu"}
                 />
               </div>
               <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#F6E9DD] p-4 text-xs font-semibold text-[#5F5348]">
@@ -648,17 +555,17 @@ export function CheckoutForm({
               )}
               <button
                 type="button"
-                onClick={() => setPaymentMethod("razorpay")}
+                onClick={() => setPaymentMethod("payu")}
                 className={`rounded-2xl border p-5 text-left transition ${
-                  paymentMethod === "razorpay"
+                  paymentMethod === "payu"
                     ? "border-[#111111] bg-[#111111] text-white"
                     : "border-[#E9DCCB] bg-white text-[#171717]"
                 }`}
               >
                 <CreditCard className="h-5 w-5 text-[#B8893B]" />
                 <p className="mt-3 text-sm font-semibold">Pay securely online</p>
-                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "razorpay" ? "text-white/75" : "text-[#6F6255]"}`}>
-                  UPI, cards, net banking and supported wallets via Razorpay.
+                <p className={`mt-2 text-xs leading-5 ${paymentMethod === "payu" ? "text-white/75" : "text-[#6F6255]"}`}>
+                  UPI, cards, net banking and supported wallets via PayU.
                 </p>
               </button>
             </div>
@@ -802,7 +709,7 @@ export function CheckoutForm({
             )}
           </button>
           <div className="mt-4 rounded-xl bg-[#F6E9DD] p-4 text-center text-[0.68rem] leading-5 text-[#5F5348]">
-            Razorpay secure payment | Order total rechecked | WhatsApp support
+            PayU secure payment | Order total rechecked | WhatsApp support
           </div>
           <Link href="/support" className="secondary-button mt-3 w-full">
             <MessageCircle className="h-4 w-4" />

@@ -4,7 +4,7 @@
 
 DARAJNI is a production-oriented, guest-first e-commerce application for
 made-to-order Indian occasion wear. The store is based in Bihar Sharif, Bihar,
-ships across India, and supports cash on delivery and Razorpay payments.
+ships across India, and supports cash on delivery and PayU payments.
 
 The application includes the public storefront, cart, secure checkout, order
 tracking, support pages, and a protected operations dashboard for products,
@@ -26,7 +26,7 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 - [Environment variables](#environment-variables)
 - [Local development](#local-development)
 - [Supabase setup and migrations](#supabase-setup-and-migrations)
-- [Razorpay setup](#razorpay-setup)
+- [PayU setup](#payu-setup)
 - [Shiprocket setup](#shiprocket-setup)
 - [Deployment](#deployment)
 - [Administrator operations](#administrator-operations)
@@ -57,7 +57,7 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 - Cart items separated by product and selected size
 - Quantity controls constrained by the stock value last seen by the browser
 - Cash on delivery, when enabled in store settings
-- Razorpay online payments
+- PayU Hosted Checkout online payments
 - Coupon and voucher codes with server-side redemption limits
 - Server-authoritative product prices, discounts, stock, tax, and shipping
 - Atomic inventory reservation during order creation
@@ -101,7 +101,7 @@ current database values during checkout.
 - Supabase PostgreSQL 15
 - Supabase Auth for administrators and optional customer accounts
 - Supabase Storage for product images
-- Razorpay for online payments
+- PayU for online payments
 - Shiprocket custom-order sync for fulfilment
 - Upstash Redis REST rate limiting in production with a bounded local fallback
 - Zod request validation
@@ -120,7 +120,7 @@ delivery details and view linked order progress.
 | Authenticated non-admin | Supabase Auth session | Customer account access only; redirected away from admin pages |
 | Administrator | Supabase Auth session plus a row in `public.admin_users` | Dashboard, orders, products, settings, uploads, invoices, and packing slips |
 | Service role | Server-only Supabase key | Trusted application database and storage operations |
-| Razorpay webhook | Valid Razorpay HMAC signature | Asynchronous online-payment confirmation only |
+| PayU return | Valid reverse hash plus a matching PayU verification API response | Online-payment confirmation only |
 
 Important role rules:
 
@@ -246,12 +246,11 @@ engine indexing through metadata and `robots.txt`.
 
 | Method and route | Purpose | Protection |
 |---|---|---|
-| `POST /api/checkout` | Validate input, create an atomic order, reserve stock, and begin COD or Razorpay flow | Same-origin, validation, per-IP rate limit, server service role |
+| `POST /api/checkout` | Validate input, create an atomic order, reserve stock, and begin COD or PayU Hosted Checkout | Same-origin, validation, per-IP rate limit, server service role |
 | `POST /api/checkout/promo` | Preview an order-wide coupon or voucher discount against current catalog prices | Same-origin, validation, rate limit, server service role |
-| `POST /api/checkout/cancel` | Cancel a pending Razorpay reservation | Same-origin and signed order token |
+| `POST /api/checkout/cancel` | Cancel a pending online-payment reservation | Same-origin and signed order token |
 | `POST /api/account/profile` | Save a signed-in customer's basic contact and delivery details | Auth session, same-origin, validation, rate limit |
-| `POST /api/payments/razorpay/verify` | Verify browser payment signature and confirm payment | Same-origin, signed order token, HMAC, rate limit |
-| `POST /api/payments/razorpay/webhook` | Confirm captured/paid Razorpay events | Razorpay webhook HMAC |
+| `POST /api/payments/payu/return` | Reverse-hash the PayU return, reconcile it with PayU, and confirm a paid order | PayU response hash, PayU verification API, transaction/amount matching, rate limit |
 | `POST /api/track` | Return matching order status metadata | Same-origin, order reference plus phone, rate limit |
 | `GET /api/admin/me` | Verify the active administrator | Auth session and `admin_users` membership |
 | `POST /api/admin/products` | Create a product | Administrator and same-origin |
@@ -294,10 +293,10 @@ Next.js application
         ├── Supabase Storage
         │   └── public product-images bucket
         │
-        ├── Razorpay
-        │   ├── order creation
-        │   ├── Checkout.js
-        │   └── signed webhooks
+        ├── PayU Hosted Checkout
+        │   ├── signed form redirect
+        │   ├── reverse-hash validation
+        │   └── verification API reconciliation
         │
         ├── Shiprocket
         │   └── server-to-server custom-order creation
@@ -349,7 +348,7 @@ pending → confirmed → packed → shipped → delivered
    └──────── cancellation is allowed from pending, confirmed, or packed
 
 payment_method:
-cod | razorpay
+cod | payu | razorpay (legacy)
 
 payment_status:
 pending | paid | failed | refunded
@@ -373,15 +372,15 @@ percentage | fixed_amount
   an order, snapshots items, applies an eligible promotion, and reserves stock
   atomically.
 - `cancel_order_reservation(order_id, payment_failed)` cancels an eligible
-  pending Razorpay order.
-- `confirm_razorpay_payment(order_id, razorpay_order_id, payment_id)` marks a
-  valid pending Razorpay order paid and confirmed.
+  pending online-payment reservation.
+- `confirm_payu_payment(order_id, payu_txn_id, payu_payment_id)` marks a
+  PayU-verified pending order paid and confirmed.
 - `restore_stock_after_cancellation()` restores item quantities whenever an
   order first transitions to `cancelled`.
 - `release_promo_after_cancellation()` releases coupon/voucher usage when an
   order is cancelled.
 - `run_store_maintenance()` archives delivered orders after 10 days, deletes
-  minimal archives after 90 days, and cancels stale pending Razorpay
+  minimal archives after 90 days, and cancels stale pending online-payment
   reservations.
 
 ### Store settings
@@ -436,22 +435,21 @@ are recomputed by `create_checkout_order`.
 - COD payment status currently remains `pending`; there is no separate
   cash-collected action in the present dashboard.
 
-### Razorpay
+### PayU Hosted Checkout
 
-1. The server creates a Razorpay order using the database-calculated total in
-   paise.
-2. The Razorpay order ID is stored on the local order.
-3. The browser opens Razorpay Checkout.js.
-4. On success, `/api/payments/razorpay/verify` validates:
-   - the signed order-access token;
-   - the Razorpay HMAC signature;
-   - the expected local order and Razorpay order ID.
-5. The database marks payment `paid` and order status `confirmed`.
-6. The signed Razorpay webhook provides asynchronous confirmation for
-   `payment.captured` and `order.paid`.
+1. The server reserves inventory using the database-calculated total and
+   creates a unique local PayU transaction ID.
+2. It sends the browser a signed form for PayU Hosted Checkout; the browser
+   posts it directly to PayU's test or production payment page.
+3. PayU posts the result to `/api/payments/payu/return`.
+4. The return route validates PayU's SHA-512 reverse hash, local transaction
+   ID, local order ID, and exact amount.
+5. It then calls PayU's server-to-server `verify_payment` API. Only a matching
+   PayU `success` response marks the order `paid` and `confirmed`.
+6. Pending, failed, or unverifiable payments never enter the admin order queue.
 
-If the payment window fails to load or the customer dismisses it, the client
-requests reservation cancellation. Cancellation restores reserved stock.
+Failed payment callbacks cancel the reservation and restore stock. Stale
+unconfirmed online reservations are cancelled automatically after one hour.
 
 ## Order and inventory lifecycle
 
@@ -483,11 +481,10 @@ Additional behavior:
   - delivered orders older than 10 days move to `archived_orders` and leave the
     active orders table;
   - archived rows older than 90 days are deleted;
-  - stale pending Razorpay reservations older than 1 hour are cancelled.
+  - stale pending online-payment reservations older than 1 hour are cancelled.
 - Shiprocket order creation is attempted after COD checkout and after a verified
-  Razorpay payment. Failed attempts are retried by the maintenance cron; the
-  unique local order reference and an atomic claim prevent duplicate remote
-  orders when Razorpay verification and its webhook arrive together.
+  PayU payment. Failed attempts are retried by the maintenance cron; the unique
+  local order reference and an atomic claim prevent duplicate remote orders.
 - Browser carts are local-only and self-expire after 48 hours.
 
 ## Security model
@@ -519,8 +516,8 @@ Additional behavior:
 `ORDER_ACCESS_SECRET` signs private order links used for:
 
 - displaying the complete order confirmation;
-- identifying a pending Razorpay reservation during cancellation;
-- binding Razorpay verification to the local order.
+- identifying a pending online-payment reservation during cancellation;
+- opening a verified PayU order summary.
 
 Tokens expire after 24 hours. After expiration, customers can still use the
 public tracking page with their order number and phone.
@@ -532,7 +529,7 @@ openssl rand -hex 32
 ```
 
 `ORDER_ACCESS_SECRET` is mandatory for checkout and cannot fall back to or reuse
-the Razorpay webhook secret.
+the PayU merchant salt.
 
 ### Rate limits
 
@@ -541,8 +538,7 @@ the Razorpay webhook secret.
 | Checkout | 5 attempts per IP per 15 minutes |
 | Coupon/voucher preview | 20 attempts per IP per 15 minutes |
 | Checkout cancellation | 20 attempts per IP per 15 minutes |
-| Razorpay browser verification | 10 attempts per IP per 15 minutes |
-| Razorpay webhook | 300 deliveries per IP per minute |
+| PayU payment return | 10 attempts per transaction per 15 minutes |
 | Order tracking | 12 attempts per IP per 15 minutes |
 | Customer profile update | 20 updates per account per 15 minutes |
 | Admin read/verification | 120 requests per IP per 15 minutes |
@@ -594,9 +590,9 @@ cp .env.example .env.local
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | Yes | Trusted database and Storage operations |
 | `ORDER_ACCESS_SECRET` | Server only | Yes | Signs private 24-hour order links |
 | `CRON_SECRET` | Server only | Yes for maintenance cron | Authorizes `/api/cron/store-maintenance` |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Public | For online payment | Razorpay test/live key ID |
-| `RAZORPAY_KEY_SECRET` | Server only | For online payment | Razorpay order creation and browser-response verification |
-| `RAZORPAY_WEBHOOK_SECRET` | Server only | For online payment | Razorpay webhook signature verification |
+| `PAYU_KEY` | Server only | For online payment | PayU merchant key; it is sent only in the signed hosted-checkout form |
+| `PAYU_SALT` | Server only | For online payment | PayU request/response and verification API hash secret |
+| `PAYU_ENVIRONMENT` | Server only | For online payment | `test` or `production` |
 | `SHIPROCKET_API_EMAIL` | Server only | For Shiprocket sync | Separate Shiprocket API-user email |
 | `SHIPROCKET_API_PASSWORD` | Server only | For Shiprocket sync | Separate Shiprocket API-user password |
 | `SHIPROCKET_PICKUP_LOCATION` | Server only | For Shiprocket sync | Exact name of an existing Shiprocket pickup location |
@@ -643,12 +639,12 @@ NEXT_PUBLIC_CONTACT_EMAIL=hello@example.com
 ```
 
 Never expose `SUPABASE_SERVICE_ROLE_KEY`, `ORDER_ACCESS_SECRET`, `CRON_SECRET`,
-Razorpay secrets, Shiprocket credentials/tokens, or Upstash credentials through
+the PayU salt, Shiprocket credentials/tokens, or Upstash credentials through
 a `NEXT_PUBLIC_` variable.
 
 Use a different random value for every server-side secret. `ORDER_ACCESS_SECRET`
 and `CRON_SECRET` must contain at least 32 characters and must never reuse the
-Razorpay webhook secret. Validate a local or deployment environment before
+PayU merchant salt. Validate a local or deployment environment before
 release:
 
 ```bash
@@ -656,7 +652,7 @@ npm run validate:env
 ```
 
 The validator rejects missing values, placeholders, malformed URLs, incomplete
-Razorpay, Shiprocket, or Upstash configuration, short or reused secrets, and
+PayU, Shiprocket, or Upstash configuration, short or reused secrets, and
 secret-like variables with a `NEXT_PUBLIC_` prefix. Production deployments
 should configure Upstash; without it, rate limiting falls back to a bounded
 per-instance memory store and cannot coordinate limits across multiple server
@@ -671,7 +667,7 @@ an environment variable requires a new deployment.
 
 - Node.js and npm
 - A Supabase project or the Supabase CLI with Docker for local services
-- Razorpay test credentials when testing online payments
+- PayU test credentials when testing online payments
 
 ### Install and run
 
@@ -752,40 +748,35 @@ category CRUD controls. Add or change non-system categories through a reviewed
 migration or SQL administration. System categories are protected from deletion
 and from changes to their system flag.
 
-## Razorpay setup
+## PayU setup
 
 ### Credentials
 
 Set:
 
 ```dotenv
-NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_or_live_key
-RAZORPAY_KEY_SECRET=matching_key_secret
-RAZORPAY_WEBHOOK_SECRET=independent_webhook_secret
+PAYU_KEY=your_test_or_production_merchant_key
+PAYU_SALT=matching_merchant_salt
+PAYU_ENVIRONMENT=test
 ```
 
-Test and live credentials must not be mixed.
+Set `PAYU_ENVIRONMENT=production` only with production credentials. The hosted
+payment form is sent to `test.payu.in` for test mode and `secure.payu.in` for
+production mode.
 
-### Webhook
+### Return and verification
 
-Configure this endpoint in Razorpay:
+Set this HTTPS endpoint as the PayU success, failure, and cancel return URL:
 
 ```text
-https://your-domain.example/api/payments/razorpay/webhook
+https://your-domain.example/api/payments/payu/return
 ```
 
-Enable:
-
-```text
-payment.captured
-order.paid
-```
-
-The webhook secret entered in Razorpay must exactly match
-`RAZORPAY_WEBHOOK_SECRET`.
-
-The route verifies `x-razorpay-signature` against the unmodified raw request
-body before processing the event.
+The app computes the payment-request SHA-512 hash on the server. On return, it
+validates PayU's reverse hash, checks the local transaction and exact amount,
+then calls PayU's `verify_payment` API before setting `payment_status` to
+`paid` and showing the order in admin. A failed or unverified online attempt is
+never treated as a confirmed order.
 
 ## Shiprocket setup
 
@@ -812,8 +803,8 @@ those remain controlled in the Shiprocket panel.
    becomes `20260711000001`). The Shiprocket order ID and shipment ID are
    recorded only in `shiprocket_order_syncs`.
 
-The integration sends an online order only after the Razorpay signature or
-signed Razorpay webhook has confirmed payment. COD orders are queued immediately
+The integration sends an online order only after the PayU return hash and PayU
+verification API have confirmed payment. COD orders are queued immediately
 after the database order is committed. The configured parcel profile applies to
 every order; add per-product/package dimensions before going live if your
 garments vary materially in packed size or weight. A Shiprocket failure never
@@ -859,7 +850,7 @@ until you choose to add a reviewed cancellation workflow.
 
 5. Apply Supabase migrations separately.
 6. Promote at least one administrator.
-7. Configure the Razorpay webhook.
+7. Configure the PayU return URL and production credentials.
 8. Create the restricted Shiprocket API user and add all `SHIPROCKET_*`
    variables if Shiprocket sync is enabled.
 9. Configure Upstash for reliable multi-instance production rate limiting.
@@ -874,15 +865,15 @@ until you choose to add a reviewed cancellation workflow.
 - A product detail page loads and can add a selected size to the cart.
 - Cart totals display shipping and tax settings.
 - COD checkout creates one order and opens its success page.
-- Razorpay test checkout confirms payment and opens its success page.
-- Test COD and Razorpay orders appear once in the Shiprocket Orders panel with
+- PayU test checkout confirms payment and opens its success page.
+- Test COD and PayU orders appear once in the Shiprocket Orders panel with
   the correct address, payment mode, amount, pickup location, weight, and dimensions.
-- Cancelling Razorpay restores stock.
+- A failed PayU payment restores stock.
 - Tracking requires both the correct order number and phone.
 - `/admin/login` accepts a promoted administrator.
 - Admin analytics, orders, products, settings, invoices, and packing slips load.
 - Image upload accepts a valid image and rejects invalid or oversized files.
-- Razorpay webhook delivery reports a successful response.
+- The PayU return route redirects a verified test payment to its success page.
 - `ORDER_ACCESS_SECRET` is present in every Vercel environment used for checkout.
 
 ## Administrator operations
@@ -970,7 +961,9 @@ Database assertions are under `supabase/tests`:
 - `phase_2_assertions.sql` verifies commerce migration, privileges, RLS behavior,
   order transitions, tracking privacy, Storage settings, and admin recognition.
 - `phase_3_checkout_assertions.sql` verifies atomic totals, stock reservation,
-  cancellation restoration, RPC privileges, and Razorpay confirmation.
+  cancellation restoration, RPC privileges, and Razorpay legacy confirmation.
+- `phase_6_payu_assertions.sql` verifies PayU reservation cancellation and
+  idempotent server-side payment confirmation.
 - `phase_5_promos_lifecycle_assertions.sql` verifies coupon/voucher math,
   redemption release, RPC privileges, and lifecycle maintenance.
 
@@ -1020,20 +1013,21 @@ Also verify that Phase 2 and Phase 3 migrations are applied.
 
 ### `Online payment is not configured.`
 
-Set both:
+Set these online-payment variables:
 
-- `NEXT_PUBLIC_RAZORPAY_KEY_ID`
-- `RAZORPAY_KEY_SECRET`
+- `PAYU_KEY`
+- `PAYU_SALT`
+- `PAYU_ENVIRONMENT`
 
 Then redeploy.
 
 ### Payment succeeded but confirmation is delayed
 
-- Check Razorpay webhook delivery logs.
-- Confirm `RAZORPAY_WEBHOOK_SECRET` matches Razorpay.
-- Confirm `payment.captured` and `order.paid` are enabled.
+- Check the application log for the PayU verification API request.
+- Confirm `PAYU_KEY`, `PAYU_SALT`, and `PAYU_ENVIRONMENT` match the same PayU account.
+- Confirm `NEXT_PUBLIC_SITE_URL` is the deployed HTTPS origin.
 - Check application logs for payment confirmation RPC errors.
-- Retain the Razorpay payment ID when contacting support.
+- Retain the PayU transaction ID or payment ID when contacting support.
 
 ### Storefront products are empty
 
@@ -1064,7 +1058,7 @@ app/
 │   ├── account/                   Customer profile updates
 │   ├── admin/                     Admin verification and mutations
 │   ├── checkout/                  Order creation and reservation cancellation
-│   ├── payments/razorpay/         Browser verification and webhook
+│   ├── payments/payu/             Hosted-checkout return verification
 │   └── track/                     Private-by-pair order tracking
 ├── cart/                          Guest cart page
 ├── checkout/                      Guest and account checkout page
@@ -1079,7 +1073,7 @@ components/
 ├── account/                       Customer account profile and orders UI
 ├── admin/                         Analytics, orders, products, settings, print
 ├── cart/                          Cart provider and cart UI
-├── checkout/                      Checkout and Razorpay browser flow
+├── checkout/                      Checkout and PayU hosted-payment redirect
 ├── layout/                        Shared site shell
 ├── order/                         Tracking and order status UI
 ├── product/                       Product image, gallery, and purchase UI

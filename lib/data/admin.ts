@@ -160,6 +160,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .select(
           "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
         )
+        // Online-payment reservations are internal checkout state. They do not
+        // enter the operations queue until the gateway payment is verified.
+        .or("payment_method.eq.cod,payment_status.eq.paid")
         .order("created_at", { ascending: false }),
       supabase
         .from("products")
@@ -299,6 +302,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrder | null>
       "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
     )
     .eq("id", orderId)
+    .or("payment_method.eq.cod,payment_status.eq.paid")
     .maybeSingle();
   if (error || !data) return null;
   return mapOrder(data as unknown as Record<string, unknown>);

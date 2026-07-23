@@ -6,7 +6,7 @@ import BrandLogo from "./BrandLogo";
 const promises = [
   ["Clear totals", "Tax and shipping are shown before payment."],
   ["Custom fit support", "Measurements are confirmed after ordering."],
-  ["Secure checkout", "COD and Razorpay options are shown clearly."],
+  ["Secure checkout", "COD and PayU options are shown clearly."],
   ["Pan-India delivery", "Orders are packed with tracking support."],
 ];
 

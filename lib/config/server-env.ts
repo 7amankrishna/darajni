@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { PayUEnvironment } from "@/lib/payu";
+
 const PLACEHOLDER_PATTERN =
   /(?:^your_|your-domain|your_project|replace_|generate-|generate_|example\.com|changeme|x{8,})/i;
 
@@ -32,6 +34,8 @@ const SERVER_SECRET_NAMES = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_SALT",
+  "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "UPSTASH_REDIS_REST_TOKEN",
 ];
@@ -74,6 +78,40 @@ export function getRazorpayKeySecret() {
 
 export function getRazorpayWebhookSecret() {
   return dedicatedSecret("RAZORPAY_WEBHOOK_SECRET", 16);
+}
+
+export function getPayUEnvironment(): PayUEnvironment | null {
+  // Accept PayU's common merchant-prefixed aliases during the migration from
+  // older deployment configuration, while documenting the shorter canonical
+  // names in .env.example.
+  const key = clean("PAYU_KEY") || clean("PAYU_MERCHANT_KEY");
+  const salt =
+    dedicatedSecret("PAYU_SALT", 6) ||
+    dedicatedSecret("PAYU_MERCHANT_SALT", 6);
+  const mode = clean("PAYU_ENVIRONMENT")?.toLowerCase();
+
+  if (!key || !salt || !mode) return null;
+  if (mode === "test") {
+    return {
+      key,
+      salt,
+      paymentUrl: "https://test.payu.in/_payment",
+      verificationUrl: "https://test.payu.in/merchant/postservice.php?form=2",
+    };
+  }
+  if (mode === "production") {
+    return {
+      key,
+      salt,
+      paymentUrl: "https://secure.payu.in/_payment",
+      verificationUrl: "https://info.payu.in/merchant/postservice.php?form=2",
+    };
+  }
+  return null;
+}
+
+export function getPublicSiteUrl() {
+  return validUrl(clean("NEXT_PUBLIC_SITE_URL"), ["https:", "http:"]);
 }
 
 function positiveNumber(name: string, minimum: number) {

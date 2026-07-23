@@ -143,7 +143,7 @@ function PolicyPreview() {
     ["Shipping", "Pan-India delivery with tracking updates.", "/shipping-policy", Truck],
     ["Exchange", "Eligibility and custom-size rules explained.", "/returns-exchange", HeartHandshake],
     ["Custom Size", "Measurements are collected and confirmed.", "/size-guide", Ruler],
-    ["Payment Safety", "COD and Razorpay checkout are clearly shown.", "/terms", ShieldCheck],
+    ["Payment Safety", "COD and PayU checkout are clearly shown.", "/terms", ShieldCheck],
   ];
 
   return (

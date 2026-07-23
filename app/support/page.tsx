@@ -45,7 +45,7 @@ const supportCards: Array<{
   },
   {
     title: "Payment Help",
-    description: "Failed payment, refund, Razorpay or COD questions.",
+    description: "Failed payment, refund, PayU or COD questions.",
     button: "Get payment help",
     href: "#contact",
     icon: CreditCard,

@@ -1,11 +1,17 @@
+import { randomUUID } from "node:crypto";
+
 import { after, NextResponse } from "next/server";
 
 import {
   getCustomerUser,
   saveCheckoutProfileForUser,
 } from "@/lib/data/account";
-import { getRazorpayOrderEnvironment } from "@/lib/config/server-env";
+import {
+  getPayUEnvironment,
+  getPublicSiteUrl,
+} from "@/lib/config/server-env";
 import { syncShiprocketOrder } from "@/lib/shiprocket";
+import { createPayURequestHash } from "@/lib/payu";
 import {
   apiError,
   internalApiError,
@@ -87,10 +93,11 @@ export async function POST(request: Request) {
 
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
-  const razorpayEnvironment = getRazorpayOrderEnvironment();
+  const payuEnvironment = getPayUEnvironment();
+  const siteUrl = getPublicSiteUrl();
   if (
-    paymentMethod === "razorpay" &&
-    !razorpayEnvironment
+    paymentMethod === "payu" &&
+    (!payuEnvironment || !siteUrl)
   ) {
     return apiError("Online payment is temporarily unavailable.", 503);
   }
@@ -155,15 +162,13 @@ export async function POST(request: Request) {
     }
   }
 
-  let token: string;
-  try {
-    token = createOrderAccessToken(order.order_id);
-  } catch {
-    await cancelReservation(order.order_id);
-    return apiError("Checkout is temporarily unavailable.", 503);
-  }
-
   if (paymentMethod === "cod") {
+    let token: string;
+    try {
+      token = createOrderAccessToken(order.order_id);
+    } catch {
+      return apiError("Checkout is temporarily unavailable.", 503);
+    }
     // The customer order is committed before this side effect. Shiprocket
     // failures are retained for retry and never invalidate a completed order.
     after(() => syncShiprocketOrder(order.order_id));
@@ -175,64 +180,56 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (!razorpayEnvironment) {
-      throw new Error("Razorpay environment unavailable after validation.");
+    if (!payuEnvironment || !siteUrl) {
+      throw new Error("PayU environment unavailable after validation.");
     }
-    const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${Buffer.from(
-          `${razorpayEnvironment.keyId}:${razorpayEnvironment.keySecret}`,
-        ).toString("base64")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        amount: Math.round(Number(order.total) * 100),
-        currency: "INR",
-        receipt: order.order_number,
-        notes: { order_id: order.order_id },
-      }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    const razorpayOrder = (await razorpayResponse.json()) as {
-      id?: string;
-      error?: { description?: string };
+    const payuTransactionId = `payu${randomUUID().replace(/-/g, "").slice(0, 20)}`;
+    const amount = Number(order.total).toFixed(2);
+    const paymentReturnUrl = `${siteUrl}/api/payments/payu/return`;
+    const firstname = customer.customerName.trim().split(/\s+/)[0] || "Customer";
+    const productinfo = `DARAJNI order ${order.order_number}`;
+    const fields = {
+      key: payuEnvironment.key,
+      txnid: payuTransactionId,
+      amount,
+      productinfo,
+      firstname,
+      email: customer.email.trim().toLowerCase(),
+      phone: customer.phone.replace(/\D/g, "").slice(-10),
+      surl: paymentReturnUrl,
+      furl: paymentReturnUrl,
+      curl: paymentReturnUrl,
+      udf1: order.order_id,
+      udf2: "",
+      udf3: "",
+      udf4: "",
+      udf5: "",
+      address1: customer.address.trim(),
+      city: customer.city.trim(),
+      state: customer.state.trim(),
+      country: "India",
+      zipcode: customer.pincode.trim(),
     };
-    if (!razorpayResponse.ok || !razorpayOrder.id) {
-      throw new Error(
-        razorpayOrder.error?.description || "Razorpay order creation failed.",
-      );
-    }
+    const hash = createPayURequestHash(fields, payuEnvironment.salt);
 
     const { error: updateError } = await supabase
       .from("orders")
-      .update({ razorpay_order_id: razorpayOrder.id })
+      .update({ payu_txn_id: payuTransactionId })
       .eq("id", order.order_id)
+      .eq("payment_method", "payu")
       .eq("status", "pending");
     if (updateError) throw updateError;
 
     return NextResponse.json({
-      mode: "razorpay",
-      keyId: razorpayEnvironment.keyId,
-      razorpayOrderId: razorpayOrder.id,
-      amount: Math.round(Number(order.total) * 100),
-      currency: "INR",
-      storeName: "DARAJNI Designer House",
-      description: `Order ${order.order_number}`,
-      customer: {
-        name: customer.customerName,
-        email: customer.email,
-        phone: customer.phone,
-      },
-      token,
+      mode: "payu",
+      payuEndpoint: payuEnvironment.paymentUrl,
+      payuFields: { ...fields, hash },
     });
-  } catch (razorpayError) {
+  } catch (payuError) {
     await cancelReservation(order.order_id);
     return internalApiError(
-      "razorpay-order-create",
-      razorpayError,
+      "payu-payment-start",
+      payuError,
       "Online payment could not be started. Please try again.",
       502,
     );

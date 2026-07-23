@@ -36,21 +36,24 @@ requireValue("SUPABASE_SERVICE_ROLE_KEY", 32);
 requireValue("ORDER_ACCESS_SECRET", 32);
 requireValue("CRON_SECRET", 32);
 
-const razorpayNames = [
-  "NEXT_PUBLIC_RAZORPAY_KEY_ID",
-  "RAZORPAY_KEY_SECRET",
-  "RAZORPAY_WEBHOOK_SECRET",
+const payuNames = ["PAYU_KEY", "PAYU_SALT", "PAYU_ENVIRONMENT"];
+const payuValues = [
+  value("PAYU_KEY") || value("PAYU_MERCHANT_KEY"),
+  value("PAYU_SALT") || value("PAYU_MERCHANT_SALT"),
+  value("PAYU_ENVIRONMENT"),
 ];
-const razorpayValues = razorpayNames.map(value);
-if (razorpayValues.some(Boolean) && !razorpayValues.every(Boolean)) {
-  errors.push(`Configure all Razorpay variables together: ${razorpayNames.join(", ")}.`);
+if (payuValues.some(Boolean) && !payuValues.every(Boolean)) {
+  errors.push(`Configure all PayU variables together: ${payuNames.join(", ")}.`);
 }
-if (razorpayValues.every(Boolean)) {
-  if (!/^rzp_(?:test|live)_[A-Za-z0-9]+$/.test(razorpayValues[0])) {
-    errors.push("NEXT_PUBLIC_RAZORPAY_KEY_ID does not have a valid Razorpay key ID format.");
+if (payuValues.every(Boolean)) {
+  if (payuValues[0].length < 6) {
+    errors.push("PAYU_KEY must be at least 6 characters.");
   }
-  if (razorpayValues[1].length < 16 || razorpayValues[2].length < 16) {
-    errors.push("Razorpay server secrets must be at least 16 characters.");
+  if (payuValues[1].length < 6) {
+    errors.push("PAYU_SALT must be at least 6 characters.");
+  }
+  if (!/^(test|production)$/i.test(payuValues[2])) {
+    errors.push("PAYU_ENVIRONMENT must be `test` or `production`.");
   }
 }
 
@@ -111,8 +114,8 @@ const secrets = [
   "SUPABASE_SERVICE_ROLE_KEY",
   "ORDER_ACCESS_SECRET",
   "CRON_SECRET",
-  "RAZORPAY_KEY_SECRET",
-  "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_SALT",
+  "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "UPSTASH_REDIS_REST_TOKEN",
 ].filter((name) => value(name));
