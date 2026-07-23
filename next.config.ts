@@ -6,7 +6,9 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
-  "form-action 'self' https://test.payu.in https://secure.payu.in",
+  // PayU can move a hosted checkout between its secure subdomains. Keep form
+  // submissions restricted to this site and PayU only.
+  "form-action 'self' https://*.payu.in",
   "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com",
