@@ -7,6 +7,7 @@ import {
   FileText,
   Package,
   Printer,
+  Trash2,
   Truck,
 } from "lucide-react";
 import Link from "next/link";
@@ -108,6 +109,34 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
     router.refresh();
   };
 
+  const deleteCancelledOrder = async (order: AdminOrder) => {
+    if (order.status !== "cancelled") return;
+    if (
+      !window.confirm(
+        `Permanently delete cancelled order ${order.orderNumber}? This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    setBusy(`${order.id}:delete`);
+    try {
+      const response = await fetch(`/api/admin/orders/${order.id}`, {
+        method: "DELETE",
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        toast.error(result.error || "The cancelled order could not be deleted.");
+        return;
+      }
+      toast.success("Cancelled order permanently deleted.");
+      setSelected(null);
+      router.refresh();
+    } finally {
+      setBusy("");
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -192,6 +221,17 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                           </button>
                         );
                       })}
+                      {order.status === "cancelled" && (
+                        <button
+                          type="button"
+                          disabled={busy === `${order.id}:delete`}
+                          onClick={() => void deleteCancelledOrder(order)}
+                          className="inline-flex h-9 items-center gap-1 rounded-full border border-red-400/25 px-3 text-xs font-semibold text-red-200"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -306,6 +346,17 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   </button>
                 );
               })}
+              {selected.status === "cancelled" && (
+                <button
+                  type="button"
+                  disabled={busy === `${selected.id}:delete`}
+                  onClick={() => void deleteCancelledOrder(selected)}
+                  className="danger-button"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete permanently
+                </button>
+              )}
             </div>
           </DialogContent>
         )}
