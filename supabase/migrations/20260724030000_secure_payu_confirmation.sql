@@ -33,6 +33,37 @@ alter table public.orders
     )
   );
 
+-- A failed or abandoned hosted-payment attempt must release the inventory
+-- reservation. The existing cancellation trigger restores the quantities and
+-- releases any promotion redemption.
+create or replace function public.cancel_order_reservation(
+  p_order_id uuid,
+  p_payment_failed boolean default false
+)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  update public.orders
+  set
+    status = 'cancelled',
+    payment_status = case
+      when p_payment_failed then 'failed'::public.payment_status
+      else payment_status
+    end
+  where id = p_order_id
+    and payment_method in ('razorpay', 'payu')
+    and payment_status = 'pending'
+    and status = 'pending';
+
+  if not found then
+    raise exception 'Order cannot be cancelled';
+  end if;
+end;
+$$;
+
 create or replace function public.confirm_payu_payment(
   p_order_id uuid,
   p_payu_txn_id text,
@@ -79,4 +110,6 @@ end;
 $$;
 
 revoke all on function public.confirm_payu_payment(uuid, text, text) from public;
+revoke all on function public.cancel_order_reservation(uuid, boolean) from public;
 grant execute on function public.confirm_payu_payment(uuid, text, text) to service_role;
+grant execute on function public.cancel_order_reservation(uuid, boolean) to service_role;
