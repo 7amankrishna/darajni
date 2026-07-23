@@ -162,6 +162,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .select(
           "*, order_items(id, product_id, product_name_at_time, selected_size, quantity, price_at_time, line_total)",
         )
+        // An online-payment reservation is not an actionable customer order
+        // until the gateway has confirmed it as paid.
+        .or("payment_method.eq.cod,payment_status.eq.paid")
         .order("created_at", { ascending: false }),
       supabase
         .from("products")

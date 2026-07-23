@@ -35,11 +35,17 @@ export async function PATCH(
 
   const { data: order, error: readError } = await supabase
     .from("orders")
-    .select("status")
+    .select("status, payment_method, payment_status")
     .eq("id", id)
     .maybeSingle();
   if (readError || !order) {
     return NextResponse.json({ error: "Order not found." }, { status: 404 });
+  }
+  if (order.payment_method !== "cod" && order.payment_status !== "paid") {
+    return NextResponse.json(
+      { error: "An online payment must be confirmed before this order can be updated." },
+      { status: 409 },
+    );
   }
   if (
     order.status !== parsed.data.currentStatus ||
