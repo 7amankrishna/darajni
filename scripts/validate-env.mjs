@@ -54,6 +54,17 @@ if (razorpayValues.every(Boolean)) {
   }
 }
 
+const payuNames = ["PAYU_MERCHANT_KEY", "PAYU_MERCHANT_SALT"];
+const payuValues = payuNames.map(value);
+if (payuValues.some(Boolean) && !payuValues.every(Boolean)) {
+  errors.push(`Configure all PayU variables together: ${payuNames.join(", ")}.`);
+}
+if (payuValues.every(Boolean)) {
+  if (payuValues[1].length < 6) {
+    errors.push("PAYU_MERCHANT_SALT must be at least 6 characters.");
+  }
+}
+
 const shiprocketNames = [
   "SHIPROCKET_API_EMAIL",
   "SHIPROCKET_API_PASSWORD",
@@ -118,6 +129,7 @@ const secrets = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",

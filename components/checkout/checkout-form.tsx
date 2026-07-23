@@ -114,8 +114,8 @@ export function CheckoutForm({
   const [customer, setCustomer] = useState<CheckoutCustomer>(() =>
     customerFromProfile(customerProfile),
   );
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">(
-    settings.codEnabled ? "cod" : "razorpay",
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "payu" | "razorpay">(
+    settings.codEnabled ? "cod" : "payu",
   );
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<CheckoutPromoQuote | null>(
@@ -308,9 +308,11 @@ export function CheckoutForm({
         }),
       });
       const result = (await response.json()) as {
-        mode?: "cod" | "razorpay";
+        mode?: "cod" | "payu" | "razorpay";
         successUrl?: string;
         error?: string;
+        actionUrl?: string;
+        params?: Record<string, string>;
         keyId?: string;
         amount?: number;
         currency?: string;
@@ -328,6 +330,25 @@ export function CheckoutForm({
       if (result.mode === "cod" && result.successUrl) {
         clearCart();
         router.push(result.successUrl);
+        return;
+      }
+
+      if (result.mode === "payu" && result.actionUrl && result.params) {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = result.actionUrl;
+
+        Object.entries(result.params).forEach(([paramKey, paramValue]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = paramKey;
+          input.value = paramValue || "";
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        clearCart();
+        form.submit();
         return;
       }
 
@@ -655,28 +676,28 @@ export function CheckoutForm({
                   </p>
                 </button>
               )}
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("razorpay")}
-                  className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
-                    paymentMethod === "razorpay"
-                      ? "border-accent bg-surface-alt text-text-primary shadow-sm"
-                      : "border-border bg-surface text-text-primary hover:border-accent/50"
-                  }`}
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("payu")}
+                className={`relative flex flex-col justify-between rounded-2xl border-2 p-5 text-left transition-all ${
+                  paymentMethod === "payu"
+                    ? "border-accent bg-surface-alt text-text-primary shadow-sm"
+                    : "border-border bg-surface text-text-primary hover:border-accent/50"
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <CreditCard className="h-5 w-5 text-accent" />
                   <span className={`grid h-5 w-5 place-items-center rounded-full border ${
-                    paymentMethod === "razorpay"
+                    paymentMethod === "payu"
                       ? "border-accent bg-accent text-white"
                       : "border-border"
                   }`}>
-                    {paymentMethod === "razorpay" && <span className="h-2 w-2 rounded-full bg-white" />}
+                    {paymentMethod === "payu" && <span className="h-2 w-2 rounded-full bg-white" />}
                   </span>
                 </div>
-                <p className="mt-3 text-sm font-semibold text-text-primary">Instant Online Payment</p>
+                <p className="mt-3 text-sm font-semibold text-text-primary">Instant Online Payment (PayU)</p>
                 <p className="mt-1 text-xs leading-5 text-text-secondary">
-                  UPI (GPay/PhonePe), Credit/Debit Cards, NetBanking via Razorpay.
+                  UPI (GPay/PhonePe), Cards, NetBanking via PayU Gateway.
                 </p>
               </button>
             </div>

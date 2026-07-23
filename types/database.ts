@@ -14,7 +14,7 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
-export type PaymentMethod = "cod" | "razorpay";
+export type PaymentMethod = "cod" | "payu" | "razorpay";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type PromoCodeType = "coupon" | "voucher";
 export type PromoDiscountType = "percentage" | "fixed_amount";
@@ -144,6 +144,8 @@ export interface Database {
           payment_status: PaymentStatus;
           razorpay_order_id: string | null;
           razorpay_payment_id: string | null;
+          payu_txn_id: string | null;
+          payu_payment_id: string | null;
           status: OrderStatus;
           delivered_at: string | null;
           cancelled_at: string | null;
@@ -173,6 +175,8 @@ export interface Database {
           payment_status?: PaymentStatus;
           razorpay_order_id?: string | null;
           razorpay_payment_id?: string | null;
+          payu_txn_id?: string | null;
+          payu_payment_id?: string | null;
           status?: OrderStatus;
           delivered_at?: string | null;
           cancelled_at?: string | null;
@@ -461,6 +465,14 @@ export interface Database {
           p_order_id: string;
           p_razorpay_order_id: string;
           p_razorpay_payment_id: string;
+        };
+        Returns: string;
+      };
+      confirm_payu_payment: {
+        Args: {
+          p_order_id: string;
+          p_payu_txn_id: string;
+          p_payu_payment_id: string;
         };
         Returns: string;
       };

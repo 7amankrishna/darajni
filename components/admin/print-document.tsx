@@ -77,7 +77,11 @@ export function PrintDocument({
               Payment
             </p>
             <p className="mt-2 text-sm capitalize">
-              {order.paymentMethod === "cod" ? "Cash on delivery" : "Razorpay"} ·{" "}
+              {order.paymentMethod === "cod"
+                ? "Cash on delivery"
+                : order.paymentMethod === "payu"
+                  ? "PayU Online"
+                  : "Razorpay"} ·{" "}
               {order.paymentStatus}
             </p>
           </section>

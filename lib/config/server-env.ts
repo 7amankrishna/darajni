@@ -32,6 +32,7 @@ const SERVER_SECRET_NAMES = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
@@ -59,6 +60,17 @@ export function getOrderAccessSecret() {
 
 export function getCronSecret() {
   return dedicatedSecret("CRON_SECRET", 32);
+}
+
+export function getPayUEnvironment() {
+  const key = clean("PAYU_MERCHANT_KEY");
+  const salt = dedicatedSecret("PAYU_MERCHANT_SALT", 6);
+  const payuEnv = clean("PAYU_ENV") === "production" ? "production" : "test";
+  const actionUrl =
+    payuEnv === "production"
+      ? "https://secure.payu.in/_payment"
+      : "https://test.payu.in/_payment";
+  return key && salt ? { key, salt, payuEnv, actionUrl } : null;
 }
 
 export function getRazorpayOrderEnvironment() {

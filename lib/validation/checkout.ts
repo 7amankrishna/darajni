@@ -32,7 +32,7 @@ export const checkoutSchema = z.object({
     )
     .min(1)
     .max(20),
-  paymentMethod: z.enum(["cod", "razorpay"]),
+  paymentMethod: z.enum(["cod", "payu", "razorpay"]),
   promoCode: z
     .string()
     .trim()

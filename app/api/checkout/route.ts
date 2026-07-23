@@ -4,7 +4,11 @@ import {
   getCustomerUser,
   saveCheckoutProfileForUser,
 } from "@/lib/data/account";
-import { getRazorpayOrderEnvironment } from "@/lib/config/server-env";
+import {
+  getPayUEnvironment,
+  getRazorpayOrderEnvironment,
+} from "@/lib/config/server-env";
+import { generatePayURequestHash } from "@/lib/security/payu";
 import { syncShiprocketOrder } from "@/lib/shiprocket";
 import {
   apiError,
@@ -87,11 +91,14 @@ export async function POST(request: Request) {
 
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
+  const payuEnvironment = getPayUEnvironment();
   const razorpayEnvironment = getRazorpayOrderEnvironment();
-  if (
-    paymentMethod === "razorpay" &&
-    !razorpayEnvironment
-  ) {
+
+  if (paymentMethod === "payu" && !payuEnvironment) {
+    return apiError("PayU online payment is temporarily unavailable.", 503);
+  }
+
+  if (paymentMethod === "razorpay" && !razorpayEnvironment) {
     return apiError("Online payment is temporarily unavailable.", 503);
   }
 
@@ -174,6 +181,67 @@ export async function POST(request: Request) {
     });
   }
 
+  if (paymentMethod === "payu") {
+    try {
+      if (!payuEnvironment) {
+        throw new Error("PayU environment unavailable after validation.");
+      }
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const txnid = order.order_number;
+      const firstname = customer.customerName.trim().split(" ")[0] || "Customer";
+      const email = customer.email || "customer@darjani.com";
+      const formattedAmount = Number(order.total).toFixed(2);
+      const productinfo = `Order ${order.order_number}`;
+
+      const hash = generatePayURequestHash({
+        key: payuEnvironment.key,
+        txnid,
+        amount: formattedAmount,
+        productinfo,
+        firstname,
+        email,
+        salt: payuEnvironment.salt,
+        udf1: order.order_id,
+      });
+
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ payu_txn_id: txnid })
+        .eq("id", order.order_id)
+        .eq("status", "pending");
+      if (updateError) throw updateError;
+
+      return NextResponse.json({
+        mode: "payu",
+        actionUrl: payuEnvironment.actionUrl,
+        params: {
+          key: payuEnvironment.key,
+          txnid,
+          amount: formattedAmount,
+          productinfo,
+          firstname,
+          email,
+          phone: customer.phone,
+          surl: `${siteUrl}/api/payments/payu/callback`,
+          furl: `${siteUrl}/api/payments/payu/callback`,
+          hash,
+          udf1: order.order_id,
+          service_provider: "payu_paisa",
+        },
+        token,
+      });
+    } catch (payuError) {
+      await cancelReservation(order.order_id);
+      return internalApiError(
+        "payu-order-create",
+        payuError,
+        "Online payment could not be started. Please try again.",
+        502,
+      );
+    }
+  }
+
   try {
     if (!razorpayEnvironment) {
       throw new Error("Razorpay environment unavailable after validation.");
@@ -238,3 +306,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
