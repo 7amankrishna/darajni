@@ -32,6 +32,7 @@ const SERVER_SECRET_NAMES = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_SALT",
   "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "SHIPROCKET_WEBHOOK_TOKEN",
@@ -63,9 +64,16 @@ export function getCronSecret() {
 }
 
 export function getPayUEnvironment() {
-  const key = clean("PAYU_MERCHANT_KEY");
-  const salt = dedicatedSecret("PAYU_MERCHANT_SALT", 6);
-  const payuEnv = clean("PAYU_ENV") === "production" ? "production" : "test";
+  // Support both variable naming conventions so a valid existing deployment
+  // does not silently disable online payments during the PayU migration.
+  const key = clean("PAYU_KEY") || clean("PAYU_MERCHANT_KEY");
+  const salt =
+    dedicatedSecret("PAYU_SALT", 6) ||
+    dedicatedSecret("PAYU_MERCHANT_SALT", 6);
+  const configuredMode = (
+    clean("PAYU_ENVIRONMENT") || clean("PAYU_ENV") || "test"
+  ).toLowerCase();
+  const payuEnv = configuredMode === "production" ? "production" : "test";
   const actionUrl =
     payuEnv === "production"
       ? "https://secure.payu.in/_payment"

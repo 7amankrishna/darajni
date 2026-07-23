@@ -54,15 +54,17 @@ if (razorpayValues.every(Boolean)) {
   }
 }
 
-const payuNames = ["PAYU_MERCHANT_KEY", "PAYU_MERCHANT_SALT"];
-const payuValues = payuNames.map(value);
-if (payuValues.some(Boolean) && !payuValues.every(Boolean)) {
-  errors.push(`Configure all PayU variables together: ${payuNames.join(", ")}.`);
+const payuKey = value("PAYU_KEY") || value("PAYU_MERCHANT_KEY");
+const payuSalt = value("PAYU_SALT") || value("PAYU_MERCHANT_SALT");
+if (Boolean(payuKey) !== Boolean(payuSalt)) {
+  errors.push("Configure both PAYU_KEY and PAYU_SALT (or both PAYU_MERCHANT_KEY and PAYU_MERCHANT_SALT).");
 }
-if (payuValues.every(Boolean)) {
-  if (payuValues[1].length < 6) {
-    errors.push("PAYU_MERCHANT_SALT must be at least 6 characters.");
-  }
+if (payuSalt && payuSalt.length < 6) {
+  errors.push("PAYU_SALT must be at least 6 characters.");
+}
+const payuMode = value("PAYU_ENVIRONMENT") || value("PAYU_ENV");
+if (payuMode && !["test", "production"].includes(payuMode.toLowerCase())) {
+  errors.push("PAYU_ENVIRONMENT must be either test or production.");
 }
 
 const shiprocketNames = [
@@ -129,6 +131,7 @@ const secrets = [
   "CRON_SECRET",
   "RAZORPAY_KEY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
+  "PAYU_SALT",
   "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
   "SHIPROCKET_WEBHOOK_TOKEN",
