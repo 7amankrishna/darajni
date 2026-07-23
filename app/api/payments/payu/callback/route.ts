@@ -1,6 +1,6 @@
 import { after, NextResponse } from "next/server";
 
-import { getPayUEnvironment, getPublicSiteUrl } from "@/lib/config/server-env";
+import { getPayUEnvironment } from "@/lib/config/server-env";
 import { verifyPayUResponseHash } from "@/lib/security/payu";
 import { createOrderAccessToken } from "@/lib/security/order-token";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
@@ -12,13 +12,13 @@ export const runtime = "nodejs";
 type PayUFields = Record<string, string>;
 
 function redirectToCheckout(request: Request, error: string) {
-  const url = new URL("/checkout", getPublicSiteUrl() || request.url);
+  const url = new URL("/checkout", new URL(request.url).origin);
   url.searchParams.set("payment", error);
   return NextResponse.redirect(url, 303);
 }
 
 function redirectToSuccess(request: Request, token: string) {
-  const url = new URL("/order/success", getPublicSiteUrl() || request.url);
+  const url = new URL("/order/success", new URL(request.url).origin);
   url.searchParams.set("token", token);
   return NextResponse.redirect(url, 303);
 }

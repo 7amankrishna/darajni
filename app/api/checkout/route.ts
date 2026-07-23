@@ -6,7 +6,6 @@ import {
 } from "@/lib/data/account";
 import {
   getPayUEnvironment,
-  getPublicSiteUrl,
   getRazorpayOrderEnvironment,
 } from "@/lib/config/server-env";
 import { generatePayURequestHash } from "@/lib/security/payu";
@@ -93,10 +92,10 @@ export async function POST(request: Request) {
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
   const payuEnvironment = getPayUEnvironment();
-  // The configured canonical URL is preferred. The request origin is a safe
-  // production fallback that prevents a missing public build variable from
-  // blocking the payment handoff.
-  const siteUrl = getPublicSiteUrl() || new URL(request.url).origin;
+  // PayU must return to the same canonical host where checkout started. The
+  // request origin avoids a cross-host redirect when domain configuration is
+  // changed between www and non-www.
+  const siteUrl = new URL(request.url).origin;
   const razorpayEnvironment = getRazorpayOrderEnvironment();
 
   if (paymentMethod === "payu" && !payuEnvironment) {
