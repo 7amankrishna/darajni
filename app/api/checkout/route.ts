@@ -238,6 +238,13 @@ export async function POST(request: Request) {
           zipcode: customer.pincode.trim(),
           hash,
           udf1: order.order_id,
+          // PayU hashes all five UDF positions. Send the blank positions as
+          // explicit fields too, so the payload exactly matches the sequence
+          // used to generate the server-side hash.
+          udf2: "",
+          udf3: "",
+          udf4: "",
+          udf5: "",
         },
         token,
       });
