@@ -51,7 +51,7 @@ export function AdminLoginForm({ unauthorized = false }: { unauthorized?: boolea
         <div className="mt-6 text-center">
           <p className="eyebrow">Secure administration</p>
           <h1 className="font-display mt-3 text-4xl">Store sign in</h1>
-          <p className="mt-3 text-sm leading-6 text-white/80">
+          <p className="mt-3 text-sm leading-6 text-text-secondary">
             Only approved DARAJNI administrator accounts can continue.
           </p>
         </div>

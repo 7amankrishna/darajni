@@ -230,7 +230,7 @@ export function ProductManagement({
         <div>
           <p className="eyebrow">Product management</p>
           <h2 className="font-display mt-2 text-4xl">Catalog</h2>
-          <p className="mt-3 text-sm text-white/75">
+          <p className="mt-3 text-sm text-text-secondary">
             {activeCount} active of {products.length} products
           </p>
         </div>
@@ -260,7 +260,7 @@ export function ProductManagement({
                   className={`status-pill ${
                     product.isActive
                       ? "bg-emerald-400/15 text-emerald-200"
-                      : "bg-white/10 text-white/55"
+                      : "bg-surface-alt text-text-secondary"
                   }`}
                 >
                   {product.isActive ? "Active" : "Hidden"}
@@ -280,7 +280,7 @@ export function ProductManagement({
                   {formatPrice(product.price)}
                 </p>
               </div>
-              <p className="mt-3 text-xs text-white/75">
+              <p className="mt-3 text-xs text-text-secondary">
                 Stock {product.stock} · Discount {product.discount}% ·{" "}
                 {product.sizes.join(", ")}
               </p>
@@ -380,7 +380,7 @@ export function ProductManagement({
                 placeholder="Exact fabric, e.g. silk blend with cotton lining"
                 required
               />
-              <p className="mt-2 text-xs leading-5 text-white/55">
+              <p className="mt-2 text-xs leading-5 text-text-secondary">
                 Use confirmed material names. Avoid “appears,” “style,” “or” and other uncertain wording.
               </p>
             </div>
@@ -456,7 +456,7 @@ export function ProductManagement({
                 maxLength={5000}
                 required
               />
-              <p className="mt-2 text-xs leading-5 text-white/55">
+              <p className="mt-2 text-xs leading-5 text-text-secondary">
                 State the included pieces, lining, work, colour, garment length,
                 care instructions and model measurements when known.
               </p>
@@ -467,7 +467,7 @@ export function ProductManagement({
                 {draft.images.map((image, index) => (
                   <div
                     key={`${image}-${index}`}
-                    className="relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-black"
+                    className="relative aspect-square overflow-hidden rounded-xl border border-border bg-black"
                   >
                     <ProductImage src={image} alt="" sizes="120px" />
                     <button
@@ -525,7 +525,7 @@ export function ProductManagement({
                 </button>
               </div>
             </div>
-            <label className="flex items-center gap-3 text-sm text-white/65">
+            <label className="flex items-center gap-3 text-sm text-text-secondary">
               <input
                 type="checkbox"
                 checked={draft.isActive}
@@ -534,7 +534,7 @@ export function ProductManagement({
               />
               Visible in storefront
             </label>
-            <label className="flex items-center gap-3 text-sm text-white/65">
+            <label className="flex items-center gap-3 text-sm text-text-secondary">
               <input
                 type="checkbox"
                 checked={draft.isFeatured}
@@ -604,7 +604,7 @@ export function ProductManagement({
                 pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
                 required
               />
-              <p className="mt-2 text-xs leading-5 text-white/55">
+              <p className="mt-2 text-xs leading-5 text-text-secondary">
                 This must be unique and is used in collection links.
               </p>
             </div>

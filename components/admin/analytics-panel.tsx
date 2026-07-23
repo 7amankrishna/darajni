@@ -41,7 +41,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
           return (
             <article key={card.label} className="glass-panel p-5">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-white/75">
+                <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">
                   {card.label}
                 </p>
                 <Icon className="h-4 w-4 text-[#B8893B]" />
@@ -62,7 +62,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
               analytics.topProducts.map((product, index) => (
                 <div
                   key={product.productId}
-                  className="flex items-center justify-between gap-4 rounded-xl border border-white/8 p-4"
+                  className="flex items-center justify-between gap-4 rounded-xl border border-border p-4"
                 >
                   <div className="flex items-center gap-3">
                     <span className="font-display text-2xl text-[#B8893B]">
@@ -70,7 +70,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                     </span>
                     <div>
                       <p className="text-sm font-semibold">{product.name}</p>
-                      <p className="mt-1 text-xs text-white/75">
+                      <p className="mt-1 text-xs text-text-secondary">
                         {product.quantity} item{product.quantity === 1 ? "" : "s"} sold
                       </p>
                     </div>
@@ -81,7 +81,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 </div>
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-white/75">
+              <p className="py-10 text-center text-sm text-text-secondary">
                 Sales data will appear after orders are placed.
               </p>
             )}
@@ -98,11 +98,11 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
               analytics.lowStock.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between rounded-xl border border-white/8 p-4"
+                  className="flex items-center justify-between rounded-xl border border-border p-4"
                 >
                   <div>
                     <p className="text-sm font-semibold">{product.name}</p>
-                    <p className="mt-1 text-xs text-white/75">
+                    <p className="mt-1 text-xs text-text-secondary">
                       {product.category.name}
                     </p>
                   </div>
@@ -118,7 +118,7 @@ export function AnalyticsPanel({ analytics }: { analytics: AnalyticsSummary }) {
                 </div>
               ))
             ) : (
-              <p className="py-10 text-center text-sm text-white/75">
+              <p className="py-10 text-center text-sm text-text-secondary">
                 All active products have healthy stock.
               </p>
             )}

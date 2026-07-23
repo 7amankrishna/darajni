@@ -123,8 +123,8 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[74px] border-b border-white/10 bg-background/75 transition-colors backdrop-blur-[24px] shadow-sm lg:h-[109px]", isHome ? "fixed" : "sticky")}>
-        <div className="hidden border-b border-border bg-surface-alt text-text-primary md:block">
+      <header className={cn("inset-x-0 top-0 z-40 h-[74px] border-b border-border bg-background/75 transition-colors backdrop-blur-[24px] shadow-sm lg:h-[109px]", isHome ? "fixed" : "sticky")}>
+        <div className="hidden border-b border-border bg-surface-alt text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
             <span>

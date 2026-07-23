@@ -154,7 +154,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   </TableCell>
                   <TableCell>
                     <p>{order.customerName}</p>
-                    <p className="mt-1 text-xs text-white/75">{order.phone}</p>
+                    <p className="mt-1 text-xs text-text-secondary">{order.phone}</p>
                   </TableCell>
                   <TableCell>{formatPrice(order.total)}</TableCell>
                   <TableCell>
@@ -168,7 +168,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                       <button
                         type="button"
                         onClick={() => setSelected(order)}
-                        className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#B8893B]/50"
+                        className="grid h-9 w-9 place-items-center rounded-full border border-border hover:border-[#B8893B]/50"
                         aria-label={`View ${order.orderNumber}`}
                       >
                         <Eye className="h-4 w-4" />
@@ -199,7 +199,7 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
             </TableBody>
           </Table>
         ) : (
-          <p className="py-16 text-center text-sm text-white/75">
+          <p className="py-16 text-center text-sm text-text-secondary">
             No orders match this status.
           </p>
         )}
@@ -216,29 +216,29 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-5 sm:grid-cols-2">
-              <section className="rounded-xl border border-white/9 p-4">
+              <section className="rounded-xl border border-border p-4">
                 <p className="field-label">Customer</p>
                 <p className="font-semibold">{selected.customerName}</p>
-                <p className="mt-2 text-sm text-white/55">{selected.phone}</p>
+                <p className="mt-2 text-sm text-text-secondary">{selected.phone}</p>
                 {selected.email && (
-                  <p className="mt-1 text-sm text-white/55">{selected.email}</p>
+                  <p className="mt-1 text-sm text-text-secondary">{selected.email}</p>
                 )}
               </section>
-              <section className="rounded-xl border border-white/9 p-4">
+              <section className="rounded-xl border border-border p-4">
                 <p className="field-label">Delivery address</p>
-                <p className="text-sm leading-6 text-white/65">
+                <p className="text-sm leading-6 text-text-secondary">
                   {selected.address}, {selected.city}, {selected.state} {selected.pincode}
                   {selected.landmark ? ` · ${selected.landmark}` : ""}
                 </p>
               </section>
             </div>
-            <section className="rounded-xl border border-white/9">
-              <div className="divide-y divide-white/8">
+            <section className="rounded-xl border border-border">
+              <div className="divide-y divide-border">
                 {selected.items.map((item) => (
                   <div key={item.id} className="flex justify-between gap-4 p-4">
                     <div>
                       <p className="font-semibold">{item.productName}</p>
-                      <p className="mt-1 text-xs text-white/75">
+                      <p className="mt-1 text-xs text-text-secondary">
                         Size {item.selectedSize} · Qty {item.quantity}
                       </p>
                     </div>
@@ -246,9 +246,9 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-white/9 p-4 text-right">
+              <div className="border-t border-border p-4 text-right">
                 <div className="ml-auto mb-4 max-w-xs space-y-2 text-sm">
-                  <div className="flex justify-between text-white/50">
+                  <div className="flex justify-between text-text-secondary">
                     <span>Subtotal</span>
                     <span>{formatPrice(selected.subtotal)}</span>
                   </div>
@@ -261,11 +261,11 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                       <span>-{formatPrice(selected.discountAmount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-white/50">
+                  <div className="flex justify-between text-text-secondary">
                     <span>Shipping</span>
                     <span>{formatPrice(selected.shippingFee)}</span>
                   </div>
-                  <div className="flex justify-between text-white/50">
+                  <div className="flex justify-between text-text-secondary">
                     <span>Tax</span>
                     <span>{formatPrice(selected.taxAmount)}</span>
                   </div>

@@ -200,7 +200,7 @@ export function HomepageSlideManagement({
         <div>
           <p className="eyebrow">Storefront campaigns</p>
           <h2 className="font-display mt-2 text-4xl">Homepage launches</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary">
             Create product launches and campaign slides, set their order and
             publish window, upload the image, and choose exactly where each
             call-to-action links.
@@ -243,7 +243,7 @@ export function HomepageSlideManagement({
                   <div>
                     <h3 className="font-display text-3xl">{slide.title}</h3>
                     {slide.description && (
-                      <p className="mt-2 text-sm leading-6 text-white/70">
+                      <p className="mt-2 text-sm leading-6 text-text-secondary">
                         {slide.description}
                       </p>
                     )}
@@ -252,7 +252,7 @@ export function HomepageSlideManagement({
                     <button
                       type="button"
                       onClick={() => editSlide(slide)}
-                      className="grid h-10 w-10 place-items-center rounded-full border border-white/10 transition hover:border-[#B8893B]/50"
+                      className="grid h-10 w-10 place-items-center rounded-full border border-border transition hover:border-[#B8893B]/50"
                       aria-label={`Edit ${slide.title}`}
                     >
                       <Pencil className="h-4 w-4" />
@@ -267,7 +267,7 @@ export function HomepageSlideManagement({
                     </button>
                   </div>
                 </div>
-                <div className="mt-5 grid gap-3 text-xs text-white/70 sm:grid-cols-2">
+                <div className="mt-5 grid gap-3 text-xs text-text-secondary sm:grid-cols-2">
                   <p className="inline-flex min-w-0 items-center gap-2">
                     <Link2 className="h-3.5 w-3.5 shrink-0 text-[#D9B56B]" />
                     <span className="truncate">{slide.ctaLabel} → {slide.linkUrl}</span>
@@ -286,7 +286,7 @@ export function HomepageSlideManagement({
             <div>
               <ImagePlus className="mx-auto h-9 w-9 text-[#B8893B]" />
               <h3 className="font-display mt-4 text-3xl">No homepage launches yet.</h3>
-              <p className="mt-3 max-w-md text-sm leading-6 text-white/75">
+              <p className="mt-3 max-w-md text-sm leading-6 text-text-secondary">
                 Add a launch for a new product, seasonal collection, or offer.
                 It stays hidden until you mark it active and its schedule begins.
               </p>
@@ -403,7 +403,7 @@ export function HomepageSlideManagement({
                 required
               />
             </div>
-            <label className="flex items-center gap-3 self-end rounded-xl border border-white/10 p-3 text-sm text-white/75">
+            <label className="flex items-center gap-3 self-end rounded-xl border border-border p-3 text-sm text-text-secondary">
               <input
                 type="checkbox"
                 checked={draft.isActive}

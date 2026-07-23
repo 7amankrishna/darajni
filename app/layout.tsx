@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { useEffect, useState } from "react";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 
 import { SiteShell } from "@/components/layout/site-shell";

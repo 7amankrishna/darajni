@@ -67,7 +67,7 @@ export function AdminDashboard({
             <h1 className="font-display mt-3 text-5xl sm:text-6xl">
               Store dashboard
             </h1>
-            <p className="mt-3 text-sm text-white/75">
+            <p className="mt-3 text-sm text-text-secondary">
               Signed in as {email}
             </p>
           </div>
@@ -88,7 +88,7 @@ export function AdminDashboard({
                 className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-5 text-xs font-bold uppercase tracking-wider transition ${
                   tab === item.value
                     ? "border-accent bg-accent text-black"
-                    : "border-white/10 text-white/50 hover:border-accent/40"
+                    : "border-border text-text-secondary hover:border-accent/40"
                 }`}
               >
                 <Icon className="h-4 w-4" />

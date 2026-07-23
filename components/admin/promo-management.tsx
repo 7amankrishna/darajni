@@ -174,7 +174,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
         <div>
           <p className="eyebrow">Coupons & vouchers</p>
           <h2 className="font-display mt-2 text-4xl">Promo codes</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-text-secondary">
             Create order-wide coupons and fixed-value vouchers. Checkout always
             recalculates discounts in PostgreSQL before an order is accepted.
           </p>
@@ -198,12 +198,12 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                     className={`status-pill ${
                       promo.isActive
                         ? "bg-emerald-400/12 text-emerald-200"
-                        : "bg-white/10 text-white/80"
+                        : "bg-surface-alt text-text-secondary"
                     }`}
                   >
                     {promo.isActive ? "Active" : "Inactive"}
                   </span>
-                  <span className="status-pill bg-white/8 text-white/55">
+                  <span className="status-pill bg-surface-alt text-text-secondary">
                     {promo.codeType}
                   </span>
                 </div>
@@ -212,7 +212,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                   {discountLabel(promo)}
                 </p>
                 {promo.description && (
-                  <p className="mt-2 text-xs leading-5 text-white/75">
+                  <p className="mt-2 text-xs leading-5 text-text-secondary">
                     {promo.description}
                   </p>
                 )}
@@ -221,7 +221,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 <button
                   type="button"
                   onClick={() => editPromo(promo)}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-white/10 hover:border-[#B8893B]/50"
+                  className="grid h-9 w-9 place-items-center rounded-full border border-border hover:border-[#B8893B]/50"
                   aria-label={`Edit ${promo.code}`}
                 >
                   <Pencil className="h-4 w-4" />
@@ -239,28 +239,28 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 text-xs text-white/75 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 text-xs text-text-secondary sm:grid-cols-3">
               <p>
                 Minimum
-                <span className="mt-1 block text-sm text-white/70">
+                <span className="mt-1 block text-sm text-text-secondary">
                   {formatPrice(promo.minimumSubtotal)}
                 </span>
               </p>
               <p>
                 Uses
-                <span className="mt-1 block text-sm text-white/70">
+                <span className="mt-1 block text-sm text-text-secondary">
                   {promo.redemptionCount}
                   {promo.usageLimit ? ` / ${promo.usageLimit}` : ""}
                 </span>
               </p>
               <p>
                 Saved
-                <span className="mt-1 block text-sm text-white/70">
+                <span className="mt-1 block text-sm text-text-secondary">
                   {formatPrice(promo.redeemedAmount)}
                 </span>
               </p>
             </div>
-            <div className="mt-4 text-xs leading-5 text-white/75">
+            <div className="mt-4 text-xs leading-5 text-text-secondary">
               {promo.startsAt || promo.endsAt ? (
                 <p>
                   Window: {promo.startsAt ? formatDate(promo.startsAt) : "now"} –{" "}
@@ -278,7 +278,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
             <div>
               <Tag className="mx-auto h-9 w-9 text-[#B8893B]" />
               <h3 className="font-display mt-4 text-3xl">No promo codes yet.</h3>
-              <p className="mt-3 text-sm text-white/75">
+              <p className="mt-3 text-sm text-text-secondary">
                 Add a coupon or voucher after running the Stage 5 SQL migration.
               </p>
             </div>
@@ -471,10 +471,10 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 maxLength={300}
               />
             </div>
-            <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-white/9 p-4">
+            <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-border p-4">
               <div>
                 <p className="text-sm font-semibold">Active</p>
-                <p className="mt-1 text-xs text-white/75">
+                <p className="mt-1 text-xs text-text-secondary">
                   Inactive codes cannot be applied at checkout.
                 </p>
               </div>
