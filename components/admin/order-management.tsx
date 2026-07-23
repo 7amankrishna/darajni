@@ -98,13 +98,15 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentStatus: order.status, status }),
     });
-    const result = (await response.json()) as { error?: string };
+    const result = (await response.json()) as { error?: string; deleted?: boolean };
     setBusy("");
     if (!response.ok) {
       toast.error(result.error || "The order could not be updated.");
       return;
     }
-    toast.success(`Order marked ${status}.`);
+    toast.success(
+      result.deleted ? "Order cancelled and permanently deleted." : `Order marked ${status}.`,
+    );
     setSelected(null);
     router.refresh();
   };

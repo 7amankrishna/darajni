@@ -57,22 +57,46 @@ export async function PATCH(
     );
   }
 
-  const { error } = await supabase
+  const { data: updatedOrder, error } = await supabase
     .from("orders")
     .update({ status: parsed.data.status })
     .eq("id", id)
-    .eq("status", parsed.data.currentStatus);
-  if (error) {
+    .eq("status", parsed.data.currentStatus)
+    .select("id")
+    .maybeSingle();
+  if (error || !updatedOrder) {
     return internalApiError(
       "admin-order-status-update",
-      error,
+      error || new Error("Order changed before it could be updated."),
       "The order status could not be updated.",
       409,
     );
   }
 
+  // An admin cancellation is an explicit discard. Updating status first lets
+  // the existing triggers restore stock and release a promotion redemption;
+  // deleting second removes the order and its cascaded order items.
+  if (parsed.data.status === "cancelled") {
+    const { error: deleteError } = await supabase
+      .from("orders")
+      .delete()
+      .eq("id", id)
+      .eq("status", "cancelled");
+    if (deleteError) {
+      return internalApiError(
+        "admin-cancelled-order-delete",
+        deleteError,
+        "The order was cancelled but could not be removed.",
+        409,
+      );
+    }
+  }
+
   revalidatePath("/admin");
   revalidatePath(`/admin/orders/${id}/invoice`);
   revalidatePath(`/admin/orders/${id}/packing-slip`);
-  return NextResponse.json({ status: parsed.data.status });
+  return NextResponse.json({
+    status: parsed.data.status,
+    deleted: parsed.data.status === "cancelled",
+  });
 }
