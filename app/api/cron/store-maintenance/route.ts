@@ -50,7 +50,9 @@ export async function GET(request: Request) {
     ok: true,
     archivedOrders: Number(result?.archived_orders ?? 0),
     deletedArchives: Number(result?.deleted_archives ?? 0),
-    cancelledExpiredRazorpay: Number(result?.cancelled_expired_razorpay ?? 0),
+    deletedExpiredOnlineOrders: Number(
+      result?.cancelled_expired_razorpay ?? 0,
+    ),
     shiprocketSyncAttempts: shiprocket.attempted,
     shiprocketOrdersSynced: shiprocket.synced,
   });

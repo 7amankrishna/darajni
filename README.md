@@ -380,9 +380,9 @@ percentage | fixed_amount
   order first transitions to `cancelled`.
 - `release_promo_after_cancellation()` releases coupon/voucher usage when an
   order is cancelled.
-- `run_store_maintenance()` archives delivered orders after 10 days, deletes
-  minimal archives after 90 days, and cancels stale pending Razorpay
-  reservations.
+- `run_store_maintenance()` removes unconfirmed PayU/Razorpay reservations
+  after 5 minutes (restoring stock first), archives delivered orders after 10
+  days, and deletes minimal archives after 90 days.
 
 ### Store settings
 
@@ -479,11 +479,13 @@ Additional behavior:
 - Products referenced by an order cannot be deleted because of foreign-key
   protection. Mark them inactive instead.
 - A Vercel Cron request to `/api/cron/store-maintenance` calls
-  `run_store_maintenance()` once per day:
+  `run_store_maintenance()` every five minutes:
   - delivered orders older than 10 days move to `archived_orders` and leave the
     active orders table;
   - archived rows older than 90 days are deleted;
-  - stale pending Razorpay reservations older than 1 hour are cancelled.
+  - stale pending PayU/Razorpay reservations older than 5 minutes are
+    cancelled, their stock is restored, and their database records are
+    deleted.
 - Shiprocket order creation is attempted after COD checkout and after a verified
   Razorpay payment. Failed attempts are retried by the maintenance cron; the
   unique local order reference and an atomic claim prevent duplicate remote
