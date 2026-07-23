@@ -6,6 +6,7 @@ import {
 } from "@/lib/data/account";
 import {
   getPayUEnvironment,
+  getPublicSiteUrl,
   getRazorpayOrderEnvironment,
 } from "@/lib/config/server-env";
 import { generatePayURequestHash } from "@/lib/security/payu";
@@ -92,9 +93,10 @@ export async function POST(request: Request) {
   const { customer, items, paymentMethod, promoCode } = parsed.data;
   const customerUser = await getCustomerUser();
   const payuEnvironment = getPayUEnvironment();
+  const siteUrl = getPublicSiteUrl();
   const razorpayEnvironment = getRazorpayOrderEnvironment();
 
-  if (paymentMethod === "payu" && !payuEnvironment) {
+  if (paymentMethod === "payu" && (!payuEnvironment || !siteUrl)) {
     return apiError("PayU online payment is temporarily unavailable.", 503);
   }
 
@@ -187,7 +189,6 @@ export async function POST(request: Request) {
         throw new Error("PayU environment unavailable after validation.");
       }
 
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
       const txnid = order.order_number;
       const firstname = customer.customerName.trim().split(" ")[0] || "Customer";
       const email = customer.email || "customer@darjani.com";
@@ -305,4 +306,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

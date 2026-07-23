@@ -40,6 +40,14 @@ export const checkoutSchema = z.object({
     .optional()
     .default("")
     .transform((value) => value.replace(/\s+/g, "").toUpperCase()),
+}).superRefine((data, context) => {
+  if (data.paymentMethod === "payu" && !data.customer.email) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["customer", "email"],
+      message: "Enter an email address for secure online payment.",
+    });
+  }
 });
 
 export const checkoutPromoSchema = z.object({

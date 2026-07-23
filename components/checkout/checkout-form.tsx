@@ -115,7 +115,7 @@ export function CheckoutForm({
     customerFromProfile(customerProfile),
   );
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "payu" | "razorpay">(
-    settings.codEnabled ? "cod" : "payu",
+    "payu",
   );
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<CheckoutPromoQuote | null>(
@@ -491,7 +491,7 @@ export function CheckoutForm({
               </div>
               <div>
                 <label htmlFor="checkout-email" className="field-label">
-                  Email <span className="normal-case">(optional)</span>
+                  Email{paymentMethod === "payu" ? "" : " (optional)"}
                 </label>
                 <input
                   id="checkout-email"
@@ -501,6 +501,7 @@ export function CheckoutForm({
                   className="field"
                   autoComplete="email"
                   maxLength={254}
+                  required={paymentMethod === "payu"}
                 />
               </div>
               <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-surface-alt p-4 text-xs font-semibold text-text-secondary">
@@ -869,7 +870,7 @@ export function CheckoutForm({
             )}
           </button>
           <div className="mt-4 rounded-xl bg-surface-alt p-4 text-center text-[0.68rem] leading-5 text-text-secondary">
-            Razorpay secure payment | Order total rechecked | WhatsApp support
+            PayU secure payment | Order total rechecked | WhatsApp support
           </div>
           <Link href="/support" className="secondary-button mt-3 w-full">
             <MessageCircle className="h-4 w-4" />

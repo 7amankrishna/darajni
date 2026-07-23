@@ -81,6 +81,10 @@ export function getPayUEnvironment() {
   return key && salt ? { key, salt, payuEnv, actionUrl } : null;
 }
 
+export function getPublicSiteUrl() {
+  return validUrl(clean("NEXT_PUBLIC_SITE_URL"), ["https:", "http:"]);
+}
+
 export function getRazorpayOrderEnvironment() {
   const keyId = clean("NEXT_PUBLIC_RAZORPAY_KEY_ID");
   const keySecret = dedicatedSecret("RAZORPAY_KEY_SECRET", 16);
