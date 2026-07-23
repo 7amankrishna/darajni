@@ -216,37 +216,49 @@ export async function POST(request: Request) {
         .eq("status", "pending");
       if (updateError) throw updateError;
 
-      return NextResponse.json({
+      const paymentFields = {
+        key: payuEnvironment.key,
+        txnid,
+        amount: formattedAmount,
+        productinfo,
+        firstname,
+        email,
+        phone: customer.phone.replace(/\D/g, "").slice(-10),
+        surl: `${siteUrl}/api/payments/payu/callback`,
+        furl: `${siteUrl}/api/payments/payu/callback`,
+        curl: `${siteUrl}/api/payments/payu/callback`,
+        address1: customer.address.trim(),
+        city: customer.city.trim(),
+        state: customer.state.trim(),
+        country: "India",
+        zipcode: customer.pincode.trim(),
+        hash,
+        udf1: order.order_id,
+        // PayU hashes all five UDF positions. Send the blank positions as
+        // explicit fields too, so the payload exactly matches the sequence
+        // used to generate the server-side hash.
+        udf2: "",
+        udf3: "",
+        udf4: "",
+        udf5: "",
+      };
+      const handoff = Buffer.from(JSON.stringify(paymentFields)).toString(
+        "base64url",
+      );
+      const response = NextResponse.json({
         mode: "payu",
-        actionUrl: payuEnvironment.actionUrl,
-        params: {
-          key: payuEnvironment.key,
-          txnid,
-          amount: formattedAmount,
-          productinfo,
-          firstname,
-          email,
-          phone: customer.phone.replace(/\D/g, "").slice(-10),
-          surl: `${siteUrl}/api/payments/payu/callback`,
-          furl: `${siteUrl}/api/payments/payu/callback`,
-          curl: `${siteUrl}/api/payments/payu/callback`,
-          address1: customer.address.trim(),
-          city: customer.city.trim(),
-          state: customer.state.trim(),
-          country: "India",
-          zipcode: customer.pincode.trim(),
-          hash,
-          udf1: order.order_id,
-          // PayU hashes all five UDF positions. Send the blank positions as
-          // explicit fields too, so the payload exactly matches the sequence
-          // used to generate the server-side hash.
-          udf2: "",
-          udf3: "",
-          udf4: "",
-          udf5: "",
-        },
-        token,
+        redirectUrl: "/payments/payu/redirect",
       });
+      response.cookies.set({
+        name: "payu_handoff",
+        value: handoff,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 5 * 60,
+        path: "/payments/payu",
+      });
+      return response;
     } catch (payuError) {
       await cancelReservation(order.order_id);
       return internalApiError(

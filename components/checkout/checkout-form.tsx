@@ -323,8 +323,7 @@ export function CheckoutForm({
         mode?: "cod" | "payu" | "razorpay";
         successUrl?: string;
         error?: string;
-        actionUrl?: string;
-        params?: Record<string, string>;
+        redirectUrl?: string;
         keyId?: string;
         amount?: number;
         currency?: string;
@@ -345,21 +344,8 @@ export function CheckoutForm({
         return;
       }
 
-      if (result.mode === "payu" && result.actionUrl && result.params) {
-        const form = document.createElement("form");
-        form.method = "POST";
-        form.action = result.actionUrl;
-
-        Object.entries(result.params).forEach(([paramKey, paramValue]) => {
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = paramKey;
-          input.value = paramValue || "";
-          form.appendChild(input);
-        });
-
-        document.body.appendChild(form);
-        form.submit();
+      if (result.mode === "payu" && result.redirectUrl) {
+        window.location.assign(result.redirectUrl);
         return;
       }
 
