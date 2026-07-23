@@ -41,6 +41,25 @@ const columns = [
   },
 ];
 
+function InstagramIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
 export default function Footer({
   supportNumber,
   availableCategories,
@@ -129,38 +148,33 @@ export default function Footer({
             Secure checkout
           </span>
         </div>
-        <div className="space-y-2 md:text-right">
+        <div className="flex flex-col items-center gap-3 sm:items-end">
           <p>
             © {new Date().getFullYear()} DARAJNI Designer House. Made in Bihar,
             delivered Pan India.
           </p>
-          <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-background px-3 py-2">
-            <span className="text-sm text-text-secondary transition hover:text-accent">Website crafted &amp; managed by Aman Krishna</span>
-            <span className="hidden text-text-secondary/35 sm:inline">•</span>
+          <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
             <a
               href="https://www.instagram.com/darajni.in/"
               target="_blank"
               rel="noreferrer"
-              aria-label="DARAJNI on Instagram"
-              className="inline-flex items-center gap-1.5 font-bold text-accent transition hover:text-text-primary"
+              aria-label="@darajni.in on Instagram"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 font-bold text-accent transition hover:border-accent hover:text-text-primary"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-3.5 w-3.5"
-                aria-hidden="true"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg>
-              darajni.in
+              <InstagramIcon />
+              @darajni.in
             </a>
-          </p>
+            <a
+              href="https://www.instagram.com/bruhh.aman/"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="@bruhh.aman on Instagram"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 font-bold text-accent transition hover:border-accent hover:text-text-primary"
+            >
+              <InstagramIcon />
+              @bruhh.aman
+            </a>
+          </div>
         </div>
       </div>
     </footer>

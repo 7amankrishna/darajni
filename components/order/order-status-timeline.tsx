@@ -105,7 +105,7 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
           const isCurrent = index === activeIndex;
 
           return (
-            <div key={item.key} className="relative flex items-center gap-3.5 z-10">
+            <div key={item.key} className="relative z-10 flex min-w-0 items-start gap-3.5">
               <div
                 className={`grid h-8 w-8 shrink-0 place-items-center rounded-full transition-all ${
                   isDone
@@ -118,10 +118,10 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
                 {isDone ? <Check className="h-4 w-4 stroke-[3]" /> : <Icon className="h-4 w-4" />}
               </div>
 
-              <div className="flex-1 rounded-xl border border-border bg-surface-alt/60 px-3.5 py-2.5">
-                <div className="flex items-center justify-between">
+              <div className="min-w-0 flex-1 rounded-xl border border-border bg-surface-alt/60 px-3.5 py-2.5">
+                <div className="flex min-w-0 flex-col gap-1.5">
                   <p
-                    className={`text-xs font-bold uppercase tracking-wider ${
+                    className={`break-words text-xs font-bold uppercase tracking-wider ${
                       isDone || isCurrent
                         ? "text-text-primary"
                         : "text-text-secondary"
@@ -130,12 +130,12 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
                     {item.label}
                   </p>
                   {isCurrent && (
-                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-[0.6rem] font-black uppercase text-success">
+                    <span className="w-fit rounded-full bg-success/15 px-2 py-0.5 text-[0.6rem] font-black uppercase text-success">
                       Current Stage
                     </span>
                   )}
                   {isDone && (
-                    <span className="text-[0.65rem] font-bold text-success">
+                    <span className="w-fit text-[0.65rem] font-bold text-success">
                       Completed ✓
                     </span>
                   )}

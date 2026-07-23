@@ -68,11 +68,11 @@ function OrderCard({ order }: { order: OrderSummary }) {
   const hiddenItemCount = Math.max(0, order.items.length - visibleItems.length);
 
   return (
-    <article className="rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+    <article className="min-w-0 overflow-hidden rounded-3xl border border-border bg-surface p-5 shadow-sm sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div>
+        <div className="min-w-0">
           <p className="eyebrow text-accent">Order</p>
-          <h3 className="font-display mt-1 text-3xl font-light text-text-primary">
+          <h3 className="font-display mt-1 break-words text-2xl font-light text-text-primary sm:text-3xl">
             {order.orderNumber}
           </h3>
           <p className="mt-1 text-xs font-semibold text-text-secondary">
@@ -470,11 +470,11 @@ export function CustomerAccountPage({
         </div>
 
         {/* Dashboard Tabs */}
-        <div className="mb-8 flex border-b border-border">
+        <div className="-mx-4 mb-8 overflow-x-auto border-b border-border px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
           <button
             type="button"
             onClick={() => setActiveTab("orders")}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all ${
+            className={`inline-flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-[0.65rem] font-bold uppercase tracking-wider transition-all sm:px-5 sm:text-xs ${
               activeTab === "orders"
                 ? "border-primary text-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
@@ -486,7 +486,7 @@ export function CustomerAccountPage({
           <button
             type="button"
             onClick={() => setActiveTab("profile")}
-            className={`flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all ${
+            className={`inline-flex min-h-12 shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-[0.65rem] font-bold uppercase tracking-wider transition-all sm:px-5 sm:text-xs ${
               activeTab === "profile"
                 ? "border-primary text-primary"
                 : "border-transparent text-text-secondary hover:text-text-primary"
@@ -523,12 +523,12 @@ export function CustomerAccountPage({
                   Track production, size confirmation &amp; delivery updates for all your orders
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0 sm:items-center">
                 <button
                   type="button"
                   onClick={refreshOrders}
                   disabled={refreshing}
-                  className="secondary-button text-xs"
+                  className="secondary-button w-full !min-h-11 !px-3 !text-[0.62rem] sm:w-auto sm:!text-xs"
                   aria-label="Refresh orders"
                 >
                   <RefreshCw
@@ -536,7 +536,10 @@ export function CustomerAccountPage({
                   />
                   Refresh
                 </button>
-                <Link href="/track" className="secondary-button text-xs">
+                <Link
+                  href="/track"
+                  className="secondary-button w-full whitespace-nowrap !min-h-11 !px-3 !text-[0.62rem] sm:w-auto sm:!text-xs"
+                >
                   Track by Order ID
                 </Link>
               </div>
