@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { OrderStatusTimeline } from "@/components/order/order-status-timeline";
+import { ClearCartAfterOrder } from "@/components/order/clear-cart-after-order";
 import { formatPrice, whatsappSupportLink } from "@/config/site";
 import {
   formatDate,
@@ -40,6 +41,7 @@ export default async function Page({
 
   return (
     <main className="bg-background py-12 sm:py-16">
+      <ClearCartAfterOrder />
       <div className="section-shell max-w-5xl">
         <div className="text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-success" />

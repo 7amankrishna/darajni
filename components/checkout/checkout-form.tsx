@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useCart } from "@/components/cart/cart-provider";
@@ -110,6 +110,7 @@ export function CheckoutForm({
   customerProfile?: CustomerProfile | null;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, ready, subtotal, clearCart } = useCart();
   const [customer, setCustomer] = useState<CheckoutCustomer>(() =>
     customerFromProfile(customerProfile),
@@ -138,6 +139,17 @@ export function CheckoutForm({
   useEffect(() => {
     setAppliedPromo(null);
   }, [cartSignature]);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    if (!payment) return;
+    const messages: Record<string, string> = {
+      failed: "Payment was cancelled or not completed. No order was confirmed; please try again.",
+      "verification-failed": "PayU returned a response that could not be verified. No payment was confirmed; please try again.",
+      "confirmation-pending": "Payment confirmation is still pending. Please do not pay again; contact support if this does not update shortly.",
+    };
+    setError(messages[payment] || "Payment could not be completed. Please try again.");
+  }, [searchParams]);
 
   const totals = useMemo(() => {
     const shipping = items.length ? settings.shippingCharge : 0;
@@ -348,7 +360,6 @@ export function CheckoutForm({
 
         document.body.appendChild(form);
         form.submit();
-        clearCart();
         return;
       }
 
