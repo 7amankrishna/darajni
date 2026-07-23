@@ -1,5 +1,4 @@
 import {
-  AtSign,
   Mail,
   MapPin,
   MessageCircle,
@@ -139,13 +138,27 @@ export default function Footer({
             <span className="text-sm text-text-secondary transition hover:text-accent">Website crafted &amp; managed by Aman Krishna</span>
             <span className="hidden text-text-secondary/35 sm:inline">•</span>
             <a
-              href="https://www.instagram.com/bruhh.aman/"
+              href="https://www.instagram.com/darajni.in/"
               target="_blank"
               rel="noreferrer"
+              aria-label="DARAJNI on Instagram"
               className="inline-flex items-center gap-1.5 font-bold text-accent transition hover:text-text-primary"
             >
-              <AtSign className="h-3.5 w-3.5" />
-              @bruhh.aman
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+              darajni.in
             </a>
           </p>
         </div>
