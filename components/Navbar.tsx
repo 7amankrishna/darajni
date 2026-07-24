@@ -239,13 +239,13 @@ export default function Navbar({
         href={whatsappHref}
         target={supportNumber ? "_blank" : undefined}
         rel="noreferrer"
-        className={`fixed ${isPurchaseBarVisible ? 'bottom-[150px]' : 'bottom-[84px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6 transition-all duration-300`}
+        className={`fixed ${isPurchaseBarVisible ? 'bottom-[130px]' : 'bottom-[76px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6 transition-all duration-300`}
         aria-label="Chat with DARAJNI on WhatsApp"
       >
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className={`mobile-bottom-nav fixed inset-x-0 ${isPurchaseBarVisible ? 'bottom-[90px]' : 'bottom-0'} z-50 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur-xl md:hidden`}>
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur-xl md:hidden">
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;

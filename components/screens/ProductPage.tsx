@@ -186,7 +186,7 @@ export default function ProductPage({
       : "Inclusive of applicable taxes · Free shipping";
 
   return (
-    <main className="bg-background py-6 sm:py-10">
+    <main className="bg-background py-6 pb-28 sm:py-10">
       <div className="section-shell">
         <nav
           className="mb-5 flex flex-wrap items-center gap-2 text-xs font-semibold text-text-secondary"
