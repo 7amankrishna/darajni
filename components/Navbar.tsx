@@ -80,44 +80,21 @@ export default function Navbar({
     ? `${formatPrice(shippingCharge)} shipping Pan India`
     : "Free shipping Pan India";
 
-  // State to track if purchase bar is visible (for adjusting WhatsApp button)
+  // ProductPurchase emits this event when its mobile checkout bar mounts. This
+  // avoids observing the entire document and reading computed layout on every
+  // DOM mutation.
   const [isPurchaseBarVisible, setIsPurchaseBarVisible] = useState(false);
 
   useEffect(() => {
-    function checkPurchaseBarVisibility() {
-      // Check if we're on a product page and the purchase bar exists and is visible
-      if (typeof window !== 'undefined') {
-        const purchaseBar = document.querySelector('.mobile-purchase-bar');
-        const isProductPage = window.location.pathname.startsWith('/design/');
-
-        if (purchaseBar && isProductPage) {
-          const computedStyle = window.getComputedStyle(purchaseBar);
-          const isVisible = computedStyle.display !== 'none' &&
-                          !purchaseBar.classList.contains('md:hidden');
-
-          setIsPurchaseBarVisible(isVisible);
-        } else {
-          setIsPurchaseBarVisible(false);
-        }
-      }
+    function updatePurchaseBarVisibility(event: Event) {
+      const visible = (event as CustomEvent<boolean>).detail;
+      setIsPurchaseBarVisible((current) => current === visible ? current : visible);
     }
 
-    checkPurchaseBarVisibility();
-
-    const observer = new MutationObserver(checkPurchaseBarVisibility);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    const resizeObserver = new ResizeObserver(checkPurchaseBarVisibility);
-    resizeObserver.observe(document.body);
-
-    document.addEventListener('visibilitychange', checkPurchaseBarVisibility);
-    window.addEventListener('focus', checkPurchaseBarVisibility);
+    window.addEventListener("darajni:mobile-purchase-bar", updatePurchaseBarVisibility);
 
     return () => {
-      observer.disconnect();
-      resizeObserver.disconnect();
-      document.removeEventListener('visibilitychange', checkPurchaseBarVisibility);
-      window.removeEventListener('focus', checkPurchaseBarVisibility);
+      window.removeEventListener("darajni:mobile-purchase-bar", updatePurchaseBarVisibility);
     };
   }, []);
 

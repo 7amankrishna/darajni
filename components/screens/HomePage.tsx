@@ -15,10 +15,10 @@ import About from "@/components/About";
 import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
 import Hero from "@/components/Hero";
-import { HomepageLaunchSlider } from "@/components/homepage-launch-slider";
+import { HomepageLaunchSliderLazy } from "@/components/homepage-launch-slider-lazy";
 import { MeasurementGuideFigure } from "@/components/measurement-guide-figure";
 import { ProductImage } from "@/components/product/product-image";
-import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-section";
+import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-homepage-teaser";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
@@ -312,7 +312,7 @@ export default async function HomePage() {
       />
       <main id="main-content">
         <Hero products={products} />
-        <HomepageLaunchSlider slides={homepageSlides} />
+        <HomepageLaunchSliderLazy slides={homepageSlides} />
         
         {/* Collection Section ID anchor */}
         <div id="collection-preview" />

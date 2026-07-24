@@ -1,11 +1,8 @@
-"use client";
-
-import { Eye, Heart, Sparkles } from "lucide-react";
+import { Eye, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
 
 import { ProductImage } from "@/components/product/product-image";
-import { useWishlist } from "@/components/wishlist/wishlist-provider";
+import { WishlistButton } from "@/components/wishlist/wishlist-button";
 import { formatPrice } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
@@ -13,8 +10,6 @@ import type { Product } from "@/types/commerce";
 export default function DesignCard({ product }: { product: Product }) {
   const price = getProductPrice(product);
   const image = product.images[0] || "/logo.webp";
-  const { isWishlisted, toggle } = useWishlist();
-  const wished = isWishlisted(product.id);
   const fabricTag = isProductInformationUncertain(product.fabric)
     ? "Handcrafted Silk"
     : product.fabric;
@@ -41,25 +36,7 @@ export default function DesignCard({ product }: { product: Product }) {
         </div>
 
         {/* Wishlist Button */}
-        <button
-          type="button"
-          onClick={() => {
-            const added = toggle(product.id);
-            toast.success(
-              added
-                ? `${product.name} saved to Wishlist`
-                : `${product.name} removed from Wishlist`,
-            );
-          }}
-          className={`absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full border backdrop-blur-md transition-all duration-200 ${
-            wished
-              ? "border-[#6E0F1A] bg-[#6E0F1A] text-[#FAF7F2]"
-              : "border-white/40 bg-white/70 text-[#111111] hover:bg-white"
-          }`}
-          aria-label={wished ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-        >
-          <Heart className={`h-4 w-4 ${wished ? "fill-current" : ""}`} />
-        </button>
+        <WishlistButton productId={product.id} productName={product.name} />
 
         {/* Hover Quick View Trigger */}
         <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

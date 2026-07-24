@@ -33,6 +33,7 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
+        fetchPriority={priority ? "high" : "auto"}
         className={className}
         style={style}
       />

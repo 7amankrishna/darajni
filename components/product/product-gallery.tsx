@@ -6,6 +6,7 @@ import {
   Maximize2,
 } from "lucide-react";
 import {
+  useEffect,
   useRef,
   useState,
   type MouseEvent,
@@ -38,7 +39,16 @@ export function ProductGallery({
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
 
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const stageRect = useRef<DOMRect | null>(null);
+  const mousePositionFrame = useRef<number | null>(null);
+  const pendingMousePosition = useRef({ x: 50, y: 50 });
   const activeIndex = Math.min(active, gallery.length - 1);
+
+  useEffect(() => () => {
+    if (mousePositionFrame.current !== null) {
+      window.cancelAnimationFrame(mousePositionFrame.current);
+    }
+  }, []);
 
   function goTo(index: number) {
     setActive((index + gallery.length) % gallery.length);
@@ -60,17 +70,28 @@ export function ProductGallery({
   }
 
   function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
+    // The stage does not change size while it is hovered. Read its geometry
+    // once on entry, then coalesce visual updates to one write per frame.
+    const rect = stageRect.current;
+    if (!rect) return;
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
+    pendingMousePosition.current = { x, y };
+    if (mousePositionFrame.current !== null) return;
+
+    mousePositionFrame.current = window.requestAnimationFrame(() => {
+      mousePositionFrame.current = null;
+      setMousePos(pendingMousePosition.current);
+    });
   }
 
-  function handleMouseEnter() {
+  function handleMouseEnter(event: MouseEvent<HTMLButtonElement>) {
+    stageRect.current = event.currentTarget.getBoundingClientRect();
     setIsHovered(true);
   }
 
   function handleMouseLeave() {
+    stageRect.current = null;
     setIsHovered(false);
   }
 

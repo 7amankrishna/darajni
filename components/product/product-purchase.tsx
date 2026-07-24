@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useCart } from "@/components/cart/cart-provider";
@@ -55,6 +55,19 @@ export function ProductPurchase({
       Truck,
     ],
   ];
+
+  useEffect(() => {
+    if (soldOut) return;
+
+    window.dispatchEvent(
+      new CustomEvent("darajni:mobile-purchase-bar", { detail: true }),
+    );
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("darajni:mobile-purchase-bar", { detail: false }),
+      );
+    };
+  }, [soldOut]);
 
   const add = () => {
     addItem({
