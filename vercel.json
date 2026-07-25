@@ -1,12 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/api/logistics/updates",
-      "destination": "/api/shiprocket/webhook"
-    }
-  ],
   "buildCommand": "npm run build",
   "crons": [
     {
