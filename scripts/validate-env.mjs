@@ -108,6 +108,23 @@ if (shiprocketWebhookToken && shiprocketWebhookToken.length < 16) {
   errors.push("SHIPROCKET_WEBHOOK_TOKEN must be at least 16 characters.");
 }
 
+const shiprocketCheckoutNames = [
+  "SHIPROCKET_API_KEY",
+  "SHIPROCKET_SECRET_KEY",
+];
+const shiprocketCheckoutValues = shiprocketCheckoutNames.map(value);
+if (
+  shiprocketCheckoutValues.some(Boolean) &&
+  !shiprocketCheckoutValues.every(Boolean)
+) {
+  errors.push(
+    `Configure both Shiprocket Checkout variables: ${shiprocketCheckoutNames.join(", ")}.`,
+  );
+}
+if (shiprocketCheckoutValues[1] && shiprocketCheckoutValues[1].length < 16) {
+  errors.push("SHIPROCKET_SECRET_KEY must be at least 16 characters.");
+}
+
 const upstashUrl = value("UPSTASH_REDIS_REST_URL");
 const upstashToken = value("UPSTASH_REDIS_REST_TOKEN");
 if (Boolean(upstashUrl) !== Boolean(upstashToken)) {
@@ -134,6 +151,7 @@ const secrets = [
   "PAYU_SALT",
   "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
+  "SHIPROCKET_SECRET_KEY",
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
 ].filter((name) => value(name));

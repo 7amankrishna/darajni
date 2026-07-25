@@ -14,7 +14,7 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
-export type PaymentMethod = "cod" | "payu" | "razorpay";
+export type PaymentMethod = "cod" | "payu" | "razorpay" | "shiprocket";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 export type PromoCodeType = "coupon" | "voucher";
 export type PromoDiscountType = "percentage" | "fixed_amount";
@@ -416,6 +416,25 @@ export interface Database {
           p_items: Json;
           p_payment_method: PaymentMethod;
           p_promo_code?: string | null;
+        };
+        Returns: {
+          order_id: string;
+          order_number: string;
+          subtotal: number;
+          discount_amount: number;
+          promo_code: string | null;
+          shipping_fee: number;
+          tax_amount: number;
+          total: number;
+          status: OrderStatus;
+        }[];
+      };
+      create_shiprocket_checkout_order: {
+        Args: {
+          p_remote_order_id: string;
+          p_customer: Json;
+          p_items: Json;
+          p_payment_method: PaymentMethod;
         };
         Returns: {
           order_id: string;

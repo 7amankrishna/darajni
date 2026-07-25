@@ -35,6 +35,7 @@ const SERVER_SECRET_NAMES = [
   "PAYU_SALT",
   "PAYU_MERCHANT_SALT",
   "SHIPROCKET_API_PASSWORD",
+  "SHIPROCKET_SECRET_KEY",
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
 ];
@@ -110,6 +111,12 @@ export function getRazorpayWebhookSecret() {
 
 export function getShiprocketWebhookToken() {
   return dedicatedSecret("SHIPROCKET_WEBHOOK_TOKEN", 16);
+}
+
+export function getShiprocketCheckoutEnvironment() {
+  const apiKey = clean("SHIPROCKET_API_KEY");
+  const secretKey = dedicatedSecret("SHIPROCKET_SECRET_KEY", 16);
+  return apiKey && secretKey ? { apiKey, secretKey } : null;
 }
 
 function positiveNumber(name: string, minimum: number) {

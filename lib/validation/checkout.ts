@@ -73,6 +73,10 @@ export const cancellationSchema = z.object({
   paymentFailed: z.boolean().optional().default(false),
 });
 
+export const shiprocketCheckoutSchema = z.object({
+  items: checkoutSchema.shape.items,
+});
+
 export const trackingSchema = z.object({
   orderReference: z.string().trim().min(8).max(80),
   phone: phoneSchema,

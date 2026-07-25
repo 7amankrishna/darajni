@@ -32,7 +32,7 @@ type OrderRow = {
   discount_amount: number;
   shipping_fee: number;
   total: number;
-  payment_method: "cod" | "razorpay";
+  payment_method: "cod" | "payu" | "razorpay" | "shiprocket";
   status: string;
   created_at: string;
   order_items: OrderItemRow[];
