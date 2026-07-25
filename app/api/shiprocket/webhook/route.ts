@@ -47,6 +47,12 @@ function asIdentifier(value: unknown) {
   return /^[A-Za-z0-9_-]{1,100}$/.test(identifier) ? identifier : null;
 }
 
+// Shiprocket validates a newly configured webhook with an unauthenticated GET.
+// Returning 200 here proves reachability without accepting any status update.
+export function GET() {
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(request: Request) {
   const limit = await rateLimitRequest(request, RATE_LIMITS.shiprocketWebhook);
   if (!limit.success) return rateLimitError(limit);
