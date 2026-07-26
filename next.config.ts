@@ -12,6 +12,7 @@ const contentSecurityPolicy = [
   "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://checkout-ui.shiprocket.com",
   "style-src 'self' 'unsafe-inline' https://checkout-ui.shiprocket.com",
   "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in",
+  "media-src 'self' blob: https://*.supabase.co https://files.darajni.in",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://checkout-api.shiprocket.com https://checkout-ui.shiprocket.com",
   "frame-src https://*.razorpay.com https://checkout-ui.shiprocket.com",

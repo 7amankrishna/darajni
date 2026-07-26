@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
 import type { HomepageSlide } from "@/types/commerce";
+import { normalizeMediaUrl } from "@/lib/media-url";
 
 function createPublicClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,7 +27,7 @@ export function mapHomepageSlide(row: Record<string, unknown>): HomepageSlide {
     eyebrow: row.eyebrow ? String(row.eyebrow) : null,
     description: row.description ? String(row.description) : null,
     imageUrl: String(row.image_url),
-    videoUrl: row.video_url ? String(row.video_url) : null,
+    videoUrl: normalizeMediaUrl(row.video_url ? String(row.video_url) : null),
     linkUrl: String(row.link_url),
     ctaLabel: String(row.cta_label),
     sortOrder: Number(row.sort_order),

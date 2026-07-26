@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireAdminPage } from "@/lib/auth/admin";
 import { mapHomepageSlide } from "@/lib/data/homepage-slides";
+import { normalizeMediaUrl } from "@/lib/media-url";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type {
   AdminDashboardData,
@@ -33,7 +34,7 @@ function mapProduct(row: Record<string, unknown>): Product {
     price: Number(row.price),
     discount: Number(row.discount),
     images: Array.isArray(row.images) ? row.images.map(String) : [],
-    videoUrl: row.video_url ? String(row.video_url) : null,
+    videoUrl: normalizeMediaUrl(row.video_url ? String(row.video_url) : null),
     category: mapCategory(categoryRow as Record<string, unknown>),
     isFeatured: Boolean(row.is_featured),
     isActive: Boolean(row.is_active),

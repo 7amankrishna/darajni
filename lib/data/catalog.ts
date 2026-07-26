@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
 import type { Category, Product, StoreSettings } from "@/types/commerce";
+import { normalizeMediaUrl } from "@/lib/media-url";
 
 function createPublicClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -51,7 +52,7 @@ function mapProduct(row: Record<string, unknown>): Product {
     price: Number(row.price),
     discount: Number(row.discount),
     images: Array.isArray(row.images) ? row.images.map(String) : [],
-    videoUrl: row.video_url ? String(row.video_url) : null,
+    videoUrl: normalizeMediaUrl(row.video_url ? String(row.video_url) : null),
     category,
     isFeatured: Boolean(row.is_featured),
     isActive: Boolean(row.is_active),

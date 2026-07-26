@@ -19,12 +19,18 @@ export const videoUrlSchema = z
   .trim()
   .refine((value) => {
     if (value.startsWith("/") && !value.startsWith("//")) return true;
+    if (value.startsWith("http://files.darajni.in/")) return true;
     try {
       return new URL(value).protocol === "https:";
     } catch {
       return false;
     }
-  }, "The video must be a secure URL.");
+  }, "The video must be a secure URL.")
+  .transform((value) =>
+    value.startsWith("http://files.darajni.in/")
+      ? value.replace("http://", "https://")
+      : value,
+  );
 
 export const productInputSchema = z.object({
   name: z.string().trim().min(2).max(140),
