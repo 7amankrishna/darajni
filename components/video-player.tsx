@@ -7,10 +7,12 @@ export function VideoPlayer({
   src,
   poster,
   className = "",
+  autoplay = false,
 }: {
   src: string;
   poster?: string;
   className?: string;
+  autoplay?: boolean;
 }) {
   const elementRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
@@ -18,9 +20,10 @@ export function VideoPlayer({
   useEffect(() => {
     if (!elementRef.current) return;
     const player = videojs(elementRef.current, {
-      autoplay: false,
+      autoplay: autoplay ? "muted" : false,
       controls: true,
-      fluid: true,
+      fluid: false,
+      fill: true,
       loop: true,
       muted: true,
       playsinline: true,
@@ -33,7 +36,7 @@ export function VideoPlayer({
       player.dispose();
       playerRef.current = null;
     };
-  }, [poster, src]);
+  }, [autoplay, poster, src]);
 
   return (
     <div className={`video-player ${className}`} data-vjs-player>

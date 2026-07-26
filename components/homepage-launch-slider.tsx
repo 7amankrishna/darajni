@@ -129,7 +129,8 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                 <VideoPlayer
                   src={activeSlide.videoUrl}
                   poster={activeSlide.imageUrl}
-                  className="h-full w-full"
+                  autoplay
+                  className="absolute inset-0"
                 />
               ) : (
                 <ProductImage
@@ -139,8 +140,8 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                   className="object-cover"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent md:bg-gradient-to-r md:from-black/20 md:via-transparent" />
-              <span className="absolute bottom-5 right-5 rounded-full border border-white/35 bg-black/25 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wide text-white backdrop-blur">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent md:bg-gradient-to-r md:from-black/20 md:via-transparent" />
+              <span className="pointer-events-none absolute bottom-5 right-5 rounded-full border border-white/35 bg-black/25 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wide text-white backdrop-blur">
                 {activeIndex + 1} / {slides.length}
               </span>
             </div>
