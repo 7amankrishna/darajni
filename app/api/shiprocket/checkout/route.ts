@@ -113,22 +113,30 @@ export async function POST(request: Request) {
       timeoutMs: UPSTREAM_TIMEOUT_MS,
     });
 
-    // DIAGNOSTIC: minimal-options fetch — no cache, no AbortSignal, manual
-    // redirect. If this still 502s, undici fetch itself crashes the Vercel
-    // process and we must switch to node:https.
-    const response = await fetch(
-      `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-Key": apiKey,
-          "X-Api-HMAC-SHA256": signature,
+    // DIAGNOSTIC: manual AbortController timeout (NOT AbortSignal.timeout,
+    // which crashed the Vercel process -> blank edge 502). No cache option.
+    // Echo upstream status/body to confirm the 500 is consistent.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(
+        `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": apiKey,
+            "X-Api-HMAC-SHA256": signature,
+          },
+          body,
+          redirect: "manual",
+          signal: controller.signal,
         },
-        body,
-        redirect: "manual",
-      },
-    );
+      );
+    } finally {
+      clearTimeout(timer);
+    }
     const text = await response.text();
     return NextResponse.json(
       {
