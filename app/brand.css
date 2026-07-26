@@ -39,6 +39,14 @@
   background-size: cover;
 }
 
+.video-player-contain .vjs-tech {
+  object-fit: contain;
+}
+
+.video-player-contain .vjs-poster {
+  background-size: contain;
+}
+
 .video-player .vjs-control-bar {
   left: 0.75rem;
   right: 0.75rem;
