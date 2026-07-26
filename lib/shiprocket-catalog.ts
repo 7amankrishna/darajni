@@ -38,11 +38,19 @@ function absoluteImage(src: string, origin: string) {
   }
 }
 
+export function effectiveProductPrice(product: Product): string {
+  const effectivePrice =
+    Math.round(product.price * (1 - product.discount / 100) * 100) / 100;
+  return effectivePrice.toFixed(2);
+}
+
+export function absoluteProductImage(product: Product, origin: string): string {
+  return absoluteImage(product.images[0] || "", origin);
+}
+
 export function toShiprocketProduct(product: Product, origin: string) {
-  const effectivePrice = Math.round(
-    product.price * (1 - product.discount / 100) * 100,
-  ) / 100;
-  const image = absoluteImage(product.images[0] || "", origin);
+  const image = absoluteProductImage(product, origin);
+  const price = effectiveProductPrice(product);
   return {
     id: product.id,
     title: product.name,
@@ -56,7 +64,7 @@ export function toShiprocketProduct(product: Product, origin: string) {
     variants: product.sizes.map((size) => ({
       id: toShiprocketVariantId(product.id, size),
       title: size,
-      price: effectivePrice.toFixed(2),
+      price,
       quantity: product.stock,
       sku: `DJ-${product.id.slice(0, 8)}-${size
         .replace(/[^A-Za-z0-9]/g, "")

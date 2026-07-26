@@ -8,6 +8,10 @@ import {
   toShiprocketVariantId,
 } from "@/lib/shiprocket-checkout";
 import {
+  absoluteProductImage,
+  effectiveProductPrice,
+} from "@/lib/shiprocket-catalog";
+import {
   apiError,
   internalApiError,
   rateLimitError,
@@ -79,9 +83,19 @@ export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
   const payload = {
     cart_data: {
-      items: parsed.data.items.map((item) => ({
+      // The custom Fastrr channel has no platform catalog to look up, so each
+      // line carries the details the checkout UI renders. variant_id + quantity
+      // are retained so a backend that resolves items from an ingested catalog
+      // still works. Field names match Fastrr's own product model.
+      items: requestedItems.map(({ item, product }) => ({
         variant_id: toShiprocketVariantId(item.productId, item.size),
+        product_id: item.productId,
         quantity: item.quantity,
+        name: product!.name,
+        selling_price: effectiveProductPrice(product!),
+        mrp: product!.price.toFixed(2),
+        image: absoluteProductImage(product!, origin),
+        category: product!.category.name,
       })),
     },
     redirect_url: `${origin}/shiprocket/complete`,
