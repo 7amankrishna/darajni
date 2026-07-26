@@ -12,6 +12,7 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from "react";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { ProductImage } from "@/components/product/product-image";
 import {
@@ -252,26 +253,48 @@ export function ProductGallery({
         <DialogContent className="h-[92svh] max-h-[92dvh] max-w-6xl overflow-hidden p-3 sm:p-5">
           <DialogTitle className="sr-only">{name} image viewer</DialogTitle>
           <DialogDescription className="sr-only">
-            Full-screen product image. Use the arrow buttons to browse all views.
+            Full-screen product image. Pinch or use the mouse wheel to zoom, and
+            drag to pan. Use the arrow buttons to browse all views.
           </DialogDescription>
           <div className="relative h-full min-h-0 overflow-hidden rounded-xl bg-black/25">
-            <ProductImage
-              src={gallery[activeIndex]}
-              alt={`${name}, ${labels[activeIndex] || `image ${activeIndex + 1}`}`}
-              sizes="96vw"
-              className="object-contain"
-            />
+            <TransformWrapper
+              key={activeIndex}
+              initialScale={1}
+              minScale={1}
+              maxScale={4}
+              centerOnInit
+              centerZoomedOut
+              limitToBounds
+              smooth
+              wheel={{ step: 0.01 }}
+              pinch={{ step: 5, allowPanning: true }}
+              doubleClick={{ mode: "toggle", step: 1.5 }}
+            >
+              <TransformComponent
+                wrapperClass="h-full! w-full! touch-none"
+                contentClass="relative h-full! w-full!"
+                wrapperStyle={{ width: "100%", height: "100%" }}
+                contentStyle={{ width: "100%", height: "100%" }}
+              >
+                <ProductImage
+                  src={gallery[activeIndex]}
+                  alt={`${name}, ${labels[activeIndex] || `image ${activeIndex + 1}`}`}
+                  sizes="96vw"
+                  className="object-contain"
+                />
+              </TransformComponent>
+            </TransformWrapper>
             {gallery.length > 1 && (
               <>
-                <button type="button" onClick={showPrevious} className="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/65 text-white backdrop-blur transition hover:bg-black/85" aria-label="Previous product image">
+                <button type="button" onClick={showPrevious} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/65 text-white backdrop-blur transition hover:bg-black/85" aria-label="Previous product image">
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button type="button" onClick={showNext} className="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/65 text-white backdrop-blur transition hover:bg-black/85" aria-label="Next product image">
+                <button type="button" onClick={showNext} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/65 text-white backdrop-blur transition hover:bg-black/85" aria-label="Next product image">
                   <ChevronRight className="h-5 w-5" />
                 </button>
               </>
             )}
-            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+            <span className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/70 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
               {activeIndex + 1} / {gallery.length}
             </span>
           </div>
