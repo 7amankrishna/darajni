@@ -113,68 +113,21 @@ export async function POST(request: Request) {
       timeoutMs: UPSTREAM_TIMEOUT_MS,
     });
 
-    const response = await fetch(
-      `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-Key": apiKey,
-          "X-Api-HMAC-SHA256": signature,
-        },
-        body,
-        cache: "no-store",
-        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-      },
-    );
-    const responseBody = await readResponse(response);
-    const result = responseBody?.result as Record<string, unknown> | undefined;
-    const token =
-      (typeof responseBody?.token === "string" && responseBody.token) ||
-      (typeof result?.token === "string" && result.token) ||
-      null;
-
-    console.error("[shiprocket-checkout] upstream responded", {
-      stage: "upstream-responded",
-      status: response.status,
-      tokenPresent: Boolean(token),
-    });
-
-    if (!response.ok || !token || token.length > 8_192) {
-      // Surface the upstream HTTP status and a truncated error body to the
-      // server log so a 502 can be traced to a specific Shiprocket rejection
-      // (bad key, bad signature, malformed payload). Only the status code —
-      // never the upstream body — is echoed to the client.
-      console.error("[shiprocket-checkout] upstream token endpoint rejected", {
-        status: response.status,
-        tokenPresent: Boolean(token),
-        tokenTooLong: token ? token.length > 8_192 : false,
-        body: responseBody ? JSON.stringify(responseBody).slice(0, 1000) : null,
-      });
-      return NextResponse.json(
-        {
-          error: "Shiprocket Checkout could not be started.",
-          upstreamStatus: response.status,
-        },
-        { status: 502, headers: { "Cache-Control": "no-store" } },
-      );
-    }
-
+    // DIAGNOSTIC: skip the outbound Shiprocket fetch and return a dummy token.
+    // If this returns 200, the outbound fetch is what crashes the Vercel
+    // function process (blank edge 502). Revert and fix the fetch path.
+    void apiKey;
+    void signature;
+    void body;
     return NextResponse.json(
-      { token },
+      { token: "DIAG_SKIPPED_FETCH_" + Date.now(), diagnostic: true },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
-    // Catches a throw anywhere in the mint path — including the upstream fetch
-    // (AbortSignal timeout, DNS, TLS) — and returns a reference the user can
-    // look up in Vercel logs. Without this, a throw surfaces as a blank edge
-    // 502 with no way to find the cause.
     console.error("[shiprocket-checkout] token mint threw", {
       stage: "caught-throw",
       name: error instanceof Error ? error.name : typeof error,
       message: error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500),
-      // `aborted` flags the 8s upstream timeout specifically.
-      aborted: error instanceof Error && error.name === "TimeoutError",
     });
     return internalApiError(
       "shiprocket-checkout-token",
