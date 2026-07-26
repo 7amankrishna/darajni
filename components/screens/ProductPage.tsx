@@ -210,13 +210,11 @@ export default function ProductPage({
           <div className="min-w-0 space-y-4">
             <ProductGallery images={product.images} name={product.name} />
             {product.videoUrl && (
-              <section className="relative aspect-[3/4] min-h-[28rem] overflow-hidden rounded-md bg-black shadow-[0_14px_32px_rgba(55,34,21,0.14)]" aria-label={`${product.name} video preview`}>
+              <section className="relative overflow-hidden rounded-md bg-black shadow-[0_14px_32px_rgba(55,34,21,0.14)]" aria-label={`${product.name} video preview`}>
                 <VideoPlayer
                   src={product.videoUrl}
                   poster={product.images[0]}
-                  fill
-                  fit="contain"
-                  className="absolute inset-0"
+                  className="w-full"
                 />
               </section>
             )}
