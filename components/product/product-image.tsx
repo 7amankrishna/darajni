@@ -3,8 +3,10 @@ import type { CSSProperties } from "react";
 
 function canOptimize(src: string) {
   if (src.startsWith("/")) return true;
+
   try {
-    return new URL(src).hostname.endsWith(".supabase.co");
+    const hostname = new URL(src).hostname;
+    return hostname.endsWith(".supabase.co") || hostname === "files.darajni.in";
   } catch {
     return false;
   }

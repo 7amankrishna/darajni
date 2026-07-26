@@ -248,8 +248,8 @@ export function ProductManagement({
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((product) => (
-          <article key={product.id} className="glass-panel overflow-hidden">
-            <div className="relative aspect-[4/3] bg-black">
+          <article key={product.id} className="glass-panel flex h-full flex-col overflow-hidden">
+            <div className="relative h-72 shrink-0 bg-black sm:h-80">
               <ProductImage
                 src={product.images[0] || "/logo.webp"}
                 alt={product.name}
@@ -272,7 +272,7 @@ export function ProductManagement({
                 )}
               </div>
             </div>
-            <div className="p-5">
+            <div className="flex flex-1 flex-col p-5">
               <p className="eyebrow !text-[0.58rem]">{product.category.name}</p>
               <div className="mt-2 flex items-start justify-between gap-4">
                 <h3 className="font-display text-2xl">{product.name}</h3>
@@ -284,7 +284,7 @@ export function ProductManagement({
                 Stock {product.stock} · Discount {product.discount}% ·{" "}
                 {product.sizes.join(", ")}
               </p>
-              <div className="mt-5 grid grid-cols-2 gap-2">
+              <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
                 <button
                   type="button"
                   onClick={() => editProduct(product)}
