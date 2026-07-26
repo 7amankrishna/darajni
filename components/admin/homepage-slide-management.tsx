@@ -11,7 +11,7 @@ import {
   Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
+import { type ChangeEvent, type FormEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -22,6 +22,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ProductImage } from "@/components/product/product-image";
+import { optimizeImage } from "@/lib/imageCompression";
+import { isManagedStorageUrl } from "@/lib/media-url";
 import type { HomepageSlide } from "@/types/commerce";
 
 interface SlideDraft {
@@ -105,6 +107,29 @@ export function HomepageSlideManagement({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // Storage URLs uploaded during the current dialog session that have not yet
+  // been persisted to a slide. Tracked so we can delete them from the bucket
+  // when the user replaces them before saving, or cancels the dialog —
+  // otherwise they'd be orphaned in storage. Saved originals are intentionally
+  // NOT tracked here; their deletion is deferred to the server-side PUT diff so
+  // a cancelled edit can never delete media the storefront still uses.
+  const sessionUploads = useRef<Set<string>>(new Set());
+
+  const deleteUploads = async (urls: string[]) => {
+    const managed = urls.filter((url) => isManagedStorageUrl(url));
+    if (managed.length === 0) return;
+    try {
+      await fetch("/api/admin/uploads", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls: managed }),
+      });
+    } catch {
+      // Best-effort cleanup; failures only cost storage and shouldn't surface
+      // a toast while the user is cancelling or saving.
+    }
+  };
+
   const setField = <K extends keyof SlideDraft>(
     key: K,
     value: SlideDraft[K],
@@ -113,12 +138,14 @@ export function HomepageSlideManagement({
   const createSlide = () => {
     setEditing(null);
     setDraft(blankDraft(nextOrder));
+    sessionUploads.current = new Set();
     setOpen(true);
   };
 
   const editSlide = (slide: HomepageSlide) => {
     setEditing(slide);
     setDraft(fromSlide(slide));
+    sessionUploads.current = new Set();
     setOpen(true);
   };
 
@@ -128,8 +155,19 @@ export function HomepageSlideManagement({
     if (!file) return;
 
     setUploading(true);
+    let uploadFile: File = file;
+    try {
+      const optimized = await optimizeImage(file, { forceCompression: true });
+      uploadFile = optimized.file;
+    } catch (error) {
+      setUploading(false);
+      toast.error(
+        error instanceof Error ? error.message : "That image could not be processed.",
+      );
+      return;
+    }
     const formData = new FormData();
-    formData.set("file", file);
+    formData.set("file", uploadFile);
     const response = await fetch("/api/admin/uploads", {
       method: "POST",
       body: formData,
@@ -141,6 +179,15 @@ export function HomepageSlideManagement({
       return;
     }
 
+    // The slide holds a single image, so a new upload replaces the current one.
+    // If the current image was uploaded this session, delete the orphan now; a
+    // saved original is left for the server-side PUT diff to clean up on save.
+    const previousImage = draft.imageUrl;
+    if (previousImage && sessionUploads.current.has(previousImage)) {
+      sessionUploads.current.delete(previousImage);
+      void deleteUploads([previousImage]);
+    }
+    sessionUploads.current.add(result.url);
     setField("imageUrl", result.url);
     toast.success("Launch image uploaded.");
   };
@@ -159,6 +206,15 @@ export function HomepageSlideManagement({
       toast.error(result.error || "Video upload failed.");
       return;
     }
+    // If the current video was uploaded this session and is now being replaced,
+    // delete the orphaned object immediately; a saved original is left for the
+    // server-side PUT diff to clean up on save.
+    const previousVideo = draft.videoUrl;
+    if (previousVideo && sessionUploads.current.has(previousVideo)) {
+      sessionUploads.current.delete(previousVideo);
+      void deleteUploads([previousVideo]);
+    }
+    sessionUploads.current.add(result.url);
     setField("videoUrl", result.url);
     toast.success("Featured video uploaded.");
   };
@@ -196,9 +252,35 @@ export function HomepageSlideManagement({
       return;
     }
 
+    // Delete any session-uploaded objects that did not end up in the saved
+    // slide (replaced before save). The ones that were saved are now
+    // persisted, so drop them from the tracker without deleting.
+    const savedMedia = new Set<string>([
+      payload.imageUrl,
+      ...(payload.videoUrl ? [payload.videoUrl] : []),
+    ]);
+    const leftover = [...sessionUploads.current].filter(
+      (url) => !savedMedia.has(url),
+    );
+    sessionUploads.current = new Set();
+    if (leftover.length > 0) void deleteUploads(leftover);
+
     toast.success(editing ? "Homepage slide updated." : "Homepage slide created.");
     setOpen(false);
     router.refresh();
+  };
+
+  // Called only on a user-initiated close (overlay/escape/close button), never
+  // on the programmatic setOpen(false) after a successful save. Any session
+  // uploads still tracked here were never saved, so delete them to avoid
+  // orphans.
+  const handleOpenChange = (next: boolean) => {
+    if (!next && sessionUploads.current.size > 0) {
+      const leftover = [...sessionUploads.current];
+      sessionUploads.current = new Set();
+      void deleteUploads(leftover);
+    }
+    setOpen(next);
   };
 
   const removeSlide = async (slide: HomepageSlide) => {
@@ -318,7 +400,7 @@ export function HomepageSlideManagement({
         )}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-h-[92dvh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>

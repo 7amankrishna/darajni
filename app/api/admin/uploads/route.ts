@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
+import { deleteMediaUrls } from "@/lib/storage";
 import { authorizeAdminRequest } from "@/lib/security/admin-api";
 import { apiError, internalApiError } from "@/lib/security/api-response";
 import { RATE_LIMITS } from "@/lib/security/rate-limit";
+import { readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
@@ -108,4 +110,43 @@ export async function POST(request: Request) {
   }
   const { data } = supabase.storage.from("product-images").getPublicUrl(path);
   return NextResponse.json({ url: data.publicUrl });
+}
+
+/**
+ * Removes one or more previously uploaded media objects from storage. Used by
+ * the admin editors to delete session-uploaded images/videos that were never
+ * saved to a product/slide (e.g. an upload that was removed or replaced before
+ * the dialog was saved, or a cancelled edit). Only objects in the managed
+ * buckets are ever deleted; external URLs are ignored.
+ */
+export async function DELETE(request: Request) {
+  const authorization = await authorizeAdminRequest(
+    request,
+    RATE_LIMITS.adminUpload,
+  );
+  if (authorization.response) return authorization.response;
+
+  const body = (await readJsonBody(request)) as
+    | { url?: unknown; urls?: unknown }
+    | null;
+  const urls: unknown[] = [];
+  if (Array.isArray(body?.urls)) urls.push(...body.urls);
+  if (typeof body?.url === "string") urls.push(body.url);
+  const normalized = urls.filter(
+    (value): value is string => typeof value === "string",
+  );
+  if (normalized.length === 0) {
+    return NextResponse.json(
+      { error: "Provide a url or urls array to delete." },
+      { status: 400 },
+    );
+  }
+
+  const supabase = createSupabaseServiceClient();
+  if (!supabase) {
+    return apiError("Upload management is temporarily unavailable.", 503);
+  }
+
+  await deleteMediaUrls(supabase, normalized);
+  return NextResponse.json({ deleted: normalized.length });
 }

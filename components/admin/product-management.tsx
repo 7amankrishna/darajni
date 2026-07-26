@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ProductImage } from "@/components/product/product-image";
@@ -23,6 +23,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatPrice } from "@/config/site";
+import { optimizeImage } from "@/lib/imageCompression";
+import { isManagedStorageUrl } from "@/lib/media-url";
 import type { Category, Product } from "@/types/commerce";
 
 interface ProductDraft {
@@ -110,10 +112,34 @@ export function ProductManagement({
     [products],
   );
 
+  // Storage URLs uploaded during the current dialog session that have not yet
+  // been persisted to a product. Tracked so we can delete them from the bucket
+  // when the user removes/replaces them before saving, or cancels the dialog —
+  // otherwise they'd be orphaned in storage. Saved originals are intentionally
+  // NOT tracked here; their deletion is deferred to the server-side PUT diff so
+  // a cancelled edit can never delete an image the storefront still uses.
+  const sessionUploads = useRef<Set<string>>(new Set());
+
+  const deleteUploads = async (urls: string[]) => {
+    const managed = urls.filter((url) => isManagedStorageUrl(url));
+    if (managed.length === 0) return;
+    try {
+      await fetch("/api/admin/uploads", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls: managed }),
+      });
+    } catch {
+      // Best-effort cleanup; failures only cost storage and shouldn't surface
+      // a toast while the user is cancelling or saving.
+    }
+  };
+
   const createProduct = () => {
     setEditing(null);
     setDraft(blankDraft(categories[0]?.id));
     setImageUrl("");
+    sessionUploads.current = new Set();
     setOpen(true);
   };
 
@@ -121,6 +147,7 @@ export function ProductManagement({
     setEditing(product);
     setDraft(fromProduct(product));
     setImageUrl("");
+    sessionUploads.current = new Set();
     setOpen(true);
   };
 
@@ -134,8 +161,19 @@ export function ProductManagement({
     event.target.value = "";
     if (!file) return;
     setUploading(true);
+    let uploadFile: File = file;
+    try {
+      const optimized = await optimizeImage(file, { forceCompression: true });
+      uploadFile = optimized.file;
+    } catch (error) {
+      setUploading(false);
+      toast.error(
+        error instanceof Error ? error.message : "That image could not be processed.",
+      );
+      return;
+    }
     const formData = new FormData();
-    formData.set("file", file);
+    formData.set("file", uploadFile);
     const response = await fetch("/api/admin/uploads", {
       method: "POST",
       body: formData,
@@ -146,6 +184,7 @@ export function ProductManagement({
       toast.error(result.error || "Image upload failed.");
       return;
     }
+    sessionUploads.current.add(result.url);
     setField("images", [...draft.images, result.url]);
     toast.success("Image uploaded.");
   };
@@ -164,6 +203,15 @@ export function ProductManagement({
       toast.error(result.error || "Video upload failed.");
       return;
     }
+    // If the current video was uploaded this session and is now being replaced,
+    // delete the orphaned object immediately; a saved original is left for the
+    // server-side PUT diff to clean up on save.
+    const previousVideo = draft.videoUrl;
+    if (previousVideo && sessionUploads.current.has(previousVideo)) {
+      sessionUploads.current.delete(previousVideo);
+      void deleteUploads([previousVideo]);
+    }
+    sessionUploads.current.add(result.url);
     setField("videoUrl", result.url);
     toast.success("Product video uploaded.");
   };
@@ -200,9 +248,34 @@ export function ProductManagement({
       toast.error(result.error || "The product could not be saved.");
       return;
     }
+    // Delete any session-uploaded objects that did not end up in the saved
+    // product (removed/replaced before save). The ones that were saved are now
+    // persisted, so drop them from the tracker without deleting.
+    const savedMedia = new Set<string>([
+      ...payload.images,
+      ...(payload.videoUrl ? [payload.videoUrl] : []),
+    ]);
+    const leftover = [...sessionUploads.current].filter(
+      (url) => !savedMedia.has(url),
+    );
+    sessionUploads.current = new Set();
+    if (leftover.length > 0) void deleteUploads(leftover);
     toast.success(editing ? "Product updated." : "Product created.");
     setOpen(false);
     router.refresh();
+  };
+
+  // Called only on a user-initiated close (overlay/escape/close button), never
+  // on the programmatic setOpen(false) after a successful save. Any session
+  // uploads still tracked here were never saved, so delete them to avoid
+  // orphans.
+  const handleOpenChange = (next: boolean) => {
+    if (!next && sessionUploads.current.size > 0) {
+      const leftover = [...sessionUploads.current];
+      sessionUploads.current = new Set();
+      void deleteUploads(leftover);
+    }
+    setOpen(next);
   };
 
   const remove = async (product: Product) => {
@@ -330,7 +403,7 @@ export function ProductManagement({
         ))}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Edit product" : "Add product"}</DialogTitle>
@@ -514,12 +587,18 @@ export function ProductManagement({
                     <ProductImage src={image} alt="" sizes="120px" />
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        // If this was uploaded this session, delete the orphan
+                        // now; a saved original is left for the PUT diff.
+                        if (sessionUploads.current.has(image)) {
+                          sessionUploads.current.delete(image);
+                          void deleteUploads([image]);
+                        }
                         setField(
                           "images",
                           draft.images.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }
+                        );
+                      }}
                       className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-black/75"
                       aria-label="Remove image"
                     >

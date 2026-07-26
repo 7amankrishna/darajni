@@ -5,6 +5,7 @@ import { authorizeAdminRequest } from "@/lib/security/admin-api";
 import { apiError, internalApiError } from "@/lib/security/api-response";
 import { RATE_LIMITS } from "@/lib/security/rate-limit";
 import { readJsonBody } from "@/lib/security/request";
+import { deleteMediaUrls } from "@/lib/storage";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { homepageSlideInputSchema } from "@/lib/validation/admin";
 
@@ -41,6 +42,19 @@ export async function PUT(
 
   const { id } = await params;
   const slide = parsed.data;
+
+  // Fetch the existing media before the update so any replaced object can be
+  // deleted from storage afterwards (best-effort, after the DB row is written).
+  const { data: existing } = await supabase
+    .from("homepage_slides")
+    .select("image_url, video_url")
+    .eq("id", id)
+    .maybeSingle();
+  const previousImage =
+    typeof existing?.image_url === "string" ? existing.image_url : null;
+  const previousVideo =
+    typeof existing?.video_url === "string" ? existing.video_url : null;
+
   const { error } = await supabase
     .from("homepage_slides")
     .update({
@@ -66,6 +80,20 @@ export async function PUT(
     );
   }
 
+  // Delete any managed-storage object that was replaced in this update. Objects
+  // that were uploaded this session and then removed client-side are already
+  // deleted via DELETE /api/admin/uploads; this covers the saved originals.
+  const removedMedia: string[] = [];
+  if (previousImage && previousImage !== slide.imageUrl) {
+    removedMedia.push(previousImage);
+  }
+  if (previousVideo && previousVideo !== (slide.videoUrl || null)) {
+    removedMedia.push(previousVideo);
+  }
+  if (removedMedia.length > 0) {
+    await deleteMediaUrls(supabase, removedMedia);
+  }
+
   revalidateHomepageSlides();
   return NextResponse.json({ updated: true });
 }
@@ -86,6 +114,19 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  // Capture the slide's media before the row is deleted so the objects can be
+  // removed from storage afterwards (best-effort).
+  const { data: existing } = await supabase
+    .from("homepage_slides")
+    .select("image_url, video_url")
+    .eq("id", id)
+    .maybeSingle();
+  const imageUrl =
+    typeof existing?.image_url === "string" ? existing.image_url : null;
+  const videoUrl =
+    typeof existing?.video_url === "string" ? existing.video_url : null;
+
   const { error } = await supabase.from("homepage_slides").delete().eq("id", id);
   if (error) {
     return internalApiError(
@@ -94,6 +135,10 @@ export async function DELETE(
       "The homepage slide could not be deleted.",
       409,
     );
+  }
+
+  if (imageUrl || videoUrl) {
+    await deleteMediaUrls(supabase, [imageUrl, videoUrl]);
   }
 
   revalidateHomepageSlides();
