@@ -11,7 +11,7 @@ const contentSecurityPolicy = [
   "form-action 'self' https://*.payu.in",
   "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://checkout-ui.shiprocket.com",
   "style-src 'self' 'unsafe-inline' https://checkout-ui.shiprocket.com",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://checkout-api.shiprocket.com https://checkout-ui.shiprocket.com",
   "frame-src https://*.razorpay.com https://checkout-ui.shiprocket.com",
@@ -34,7 +34,13 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/requested-dresses/**",
       },
+      {
+      protocol: "https",
+      hostname: "files.darajni.in",
+      pathname: "/**",
+  },
     ],
+    
   },
   async headers() {
     const immutableAssetHeaders = [
