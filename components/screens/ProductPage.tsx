@@ -10,7 +10,6 @@ import Link from "next/link";
 
 import DesignCard from "@/components/DesignCard";
 import { ProductGallery } from "@/components/product/product-gallery";
-import { VideoPlayer } from "@/components/video-player";
 import { ProductInfoTabs } from "@/components/product/product-info-tabs";
 import { ProductPurchase } from "@/components/product/product-purchase";
 import { formatPrice, siteConfig, whatsappSupportLink } from "@/config/site";
@@ -207,18 +206,7 @@ export default function ProductPage({
         </nav>
 
         <div className="grid min-w-0 items-start gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.72fr)] xl:gap-12">
-          <div className="min-w-0 space-y-4">
-            <ProductGallery images={product.images} name={product.name} />
-            {product.videoUrl && (
-              <section className="relative overflow-hidden rounded-md bg-black shadow-[0_14px_32px_rgba(55,34,21,0.14)]" aria-label={`${product.name} video preview`}>
-                <VideoPlayer
-                  src={product.videoUrl}
-                  poster={product.images[0]}
-                  className="w-full"
-                />
-              </section>
-            )}
-          </div>
+          <ProductGallery images={product.images} name={product.name} />
 
           <div className="min-w-0">
             <div>
