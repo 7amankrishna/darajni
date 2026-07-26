@@ -113,14 +113,29 @@ export async function POST(request: Request) {
       timeoutMs: UPSTREAM_TIMEOUT_MS,
     });
 
-    // DIAGNOSTIC: skip the outbound Shiprocket fetch and return a dummy token.
-    // If this returns 200, the outbound fetch is what crashes the Vercel
-    // function process (blank edge 502). Revert and fix the fetch path.
-    void apiKey;
-    void signature;
-    void body;
+    // DIAGNOSTIC: minimal-options fetch — no cache, no AbortSignal, manual
+    // redirect. If this still 502s, undici fetch itself crashes the Vercel
+    // process and we must switch to node:https.
+    const response = await fetch(
+      `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key": apiKey,
+          "X-Api-HMAC-SHA256": signature,
+        },
+        body,
+        redirect: "manual",
+      },
+    );
+    const text = await response.text();
     return NextResponse.json(
-      { token: "DIAG_SKIPPED_FETCH_" + Date.now(), diagnostic: true },
+      {
+        diagnostic: true,
+        upstreamStatus: response.status,
+        upstreamBody: text.slice(0, 800),
+      },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
