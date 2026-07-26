@@ -113,10 +113,61 @@ export function getShiprocketWebhookToken() {
   return dedicatedSecret("SHIPROCKET_WEBHOOK_TOKEN", 16);
 }
 
-export function getShiprocketCheckoutEnvironment() {
+export type ShiprocketCheckoutResolution =
+  | { ok: true; apiKey: string; secretKey: string }
+  | { ok: false; reason: string; collidingSecret?: string };
+
+// Diagnosable credential resolution: returns a plain-language reason for the
+// FIRST gate that fails instead of collapsing every misconfiguration into a
+// single null. Reasons describe the check name only — they never reveal secret
+// values, and the cross-secret collision case names the *partner* env var on the
+// server side (via the log in the route), not in the value returned here.
+export function resolveShiprocketCheckoutEnvironment(): ShiprocketCheckoutResolution {
   const apiKey = clean("SHIPROCKET_API_KEY");
-  const secretKey = dedicatedSecret("SHIPROCKET_SECRET_KEY", 16);
-  return apiKey && secretKey ? { apiKey, secretKey } : null;
+  if (!apiKey) {
+    return {
+      ok: false,
+      reason:
+        "SHIPROCKET_API_KEY is missing, empty, or still set to a placeholder value.",
+    };
+  }
+
+  const secretValue = clean("SHIPROCKET_SECRET_KEY");
+  if (!secretValue) {
+    return {
+      ok: false,
+      reason:
+        "SHIPROCKET_SECRET_KEY is missing, empty, or still set to a placeholder value.",
+    };
+  }
+  if (secretValue.length < 16) {
+    return {
+      ok: false,
+      reason: "SHIPROCKET_SECRET_KEY must be at least 16 characters long.",
+    };
+  }
+
+  const collidingSecret = SERVER_SECRET_NAMES.find(
+    (otherName) =>
+      otherName !== "SHIPROCKET_SECRET_KEY" && clean(otherName) === secretValue,
+  );
+  if (collidingSecret) {
+    return {
+      ok: false,
+      reason:
+        "SHIPROCKET_SECRET_KEY must be unique and must not match another configured secret.",
+      // The env-var name is public (listed in .env.example); only its value is
+      // sensitive. Surfaced for the server log only — never sent to the client.
+      collidingSecret,
+    };
+  }
+
+  return { ok: true, apiKey, secretKey: secretValue };
+}
+
+export function getShiprocketCheckoutEnvironment() {
+  const resolved = resolveShiprocketCheckoutEnvironment();
+  return resolved.ok ? { apiKey: resolved.apiKey, secretKey: resolved.secretKey } : null;
 }
 
 function positiveNumber(name: string, minimum: number) {

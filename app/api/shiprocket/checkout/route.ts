@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { getCatalog } from "@/lib/data/catalog";
+import { resolveShiprocketCheckoutEnvironment } from "@/lib/config/server-env";
 import {
   createShiprocketCheckoutSignature,
-  getShiprocketCheckoutCredentials,
   SHIPROCKET_CHECKOUT_BASE_URL,
   toShiprocketVariantId,
 } from "@/lib/shiprocket-checkout";
@@ -38,10 +38,26 @@ export async function POST(request: Request) {
   const limit = await rateLimitRequest(request, RATE_LIMITS.checkout);
   if (!limit.success) return rateLimitError(limit);
 
-  const credentials = getShiprocketCheckoutCredentials();
-  if (!credentials) {
-    return apiError("Shiprocket Checkout is temporarily unavailable.", 503);
+  const credentials = resolveShiprocketCheckoutEnvironment();
+  if (!credentials.ok) {
+    // Log the failing check name (and the colliding partner env-var name on a
+    // collision) so the deployment can self-diagnose a 503. Only the reason —
+    // never a secret value — is echoed to the client for support context.
+    console.error(
+      "[shiprocket-checkout] credentials not resolved",
+      credentials.collidingSecret
+        ? { reason: credentials.reason, collidingSecret: credentials.collidingSecret }
+        : { reason: credentials.reason },
+    );
+    return NextResponse.json(
+      {
+        error: "Shiprocket Checkout is temporarily unavailable.",
+        reason: credentials.reason,
+      },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
   }
+  const { apiKey } = credentials;
 
   const parsed = shiprocketCheckoutSchema.safeParse(await readJsonBody(request));
   if (!parsed.success) return apiError("Your cart could not be prepared.", 400);
@@ -84,7 +100,7 @@ export async function POST(request: Request) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Api-Key": credentials.apiKey,
+          "X-Api-Key": apiKey,
           "X-Api-HMAC-SHA256": signature,
         },
         body,
@@ -100,7 +116,23 @@ export async function POST(request: Request) {
       null;
 
     if (!response.ok || !token || token.length > 8_192) {
-      return apiError("Shiprocket Checkout could not be started.", 502);
+      // Surface the upstream HTTP status and a truncated error body to the
+      // server log so a 502 can be traced to a specific Shiprocket rejection
+      // (bad key, bad signature, malformed payload). Only the status code —
+      // never the upstream body — is echoed to the client.
+      console.error("[shiprocket-checkout] upstream token endpoint rejected", {
+        status: response.status,
+        tokenPresent: Boolean(token),
+        tokenTooLong: token ? token.length > 8_192 : false,
+        body: responseBody ? JSON.stringify(responseBody).slice(0, 1000) : null,
+      });
+      return NextResponse.json(
+        {
+          error: "Shiprocket Checkout could not be started.",
+          upstreamStatus: response.status,
+        },
+        { status: 502, headers: { "Cache-Control": "no-store" } },
+      );
     }
 
     return NextResponse.json(
