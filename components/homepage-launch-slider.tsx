@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ProductImage } from "@/components/product/product-image";
+import { VideoPlayer } from "@/components/video-player";
 import type { HomepageSlide } from "@/types/commerce";
 
 function SlideLink({ slide }: { slide: HomepageSlide }) {
@@ -124,12 +125,20 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
             </div>
 
             <div className="relative order-1 min-h-72 overflow-hidden bg-[#F6E9DD] md:order-2">
+              {activeSlide.videoUrl ? (
+                <VideoPlayer
+                  src={activeSlide.videoUrl}
+                  poster={activeSlide.imageUrl}
+                  className="h-full w-full"
+                />
+              ) : (
                 <ProductImage
                   src={activeSlide.imageUrl}
                   alt=""
                   sizes="(max-width: 768px) 100vw, 52vw"
                   className="object-cover"
-              />
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent md:bg-gradient-to-r md:from-black/20 md:via-transparent" />
               <span className="absolute bottom-5 right-5 rounded-full border border-white/35 bg-black/25 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wide text-white backdrop-blur">
                 {activeIndex + 1} / {slides.length}

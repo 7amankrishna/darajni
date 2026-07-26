@@ -66,6 +66,7 @@ export interface Database {
           price: number;
           discount: number;
           images: string[];
+          video_url: string | null;
           category_id: string;
           is_featured: boolean;
           is_active: boolean;
@@ -83,6 +84,7 @@ export interface Database {
           price: number;
           discount?: number;
           images: string[];
+          video_url?: string | null;
           category_id: string;
           is_featured?: boolean;
           is_active?: boolean;
@@ -297,6 +299,7 @@ export interface Database {
           eyebrow: string | null;
           description: string | null;
           image_url: string;
+          video_url: string | null;
           link_url: string;
           cta_label: string;
           sort_order: number;
@@ -312,6 +315,7 @@ export interface Database {
           eyebrow?: string | null;
           description?: string | null;
           image_url: string;
+          video_url?: string | null;
           link_url?: string;
           cta_label?: string;
           sort_order?: number;

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "video.js/dist/video-js.css";
 
 @theme {
   --color-background: var(--background);
@@ -1831,4 +1832,3 @@ body::after {
 .stagger-children > *:nth-child(10) { animation-delay: 500ms; }
 .stagger-children > *:nth-child(11) { animation-delay: 550ms; }
 .stagger-children > *:nth-child(12) { animation-delay: 600ms; }
-

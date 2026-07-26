@@ -22,6 +22,7 @@ export interface Product {
   price: number;
   discount: number;
   images: string[];
+  videoUrl: string | null;
   category: Category;
   isFeatured: boolean;
   isActive: boolean;
@@ -43,6 +44,7 @@ export interface HomepageSlide {
   eyebrow: string | null;
   description: string | null;
   imageUrl: string;
+  videoUrl: string | null;
   linkUrl: string;
   ctaLabel: string;
   sortOrder: number;

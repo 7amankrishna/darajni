@@ -33,6 +33,7 @@ function mapProduct(row: Record<string, unknown>): Product {
     price: Number(row.price),
     discount: Number(row.discount),
     images: Array.isArray(row.images) ? row.images.map(String) : [],
+    videoUrl: row.video_url ? String(row.video_url) : null,
     category: mapCategory(categoryRow as Record<string, unknown>),
     isFeatured: Boolean(row.is_featured),
     isActive: Boolean(row.is_active),
@@ -185,7 +186,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       supabase
         .from("homepage_slides")
         .select(
-          "id, title, eyebrow, description, image_url, link_url, cta_label, sort_order, starts_at, ends_at, is_active, created_at, updated_at",
+          "id, title, eyebrow, description, image_url, video_url, link_url, cta_label, sort_order, starts_at, ends_at, is_active, created_at, updated_at",
         )
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true }),

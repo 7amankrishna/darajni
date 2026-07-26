@@ -44,6 +44,7 @@ export async function PUT(
       price: product.price,
       discount: product.discount,
       images: product.images,
+      video_url: product.videoUrl || null,
       category_id: product.categoryId,
       is_featured: product.isFeatured,
       is_active: product.isActive,

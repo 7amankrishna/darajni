@@ -14,6 +14,18 @@ export const imageUrlSchema = z
     }
   }, "Each image must be a secure URL.");
 
+export const videoUrlSchema = z
+  .string()
+  .trim()
+  .refine((value) => {
+    if (value.startsWith("/") && !value.startsWith("//")) return true;
+    try {
+      return new URL(value).protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "The video must be a secure URL.");
+
 export const productInputSchema = z.object({
   name: z.string().trim().min(2).max(140),
   slug: z
@@ -27,6 +39,7 @@ export const productInputSchema = z.object({
   price: z.number().min(0).max(100_000_000),
   discount: z.number().min(0).max(100),
   images: z.array(imageUrlSchema).min(1).max(12),
+  videoUrl: videoUrlSchema.nullable().optional(),
   categoryId: z.string().uuid(),
   isFeatured: z.boolean(),
   isActive: z.boolean(),
@@ -146,6 +159,7 @@ export const homepageSlideInputSchema = z
     eyebrow: z.string().trim().max(60).nullable().optional(),
     description: z.string().trim().max(320).nullable().optional(),
     imageUrl: imageUrlSchema,
+    videoUrl: videoUrlSchema.nullable().optional(),
     linkUrl: homepageLinkSchema,
     ctaLabel: z.string().trim().min(2).max(40),
     sortOrder: z.number().int().min(0).max(10_000),

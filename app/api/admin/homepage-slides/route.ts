@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       eyebrow: slide.eyebrow || null,
       description: slide.description || null,
       image_url: slide.imageUrl,
+      video_url: slide.videoUrl || null,
       link_url: slide.linkUrl,
       cta_label: slide.ctaLabel,
       sort_order: slide.sortOrder,

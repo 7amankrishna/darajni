@@ -8,6 +8,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  Video,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
@@ -28,6 +29,7 @@ interface SlideDraft {
   eyebrow: string;
   description: string;
   imageUrl: string;
+  videoUrl: string;
   linkUrl: string;
   ctaLabel: string;
   sortOrder: string;
@@ -53,6 +55,7 @@ function blankDraft(sortOrder: number): SlideDraft {
     eyebrow: "New launch",
     description: "",
     imageUrl: "",
+    videoUrl: "",
     linkUrl: "/collection",
     ctaLabel: "Explore now",
     sortOrder: String(sortOrder),
@@ -68,6 +71,7 @@ function fromSlide(slide: HomepageSlide): SlideDraft {
     eyebrow: slide.eyebrow || "",
     description: slide.description || "",
     imageUrl: slide.imageUrl,
+    videoUrl: slide.videoUrl || "",
     linkUrl: slide.linkUrl,
     ctaLabel: slide.ctaLabel,
     sortOrder: String(slide.sortOrder),
@@ -141,6 +145,24 @@ export function HomepageSlideManagement({
     toast.success("Launch image uploaded.");
   };
 
+  const uploadVideo = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.set("file", file);
+    const response = await fetch("/api/admin/uploads?kind=video", { method: "POST", body: formData });
+    const result = (await response.json()) as { url?: string; error?: string };
+    setUploading(false);
+    if (!response.ok || !result.url) {
+      toast.error(result.error || "Video upload failed.");
+      return;
+    }
+    setField("videoUrl", result.url);
+    toast.success("Featured video uploaded.");
+  };
+
   const save = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true);
@@ -149,6 +171,7 @@ export function HomepageSlideManagement({
       eyebrow: draft.eyebrow.trim() || null,
       description: draft.description.trim() || null,
       imageUrl: draft.imageUrl.trim(),
+      videoUrl: draft.videoUrl.trim() || null,
       linkUrl: draft.linkUrl.trim(),
       ctaLabel: draft.ctaLabel.trim(),
       sortOrder: Number(draft.sortOrder),
@@ -365,6 +388,25 @@ export function HomepageSlideManagement({
                   />
                 </label>
               </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="slide-video-url" className="field-label">Featured video</label>
+              <div className="flex gap-2">
+                <input
+                  id="slide-video-url"
+                  type="url"
+                  value={draft.videoUrl}
+                  onChange={(event) => setField("videoUrl", event.target.value)}
+                  className="field"
+                  placeholder="Upload an MP4/WebM video or paste an HTTPS URL"
+                />
+                <label className="secondary-button shrink-0 cursor-pointer">
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
+                  <span className="hidden sm:inline">Upload</span>
+                  <input type="file" accept="video/mp4,video/webm" onChange={(event) => void uploadVideo(event)} className="sr-only" disabled={uploading} />
+                </label>
+              </div>
+              <p className="mt-2 text-xs text-text-secondary">Optional. The launch image remains the video poster.</p>
             </div>
             <div>
               <label htmlFor="slide-cta" className="field-label">Button label</label>

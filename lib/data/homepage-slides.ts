@@ -26,6 +26,7 @@ export function mapHomepageSlide(row: Record<string, unknown>): HomepageSlide {
     eyebrow: row.eyebrow ? String(row.eyebrow) : null,
     description: row.description ? String(row.description) : null,
     imageUrl: String(row.image_url),
+    videoUrl: row.video_url ? String(row.video_url) : null,
     linkUrl: String(row.link_url),
     ctaLabel: String(row.cta_label),
     sortOrder: Number(row.sort_order),
@@ -46,7 +47,7 @@ export const getActiveHomepageSlides = unstable_cache(
     const { data, error } = await supabase
       .from("homepage_slides")
       .select(
-        "id, title, eyebrow, description, image_url, link_url, cta_label, sort_order, starts_at, ends_at, is_active, created_at, updated_at",
+        "id, title, eyebrow, description, image_url, video_url, link_url, cta_label, sort_order, starts_at, ends_at, is_active, created_at, updated_at",
       )
       .eq("is_active", true)
       .or(`starts_at.is.null,starts_at.lte.${now}`)
