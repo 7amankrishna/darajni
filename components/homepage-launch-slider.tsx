@@ -130,6 +130,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                   src={activeSlide.videoUrl}
                   poster={activeSlide.imageUrl}
                   autoplay
+                  fill
                   className="absolute inset-0"
                 />
               ) : (

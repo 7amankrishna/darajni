@@ -8,11 +8,13 @@ export function VideoPlayer({
   poster,
   className = "",
   autoplay = false,
+  fill = false,
 }: {
   src: string;
   poster?: string;
   className?: string;
   autoplay?: boolean;
+  fill?: boolean;
 }) {
   const elementRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
@@ -39,7 +41,7 @@ export function VideoPlayer({
   }, [autoplay, poster, src]);
 
   return (
-    <div className={`video-player ${className}`} data-vjs-player>
+    <div className={`video-player${fill ? " video-player-fill" : ""} ${className}`} data-vjs-player>
       <video ref={elementRef} className="video-js vjs-big-play-centered" />
     </div>
   );
