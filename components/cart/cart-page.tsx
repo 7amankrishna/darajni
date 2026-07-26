@@ -64,7 +64,7 @@ function prepareShiprocketCheckout() {
 
   return new Promise<void>((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = "https://checkout-ui.shiprocket.com/assets/js/channels/shopify.js";
+    script.src = "https://checkout-ui.shiprocket.com/assets/js/channels/custom.js";
     script.async = true;
     script.dataset.shiprocketCheckout = "script";
     script.onload = () => resolve();
@@ -106,16 +106,26 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
         }),
       });
       const result = (await response.json()) as { token?: string };
-      if (!response.ok || !result.token) throw new Error("Checkout unavailable.");
+      if (!response.ok || !result.token) {
+        console.error(
+          "[shiprocket-checkout] token request failed",
+          response.status,
+          result,
+        );
+        throw new Error(`Checkout unavailable (HTTP ${response.status}).`);
+      }
 
       await prepareShiprocketCheckout();
-      if (!window.HeadlessCheckout) throw new Error("Checkout unavailable.");
+      if (!window.HeadlessCheckout) {
+        throw new Error("HeadlessCheckout SDK unavailable.");
+      }
 
       window.HeadlessCheckout.addToCart(event.nativeEvent, result.token, {
         fallbackUrl: `${window.location.origin}/checkout?shiprocket=fallback`,
       });
       setShiprocketBusy(false);
-    } catch {
+    } catch (error) {
+      console.error("[shiprocket-checkout] failed, falling back to manual", error);
       useManualCheckout();
     }
   };
