@@ -22,23 +22,10 @@ export const runtime = "nodejs";
 // duration can race the upstream fetch and surface a blank edge 502.
 export const maxDuration = 30;
 
-const RESPONSE_LIMIT_BYTES = 64 * 1024;
 // Keep the upstream timeout comfortably inside the function maxDuration so a
 // slow Shiprocket response returns our diagnosable 502 JSON instead of being
 // killed by the platform (which would surface as an opaque "error code: 502").
 const UPSTREAM_TIMEOUT_MS = 8_000;
-
-async function readResponse(response: Response) {
-  const declaredLength = Number(response.headers.get("content-length") || 0);
-  if (declaredLength > RESPONSE_LIMIT_BYTES) return null;
-  const body = await response.text();
-  if (Buffer.byteLength(body, "utf8") > RESPONSE_LIMIT_BYTES) return null;
-  try {
-    return JSON.parse(body) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
 
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return apiError("Forbidden.", 403);
@@ -91,59 +78,129 @@ export async function POST(request: Request) {
     }
 
     const origin = new URL(request.url).origin;
-    const payload = {
-      cart_data: {
-        items: parsed.data.items.map((item) => ({
-          variant_id: toShiprocketVariantId(item.productId, item.size),
-          quantity: item.quantity,
-        })),
-      },
-      redirect_url: `${origin}/shiprocket/complete`,
-      timestamp: new Date().toISOString(),
-    };
-    const body = JSON.stringify(payload);
-    const signature = createShiprocketCheckoutSignature(body);
-    if (!signature) {
-      return apiError("Shiprocket Checkout is temporarily unavailable.", 503);
-    }
-
-    console.error("[shiprocket-checkout] minting token", {
-      stage: "upstream-fetch",
-      items: payload.cart_data.items.length,
-      timeoutMs: UPSTREAM_TIMEOUT_MS,
-    });
-
-    // DIAGNOSTIC: manual AbortController timeout (NOT AbortSignal.timeout,
-    // which crashed the Vercel process -> blank edge 502). No cache option.
-    // Echo upstream status/body to confirm the 500 is consistent.
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
-    let response: Response;
-    try {
-      response = await fetch(
-        `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Api-Key": apiKey,
-            "X-Api-HMAC-SHA256": signature,
-          },
-          body,
-          redirect: "manual",
-          signal: controller.signal,
-        },
-      );
-    } finally {
-      clearTimeout(timer);
-    }
-    const text = await response.text();
-    return NextResponse.json(
+    // DIAGNOSTIC: probe several payload shapes in one request to find which
+    // (if any) the Fastrr access-token endpoint accepts. Manual AbortController
+    // (AbortSignal.timeout crashed the Vercel process -> blank edge 502).
+    // No secrets logged — only upstream status + truncated body per shape.
+    const baseItem = parsed.data.items[0];
+    const firstProduct = requestedItems[0]?.product;
+    const variants: Array<{ label: string; payload: unknown }> = [
       {
-        diagnostic: true,
-        upstreamStatus: response.status,
-        upstreamBody: text.slice(0, 800),
+        label: "current-synthetic",
+        payload: {
+          cart_data: {
+            items: parsed.data.items.map((item) => ({
+              variant_id: toShiprocketVariantId(item.productId, item.size),
+              quantity: item.quantity,
+            })),
+          },
+          redirect_url: `${origin}/shiprocket/complete`,
+          timestamp: new Date().toISOString(),
+        },
       },
+      {
+        label: "productId-only",
+        payload: {
+          cart_data: {
+            items: parsed.data.items.map((item) => ({
+              variant_id: item.productId,
+              quantity: item.quantity,
+            })),
+          },
+          redirect_url: `${origin}/shiprocket/complete`,
+          timestamp: new Date().toISOString(),
+        },
+      },
+      {
+        label: "full-details",
+        payload: {
+          cart_data: {
+            items: parsed.data.items.map((item) => {
+              const product = products.find((p) => p.id === item.productId);
+              return {
+                variant_id: toShiprocketVariantId(item.productId, item.size),
+                quantity: item.quantity,
+                product_id: item.productId,
+                selling_price: product ? String(product.price) : "0",
+                name: product?.name ?? "",
+                image: product?.images[0] ?? "",
+              };
+            }),
+          },
+          redirect_url: `${origin}/shiprocket/complete`,
+          timestamp: new Date().toISOString(),
+        },
+      },
+      {
+        label: "no-redirect-ts",
+        payload: {
+          cart_data: {
+            items: parsed.data.items.map((item) => ({
+              variant_id: toShiprocketVariantId(item.productId, item.size),
+              quantity: item.quantity,
+            })),
+          },
+        },
+      },
+      {
+        label: "bare",
+        payload: {
+          cart_data: {
+            items: [
+              { variant_id: baseItem.productId, quantity: baseItem.quantity },
+            ],
+          },
+        },
+      },
+    ];
+
+    async function probe(
+      label: string,
+      payload: unknown,
+    ): Promise<{ label: string; status: number; body: string }> {
+      const bodyStr = JSON.stringify(payload);
+      const sig = createShiprocketCheckoutSignature(bodyStr);
+      if (!sig) return { label, status: -1, body: "no-signature" };
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
+      try {
+        const res = await fetch(
+          `${SHIPROCKET_CHECKOUT_BASE_URL}/api/v1/access-token/checkout`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Api-Key": apiKey,
+              "X-Api-HMAC-SHA256": sig,
+            },
+            body: bodyStr,
+            redirect: "manual",
+            signal: controller.signal,
+          },
+        );
+        const text = await res.text();
+        return { label, status: res.status, body: text.slice(0, 400) };
+      } catch (err) {
+        return {
+          label,
+          status: -2,
+          body: err instanceof Error ? err.name : "fetch-threw",
+        };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    const results: Array<{ label: string; status: number; body: string }> = [];
+    for (const v of variants) {
+      results.push(await probe(v.label, v.payload));
+      console.error("[shiprocket-checkout] probe", {
+        label: v.label,
+        status: results[results.length - 1].status,
+      });
+    }
+    return NextResponse.json(
+      { diagnostic: true, results, firstProductId: firstProduct?.id ?? null },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
