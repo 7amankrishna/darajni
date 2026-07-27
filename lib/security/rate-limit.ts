@@ -45,9 +45,7 @@ export const RATE_LIMITS = {
   adminRead: { scope: "admin-read", limit: 120, windowSeconds: 15 * 60 },
   adminMutation: { scope: "admin-mutation", limit: 60, windowSeconds: 15 * 60 },
   adminUpload: { scope: "admin-upload", limit: 20, windowSeconds: 15 * 60 },
-  // TEMP testing: raised from 5/15min so the checkout token route can be
-  // probed repeatedly while diagnosing the Shiprocket 502. Revert before launch.
-  checkout: { scope: "checkout", limit: 1000, windowSeconds: 60 },
+  checkout: { scope: "checkout", limit: 5, windowSeconds: 15 * 60 },
   checkoutCancel: { scope: "checkout-cancel", limit: 20, windowSeconds: 15 * 60 },
   checkoutPromo: { scope: "checkout-promo", limit: 20, windowSeconds: 15 * 60 },
   maintenance: { scope: "maintenance", limit: 10, windowSeconds: 60 * 60 },
