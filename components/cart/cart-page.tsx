@@ -105,14 +105,41 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
           })),
         }),
       });
-      const result = (await response.json()) as { token?: string };
-      if (!response.ok || !result.token) {
+      if (!response.ok) {
+        // The token endpoint always returns JSON on a controlled failure,
+        // but a platform-level 502 (function timeout/crash) returns an HTML
+        // error page. Parse defensively so we surface the real status
+        // instead of crashing on `Unexpected token '<'`.
+        const contentType = response.headers.get("content-type") ?? "";
+        let detail: unknown;
+        if (contentType.includes("application/json")) {
+          try {
+            detail = await response.json();
+          } catch {
+            detail = undefined;
+          }
+        } else {
+          try {
+            detail = (await response.text()).slice(0, 200);
+          } catch {
+            detail = undefined;
+          }
+        }
         console.error(
           "[shiprocket-checkout] token request failed",
           response.status,
-          result,
+          detail,
         );
         throw new Error(`Checkout unavailable (HTTP ${response.status}).`);
+      }
+
+      const result = (await response.json()) as { token?: string };
+      if (!result.token) {
+        console.error(
+          "[shiprocket-checkout] token missing in response",
+          result,
+        );
+        throw new Error("Checkout unavailable (no token).");
       }
 
       await prepareShiprocketCheckout();
