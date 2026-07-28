@@ -1,0 +1,77 @@
+name: Scheduled Supabase Backup
+
+# Scheduled database backups run on GitHub Actions (not Vercel) because the
+# Vercel serverless Node runtime does not ship `pg_dump`. The Ubuntu runner has
+# `pg_dump`; we install `postgresql-client-15` via the PGDG apt repository to
+# match Supabase's Postgres 15 server. The runner runs the SAME
+# `scripts/backup-run.ts` entry point used for manual runs, so core logic is
+# shared.
+#
+# NOTE: GitHub runs scheduled (`on: schedule`) workflows only on the repository
+# default branch, so production-only scheduling is enforced by GitHub by design.
+
+on:
+  schedule:
+    # 02:00 UTC daily (documented UTC schedule).
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Backup environment segment (e.g. production, staging)"
+        required: false
+        default: "production"
+      dry-run:
+        description: "Verify the dump path only; do not upload"
+        required: false
+        default: false
+        type: boolean
+
+# Prevent two backup jobs from running concurrently over the same data.
+concurrency:
+  group: supabase-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Install PostgreSQL client 15 (pg_dump matching server major version)
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-15
+          pg_dump --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backup
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          BACKUP_RETENTION_DAYS: ${{ secrets.BACKUP_RETENTION_DAYS }}
+          BACKUP_ENV: ${{ github.event.inputs.env || 'production' }}
+          # Optional Supabase Storage file backup (set BACKUP_STORAGE_ENABLED in
+          # repo variables to "1" to enable).
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BACKUP_STORAGE_ENABLED: ${{ vars.BACKUP_STORAGE_ENABLED }}
+        run: |
+          ARGS="--env ${{ github.event.inputs.env || 'production' }}"
+          if [ "${{ github.event.inputs.dry-run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          npx tsx scripts/backup-run.ts $ARGS

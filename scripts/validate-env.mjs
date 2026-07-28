@@ -154,6 +154,9 @@ const secrets = [
   "SHIPROCKET_SECRET_KEY",
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
+  "BACKUP_ENCRYPTION_KEY",
+  "FIREBASE_PRIVATE_KEY",
+  "SUPABASE_DB_URL",
 ].filter((name) => value(name));
 for (let index = 0; index < secrets.length; index += 1) {
   for (let compare = index + 1; compare < secrets.length; compare += 1) {
@@ -180,6 +183,96 @@ for (const name of [
   if (value(name) && !/^\d{10,15}$/.test(value(name))) {
     errors.push(`${name} must contain 10–15 digits only, including country code.`);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Backups & disaster recovery: missing values are warnings (so local dev keeps
+// working without backups); values that are present but malformed are errors.
+// ---------------------------------------------------------------------------
+const backupKey = value("BACKUP_ENCRYPTION_KEY");
+if (backupKey) {
+  const cleaned = backupKey.replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(cleaned)) {
+    errors.push("BACKUP_ENCRYPTION_KEY is not valid base64. Generate a 32-byte key with: openssl rand -base64 32");
+  } else if (Buffer.from(cleaned, "base64").length !== 32) {
+    errors.push("BACKUP_ENCRYPTION_KEY must decode to exactly 32 bytes. Generate with: openssl rand -base64 32");
+  }
+}
+
+const firebaseNames = [
+  "FIREBASE_PROJECT_ID",
+  "FIREBASE_CLIENT_EMAIL",
+  "FIREBASE_PRIVATE_KEY",
+  "FIREBASE_STORAGE_BUCKET",
+];
+const firebaseValues = firebaseNames.map(value);
+const firebaseConfigured = firebaseValues.every(Boolean);
+if (firebaseValues.some(Boolean) && !firebaseConfigured) {
+  errors.push(`Configure all Firebase variables together: ${firebaseNames.join(", ")}.`);
+}
+if (firebaseConfigured) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(firebaseValues[1])) {
+    errors.push("FIREBASE_CLIENT_EMAIL must be a valid service-account email address.");
+  }
+  const normalizedKey = firebaseValues[2].replace(/\\n/g, "\n");
+  if (!normalizedKey.includes("BEGIN PRIVATE KEY") || !normalizedKey.includes("END PRIVATE KEY")) {
+    errors.push("FIREBASE_PRIVATE_KEY is missing PEM BEGIN/END markers. Paste the full key block.");
+  }
+  if (/\s/.test(firebaseValues[3]) || firebaseValues[3].includes("/")) {
+    errors.push("FIREBASE_STORAGE_BUCKET must be a bucket name with no spaces or slashes (e.g. my-project.appspot.com).");
+  }
+}
+
+const supabaseDbUrl = value("SUPABASE_DB_URL");
+if (supabaseDbUrl) {
+  try {
+    const parsed = new URL(supabaseDbUrl);
+    if (parsed.protocol !== "postgresql:" && parsed.protocol !== "postgres:") {
+      errors.push("SUPABASE_DB_URL must use the postgresql:// (or postgres://) scheme.");
+    } else if (/pooler\.supabase\.(com|co)/i.test(parsed.hostname)) {
+      errors.push("SUPABASE_DB_URL points to the Supabase pooler; use the direct connection on port 5432 instead.");
+    } else if (!parsed.hostname || !parsed.username || !parsed.password || !parsed.pathname.replace(/^\//, "")) {
+      errors.push("SUPABASE_DB_URL must include host, user, password, and a database name.");
+    }
+  } catch {
+    errors.push("SUPABASE_DB_URL must be a valid PostgreSQL connection URL.");
+  }
+}
+
+const retentionDays = value("BACKUP_RETENTION_DAYS");
+if (retentionDays) {
+  const n = Number(retentionDays);
+  if (!Number.isInteger(n) || n < 1) {
+    errors.push("BACKUP_RETENTION_DAYS must be a positive integer.");
+  }
+}
+
+const dumpTimeoutMs = value("BACKUP_DUMP_TIMEOUT_MS");
+if (dumpTimeoutMs) {
+  const n = Number(dumpTimeoutMs);
+  if (!Number.isInteger(n) || n < 1000) {
+    errors.push("BACKUP_DUMP_TIMEOUT_MS must be a positive integer number of milliseconds.");
+  }
+}
+
+const dbSchemas = value("BACKUP_DB_SCHEMAS");
+if (dbSchemas) {
+  for (const schema of dbSchemas.split(",").map((s) => s.trim()).filter(Boolean)) {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
+      errors.push(`BACKUP_DB_SCHEMAS contains an invalid schema name: "${schema}".`);
+    }
+  }
+}
+
+const storageEnabled = value("BACKUP_STORAGE_ENABLED");
+if (storageEnabled) {
+  if (!["1", "true", "yes", "on", "0", "false", "no", "off"].includes(storageEnabled.toLowerCase())) {
+    errors.push("BACKUP_STORAGE_ENABLED must be a boolean flag (1/0, true/false, yes/no, on/off).");
+  }
+}
+
+if (!backupKey && !firebaseConfigured && !supabaseDbUrl) {
+  warnings.push("Backups are not configured. Set FIREBASE_*, SUPABASE_DB_URL, and BACKUP_ENCRYPTION_KEY to enable encrypted PostgreSQL backups. See docs/BACKUP_DISASTER_RECOVERY.md.");
 }
 
 for (const warning of warnings) console.warn(`WARNING: ${warning}`);

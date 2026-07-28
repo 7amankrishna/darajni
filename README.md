@@ -1122,3 +1122,28 @@ types/
 - Locale: `en-IN`
 - Administration timezone for daily/weekly analytics: Asia/Kolkata
 - WhatsApp policy: support only, never direct ordering
+
+## Backups and disaster recovery
+
+The Supabase Postgres database (and optionally Supabase Storage files) are
+backed up daily to Firebase Cloud Storage, encrypted with AES-256-GCM before
+any byte leaves the host. The encryption key is never stored with the backup.
+Every archive carries a neighboring manifest with its SHA-256 checksum and GCM
+auth tag so restores are verifiable.
+
+- **Scheduled:** GitHub Actions runs at 02:00 UTC daily (reliable producer).
+  A Vercel Cron route (`/api/cron/backup`) also runs and serves a health view.
+- **Manual:** `npm run backup:run` (add `--db-only`, `--storage-only`,
+  `--dry-run`, `--env <name>`, or `--status`).
+- **Health:** `npm run backup:status`, or `GET /api/cron/backup?status=1` with
+  `Authorization: Bearer $CRON_SECRET`.
+- **Restore (manual, non-destructive by default):**
+  `npm run backup:restore-verify -- --latest` verifies integrity and prints the
+  `pg_restore` command; actually restoring requires `--target-db-url` and
+  `--confirm` plus a typed `yes`, and never auto-overwrites production.
+- **Retention:** keeps the newest 7 successful backups and deletes older ones
+  past `BACKUP_RETENTION_DAYS` (default 30), only after a verified success and
+  only under the exact `backups/{env}/` prefix.
+
+Full architecture, configuration, restore steps, and the operational runbook:
+[docs/BACKUP_DISASTER_RECOVERY.md](docs/BACKUP_DISASTER_RECOVERY.md).
