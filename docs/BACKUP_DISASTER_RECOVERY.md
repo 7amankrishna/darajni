@@ -1,13 +1,13 @@
 # Backup & Disaster Recovery
 
 Encrypted, verifiable, restorable backups of the Supabase PostgreSQL database
-(and optionally Supabase Storage files) into Firebase Cloud Storage.
+(and optionally Supabase Storage files) into Supabase Storage.
 
 - **What is backed up:** the full Postgres database via `pg_dump -Fc` (custom
   compressed format), plus — when enabled — every object in Supabase Storage.
-- **Where it goes:** Firebase Cloud Storage under `backups/{env}/...`.
+- **Where it goes:** Supabase Storage under `backups/{env}/...`.
 - **How it is protected:** AES-256-GCM encryption before any byte leaves the
-  host. The encryption key is **never** stored in Firebase or alongside the
+  host. The encryption key is **never** stored in Supabase Storage or alongside the
   archive.
 - **How it is verified:** SHA-256 checksum of the ciphertext, the GCM auth tag,
   and an SDK-reported remote-size match. A separate restore-verification tool
@@ -29,7 +29,7 @@ Encrypted, verifiable, restorable backups of the Supabase PostgreSQL database
                                                    │  ciphertext → temp file
                                                    ▼
                               ┌────────────────────────────────────┐
-                              │  Firebase Cloud Storage            │
+                              │  Supabase Storage                 │
                               │  backups/{env}/{YYYY}/{MM}/{DD}/   │
                               │    supabase-<ISO>.dump.enc         │
                               │    supabase-<ISO>.dump.enc.        │
@@ -93,9 +93,9 @@ fail loudly; absent optional values simply disable that feature.
 | Variable | Required | Notes |
 |----------|:---:|-------|
 | `SUPABASE_DB_URL` | for DB | Direct connection, **port 5432**. Pooler hosts (port 6543) are rejected. `sslmode=require` is forced for `*.supabase.co` hosts. |
-| `BACKUP_ENCRYPTION_KEY` | for DB | 32-byte key, base64. Generate: `openssl rand -base64 32`. **Never committed or stored in Firebase.** |
-| `FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY` | for DB + storage | Service account. All three together or none. |
-| `FIREBASE_STORAGE_BUCKET` | for DB + storage | Bucket name, no spaces/slashes. |
+| `BACKUP_ENCRYPTION_KEY` | for DB | 32-byte key, base64. Generate: `openssl rand -base64 32`. **Never committed or stored in Supabase Storage.** |
+| `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | for DB + storage | Service‑role credentials for Supabase Storage. All required together or none. |
+| *(Supabase Storage bucket name is derived from the object path and does not need a separate config variable.)* |
 | `CRON_SECRET` | for route | ≥32 chars; protects `/api/cron/backup` via constant-time compare. |
 | `BACKUP_ENV` | — | Path segment, default `production`. |
 | `BACKUP_RETENTION_DAYS` | — | Default `30`. |
@@ -210,7 +210,7 @@ it reports `wouldDelete` without deleting.
 
 ## 7. Security properties
 
-- **Encryption at rest:** AES-256-GCM before upload; key never in Firebase.
+- **Encryption at rest:** AES-256-GCM before upload; key never in Supabase Storage.
 - **Integrity:** SHA-256 of ciphertext + GCM auth tag + remote-size match.
 - **Credential hygiene:** DB credentials reach `pg_dump`/`pg_restore` only via
   the libpq `PG*` environment — never on the command line, never in process

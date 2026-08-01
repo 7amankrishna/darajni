@@ -242,7 +242,7 @@ async function runDbDump(args: RunDbDumpArgs): Promise<DbDumpResult> {
 
   if (!config.supabaseDb) return notConfigured("supabase-db-not-configured");
   if (!config.encryptionKey) return notConfigured("encryption-key-not-configured");
-  if (!config.firebase || !config.storageBucket) return notConfigured("firebase-not-configured");
+  if (!config.supabaseStorage) return notConfigured("supabase-storage-not-configured");
 
   log("db", `starting pg_dump from ${describeSupabaseDb(config.supabaseDb)}`);
   const timestamp = new Date();
@@ -505,8 +505,7 @@ export async function runBackup(input: RunBackupInput): Promise<BackupResult> {
   const dbReady = !!(
     config.supabaseDb &&
     config.encryptionKey &&
-    config.firebase &&
-    config.storageBucket
+    config.supabaseStorage
   );
 
   const lockTtlMs = (dbRequested && dbReady ? config.dumpTimeoutMs : 0) + 15 * 60 * 1000;
@@ -546,7 +545,7 @@ export async function runBackup(input: RunBackupInput): Promise<BackupResult> {
     }
 
     if (storageRequested) {
-      const firebaseAvailable = !!(config.firebase && config.storageBucket);
+    const firebaseAvailable = !!config.supabaseStorage;
       storageBackup = await runStorageBackup(
         config.storageBackupEnabled,
         config.supabaseStorage,

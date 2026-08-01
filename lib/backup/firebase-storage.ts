@@ -1,43 +1,33 @@
-// Firebase Cloud Storage access for encrypted backups.
+// Supabase Storage access for encrypted backups.
 //
-// Uses the Firebase Admin SDK (server-only). The service account private key is
-// normalized at load time in `lib/backup/env.ts` and is never logged here. Only
-// small string metadata fields are attached to objects; the encryption key, IV,
-// and auth tag are stored in the neighboring manifest object, never inside the
-// archive and never in Firebase Realtime Database/Firestore.
-//
-// Uploads are resumable where supported and retried with bounded exponential
-// backoff for transient failures. Success is reported only after the SDK-reported
-// object size matches the local encrypted file size (integrity guard).
-//
-// This module does not import `server-only` so it can run under tsx. The Admin
-// SDK is imported lazily is not possible at top level for types, but
-// initialization is lazy (only when a storage method is first called).
+// This module mirrors the original `firebase-storage.ts` API but uses
+// Supabase Storage (via `@supabase/supabase-js`) instead of Firebase. The
+// functions retain the same signatures so the rest of the codebase can stay
+// unchanged.
 
 import { statSync } from "node:fs";
-import { initializeApp, cert, getApps, type App, type ServiceAccount } from "firebase-admin/app";
-import { getStorage } from "firebase-admin/storage";
-import { getFirebaseServiceAccount, getFirebaseStorageBucket } from "@/lib/backup/env";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseStorageCredentials } from "@/lib/backup/env";
 
-let cachedApp: App | null = null;
+// All backup objects are stored under a single Supabase bucket named "backups".
+// This matches the naming conventions used throughout the code (`backupObjectName`
+// generates a path like `backups/{env}/…`).
+const SUPABASE_BUCKET = "backups";
 
-function getApp(): App {
-  if (cachedApp && getApps().length > 0) return cachedApp;
-  const serviceAccount = getFirebaseServiceAccount();
-  const bucket = getFirebaseStorageBucket();
-  if (!serviceAccount || !bucket) {
+let cachedClient: SupabaseClient | null = null;
+
+function getClient(): SupabaseClient {
+  if (cachedClient) return cachedClient;
+  const creds = getSupabaseStorageCredentials();
+  if (!creds) {
     throw new Error(
-      "Firebase is not configured. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, and FIREBASE_STORAGE_BUCKET to use backup storage.",
+      "Supabase storage is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to enable backup storage.",
     );
   }
-  // firebase-admin's `cert` accepts the { projectId, clientEmail, privateKey } shape.
-  const credential = cert(serviceAccount as ServiceAccount);
-  cachedApp = initializeApp({ credential, storageBucket: bucket });
-  return cachedApp;
-}
-
-function getBucket() {
-  return getStorage(getApp()).bucket();
+  cachedClient = createClient(creds.url, creds.serviceRoleKey, {
+    auth: { persistSession: false },
+  });
+  return cachedClient;
 }
 
 /** Run an async operation with bounded exponential backoff for transient errors. */
@@ -70,34 +60,32 @@ export interface ArchiveUploadResult {
   generation: string | undefined;
 }
 
-/** Resumable upload of an encrypted archive, with size verification on success. */
+/** Upload an encrypted archive to Supabase Storage and verify size. */
 export async function uploadEncryptedArchive(input: ArchiveUploadInput): Promise<ArchiveUploadResult> {
-  const bucket = getBucket();
+  const client = getClient();
   const localSize = statSync(input.localPath).size;
-
-  const file = await withRetry(async () => {
-    const [uploaded] = await bucket.upload(input.localPath, {
-      destination: input.objectName,
-      resumable: true,
+  const buffer = await import("fs/promises").then((m) => m.readFile(input.localPath));
+  await withRetry(async () => {
+    const { data, error } = await client.storage.from(SUPABASE_BUCKET).upload(input.objectName, buffer, {
       contentType: input.contentType,
-      metadata: { metadata: input.metadata },
+      upsert: false,
+      // Supabase does not support custom metadata directly on upload; store it
+      // later via `update` if needed. For our use‑case the backup metadata
+      // lives in the neighboring manifest JSON, so we ignore `input.metadata`.
     });
-    return uploaded;
+    if (error) throw error;
+    return data;
   });
-
-  const [remoteMeta] = await file.getMetadata();
-  const remoteSize = Number(remoteMeta.size ?? 0);
+  // Verify remote size via head request.
+  const { data: meta, error: metaErr } = await client.storage.from(SUPABASE_BUCKET).download(input.objectName);
+  if (metaErr) throw metaErr;
+  const remoteSize = meta.size;
   if (remoteSize !== localSize) {
     throw new Error(
       `Upload integrity check failed: local archive is ${localSize} bytes but the stored object is ${remoteSize} bytes.`,
     );
   }
-
-  const generation =
-    remoteMeta.generation === undefined || remoteMeta.generation === null
-      ? undefined
-      : String(remoteMeta.generation);
-  return { objectName: input.objectName, size: remoteSize, generation };
+  return { objectName: input.objectName, size: remoteSize, generation: undefined };
 }
 
 export interface BufferUploadInput {
@@ -107,88 +95,90 @@ export interface BufferUploadInput {
   metadata: Record<string, string>;
 }
 
-/** Upload an in-memory buffer (used by the optional Supabase Storage mirror). */
+/** Upload an in‑memory buffer (used by the optional Supabase Storage mirror). */
 export async function uploadBuffer(input: BufferUploadInput): Promise<void> {
-  const bucket = getBucket();
-  const file = bucket.file(input.objectName);
+  const client = getClient();
   await withRetry(async () => {
-    await file.save(input.buffer, {
+    const { error } = await client.storage.from(SUPABASE_BUCKET).upload(input.objectName, input.buffer, {
       contentType: input.contentType,
-      resumable: false,
-      metadata: { metadata: input.metadata },
+      upsert: false,
     });
+    if (error) throw error;
   });
 }
 
 /** Upload a small JSON string (e.g. a manifest) as a neighboring object. */
 export async function uploadJson(objectName: string, json: string, metadata?: Record<string, string>): Promise<void> {
-  const bucket = getBucket();
+  const client = getClient();
   const buffer = Buffer.from(json, "utf8");
-  const file = bucket.file(objectName);
   await withRetry(async () => {
-    await file.save(buffer, {
+    const { error } = await client.storage.from(SUPABASE_BUCKET).upload(objectName, buffer, {
       contentType: "application/json",
-      resumable: false,
-      metadata: metadata ? { metadata } : undefined,
+      upsert: false,
     });
+    if (error) throw error;
   });
 }
 
 /** Download an object to a local file path. */
 export async function downloadToFile(objectName: string, localPath: string): Promise<void> {
-  const bucket = getBucket();
-  await withRetry(async () => {
-    await bucket.file(objectName).download({ destination: localPath });
-  });
+  const client = getClient();
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).download(objectName);
+  if (error) throw error;
+  const fs = await import("fs/promises");
+  await fs.writeFile(localPath, Buffer.from(await data.arrayBuffer()));
 }
 
-/** Download an object and return its contents as a UTF-8 string (for manifests). */
+/** Download an object and return its contents as a UTF‑8 string (for manifests). */
 export async function downloadAsText(objectName: string): Promise<string> {
-  const bucket = getBucket();
-  const [buffer] = await withRetry(async () => bucket.file(objectName).download());
-  return buffer.toString("utf8");
+  const client = getClient();
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).download(objectName);
+  if (error) throw error;
+  return Buffer.from(await data.arrayBuffer()).toString("utf8");
 }
 
 export interface ListedObject {
   name: string;
   size: number;
-  updated: string | undefined;
+  // Supabase may return null for updated_at when unknown.
+  updated: string | null | undefined;
   customMetadata: Record<string, string> | undefined;
 }
 
 /** List object names under a prefix with basic metadata. */
 export async function listObjects(prefix: string): Promise<ListedObject[]> {
-  const bucket = getBucket();
-  const [files] = await bucket.getFiles({ prefix });
-  return files.map((file) => {
-    const meta = file.metadata as
-      | { size?: string; updated?: string; metadata?: Record<string, string> }
-      | undefined;
-    return {
-      name: file.name,
-      size: Number(meta?.size ?? 0),
-      updated: meta?.updated,
-      customMetadata: meta?.metadata,
-    };
-  });
+  const client = getClient();
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(prefix, { limit: 1000 });
+  if (error) throw error;
+  return (data ?? []).map((obj) => ({
+    name: obj.name,
+    size: obj.metadata?.size ? Number(obj.metadata.size) : 0,
+    updated: obj.updated_at,
+    // Supabase does not expose arbitrary custom metadata on list; leave undefined.
+    customMetadata: undefined,
+  }));
 }
 
 /** Delete a single object. */
 export async function deleteObject(objectName: string): Promise<void> {
-  const bucket = getBucket();
-  await bucket.file(objectName).delete();
+  const client = getClient();
+  const { error } = await client.storage.from(SUPABASE_BUCKET).remove([objectName]);
+  if (error) throw error;
 }
 
 /** Whether an object exists. */
 export async function objectExists(objectName: string): Promise<boolean> {
-  const bucket = getBucket();
-  const [exists] = await bucket.file(objectName).exists();
-  return exists;
+  const client = getClient();
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(objectName);
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
 }
 
 /** Fetch full object metadata. */
 export async function getObjectMetadata(objectName: string) {
-  const bucket = getBucket();
-  const [meta] = await bucket.file(objectName).getMetadata();
-  return meta;
+  const client = getClient();
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).download(objectName);
+  if (error) throw error;
+  // Supabase returns a Blob; we expose size and updated_at.
+  return { size: data.size, updated_at: (data as any).lastModified };
 }
