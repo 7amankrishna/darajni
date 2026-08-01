@@ -249,7 +249,7 @@ decrypt, and `pg_restore` (typically minutes for small/medium databases).
 
 ---
 
-## 9. Testing
+## 9. Testing...
 
 ```bash
 npx vitest run lib/backup/__tests__   # 126 unit tests
