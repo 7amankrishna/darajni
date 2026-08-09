@@ -251,7 +251,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                     </button>
                   </div>
                   <div className="mt-5 flex items-end justify-between gap-3 sm:mt-auto">
-                    <div className="flex items-center rounded-xl border border-border bg-white">
+                    <div className="flex items-center rounded-xl border border-border bg-surface">
                       <button
                         type="button"
                         onClick={() =>
@@ -262,7 +262,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
-                      <span className="min-w-8 text-center text-sm font-semibold">
+                      <span className="min-w-8 text-center text-sm font-semibold text-text-primary">
                         {item.quantity}
                       </span>
                       <button

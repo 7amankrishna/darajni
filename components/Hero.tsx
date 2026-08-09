@@ -15,13 +15,13 @@ export default function Hero({
   return (
     <section
       id="home"
-      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-primary text-surface"
+      className="relative mt-[74px] flex min-h-[calc(92vh-74px)] w-full flex-col justify-between overflow-hidden bg-primary text-surface lg:mt-0 lg:min-h-[92vh]"
     >
       {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
       <div className="absolute inset-0 z-0">
         <ProductImage
           src={heroImage}
-          alt="DARAJNI High Couture Collection"
+          alt="DARAJNI designer collection"
           sizes="100vw"
           priority
           className="h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
@@ -33,11 +33,7 @@ export default function Hero({
       {/* Cinematic Center/Left Overlay Copy */}
       <div className="section-shell relative z-10 pt-28 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20 animate-fade-up">
         <div className="max-w-3xl">
-          <p className="eyebrow text-accent">
-            DARAJNI High Couture
-          </p>
-
-          <h1 className="font-display mt-4 text-5xl font-light tracking-wide text-surface sm:text-7xl lg:text-8xl">
+          <h1 className="font-display text-5xl font-light tracking-wide text-surface sm:text-7xl lg:text-8xl">
             Timeless Indian Couture
           </h1>
 

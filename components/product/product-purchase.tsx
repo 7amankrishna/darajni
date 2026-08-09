@@ -114,8 +114,8 @@ export function ProductPurchase({
               onClick={() => setSize(option)}
               className={`min-h-11 rounded-xl border px-4 text-xs font-extrabold transition ${
                 option === size
-                  ? "border-text-primary bg-text-primary text-surface text-white"
-                  : "border-border bg-white text-text-secondary hover:border-[#B8893B]"
+                  ? "border-primary bg-primary text-white dark:text-[#121212]"
+                  : "border-border bg-surface text-text-secondary hover:border-accent"
               }`}
             >
               {option}
@@ -160,7 +160,7 @@ export function ProductPurchase({
           >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="min-w-10 text-center text-sm font-semibold">{quantity}</span>
+          <span className="min-w-10 text-center text-sm font-semibold text-text-primary">{quantity}</span>
           <button
             type="button"
             onClick={() =>
