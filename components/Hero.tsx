@@ -15,7 +15,7 @@ export default function Hero({
   return (
     <section
       id="home"
-      className="relative mt-[74px] flex min-h-[calc(92vh-74px)] w-full flex-col justify-between overflow-hidden bg-primary text-surface lg:mt-0 lg:min-h-[92vh]"
+      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-primary text-surface"
     >
       {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
       <div className="absolute inset-0 z-0">
