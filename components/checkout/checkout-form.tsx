@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowRight,
   CreditCard,
   Loader2,
   MessageCircle,
@@ -65,6 +66,8 @@ const initialCustomer: CheckoutCustomer = {
   email: "",
 };
 
+const checkoutSteps = ["Contact", "Address", "Size help", "Order", "Payment"];
+
 function customerFromProfile(
   profile?: CustomerProfile | null,
 ): CheckoutCustomer {
@@ -116,8 +119,9 @@ export function CheckoutForm({
     customerFromProfile(customerProfile),
   );
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "payu" | "razorpay">(
-    "payu",
+    settings.codEnabled ? "cod" : "payu",
   );
+  const [currentStep, setCurrentStep] = useState(1);
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<CheckoutPromoQuote | null>(
     null,
@@ -149,6 +153,7 @@ export function CheckoutForm({
       "confirmation-pending": "Payment confirmation is still pending. Please do not pay again; contact support if this does not update shortly.",
     };
     setError(messages[payment] || "Payment could not be completed. Please try again.");
+    setCurrentStep(5);
   }, [searchParams]);
 
   const totals = useMemo(() => {
@@ -174,6 +179,34 @@ export function CheckoutForm({
 
   const setField = (field: keyof CheckoutCustomer, value: string) => {
     setCustomer((current) => ({ ...current, [field]: value }));
+  };
+
+  const validateStep = (step: number) => {
+    const fieldsByStep: Record<number, string[]> = {
+      1: ["checkout-name", "checkout-phone", "checkout-email"],
+      2: [
+        "checkout-pincode",
+        "checkout-address",
+        "checkout-city",
+        "checkout-state",
+      ],
+    };
+    const invalidField = fieldsByStep[step]
+      ?.map((id) => document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)
+      .find((field) => field && !field.checkValidity());
+
+    if (invalidField) {
+      invalidField.reportValidity();
+      return false;
+    }
+
+    return true;
+  };
+
+  const goToNextStep = () => {
+    if (!validateStep(currentStep)) return;
+    setError("");
+    setCurrentStep((step) => Math.min(step + 1, 5));
   };
 
   const cancelReservation = async (token: string, paymentFailed = false) => {
@@ -427,7 +460,11 @@ export function CheckoutForm({
     <main className="bg-background py-12 sm:py-16">
       <form
         onSubmit={submit}
-        className="section-shell grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]"
+        className={`section-shell min-w-0 ${
+          currentStep === 5
+            ? "grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]"
+            : "max-w-3xl"
+        }`}
       >
         <div>
           <p className="eyebrow">
@@ -437,33 +474,61 @@ export function CheckoutForm({
             Place your order securely.
           </h1>
           <p className="mt-4 text-sm leading-7 text-text-secondary">
-            A guided checkout for contact details, delivery address,
-            custom-size support and payment. We use this information only for
-            order updates and delivery.
+            Complete one small step at a time. We use this information only
+            for order updates and delivery.
           </p>
 
-          <div className="mt-7 flex flex-col space-x-4 sm:flex-row">
-          <div className="flex-1 border-b border-border pb-2">
-            <span className="text-xs font-extrabold uppercase text-accent">1</span>
-            <span className="ml-2 text-[0.87rem] font-medium text-text-primary">Details</span>
+          <div className="mt-8" aria-label={`Checkout step ${currentStep} of 5`}>
+            <div
+              className="h-1.5 overflow-hidden rounded-full bg-border"
+              role="progressbar"
+              aria-valuemin={1}
+              aria-valuemax={checkoutSteps.length}
+              aria-valuenow={currentStep}
+            >
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-300"
+                style={{ width: `${(currentStep / checkoutSteps.length) * 100}%` }}
+              />
+            </div>
+            <ol className="mt-3 grid grid-cols-5 gap-1 text-center text-[0.62rem] font-bold uppercase tracking-wide sm:text-xs">
+              {checkoutSteps.map((label, index) => {
+                const step = index + 1;
+                const isAvailable = step < currentStep;
+                return (
+                  <li key={label}>
+                    <button
+                      type="button"
+                      onClick={() => isAvailable && setCurrentStep(step)}
+                      disabled={!isAvailable}
+                      className={`w-full ${
+                        step === currentStep
+                          ? "text-accent"
+                          : isAvailable
+                            ? "text-text-primary hover:text-accent"
+                            : "text-text-secondary/60"
+                      }`}
+                      aria-current={step === currentStep ? "step" : undefined}
+                    >
+                      <span className="block">{step}</span>
+                      <span className="mt-1 block normal-case tracking-normal">{label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-          <span className="mx-2 text-[0.87rem] text-text-secondary">→</span>
-          <div className="flex-1 border-b border-border pb-2">
-            <span className="text-xs font-extrabold uppercase text-accent">2</span>
-            <span className="ml-2 text-[0.87rem] font-medium text-text-primary">Delivery</span>
-          </div>
-          <span className="mx-2 text-[0.87rem] text-text-secondary">→</span>
-          <div className="flex-1 border-b border-border pb-2">
-            <span className="text-xs font-extrabold uppercase text-accent">3</span>
-            <span className="ml-2 text-[0.87rem] font-medium text-text-primary">Size</span>
-          </div>
-          <span className="mx-2 text-[0.87rem] text-text-secondary">→</span>
-          <div className="flex-1 border-b border-border pb-2">
-            <span className="text-xs font-extrabold uppercase text-accent">4</span>
-            <span className="ml-2 text-[0.87rem] font-medium text-text-primary">Payment</span>
-          </div>
-        </div>
 
+          {error && (
+            <p
+              role="alert"
+              className="mt-6 rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-xs leading-5 text-red-800"
+            >
+              {error}
+            </p>
+          )}
+
+          {currentStep === 1 && (
           <section className="mt-8 rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
               <UserRound className="h-5 w-5 text-accent" />
@@ -504,7 +569,7 @@ export function CheckoutForm({
               </div>
               <div>
                 <label htmlFor="checkout-email" className="field-label">
-                  Email{paymentMethod === "payu" ? "" : " (optional)"}
+                  Email <span className="normal-case">(optional)</span>
                 </label>
                 <input
                   id="checkout-email"
@@ -514,7 +579,6 @@ export function CheckoutForm({
                   className="field"
                   autoComplete="email"
                   maxLength={254}
-                  required={paymentMethod === "payu"}
                 />
               </div>
               <label className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-surface-alt p-4 text-xs font-semibold text-text-secondary">
@@ -532,7 +596,9 @@ export function CheckoutForm({
               confirmation.
             </p>
           </section>
+          )}
 
+          {currentStep === 2 && (
           <section className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
               <Truck className="h-5 w-5 text-accent" />
@@ -617,7 +683,9 @@ export function CheckoutForm({
               </div>
             </div>
           </section>
+          )}
 
+          {currentStep === 3 && (
           <section className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <div className="flex items-center gap-3">
               <Ruler className="h-5 w-5 text-accent" />
@@ -660,7 +728,9 @@ export function CheckoutForm({
               )}
             </div>
           </section>
+          )}
 
+          {currentStep === 5 && (
           <section className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.07)] sm:p-7">
             <p className="eyebrow">Payment Options</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -715,6 +785,27 @@ export function CheckoutForm({
                 </p>
               </button>
             </div>
+
+            {paymentMethod === "payu" && !customer.email && (
+              <div className="mt-5 rounded-xl border border-accent/30 bg-surface-alt p-4">
+                <label htmlFor="checkout-payment-email" className="field-label">
+                  Email for secure online payment
+                </label>
+                <input
+                  id="checkout-payment-email"
+                  type="email"
+                  value={customer.email}
+                  onChange={(event) => setField("email", event.target.value)}
+                  className="field mt-2"
+                  autoComplete="email"
+                  maxLength={254}
+                  required
+                />
+                <p className="mt-2 text-xs leading-5 text-text-secondary">
+                  An email is only needed for the PayU payment receipt.
+                </p>
+              </div>
+            )}
             
             {/* Authenticity & Accepted Card Logos */}
             <div className="mt-5 pt-4 border-t border-border">
@@ -744,8 +835,32 @@ export function CheckoutForm({
               </div>
             </div>
           </section>
+          )}
+
+          {currentStep !== 4 && (
+          <div className="mt-6 flex items-center justify-between gap-3">
+            {currentStep > 1 ? (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((step) => step - 1)}
+                className="secondary-button"
+              >
+                Back
+              </button>
+            ) : (
+              <span />
+            )}
+            {currentStep < 5 && (
+              <button type="button" onClick={goToNextStep} className="primary-button">
+                {currentStep === 4 ? "Continue to payment" : "Continue"}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          )}
         </div>
 
+        {currentStep >= 4 && (
         <aside className="h-fit min-w-0 rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-6 lg:sticky lg:top-32">
           <p className="eyebrow">Your order</p>
           <div className="mt-5 max-h-80 space-y-4 overflow-y-auto pr-1">
@@ -857,39 +972,51 @@ export function CheckoutForm({
               {formatPrice(totals.total)}
             </span>
           </div>
-          {error && (
-            <p
-              role="alert"
-              className="mt-5 rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-xs leading-5 text-red-800"
-            >
-              {error}
-            </p>
+          {currentStep === 4 && (
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="secondary-button"
+              >
+                Back
+              </button>
+              <button type="button" onClick={goToNextStep} className="primary-button">
+                Continue to payment
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           )}
-          <button
-            type="submit"
-            disabled={busy}
-            className="primary-button mt-6 w-full"
-          >
-            {busy ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <PackageCheck className="h-4 w-4" />
-                {paymentMethod === "cod" ? "Place COD order" : "Place Order Securely"}
-              </>
-            )}
-          </button>
-          <div className="mt-4 rounded-xl bg-surface-alt p-4 text-center text-[0.68rem] leading-5 text-text-secondary">
-            PayU secure payment | Order total rechecked | WhatsApp support
-          </div>
-          <Link href="/support" className="secondary-button mt-3 w-full">
-            <MessageCircle className="h-4 w-4" />
-            Need help?
-          </Link>
+          {currentStep === 5 && (
+            <>
+              <button
+                type="submit"
+                disabled={busy}
+                className="primary-button mt-6 w-full"
+              >
+                {busy ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <PackageCheck className="h-4 w-4" />
+                    {paymentMethod === "cod" ? "Place COD order" : "Place Order Securely"}
+                  </>
+                )}
+              </button>
+              <div className="mt-4 rounded-xl bg-surface-alt p-4 text-center text-[0.68rem] leading-5 text-text-secondary">
+                Secure payment | Order total rechecked | WhatsApp support
+              </div>
+              <Link href="/support" className="secondary-button mt-3 w-full">
+                <MessageCircle className="h-4 w-4" />
+                Need help?
+              </Link>
+            </>
+          )}
         </aside>
+        )}
       </form>
     </main>
   );
