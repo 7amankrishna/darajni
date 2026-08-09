@@ -1,5 +1,8 @@
+"use client";
+
 import { ChevronDown, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { ProductImage } from "@/components/product/product-image";
 import type { Product } from "@/types/commerce";
@@ -9,8 +12,23 @@ export default function Hero({
 }: {
   products: Product[];
 }) {
-  const featuredProduct = products.find((product) => product.isFeatured) ?? products[0] ?? null;
+  const featuredProducts = products.filter((product) => product.isFeatured);
+  const heroProducts = featuredProducts.length ? featuredProducts : products;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const featuredProduct = heroProducts[activeIndex] ?? null;
   const heroImage = featuredProduct?.images[0] ?? "/logo.webp";
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [heroProducts.length]);
+
+  useEffect(() => {
+    if (heroProducts.length < 2) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % heroProducts.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [heroProducts.length]);
 
   return (
     <section
@@ -20,11 +38,12 @@ export default function Hero({
       {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
       <div className="absolute inset-0 z-0">
         <ProductImage
+          key={featuredProduct?.id ?? "hero-fallback"}
           src={heroImage}
           alt="DARAJNI designer collection"
           sizes="100vw"
           priority
-          className="h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
+          className="hero-background-image h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/50" />
