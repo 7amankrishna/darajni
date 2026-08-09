@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import DesignCard from "@/components/DesignCard";
 import DressShowcase from "@/components/DressShowcase";
+import { FeaturedProductsSlider } from "@/components/featured-products-slider";
 import Hero from "@/components/Hero";
 import { HomepageLaunchSliderLazy } from "@/components/homepage-launch-slider-lazy";
 import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-homepage-teaser";
@@ -218,11 +218,7 @@ export default async function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                {featured.map((product) => (
-                  <DesignCard key={product.id} product={product} />
-                ))}
-              </div>
+              <FeaturedProductsSlider products={featured} />
             </div>
           </section>
         )}
