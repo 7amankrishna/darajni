@@ -128,6 +128,11 @@
   --accent-hover: #CEA86A;
   --success: #2E7D32;
   --error: #C62828;
+  --cream: #FFFDF8;
+  --blush: #FFF8EF;
+  --ivory: #FAF8F5;
+  --ink: #2A211B;
+  --muted: #6E645D;
   --radius: 18px;
   
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -151,6 +156,11 @@
   --accent-hover: #E1B86F;
   --success: #4CAF50;
   --error: #FF6B6B;
+  --cream: #1C1C1E;
+  --blush: #181512;
+  --ivory: #121212;
+  --ink: #F8F6F3;
+  --muted: #B3ACA5;
 }
 
 *,

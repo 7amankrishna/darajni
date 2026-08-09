@@ -58,26 +58,26 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
   };
 
   return (
-    <section className="bg-[#FFF8EF] py-14 sm:py-20" aria-labelledby="homepage-launches-title">
+    <section className="bg-background py-14 sm:py-20" aria-labelledby="homepage-launches-title">
       <div className="section-shell">
         <div
-          className="relative overflow-hidden rounded-[2rem] border border-[#B8893B]/30 bg-[#171717] text-[#FFFDF8] shadow-[0_28px_70px_rgba(83,54,22,0.16)]"
+          className="relative overflow-hidden rounded-[2rem] border border-accent/30 bg-[#171717] text-[#FFFDF8] shadow-[0_28px_70px_rgba(83,54,22,0.16)] dark:bg-[#0F0F10] dark:text-text-primary dark:shadow-[0_28px_70px_rgba(0,0,0,0.38)]"
           role="region"
           aria-roledescription="carousel"
           aria-label="Homepage launches"
         >
           <div className="grid min-h-[31rem] md:grid-cols-[0.96fr_1.04fr] md:min-h-[34rem]">
             <div className="relative order-2 flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-14 md:order-1 lg:px-14">
-              <span className="absolute left-0 top-0 h-36 w-36 rounded-full bg-[#B8893B]/15 blur-3xl" />
+              <span className="absolute left-0 top-0 h-36 w-36 rounded-full bg-accent/15 blur-3xl" />
               <div className="relative z-10 max-w-xl">
-                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.15em] text-[#E7C47F]">
+                <p className="text-[0.68rem] font-extrabold uppercase tracking-[0.15em] text-accent">
                   {activeSlide.eyebrow || "New at DARAJNI"}
                 </p>
                 <h2 id="homepage-launches-title" className="font-display mt-4 text-5xl leading-[0.9] sm:text-6xl">
                   {activeSlide.title}
                 </h2>
                 {activeSlide.description && (
-                  <p className="mt-5 max-w-lg text-sm leading-7 text-[#FFF8EF]/76">
+                  <p className="mt-5 max-w-lg text-sm leading-7 text-[#FFF8EF]/76 dark:text-text-secondary">
                     {activeSlide.description}
                   </p>
                 )}
@@ -91,7 +91,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                   <button
                     type="button"
                     onClick={showPrevious}
-                    className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white transition hover:border-[#E7C47F] hover:bg-white/10"
+                    className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white transition hover:border-accent hover:bg-white/10"
                     aria-label="Show previous launch"
                   >
                     <ChevronLeft className="h-5 w-5" />
@@ -99,7 +99,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                   <button
                     type="button"
                     onClick={showNext}
-                    className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white transition hover:border-[#E7C47F] hover:bg-white/10"
+                    className="grid h-11 w-11 place-items-center rounded-full border border-white/20 text-white transition hover:border-accent hover:bg-white/10"
                     aria-label="Show next launch"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -112,7 +112,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
                         onClick={() => setActiveIndex(index)}
                         className={`h-2.5 rounded-full transition ${
                           index === activeIndex
-                            ? "w-7 bg-[#E7C47F]"
+                            ? "w-7 bg-accent"
                             : "w-2.5 bg-white/35 hover:bg-white/60"
                         }`}
                         aria-label={`Show ${slide.title}`}
@@ -124,7 +124,7 @@ export function HomepageLaunchSlider({ slides }: { slides: HomepageSlide[] }) {
               )}
             </div>
 
-            <div className="relative order-1 min-h-72 overflow-hidden bg-[#F6E9DD] md:order-2">
+            <div className="relative order-1 min-h-72 overflow-hidden bg-surface-alt md:order-2">
               {activeSlide.videoUrl ? (
                 <VideoPlayer
                   src={activeSlide.videoUrl}

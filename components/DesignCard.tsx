@@ -15,9 +15,9 @@ export default function DesignCard({ product }: { product: Product }) {
     : product.fabric;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#E8E2DA]/70 bg-[#FAF7F2] shadow-[0_10px_30px_rgba(58,46,37,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-[#C8A97E]/60 hover:shadow-[0_20px_48px_rgba(58,46,37,0.1)]">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_10px_30px_rgba(58,46,37,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_20px_48px_rgba(58,46,37,0.1)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
       {/* Media Box with Portrait 3:4 Ratio & Slow Cinematic Scale */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F5EFEB]">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt">
         <Link href={`/design/${product.slug}`} className="block h-full w-full">
           <ProductImage
             src={image}
@@ -54,30 +54,30 @@ export default function DesignCard({ product }: { product: Product }) {
       <div className="flex flex-1 flex-col justify-between p-5">
         <div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[0.65rem] font-extrabold uppercase tracking-widest text-[#C8A97E]">
+            <span className="text-[0.65rem] font-extrabold uppercase tracking-widest text-accent">
               {product.category.name}
             </span>
             {product.isFeatured && (
-              <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase text-[#A88656]">
-                <Sparkles className="h-3 w-3 text-[#C8A97E]" />
+              <span className="inline-flex items-center gap-1 text-[0.6rem] font-bold uppercase text-accent">
+                <Sparkles className="h-3 w-3 text-accent" />
                 Featured
               </span>
             )}
           </div>
 
-          <h3 className="font-display mt-1 text-2xl font-normal leading-snug text-[#1E1E1E]">
-            <Link href={`/design/${product.slug}`} className="transition hover:text-[#C8A97E]">
+          <h3 className="font-display mt-1 text-2xl font-normal leading-snug text-text-primary">
+            <Link href={`/design/${product.slug}`} className="transition hover:text-accent">
               {product.name}
             </Link>
           </h3>
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-[#E8E2DA]/60 pt-3">
-          <span className="font-display text-2xl font-semibold text-[#111111]">
+        <div className="mt-4 flex items-baseline justify-between border-t border-border pt-3">
+          <span className="font-display text-2xl font-semibold text-text-primary">
             {formatPrice(price)}
           </span>
           {product.discount > 0 && (
-            <span className="text-xs text-[#666666] line-through">
+            <span className="text-xs text-text-secondary line-through">
               {formatPrice(product.price)}
             </span>
           )}
