@@ -7,7 +7,10 @@ import { createOrderAccessToken } from "@/lib/security/order-token";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { syncShiprocketOrder } from "@/lib/shiprocket";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { sendOrderNotification } from "@/lib/email";
+import {
+  sendOrderNotification,
+  sendCustomerOrderPlacedEmail,
+} from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -134,6 +137,7 @@ async function processPayUReturn(request: Request, body: PayUFields) {
         city: order.city,
         state: order.state,
       });
+      await sendCustomerOrderPlacedEmail(order.id);
     }
   });
   try {

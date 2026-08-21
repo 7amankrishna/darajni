@@ -23,7 +23,10 @@ import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { checkoutSchema } from "@/lib/validation/checkout";
-import { sendOrderNotification } from "@/lib/email";
+import {
+  sendOrderNotification,
+  sendCustomerOrderPlacedEmail,
+} from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -187,6 +190,7 @@ export async function POST(request: Request) {
         city: customer.city,
         state: customer.state,
       });
+      await sendCustomerOrderPlacedEmail(order.order_id);
     });
     return NextResponse.json({
       mode: "cod",

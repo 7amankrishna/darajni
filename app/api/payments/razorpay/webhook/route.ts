@@ -10,7 +10,10 @@ import {
 } from "@/lib/security/api-response";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
-import { sendOrderNotification } from "@/lib/email";
+import {
+  sendOrderNotification,
+  sendCustomerOrderPlacedEmail,
+} from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -107,6 +110,7 @@ export async function POST(request: Request) {
       city: order.city,
       state: order.state,
     });
+    await sendCustomerOrderPlacedEmail(order.id);
   });
 
   return NextResponse.json({ received: true });

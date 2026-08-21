@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { getShiprocketWebhookToken } from "@/lib/config/server-env";
 import {
@@ -11,6 +11,7 @@ import {
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type { OrderStatus } from "@/types/database";
+import { sendCustomerStatusUpdateEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -188,6 +189,10 @@ export async function POST(request: Request) {
   // Surface the change in the admin order list. The customer dashboard updates
   // automatically through Supabase Realtime on the orders table.
   revalidatePath("/admin");
+  
+  after(async () => {
+    await sendCustomerStatusUpdateEmail(sync.order_id, target);
+  });
 
   return NextResponse.json({
     received: true,

@@ -1,5 +1,5 @@
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 import { authorizeAdminRequest } from "@/lib/security/admin-api";
 import { apiError, internalApiError } from "@/lib/security/api-response";
@@ -10,6 +10,7 @@ import {
   isAllowedOrderTransition,
   orderStatusSchema,
 } from "@/lib/validation/admin";
+import { sendCustomerStatusUpdateEmail } from "@/lib/email";
 
 export async function PATCH(
   request: Request,
@@ -95,6 +96,11 @@ export async function PATCH(
   revalidatePath("/admin");
   revalidatePath(`/admin/orders/${id}/invoice`);
   revalidatePath(`/admin/orders/${id}/packing-slip`);
+  
+  after(async () => {
+    await sendCustomerStatusUpdateEmail(id, parsed.data.status);
+  });
+
   return NextResponse.json({
     status: parsed.data.status,
     deleted: parsed.data.status === "cancelled",
