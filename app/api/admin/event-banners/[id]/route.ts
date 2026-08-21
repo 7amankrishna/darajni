@@ -7,14 +7,14 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await requireAdminApi();
     const supabase = createSupabaseServiceClient();
     if (!supabase) throw new Error("Supabase service role is not configured.");
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     const { data: current } = await supabase
@@ -55,14 +55,14 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     await requireAdminApi();
     const supabase = createSupabaseServiceClient();
     if (!supabase) throw new Error("Supabase service role is not configured.");
 
-    const { id } = params;
+    const { id } = await params;
     const { data: current } = await supabase
       .from("event_banners")
       .select("image_url")
