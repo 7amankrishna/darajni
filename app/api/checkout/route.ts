@@ -23,6 +23,7 @@ import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { isSameOrigin, readJsonBody } from "@/lib/security/request";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import { checkoutSchema } from "@/lib/validation/checkout";
+import { sendOrderNotification } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -177,7 +178,16 @@ export async function POST(request: Request) {
   if (paymentMethod === "cod") {
     // The customer order is committed before this side effect. Shiprocket
     // failures are retained for retry and never invalidate a completed order.
-    after(() => syncShiprocketOrder(order.order_id));
+    after(() => {
+      syncShiprocketOrder(order.order_id);
+      sendOrderNotification(order.order_number, order.total, {
+        name: customer.customerName,
+        email: customer.email || "",
+        phone: customer.phone,
+        city: customer.city,
+        state: customer.state,
+      });
+    });
     return NextResponse.json({
       mode: "cod",
       orderNumber: order.order_number,

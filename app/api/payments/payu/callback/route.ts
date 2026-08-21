@@ -7,6 +7,7 @@ import { createOrderAccessToken } from "@/lib/security/order-token";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { syncShiprocketOrder } from "@/lib/shiprocket";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { sendOrderNotification } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -43,7 +44,7 @@ async function processPayUReturn(request: Request, body: PayUFields) {
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
-    .select("id, total, payment_method, payment_status, payu_txn_id")
+    .select("id, order_number, total, payment_method, payment_status, payu_txn_id, customer_name, email, phone, city, state")
     .eq("payu_txn_id", txnid)
     .maybeSingle();
   if (
@@ -123,7 +124,18 @@ async function processPayUReturn(request: Request, body: PayUFields) {
     if (confirmError) return redirectToCheckout(request, "confirmation-pending");
   }
 
-  after(() => syncShiprocketOrder(order.id));
+  after(() => {
+    syncShiprocketOrder(order.id);
+    if (order.payment_status !== "paid") {
+      sendOrderNotification(order.order_number, order.total, {
+        name: order.customer_name,
+        email: order.email || "",
+        phone: order.phone,
+        city: order.city,
+        state: order.state,
+      });
+    }
+  });
   try {
     return redirectToSuccess(request, createOrderAccessToken(order.id));
   } catch {

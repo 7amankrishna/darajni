@@ -10,6 +10,7 @@ import {
 } from "@/lib/security/api-response";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
+import { sendOrderNotification } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
-    .select("id, payment_status")
+    .select("id, order_number, total, payment_status, customer_name, email, phone, city, state")
     .eq("razorpay_order_id", razorpayOrderId)
     .maybeSingle();
   if (orderError) {
@@ -97,7 +98,16 @@ export async function POST(request: Request) {
     );
   }
 
-  after(() => syncShiprocketOrder(order.id));
+  after(() => {
+    syncShiprocketOrder(order.id);
+    sendOrderNotification(order.order_number, order.total, {
+      name: order.customer_name,
+      email: order.email || "",
+      phone: order.phone,
+      city: order.city,
+      state: order.state,
+    });
+  });
 
   return NextResponse.json({ received: true });
 }
