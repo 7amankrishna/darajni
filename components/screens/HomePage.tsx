@@ -195,6 +195,7 @@ export default async function HomePage() {
       />
       <main id="main-content">
         <Hero products={products} />
+        <EventsSlider eventBanners={eventBanners} />
         <HomepageLaunchSliderLazy slides={homepageSlides} />
         
         {/* Collection Section ID anchor */}
@@ -226,7 +227,6 @@ export default async function HomePage() {
           </section>
         )}
 
-        <EventsSlider eventBanners={eventBanners} />
 
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
         <PolicyPreview />
