@@ -67,7 +67,7 @@ export default function Navbar({
     : `Support: ${siteConfig.email}`;
   const navLinks = [
     { label: "Collection", href: "/collection" },
-    ...availableCategories.slice(0, 4).map((category) => ({
+    ...availableCategories.slice(0, 3).map((category) => ({
       label: category.name,
       href: `/collection?category=${encodeURIComponent(category.slug)}`,
     })),
@@ -135,7 +135,7 @@ export default function Navbar({
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="group flex items-center gap-3"
+            className="group flex shrink-0 items-center gap-3"
             aria-label="DARAJNI Homepage"
           >
             <BrandLogo className="h-10 w-10 border border-accent/35 bg-surface transition-transform group-hover:scale-105 sm:h-12 sm:w-12" />
@@ -149,12 +149,12 @@ export default function Navbar({
             </span>
           </Link>
 
-          <div className="hidden items-center justify-center gap-4 xl:flex">
+          <div className="hidden flex-1 items-center justify-center gap-1.5 px-2 xl:flex 2xl:gap-4">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="relative whitespace-nowrap p-2.5 text-text-primary transition hover:text-accent"
+                className="relative whitespace-nowrap p-1.5 text-[0.8rem] font-medium text-text-primary transition hover:text-accent 2xl:p-2.5 2xl:text-base"
               >
                 {link.label}
               </Link>
