@@ -305,8 +305,7 @@ export async function sendCustomerStatusUpdateEmail(orderId: string, newStatus: 
     
     <div style="background-color: #fafafa; padding: 20px; border-radius: 6px; margin: 0 0 30px; text-align: center; border: 1px solid #eaeaea;">
       <p style="margin: 0 0 5px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif;">Order Number</p>
-      <p style="margin: 0 0 15px; font-size: 18px; font-weight: 600;">${order.order_number}</p>
-      <p style="margin: 0; font-size: 18px; color: #D9B56B; font-weight: bold;">${capitalizedStatus}</p>
+      <p style="margin: 0; font-size: 18px; font-weight: 600;">${order.order_number}</p>
     </div>
 
     <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #555555; text-align: center;">
