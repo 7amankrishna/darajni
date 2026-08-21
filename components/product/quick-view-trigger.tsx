@@ -1,9 +1,9 @@
 "use client";
 
-import { Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { formatPrice } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
@@ -20,11 +20,32 @@ import {
 
 export function QuickViewTrigger({ product }: { product: Product }) {
   const [open, setOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const price = getProductPrice(product);
-  const image = product.images[0] || "/logo.webp";
+  const images = product.images.length > 0 ? product.images : ["/logo.webp"];
   const fabricTag = isProductInformationUncertain(product.fabric)
     ? "Handcrafted Silk"
     : product.fabric;
+
+  const scrollNext = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: "smooth" });
+    }
+  };
+
+  const scrollPrev = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: "smooth" });
+    }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const index = Math.round(target.scrollLeft / target.clientWidth);
+    setCurrentImageIndex(index);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -44,19 +65,58 @@ export function QuickViewTrigger({ product }: { product: Product }) {
       
       <DialogContent className="max-w-3xl overflow-hidden bg-surface text-text-primary sm:p-0">
         <div className="grid sm:grid-cols-[1fr_1.2fr]">
-          <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt sm:h-full sm:aspect-auto">
-            <Image
-              src={image}
-              alt={product.name}
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 640px) 100vw, 33vw"
-            />
-            <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt sm:h-full sm:aspect-auto group/gallery">
+            <div
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+              {images.map((img, i) => (
+                <div key={i} className="relative h-full w-full shrink-0 snap-center">
+                  <Image
+                    src={img}
+                    alt={`${product.name} - view ${i + 1}`}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                  />
+                </div>
+              ))}
+            </div>
+            
+            <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
               <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#FAF7F2] backdrop-blur-sm">
                 {fabricTag}
               </span>
             </div>
+
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={scrollPrev}
+                  className="absolute left-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={scrollNext}
+                  className="absolute right-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+                
+                <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 pointer-events-none">
+                  {images.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1.5 rounded-full transition-all ${
+                        i === currentImageIndex ? "w-4 bg-surface" : "w-1.5 bg-surface/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           
           <div className="flex flex-col justify-center p-6 sm:p-8">
