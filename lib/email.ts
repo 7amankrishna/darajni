@@ -84,8 +84,12 @@ function getBaseTemplate(content: string) {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Import Cormorant Garamond font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #fafafa; color: #111111;">
+      <body style="margin: 0; padding: 0; font-family: 'Cormorant Garamond', 'Times New Roman', serif; background-color: #fafafa; color: #111111;">
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafafa; padding: 40px 0;">
           <tr>
             <td align="center">
@@ -232,7 +236,7 @@ export async function sendCustomerStatusUpdateEmail(orderId: string, newStatus: 
     </p>
 
     <div style="text-align: center; margin-top: 30px;">
-      <a href="https://www.darajni.in/track" style="background-color: #111111; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600; display: inline-block;">Track Order Status</a>
+      <a href="https://www.darajni.in/track" style="background-color: #111111; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-size: 16px; font-weight: 600; display: inline-block;">Track Order Status</a>
     </div>
   `;
 
