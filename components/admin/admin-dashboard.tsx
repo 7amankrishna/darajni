@@ -15,6 +15,7 @@ import { useState } from "react";
 
 import { AnalyticsPanel } from "@/components/admin/analytics-panel";
 import { ApprovalsManagement } from "@/components/admin/approvals-management";
+import { EventsManagement } from "@/components/admin/events-management";
 import { HomepageSlideManagement } from "@/components/admin/homepage-slide-management";
 import { OrderManagement } from "@/components/admin/order-management";
 import { ProductManagement } from "@/components/admin/product-management";
@@ -28,6 +29,7 @@ type Tab =
   | "orders"
   | "products"
   | "approvals"
+  | "events"
   | "launches"
   | "promos"
   | "settings";
@@ -37,7 +39,8 @@ const tabs: Array<{ value: Tab; label: string; icon: any }> = [
   { value: "orders", label: "Orders", icon: ShoppingBag },
   { value: "products", label: "Products", icon: Package },
   { value: "approvals", label: "Approvals", icon: CheckCircle },
-  { value: "launches", label: "Launches", icon: Megaphone },
+  { value: "events", label: "Events", icon: Megaphone },
+  { value: "launches", label: "Launches", icon: Tag },
   { value: "promos", label: "Promos", icon: Tag },
   { value: "settings", label: "Settings", icon: Settings },
 ];
@@ -117,6 +120,9 @@ export function AdminDashboard({
               dresses={data.requestedDresses}
               comments={data.dressComments}
             />
+          )}
+          {tab === "events" && (
+            <EventsManagement banners={data.eventBanners} />
           )}
           {tab === "launches" && (
             <HomepageSlideManagement slides={data.homepageSlides} />

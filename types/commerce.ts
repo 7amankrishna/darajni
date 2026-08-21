@@ -55,6 +55,17 @@ export interface HomepageSlide {
   updatedAt: string;
 }
 
+export interface EventBanner {
+  id: string;
+  title: string;
+  imageUrl: string;
+  linkUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface RequestedDress {
   id: string;
   imageUrl: string;

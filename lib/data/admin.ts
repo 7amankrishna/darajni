@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireAdminPage } from "@/lib/auth/admin";
 import { mapHomepageSlide } from "@/lib/data/homepage-slides";
+import { mapEventBanner } from "@/lib/data/events";
 import { normalizeMediaUrl } from "@/lib/media-url";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 import type {
@@ -157,6 +158,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     settingsResult,
     dressesResult,
     commentsResult,
+    eventBannersResult,
   ] =
     await Promise.all([
       supabase
@@ -200,6 +202,11 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .single(),
       supabase.from("requested_dresses").select("*").order("created_at", { ascending: false }),
       supabase.from("requested_dress_comments").select("*").order("created_at", { ascending: false }),
+      supabase
+        .from("event_banners")
+        .select("id, title, image_url, link_url, sort_order, is_active, created_at, updated_at")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true }),
     ]);
 
   const promoTablesMissing = isMissingRelationError(promosResult.error);
@@ -212,7 +219,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     categoriesResult.error ||
     (!promoTablesMissing ? promosResult.error : null) ||
     (!homepageSlidesTableMissing ? homepageSlidesResult.error : null) ||
-    settingsResult.error;
+    settingsResult.error ||
+    (eventBannersResult.error && !isMissingRelationError(eventBannersResult.error) ? eventBannersResult.error : null);
   if (error) throw new Error(error.message);
 
   const orders = (ordersResult.data ?? []).map((row) =>
@@ -233,6 +241,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     ? []
     : (homepageSlidesResult.data ?? []).map((row) =>
         mapHomepageSlide(row as unknown as Record<string, unknown>),
+      );
+  const eventBannersTableMissing = isMissingRelationError(eventBannersResult.error);
+  const eventBanners = eventBannersTableMissing
+    ? []
+    : (eventBannersResult.data ?? []).map((row) =>
+        mapEventBanner(row as unknown as Record<string, unknown>),
       );
   const settingsRow = settingsResult.data;
   const settings: StoreSettings = {
@@ -300,6 +314,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     categories,
     promos,
     homepageSlides,
+    eventBanners,
     settings,
     analytics: {
       dailyOrders: daily.length,

@@ -15,10 +15,12 @@ import { FeaturedProductsSlider } from "@/components/featured-products-slider";
 import Hero from "@/components/Hero";
 import { HomepageLaunchSliderLazy } from "@/components/homepage-launch-slider-lazy";
 import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-homepage-teaser";
+import { EventsSlider } from "@/components/events-slider";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog } from "@/lib/data/catalog";
 import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
+import { getActiveEventBanners } from "@/lib/data/events";
 import { getRequestedDresses } from "@/lib/data/requested-dresses";
 
 function PolicyPreview() {
@@ -102,9 +104,10 @@ function ClosingCta() {
 }
 
 export default async function HomePage() {
-  const [{ products, categories }, homepageSlides, requestedDresses] = await Promise.all([
+  const [{ products, categories }, homepageSlides, eventBanners, requestedDresses] = await Promise.all([
     getCatalog(),
     getActiveHomepageSlides(),
+    getActiveEventBanners(),
     getRequestedDresses(),
   ]);
   const availableCategories = categories.filter((category) =>
@@ -222,6 +225,8 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        <EventsSlider eventBanners={eventBanners} />
 
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
         <PolicyPreview />

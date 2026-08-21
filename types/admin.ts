@@ -8,6 +8,7 @@ import type {
 import type {
   Category,
   HomepageSlide,
+  EventBanner,
   Product,
   StoreSettings,
 } from "@/types/commerce";
@@ -111,6 +112,7 @@ export interface AdminDashboardData {
   categories: Category[];
   promos: AdminPromoCode[];
   homepageSlides: HomepageSlide[];
+  eventBanners: EventBanner[];
   settings: StoreSettings;
   analytics: AnalyticsSummary;
   requestedDresses: AdminRequestedDress[];
