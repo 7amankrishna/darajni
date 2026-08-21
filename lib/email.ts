@@ -253,23 +253,72 @@ export async function sendCustomerStatusUpdateEmail(orderId: string, newStatus: 
     statusMessage = "Your order has been cancelled. If you have any questions, please contact us.";
   }
 
-  const content = `
-    <h2 style="margin: 0 0 20px; font-size: 20px; font-weight: 600;">Hello ${firstName},</h2>
+  const steps = [
+    { key: "pending", label: "Order Placed" },
+    { key: "confirmed", label: "Confirmed" },
+    { key: "packed", label: "Packed" },
+    { key: "shipped", label: "Shipped" },
+    { key: "delivered", label: "Delivered" },
+  ];
+
+  const statusIndex: Record<string, number> = {
+    pending: 0,
+    confirmed: 1,
+    packed: 2,
+    shipped: 3,
+    delivered: 4,
+  };
+  
+  const activeIndex = statusIndex[newStatus] ?? 0;
+  
+  let timelineHtml = "";
+  if (newStatus !== "cancelled") {
+    timelineHtml = \`<table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0; font-family: sans-serif; max-width: 300px; margin-left: auto; margin-right: auto;">\`;
+    steps.forEach((step, index) => {
+      const isDone = index < activeIndex;
+      const isCurrent = index === activeIndex;
+      const isLast = index === steps.length - 1;
+
+      const circleBg = isDone ? "#16a34a" : (isCurrent ? "#D9B56B" : "#eaeaea");
+      const circleColor = (isDone || isCurrent) ? "#ffffff" : "#888888";
+      const icon = isDone ? "✓" : (isCurrent ? "●" : "");
+      const lineBg = isDone ? "#16a34a" : "#eaeaea";
+      
+      timelineHtml += \`
+        <tr>
+          <td width="40" align="center" valign="top">
+            <div style="width: 24px; height: 24px; background-color: \${circleBg}; border-radius: 50%; color: \${circleColor}; line-height: 24px; text-align: center; font-size: 14px; font-weight: bold;">\${icon}</div>
+            \${!isLast ? \`<div style="width: 2px; height: 30px; background-color: \${lineBg}; margin: 4px 0;"></div>\` : ""}
+          </td>
+          <td valign="top" style="padding-bottom: \${!isLast ? "20px" : "0"}; text-align: left;">
+            <p style="margin: 3px 0 0; font-size: 16px; font-weight: bold; color: \${isDone || isCurrent ? "#111" : "#888"};">\${step.label}</p>
+            \${isCurrent ? \`<p style="margin: 4px 0 0; font-size: 13px; color: #D9B56B; font-weight: 600;">Current Stage</p>\` : ""}
+          </td>
+        </tr>
+      \`;
+    });
+    timelineHtml += \`</table>\`;
+  }
+
+  const content = \`
+    <h2 style="margin: 0 0 20px; font-size: 20px; font-weight: 600;">Hello \${firstName},</h2>
     
     <div style="background-color: #fafafa; padding: 20px; border-radius: 6px; margin: 0 0 30px; text-align: center; border: 1px solid #eaeaea;">
-      <p style="margin: 0 0 5px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Order Number</p>
-      <p style="margin: 0 0 15px; font-size: 18px; font-weight: 600;">${order.order_number}</p>
-      <p style="margin: 0; font-size: 18px; color: #D9B56B; font-weight: bold;">${capitalizedStatus}</p>
+      <p style="margin: 0 0 5px; font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif;">Order Number</p>
+      <p style="margin: 0 0 15px; font-size: 18px; font-weight: 600;">\${order.order_number}</p>
+      <p style="margin: 0; font-size: 18px; color: #D9B56B; font-weight: bold;">\${capitalizedStatus}</p>
     </div>
 
     <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #555555; text-align: center;">
-      ${statusMessage}
+      \${statusMessage}
     </p>
+
+    \${timelineHtml}
 
     <div style="text-align: center; margin-top: 30px;">
       <a href="https://www.darajni.in/track" style="background-color: #111111; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-size: 16px; font-weight: 600; display: inline-block;">Track Order Status</a>
     </div>
-  `;
+  \`;
 
   try {
     const transporter = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
