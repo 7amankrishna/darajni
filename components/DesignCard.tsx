@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
 import { WishlistButton } from "@/components/wishlist/wishlist-button";
+import { QuickViewTrigger } from "@/components/product/quick-view-trigger";
 import { formatPrice } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
@@ -40,13 +41,7 @@ export default function DesignCard({ product }: { product: Product }) {
 
         {/* Hover Quick View Trigger */}
         <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <Link
-            href={`/design/${product.slug}`}
-            className="primary-button w-full text-xs shadow-lg backdrop-blur-md"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Quick View
-          </Link>
+          <QuickViewTrigger product={product} />
         </div>
       </div>
 

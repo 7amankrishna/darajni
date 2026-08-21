@@ -41,14 +41,14 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-white/10 bg-[#11110f] p-5 text-white shadow-2xl outline-none sm:p-6",
+          "fixed left-1/2 top-1/2 z-50 grid max-h-[90dvh] w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-2xl border border-border bg-surface p-5 text-text-primary shadow-2xl outline-none sm:p-6",
           className,
         )}
         {...props}
       >
         {children}
         {showCloseButton && (
-          <DialogPrimitive.Close className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full text-white/80 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#caaa70] sm:right-4 sm:top-4">
+          <DialogPrimitive.Close className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full text-text-secondary transition hover:bg-surface-alt hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent sm:right-4 sm:top-4 z-10">
             <XIcon className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
@@ -89,7 +89,7 @@ function DialogDescription({
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-sm leading-6 text-white/50", className)}
+      className={cn("text-sm leading-6 text-text-secondary", className)}
       {...props}
     />
   );
