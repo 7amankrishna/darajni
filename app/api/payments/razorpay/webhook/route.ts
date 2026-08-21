@@ -103,7 +103,7 @@ export async function POST(request: Request) {
 
   after(async () => {
     await syncShiprocketOrder(order.id);
-    await sendOrderNotification(order.order_number, order.total, {
+    await sendOrderNotification(order.id, order.total, {
       name: order.customer_name,
       email: order.email || "",
       phone: order.phone,

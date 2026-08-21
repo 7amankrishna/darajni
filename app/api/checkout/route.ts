@@ -183,7 +183,7 @@ export async function POST(request: Request) {
     // failures are retained for retry and never invalidate a completed order.
     after(async () => {
       await syncShiprocketOrder(order.order_id);
-      await sendOrderNotification(order.order_number, order.total, {
+      await sendOrderNotification(order.order_id, order.total, {
         name: customer.customerName,
         email: customer.email || "",
         phone: customer.phone,

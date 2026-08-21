@@ -10,7 +10,7 @@ interface CustomerDetails {
 }
 
 export async function sendOrderNotification(
-  orderNumber: string,
+  orderId: string,
   totalAmount: number | string,
   customer: CustomerDetails,
 ) {
@@ -18,6 +18,9 @@ export async function sendOrderNotification(
   const pass = process.env.EMAIL_APP_PASSWORD;
 
   if (!user || !pass) return;
+
+  const order = await getOrderDetails(orderId);
+  if (!order) return;
 
   try {
     const transporter = nodemailer.createTransport({
@@ -30,21 +33,49 @@ export async function sendOrderNotification(
       currency: "INR",
       maximumFractionDigits: 0,
     });
+    
+    const itemsHtml = Array.isArray(order.order_items) 
+      ? order.order_items.map((item: any) => `
+          <tr>
+            <td style="padding: 10px; border: 1px solid #eee;">
+              <strong>${item.product_name_at_time}</strong><br/>
+              <span style="font-size: 12px; color: #666;">Size: ${item.selected_size}</span>
+            </td>
+            <td style="padding: 10px; border: 1px solid #eee; text-align: center;">${item.quantity}</td>
+            <td style="padding: 10px; border: 1px solid #eee; text-align: right;">${formatCurrency(item.line_total)}</td>
+          </tr>
+        `).join("")
+      : "";
 
     const mailOptions = {
       from: `"DARAJNI Store" <${user}>`,
       to: user, // Send to yourself
-      subject: `🎉 New Order Received! (${orderNumber})`,
+      subject: `🎉 New Order Received! (${order.order_number})`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
           <h2 style="color: #333; border-bottom: 2px solid #D9B56B; padding-bottom: 10px;">New Order Placed!</h2>
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-            <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Order Number</strong></td><td style="padding: 10px; border: 1px solid #eee;">${orderNumber}</td></tr>
+            <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Order Number</strong></td><td style="padding: 10px; border: 1px solid #eee;">${order.order_number}</td></tr>
             <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Total Amount</strong></td><td style="padding: 10px; border: 1px solid #eee; color: #16a34a; font-weight: bold;">${formattedAmount}</td></tr>
             <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Customer Name</strong></td><td style="padding: 10px; border: 1px solid #eee;">${customer.name}</td></tr>
             <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Customer Phone</strong></td><td style="padding: 10px; border: 1px solid #eee;">${customer.phone}</td></tr>
             <tr><td style="padding: 10px; border: 1px solid #eee; background-color: #f9f9f9;"><strong>Location</strong></td><td style="padding: 10px; border: 1px solid #eee;">${customer.city}, ${customer.state}</td></tr>
           </table>
+          
+          <h3 style="color: #333; margin-top: 30px;">Order Items</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+              <tr style="background-color: #f9f9f9;">
+                <th style="padding: 10px; border: 1px solid #eee; text-align: left;">Product</th>
+                <th style="padding: 10px; border: 1px solid #eee; text-align: center;">Qty</th>
+                <th style="padding: 10px; border: 1px solid #eee; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
           <p style="margin-top: 30px; font-size: 14px; color: #888;">View full details in the <a href="https://www.darajni.in/admin" style="color: #D9B56B;">Admin Dashboard</a>.</p>
         </div>
       `,
