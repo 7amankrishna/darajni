@@ -178,9 +178,9 @@ export async function POST(request: Request) {
   if (paymentMethod === "cod") {
     // The customer order is committed before this side effect. Shiprocket
     // failures are retained for retry and never invalidate a completed order.
-    after(() => {
-      syncShiprocketOrder(order.order_id);
-      sendOrderNotification(order.order_number, order.total, {
+    after(async () => {
+      await syncShiprocketOrder(order.order_id);
+      await sendOrderNotification(order.order_number, order.total, {
         name: customer.customerName,
         email: customer.email || "",
         phone: customer.phone,

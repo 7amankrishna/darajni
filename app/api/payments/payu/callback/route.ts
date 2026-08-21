@@ -124,10 +124,10 @@ async function processPayUReturn(request: Request, body: PayUFields) {
     if (confirmError) return redirectToCheckout(request, "confirmation-pending");
   }
 
-  after(() => {
-    syncShiprocketOrder(order.id);
+  after(async () => {
+    await syncShiprocketOrder(order.id);
     if (order.payment_status !== "paid") {
-      sendOrderNotification(order.order_number, order.total, {
+      await sendOrderNotification(order.order_number, order.total, {
         name: order.customer_name,
         email: order.email || "",
         phone: order.phone,

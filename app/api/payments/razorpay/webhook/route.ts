@@ -98,9 +98,9 @@ export async function POST(request: Request) {
     );
   }
 
-  after(() => {
-    syncShiprocketOrder(order.id);
-    sendOrderNotification(order.order_number, order.total, {
+  after(async () => {
+    await syncShiprocketOrder(order.id);
+    await sendOrderNotification(order.order_number, order.total, {
       name: order.customer_name,
       email: order.email || "",
       phone: order.phone,
