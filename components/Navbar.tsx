@@ -25,10 +25,10 @@ import { formatPrice, siteConfig, whatsappSupportLink } from "@/config/site";
 
 const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
-  { label: "Categories", href: "/collection", icon: Grid2X2 },
+  { label: "Shop", href: "/collection", icon: Grid2X2 },
   { label: "Wishlist", href: "/wishlist", icon: Heart },
   { label: "Orders", href: "/dashboard", icon: PackageSearch },
-  { label: "Account", href: "/login", icon: UserRound },
+  { label: "Profile", href: "/login", icon: UserRound },
 ];
 
 function Badge({ count }: { count: number }) {
@@ -100,7 +100,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[74px] border-b border-border bg-background/75 transition-colors backdrop-blur-[24px] shadow-sm lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
+      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-md lg:h-[90px]", isHome ? "sticky lg:fixed" : "sticky")}>
         <div className="hidden border-b border-border bg-surface-alt text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
@@ -119,12 +119,12 @@ export default function Navbar({
         </div>
 
         <nav
-          className="section-shell grid h-[74px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 md:flex md:justify-between"
+          className="section-shell grid h-[64px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:flex md:justify-between lg:h-[90px]"
           aria-label="Main navigation"
         >
           <button
             type="button"
-            className="grid h-11 w-11 place-items-center rounded-xl border border-border text-text-primary xl:hidden"
+            className="grid h-10 w-10 place-items-center text-text-primary hover:bg-surface-alt/50 rounded-full transition-colors xl:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-label="Toggle navigation"
@@ -135,10 +135,10 @@ export default function Navbar({
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="group flex shrink-0 items-center gap-3"
+            className="group flex shrink-0 items-center justify-center xl:justify-start gap-3 w-full xl:w-auto pr-4 xl:pr-0"
             aria-label="DARAJNI Homepage"
           >
-            <BrandLogo className="h-10 w-10 border border-accent/35 bg-surface transition-transform group-hover:scale-105 sm:h-12 sm:w-12" />
+            <BrandLogo className="h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
             <span className="hidden sm:block">
               <span className="font-display block whitespace-nowrap text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
                 DARAJNI
@@ -161,36 +161,38 @@ export default function Navbar({
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
             <Link
               href="/collection"
-              className="grid h-11 w-11 place-items-center rounded-xl border border-border bg-surface text-text-primary transition hover:border-accent"
+              className="grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
               aria-label="Search collection"
             >
-              <Search className="h-4 w-4" />
+              <Search className="h-5 w-5" />
             </Link>
             <Link
               href="/wishlist"
-              className="relative hidden h-11 w-11 place-items-center rounded-xl border border-border bg-surface text-text-primary transition hover:border-accent md:grid"
+              className="relative grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
               aria-label={`Wishlist with ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`}
             >
-              <Heart className="h-4 w-4" />
+              <Heart className="h-5 w-5" />
               <Badge count={wishlistCount} />
             </Link>
             <Link
               href="/login"
-              className="hidden h-11 w-11 place-items-center rounded-xl border border-border bg-surface text-text-primary transition hover:border-accent md:grid"
+              className="hidden h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50 md:grid"
               aria-label="Customer account"
             >
-              <UserRound className="h-4 w-4" />
+              <UserRound className="h-5 w-5" />
             </Link>
-            <ThemeToggle />
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
             <Link
               href="/cart"
-              className="relative grid h-11 w-11 place-items-center rounded-xl border border-border bg-surface text-text-primary transition hover:border-accent"
+              className="relative grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
               aria-label={`Cart with ${itemCount} item${itemCount === 1 ? "" : "s"}`}
             >
-              <ShoppingBag className="h-4 w-4" />
+              <ShoppingBag className="h-5 w-5" />
               <Badge count={itemCount} />
             </Link>
           </div>
@@ -239,28 +241,35 @@ export default function Navbar({
         href={whatsappHref}
         target={supportNumber ? "_blank" : undefined}
         rel="noreferrer"
-        className={`fixed ${isPurchaseBarVisible ? 'bottom-[130px]' : 'bottom-[76px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_16px_38px_rgba(31,175,84,0.28)] md:bottom-6 md:right-6 transition-all duration-300`}
+        className={`fixed ${isPurchaseBarVisible ? 'bottom-[130px]' : 'bottom-[76px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-[#171513] border border-[#B58A4A]/30 text-[#B58A4A] shadow-[0_8px_24px_rgba(0,0,0,0.12)] md:bottom-6 md:right-6 transition-all duration-300 hover:scale-105`}
         aria-label="Chat with DARAJNI on WhatsApp"
       >
         <MessageCircle className="h-5 w-5" />
       </a>
 
-      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur-xl md:hidden">
+      <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 px-2 pt-2 pb-safe backdrop-blur-xl md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
         <div className="grid grid-cols-5">
           {mobileLinks.map((item) => {
             const Icon = item.icon;
-            const count = item.label === "Wishlist" ? wishlistCount : 0;
+            const count = item.label === "Wishlist" ? wishlistCount : (item.label === "Cart" ? itemCount : 0);
+            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className="relative flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[0.62rem] font-bold text-text-primary hover:text-accent"
+                className={cn(
+                  "relative flex min-h-[52px] flex-col items-center justify-center gap-1.5 px-1 py-1.5 text-[0.65rem] transition-colors",
+                  isActive ? "text-accent font-bold" : "text-text-secondary font-medium hover:text-text-primary"
+                )}
               >
                 <span className="relative">
-                  <Icon className="h-4 w-4" />
+                  <Icon className={cn("h-5 w-5 transition-transform", isActive && "scale-110")} />
                   <Badge count={count} />
                 </span>
                 <span>{item.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
+                )}
               </Link>
             );
           })}

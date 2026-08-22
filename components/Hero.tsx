@@ -46,11 +46,12 @@ export default function Hero({
   };
 
   return (
-    <section className="relative flex min-h-[90vh] w-full flex-col bg-surface-alt text-text-primary overflow-hidden">
+    <section className="relative flex min-h-[90vh] w-full flex-col bg-background text-text-primary overflow-hidden">
       {/* Background Image on Right Side */}
       <div className="absolute inset-0 z-0 flex justify-end">
         <div className="relative h-full w-full lg:w-[65%]">
-          <div className="absolute inset-0 bg-gradient-to-r from-surface-alt via-surface-alt/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 lg:via-background/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
           <ProductImage
             key={featuredProduct?.id ?? "hero-fallback"}
             src={heroImage}
@@ -83,36 +84,41 @@ export default function Hero({
       {/* Main Content */}
       <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:py-32">
         <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">
             New Season, New You
           </p>
           
-          <h1 className="mt-4 font-display text-[4rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem]">
+          <h1 className="mt-5 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-6xl lg:text-[5rem]">
             Elevate Your
-            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
-              Style!
+            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[5.5rem] lg:text-[6.5rem] leading-none ${cursiveFont.className}`}>
+              Style.
             </span>
           </h1>
 
-          <p className="mt-3 text-lg leading-relaxed text-text-secondary sm:text-xl font-medium">
-            Timeless pieces. Modern looks.<br />
-            Made to empower every woman.
+          <p className="mt-1 max-w-sm text-base leading-relaxed text-text-secondary sm:text-lg">
+            Timeless pieces. Modern silhouettes.<br />
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/collection" className="primary-button">
-              Explore Collection
-              <ShoppingBag className="h-4 w-4" />
+          <div className="mt-10 flex flex-col items-start gap-4">
+            <Link href="/collection" className="primary-button !px-10 !h-12 !rounded-none">
+              EXPLORE COLLECTION &rarr;
             </Link>
-            <Link href="/requested-dresses" className="secondary-button">
-              Request a Custom Dress
+            <Link href="/requested-dresses" className="text-sm italic text-text-secondary hover:text-accent transition-colors underline-offset-4 hover:underline">
+              Create your custom look &rarr;
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Bottom Feature Banner */}
-      <div className="relative z-10 mx-auto mb-6 mt-12 w-[95%] max-w-[85rem] rounded-2xl bg-surface/80 py-5 px-2 shadow-sm backdrop-blur-xl sm:mb-10 sm:mt-auto border border-border/50">
+      <div className="relative z-10 pb-8 text-center sm:hidden">
+        <span className="inline-flex flex-col items-center gap-2 text-[0.6rem] uppercase tracking-[0.2em] text-text-secondary">
+          <span>Scroll to discover</span>
+          <span className="text-accent">&darr;</span>
+        </span>
+      </div>
+
+      {/* Bottom Feature Banner - Hidden on mobile to clean up space, visible on tablet+ */}
+      <div className="relative z-10 mx-auto mb-6 mt-12 hidden w-[95%] max-w-[85rem] rounded-2xl bg-surface/80 py-5 px-2 shadow-sm backdrop-blur-xl sm:block sm:mb-10 sm:mt-auto border border-border/50">
         <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-border">
           <div className="flex items-center gap-3 px-2 sm:px-6">
             <Truck className="h-6 w-6 text-accent shrink-0" />

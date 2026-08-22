@@ -23,6 +23,88 @@ import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
 import { getActiveEventBanners } from "@/lib/data/events";
 import { getRequestedDresses } from "@/lib/data/requested-dresses";
 
+function CustomCoutureBanner() {
+  return (
+    <section className="bg-background px-4 py-8 sm:py-12 mt-8">
+      <div className="section-shell flex flex-col sm:flex-row items-center justify-between gap-6 rounded-2xl bg-[#F9F6F0] p-8 sm:p-12 border border-[#E5DDD3] shadow-sm relative overflow-hidden">
+        {/* Subtle decorative background element */}
+        <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
+          <Sparkles className="w-64 h-64 text-accent" />
+        </div>
+        
+        <div className="relative z-10 flex-1 space-y-3 text-center sm:text-left">
+          <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Custom Couture</p>
+          <h2 className="font-display text-4xl sm:text-5xl text-text-primary leading-tight">
+            Designed For You.<br />
+            <span className="italic text-accent">Made By Darajni.</span>
+          </h2>
+          <p className="max-w-md mx-auto sm:mx-0 text-[0.8rem] text-text-secondary leading-relaxed">
+            Your vision, our craftsmanship.<br />A one-of-a-kind creation, just for you.
+          </p>
+        </div>
+        <div className="relative z-10 shrink-0 w-full sm:w-auto">
+          <Link href="/requested-dresses" className="secondary-button w-full sm:w-auto group !border-accent/40 !bg-surface">
+            DESIGN YOUR LOOK <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ShopByOccasion({ products }: { products: any[] }) {
+  const occasions = [
+    { name: "Wedding", slug: "wedding" },
+    { name: "Festive", slug: "festive" },
+    { name: "Party", slug: "party" },
+    { name: "Everyday", slug: "everyday" }
+  ];
+  
+  return (
+    <section className="bg-background py-16 sm:py-20">
+      <div className="section-shell">
+        <div className="flex items-center justify-center gap-4 mb-10">
+          <div className="h-px w-8 bg-accent/40" />
+          <h2 className="font-display text-xl tracking-widest uppercase text-text-primary text-center">Shop By Occasion</h2>
+          <div className="h-px w-8 bg-accent/40" />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+          {occasions.map((occ, idx) => {
+             const image = products[idx % products.length]?.images?.[0];
+             return (
+               <Link key={occ.name} href={`/collection?category=${occ.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-surface-alt shadow-sm">
+                 {image && (
+                   <img src={image} alt={occ.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                 )}
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                 <div className="absolute bottom-4 inset-x-0 text-center">
+                   <span className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-white">{occ.name}</span>
+                 </div>
+               </Link>
+             );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TheArtOfDarajni() {
+  return (
+    <section className="bg-[#FAF8F5] py-20 sm:py-32 border-t border-[#E5DDD3]">
+      <div className="section-shell max-w-3xl mx-auto text-center px-4">
+        <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent mb-4">The Art of Darajni</p>
+        <h2 className="font-display text-3xl sm:text-5xl text-text-primary mb-6">Tradition &times; Modernity</h2>
+        <p className="text-sm text-text-secondary leading-relaxed max-w-lg mx-auto">
+          Every Darajni creation is a testament to timeless Indian craftsmanship,
+          woven with modern sensibilities. We believe luxury lies in the details,
+          from the first sketch to the final stitch.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function PolicyPreview() {
   const policies: Array<[string, string, string, LucideIcon]> = [
     ["Shipping", "Pan-India delivery with tracking updates.", "/shipping-policy", Truck],
@@ -198,28 +280,29 @@ export default async function HomePage() {
         <EventsSlider eventBanners={eventBanners} />
         <HomepageLaunchSliderLazy slides={homepageSlides} />
         
+        <CustomCoutureBanner />
+        <ShopByOccasion products={products} />
+
         {/* Collection Section ID anchor */}
         <div id="collection-preview" />
         <DressShowcase products={products} categories={availableCategories} />
 
-        {/* Featured Products */}
+        {/* Featured Products / New Arrivals */}
         {featured.length > 0 && (
-          <section data-reveal className="bg-background py-24 sm:py-32">
+          <section data-reveal className="bg-background py-16 sm:py-24">
             <div className="section-shell">
-              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-                <div>
-                  <p className="eyebrow text-accent">Curated Occasions</p>
-                  <h2 className="font-display mt-3 text-4xl font-light text-text-primary sm:text-6xl">
-                    New Arrivals &amp; Couture Picks
-                  </h2>
-                </div>
+              <div className="flex items-center gap-4 mb-8">
+                <h2 className="font-display text-lg tracking-widest uppercase text-text-primary whitespace-nowrap">
+                  New Arrivals
+                </h2>
+                <div className="h-px flex-1 bg-border/60" />
                 <Link
                   href="/collection?sort=newest"
-                  className="secondary-button w-fit"
+                  className="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-accent hover:text-text-primary transition-colors whitespace-nowrap"
                   aria-label="View new arrivals"
                 >
-                  Explore Catalog
-                  <ArrowRight className="h-4 w-4" />
+                  View All
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
               <FeaturedProductsSlider products={featured} />
@@ -229,6 +312,7 @@ export default async function HomePage() {
 
 
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
+        <TheArtOfDarajni />
         <PolicyPreview />
         <ClosingCta />
       </main>
