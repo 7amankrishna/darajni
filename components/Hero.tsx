@@ -46,11 +46,11 @@ export default function Hero({
   };
 
   return (
-    <section className="relative flex min-h-[90vh] w-full flex-col bg-[#F9EDE8] text-[#333333] overflow-hidden">
+    <section className="relative flex min-h-[90vh] w-full flex-col bg-surface-alt text-text-primary overflow-hidden">
       {/* Background Image on Right Side */}
       <div className="absolute inset-0 z-0 flex justify-end">
         <div className="relative h-full w-full lg:w-[65%]">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#F9EDE8] via-[#F9EDE8]/40 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface-alt via-surface-alt/40 to-transparent z-10" />
           <ProductImage
             key={featuredProduct?.id ?? "hero-fallback"}
             src={heroImage}
@@ -67,13 +67,13 @@ export default function Hero({
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-md backdrop-blur transition hover:bg-white sm:left-8"
+            className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:left-8"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-md backdrop-blur transition hover:bg-white sm:right-8"
+            className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:right-8"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -81,20 +81,20 @@ export default function Hero({
       )}
 
       {/* Main Content */}
-      <div className="section-shell relative z-10 flex flex-1 items-center py-24 lg:py-0 pt-32">
+      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:py-32">
         <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-700">
+          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             New Season, New You
           </p>
           
-          <h1 className="mt-4 font-display text-[4rem] font-normal leading-[0.9] text-gray-900 sm:text-7xl lg:text-[5.5rem]">
+          <h1 className="mt-4 font-display text-[4rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem]">
             Elevate Your
-            <span className={`block text-[#D17B88] pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
+            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
               Style!
             </span>
           </h1>
 
-          <p className="mt-3 text-lg leading-relaxed text-gray-700 sm:text-xl font-medium">
+          <p className="mt-3 text-lg leading-relaxed text-text-secondary sm:text-xl font-medium">
             Timeless pieces. Modern looks.<br />
             Made to empower every woman.
           </p>
@@ -102,13 +102,13 @@ export default function Hero({
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/collection"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-[#D17B88] px-8 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-xs font-bold uppercase tracking-widest text-surface shadow-lg transition-transform hover:scale-105 hover:bg-accent-hover"
             >
               Shop Now
             </Link>
             <Link
               href="/collection"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-white px-8 text-xs font-bold uppercase tracking-widest text-gray-900 shadow-md transition-transform hover:scale-105"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-surface px-8 text-xs font-bold uppercase tracking-widest text-text-primary shadow-md transition-transform hover:scale-105 hover:bg-surface-alt border border-border"
             >
               Explore Collection
             </Link>
@@ -117,34 +117,34 @@ export default function Hero({
       </div>
 
       {/* Bottom Feature Banner */}
-      <div className="relative z-10 mx-auto mb-6 mt-12 w-[95%] max-w-[85rem] rounded-2xl bg-white/60 py-5 px-2 shadow-sm backdrop-blur-md sm:mb-10 sm:mt-auto">
-        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-gray-300">
+      <div className="relative z-10 mx-auto mb-6 mt-12 w-[95%] max-w-[85rem] rounded-2xl bg-surface/80 py-5 px-2 shadow-sm backdrop-blur-xl sm:mb-10 sm:mt-auto border border-border/50">
+        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-border">
           <div className="flex items-center gap-3 px-2 sm:px-6">
-            <Truck className="h-6 w-6 text-gray-800 shrink-0" />
+            <Truck className="h-6 w-6 text-accent shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">Free Shipping</p>
-              <p className="text-xs text-gray-600 truncate">On orders over ₹999</p>
+              <p className="text-sm font-bold text-text-primary truncate">Free Shipping</p>
+              <p className="text-xs text-text-secondary truncate">On orders over ₹999</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-2 sm:px-6">
-            <ShieldCheck className="h-6 w-6 text-gray-800 shrink-0" />
+            <ShieldCheck className="h-6 w-6 text-accent shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">Secure Payment</p>
-              <p className="text-xs text-gray-600 truncate">100% secure checkout</p>
+              <p className="text-sm font-bold text-text-primary truncate">Secure Payment</p>
+              <p className="text-xs text-text-secondary truncate">100% secure checkout</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-2 sm:px-6">
-            <RefreshCcw className="h-6 w-6 text-gray-800 shrink-0" />
+            <RefreshCcw className="h-6 w-6 text-accent shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">Easy Returns</p>
-              <p className="text-xs text-gray-600 truncate">7-day return policy</p>
+              <p className="text-sm font-bold text-text-primary truncate">Easy Returns</p>
+              <p className="text-xs text-text-secondary truncate">7-day return policy</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-2 sm:px-6">
-            <HeadphonesIcon className="h-6 w-6 text-gray-800 shrink-0" />
+            <HeadphonesIcon className="h-6 w-6 text-accent shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">24/7 Support</p>
-              <p className="text-xs text-gray-600 truncate">We're here to help</p>
+              <p className="text-sm font-bold text-text-primary truncate">24/7 Support</p>
+              <p className="text-xs text-text-secondary truncate">We're here to help</p>
             </div>
           </div>
         </div>
