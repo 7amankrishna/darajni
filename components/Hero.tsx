@@ -60,7 +60,7 @@ export default function Hero({
 
       {/* Background Image on Right Side */}
       <div className="absolute inset-0 z-0 flex justify-end">
-        <div className="relative h-full w-full lg:w-[70%]">
+        <div className="relative h-full w-full lg:w-[75%] lg:[mask-image:linear-gradient(to_right,transparent,black_15%)]">
           {/* Frosted glass blend that takes on the underlying image color instead of a flat white gradient */}
           <div className="absolute inset-0 z-10 backdrop-blur-2xl bg-background/20 [mask-image:linear-gradient(to_right,black_10%,transparent_100%)] lg:[mask-image:linear-gradient(to_right,black_0%,transparent_80%)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
