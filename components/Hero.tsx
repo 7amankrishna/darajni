@@ -57,7 +57,7 @@ export default function Hero({
             alt="DARAJNI designer collection"
             sizes="(max-width: 1024px) 100vw, 65vw"
             priority
-            className="h-full w-full object-cover object-center transition-opacity duration-1000 ease-out"
+            className="h-full w-full object-cover object-top transition-opacity duration-1000 ease-out"
           />
         </div>
       </div>
