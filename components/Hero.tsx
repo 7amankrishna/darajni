@@ -1,11 +1,18 @@
 "use client";
 
-import { ChevronDown, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Great_Vibes } from "next/font/google";
 
 import { ProductImage } from "@/components/product/product-image";
 import type { Product } from "@/types/commerce";
+
+const cursiveFont = Great_Vibes({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export default function Hero({
   products,
@@ -30,58 +37,117 @@ export default function Hero({
     return () => window.clearInterval(timer);
   }, [heroProducts.length]);
 
-  return (
-    <section
-      id="home"
-      className="relative flex min-h-[92vh] w-full flex-col justify-between overflow-hidden bg-primary text-surface"
-    >
-      {/* Edge-to-Edge Background Image with Subtle Parallax Zoom */}
-      <div className="absolute inset-0 z-0">
-        <ProductImage
-          key={featuredProduct?.id ?? "hero-fallback"}
-          src={heroImage}
-          alt="DARAJNI designer collection"
-          sizes="100vw"
-          priority
-          className="hero-background-image h-full w-full object-cover object-center opacity-65 transition-transform duration-1000 ease-out hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-transparent to-primary/50" />
-      </div>
+  const nextSlide = () => {
+    setActiveIndex((index) => (index + 1) % heroProducts.length);
+  };
 
-      {/* Cinematic Center/Left Overlay Copy */}
-      <div className="section-shell relative z-10 pt-28 pb-12 sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20 animate-fade-up">
-        <div className="max-w-3xl">
-          <h1 className="font-display text-5xl font-light tracking-wide text-surface sm:text-7xl lg:text-8xl">
-            Timeless Indian Couture
+  const prevSlide = () => {
+    setActiveIndex((index) => (index - 1 + heroProducts.length) % heroProducts.length);
+  };
+
+  return (
+    <section className="relative flex min-h-[90vh] w-full flex-col bg-[#F9EDE8] text-[#333333] overflow-hidden">
+      {/* Background Image on Right Side */}
+      <div className="absolute inset-0 z-0 flex justify-end">
+        <div className="relative h-full w-full lg:w-[65%]">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F9EDE8] via-[#F9EDE8]/40 to-transparent z-10" />
+          <ProductImage
+            key={featuredProduct?.id ?? "hero-fallback"}
+            src={heroImage}
+            alt="DARAJNI designer collection"
+            sizes="(max-width: 1024px) 100vw, 65vw"
+            priority
+            className="h-full w-full object-cover object-center transition-opacity duration-1000 ease-out"
+          />
+        </div>
+      </div>
+      
+      {/* Navigation Arrows */}
+      {heroProducts.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-md backdrop-blur transition hover:bg-white sm:left-8"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-gray-700 shadow-md backdrop-blur transition hover:bg-white sm:right-8"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </>
+      )}
+
+      {/* Main Content */}
+      <div className="section-shell relative z-10 flex flex-1 items-center py-24 lg:py-0 pt-32">
+        <div className="max-w-xl pr-6 sm:pr-12">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-700">
+            New Season, New You
+          </p>
+          
+          <h1 className="mt-4 font-display text-[4rem] font-normal leading-[0.9] text-gray-900 sm:text-7xl lg:text-[5.5rem]">
+            Elevate Your
+            <span className={`block text-[#D17B88] pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
+              Style!
+            </span>
           </h1>
 
-          <p className="font-display mt-6 max-w-xl text-2xl font-normal italic leading-relaxed text-surface-alt sm:text-3xl">
-            Designed for celebrations, crafted exclusively for you.
+          <p className="mt-3 text-lg leading-relaxed text-gray-700 sm:text-xl font-medium">
+            Timeless pieces. Modern looks.<br />
+            Made to empower every woman.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="/collection" className="primary-button">
-              Explore Collection
-              <ShoppingBag className="h-4 w-4" />
+            <Link
+              href="/collection"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-[#D17B88] px-8 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105"
+            >
+              Shop Now
             </Link>
-            <Link href="/requested-dresses" className="secondary-button !bg-transparent !border-surface/50 !text-surface backdrop-blur-md hover:!bg-surface hover:!text-primary shadow-sm">
-              Request a Custom Dress
+            <Link
+              href="/collection"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-white px-8 text-xs font-bold uppercase tracking-widest text-gray-900 shadow-md transition-transform hover:scale-105"
+            >
+              Explore Collection
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Minimal Scroll Down Indicator */}
-      <div className="relative z-10 pb-8 text-center">
-        <a
-          href="#collection-preview"
-          className="inline-flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent/80 transition hover:text-accent"
-          aria-label="Scroll to collection"
-        >
-          <span>Discover</span>
-          <ChevronDown className="h-4 w-4 animate-bounce text-accent" />
-        </a>
+      {/* Bottom Feature Banner */}
+      <div className="relative z-10 mx-auto mb-6 mt-12 w-[95%] max-w-[85rem] rounded-2xl bg-white/60 py-5 px-2 shadow-sm backdrop-blur-md sm:mb-10 sm:mt-auto">
+        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-gray-300">
+          <div className="flex items-center gap-3 px-2 sm:px-6">
+            <Truck className="h-6 w-6 text-gray-800 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">Free Shipping</p>
+              <p className="text-xs text-gray-600 truncate">On orders over ₹999</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 px-2 sm:px-6">
+            <ShieldCheck className="h-6 w-6 text-gray-800 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">Secure Payment</p>
+              <p className="text-xs text-gray-600 truncate">100% secure checkout</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 px-2 sm:px-6">
+            <RefreshCcw className="h-6 w-6 text-gray-800 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">Easy Returns</p>
+              <p className="text-xs text-gray-600 truncate">7-day return policy</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 px-2 sm:px-6">
+            <HeadphonesIcon className="h-6 w-6 text-gray-800 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">24/7 Support</p>
+              <p className="text-xs text-gray-600 truncate">We're here to help</p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -29,49 +29,7 @@ declare global {
   }
 }
 
-function prepareShiprocketCheckout() {
-  let sellerDomain = document.getElementById("sellerDomain") as
-    | HTMLInputElement
-    | null;
-  if (!sellerDomain) {
-    sellerDomain = document.createElement("input");
-    sellerDomain.type = "hidden";
-    sellerDomain.id = "sellerDomain";
-    document.body.appendChild(sellerDomain);
-  }
-  sellerDomain.value = window.location.host;
 
-  if (!document.querySelector('link[data-shiprocket-checkout="styles"]')) {
-    const styles = document.createElement("link");
-    styles.rel = "stylesheet";
-    styles.href = "https://checkout-ui.shiprocket.com/assets/styles/shopify.css";
-    styles.dataset.shiprocketCheckout = "styles";
-    document.head.appendChild(styles);
-  }
-
-  if (window.HeadlessCheckout) return Promise.resolve();
-  const existing = document.querySelector(
-    'script[data-shiprocket-checkout="script"]',
-  ) as HTMLScriptElement | null;
-  if (existing) {
-    return new Promise<void>((resolve, reject) => {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Script failed.")), {
-        once: true,
-      });
-    });
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout-ui.shiprocket.com/assets/js/channels/custom.js";
-    script.async = true;
-    script.dataset.shiprocketCheckout = "script";
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Script failed."));
-    document.body.appendChild(script);
-  });
-}
 
 export function CartPage({ settings }: { settings: StoreSettings }) {
   const router = useRouter();
@@ -83,79 +41,9 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
     removeItem,
     clearCart,
   } = useCart();
-  const [shiprocketBusy, setShiprocketBusy] = useState(false);
   const shipping = items.length ? settings.shippingCharge : 0;
   const tax = Math.round(subtotal * (settings.taxRate / 100) * 100) / 100;
   const total = subtotal + shipping + tax;
-
-  const useManualCheckout = () => router.push("/checkout?shiprocket=fallback");
-
-  const startShiprocketCheckout = async (event: MouseEvent<HTMLButtonElement>) => {
-    if (shiprocketBusy) return;
-    setShiprocketBusy(true);
-    try {
-      const response = await fetch("/api/shiprocket/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((item) => ({
-            productId: item.productId,
-            size: item.size,
-            quantity: item.quantity,
-          })),
-        }),
-      });
-      if (!response.ok) {
-        // The token endpoint always returns JSON on a controlled failure,
-        // but a platform-level 502 (function timeout/crash) returns an HTML
-        // error page. Parse defensively so we surface the real status
-        // instead of crashing on `Unexpected token '<'`.
-        const contentType = response.headers.get("content-type") ?? "";
-        let detail: unknown;
-        if (contentType.includes("application/json")) {
-          try {
-            detail = await response.json();
-          } catch {
-            detail = undefined;
-          }
-        } else {
-          try {
-            detail = (await response.text()).slice(0, 200);
-          } catch {
-            detail = undefined;
-          }
-        }
-        console.error(
-          "[shiprocket-checkout] token request failed",
-          response.status,
-          detail,
-        );
-        throw new Error(`Checkout unavailable (HTTP ${response.status}).`);
-      }
-
-      const result = (await response.json()) as { token?: string };
-      if (!result.token) {
-        console.error(
-          "[shiprocket-checkout] token missing in response",
-          result,
-        );
-        throw new Error("Checkout unavailable (no token).");
-      }
-
-      await prepareShiprocketCheckout();
-      if (!window.HeadlessCheckout) {
-        throw new Error("HeadlessCheckout SDK unavailable.");
-      }
-
-      window.HeadlessCheckout.addToCart(event.nativeEvent, result.token, {
-        fallbackUrl: `${window.location.origin}/checkout?shiprocket=fallback`,
-      });
-      setShiprocketBusy(false);
-    } catch (error) {
-      console.error("[shiprocket-checkout] failed, falling back to manual", error);
-      useManualCheckout();
-    }
-  };
 
   if (!ready) {
     return (
@@ -316,23 +204,8 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
               COD/online payment availability and final totals are verified
               securely during checkout.
             </p>
-            <button
-              type="button"
-              onClick={(event) => void startShiprocketCheckout(event)}
-              disabled={shiprocketBusy}
-              className="primary-button mt-6 w-full"
-            >
-              {shiprocketBusy ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Opening secure checkout...
-                </>
-              ) : (
-                "Checkout with Shiprocket"
-              )}
-            </button>
-            <Link href="/checkout" className="secondary-button mt-3 w-full">
-              Checkout manually
+            <Link href="/checkout" className="primary-button mt-6 w-full text-center block leading-10">
+              Checkout
             </Link>
             <Link href="/collection" className="secondary-button mt-3 w-full">
               Continue shopping
