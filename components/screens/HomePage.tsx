@@ -89,21 +89,6 @@ function ShopByOccasion({ products }: { products: any[] }) {
   );
 }
 
-function TheArtOfDarajni() {
-  return (
-    <section className="bg-[#FAF8F5] py-20 sm:py-32 border-t border-[#E5DDD3]">
-      <div className="section-shell max-w-3xl mx-auto text-center px-4">
-        <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent mb-4">The Art of Darajni</p>
-        <h2 className="font-display text-3xl sm:text-5xl text-text-primary mb-6">Tradition &times; Modernity</h2>
-        <p className="text-sm text-text-secondary leading-relaxed max-w-lg mx-auto">
-          Every Darajni creation is a testament to timeless Indian craftsmanship,
-          woven with modern sensibilities. We believe luxury lies in the details,
-          from the first sketch to the final stitch.
-        </p>
-      </div>
-    </section>
-  );
-}
 
 function PolicyPreview() {
   const policies: Array<[string, string, string, LucideIcon]> = [
@@ -312,7 +297,6 @@ export default async function HomePage() {
 
 
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
-        <TheArtOfDarajni />
         <PolicyPreview />
         <ClosingCta />
       </main>

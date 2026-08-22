@@ -86,16 +86,16 @@ export default function Hero({
       )}
 
       {/* Main Content */}
-      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[180px] lg:pb-32">
+      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[280px] lg:pb-32">
         <div className="max-w-xl pr-6 sm:pr-12">
           <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest text-accent sm:text-text-secondary">
             New Season, New You
           </p>
           
           <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem] drop-shadow-sm">
-            Elevate Your
+            The Art of
             <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none drop-shadow-md ${cursiveFont.className}`}>
-              Style!
+              Darajni.
             </span>
           </h1>
 
