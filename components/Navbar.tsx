@@ -100,7 +100,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-md lg:h-[90px]", isHome ? "sticky lg:fixed" : "sticky")}>
+      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-md lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
         <div className="hidden border-b border-border bg-surface-alt text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>
@@ -119,7 +119,7 @@ export default function Navbar({
         </div>
 
         <nav
-          className="section-shell grid h-[64px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:flex md:justify-between lg:h-[90px]"
+          className="section-shell grid h-[64px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:flex md:justify-between lg:h-[75px]"
           aria-label="Main navigation"
         >
           <button
@@ -138,12 +138,12 @@ export default function Navbar({
             className="group flex shrink-0 items-center justify-center xl:justify-start gap-3 w-full xl:w-auto pr-4 xl:pr-0"
             aria-label="DARAJNI Homepage"
           >
-            <BrandLogo className="hidden sm:block h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
+            <BrandLogo className="hidden lg:block h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
             <span className="block">
               <span className="font-display block whitespace-nowrap text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
                 DARAJNI
               </span>
-              <span className="hidden sm:block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
+              <span className="hidden lg:block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
                 Designer House
               </span>
             </span>
@@ -171,7 +171,7 @@ export default function Navbar({
             </Link>
             <Link
               href="/wishlist"
-              className="relative grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
+              className="relative hidden md:grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
               aria-label={`Wishlist with ${wishlistCount} item${wishlistCount === 1 ? "" : "s"}`}
             >
               <Heart className="h-5 w-5" />
