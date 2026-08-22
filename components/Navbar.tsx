@@ -138,12 +138,12 @@ export default function Navbar({
             className="group flex shrink-0 items-center justify-center xl:justify-start gap-3 w-full xl:w-auto pr-4 xl:pr-0"
             aria-label="DARAJNI Homepage"
           >
-            <BrandLogo className="h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
-            <span className="hidden sm:block">
+            <BrandLogo className="hidden sm:block h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
+            <span className="block">
               <span className="font-display block whitespace-nowrap text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
                 DARAJNI
               </span>
-              <span className="block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
+              <span className="hidden sm:block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
                 Designer House
               </span>
             </span>
@@ -184,9 +184,7 @@ export default function Navbar({
             >
               <UserRound className="h-5 w-5" />
             </Link>
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
             <Link
               href="/cart"
               className="relative grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
@@ -241,7 +239,7 @@ export default function Navbar({
         href={whatsappHref}
         target={supportNumber ? "_blank" : undefined}
         rel="noreferrer"
-        className={`fixed ${isPurchaseBarVisible ? 'bottom-[130px]' : 'bottom-[76px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-[#171513] border border-[#B58A4A]/30 text-[#B58A4A] shadow-[0_8px_24px_rgba(0,0,0,0.12)] md:bottom-6 md:right-6 transition-all duration-300 hover:scale-105`}
+        className={`fixed ${isPurchaseBarVisible ? 'bottom-[130px]' : 'bottom-[76px]'} right-4 z-50 grid h-12 w-12 place-items-center rounded-full bg-surface border border-border text-text-primary shadow-[0_8px_24px_rgba(0,0,0,0.12)] md:bottom-6 md:right-6 transition-all duration-300 hover:scale-105 hover:border-accent hover:text-accent`}
         aria-label="Chat with DARAJNI on WhatsApp"
       >
         <MessageCircle className="h-5 w-5" />

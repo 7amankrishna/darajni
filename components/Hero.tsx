@@ -84,27 +84,29 @@ export default function Hero({
       {/* Main Content */}
       <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:py-32">
         <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">
+          <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest text-accent sm:text-text-secondary">
             New Season, New You
           </p>
           
-          <h1 className="mt-5 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-6xl lg:text-[5rem]">
+          <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem]">
             Elevate Your
-            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[5.5rem] lg:text-[6.5rem] leading-none ${cursiveFont.className}`}>
-              Style.
+            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
+              Style!
             </span>
           </h1>
 
-          <p className="mt-1 max-w-sm text-base leading-relaxed text-text-secondary sm:text-lg">
-            Timeless pieces. Modern silhouettes.<br />
+          <p className="mt-1 sm:mt-3 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium">
+            Timeless pieces. Modern looks.<br className="sm:hidden" />
+            <span className="hidden sm:inline">Made to empower every woman.</span>
           </p>
 
-          <div className="mt-10 flex flex-col items-start gap-4">
-            <Link href="/collection" className="primary-button !px-10 !h-12 !rounded-none">
-              EXPLORE COLLECTION &rarr;
+          <div className="mt-10 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+            <Link href="/collection" className="primary-button">
+              Explore Collection
+              <ShoppingBag className="h-4 w-4" />
             </Link>
-            <Link href="/requested-dresses" className="text-sm italic text-text-secondary hover:text-accent transition-colors underline-offset-4 hover:underline">
-              Create your custom look &rarr;
+            <Link href="/requested-dresses" className="secondary-button">
+              Request a Custom Dress
             </Link>
           </div>
         </div>

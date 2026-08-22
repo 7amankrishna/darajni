@@ -39,7 +39,7 @@ function CustomCoutureBanner() {
             <span className="italic text-accent">Made By Darajni.</span>
           </h2>
           <p className="max-w-md mx-auto sm:mx-0 text-[0.8rem] text-text-secondary leading-relaxed">
-            Your vision, our craftsmanship.<br />A one-of-a-kind creation, just for you.
+            Your style is unique, and your outfit should be too.
           </p>
         </div>
         <div className="relative z-10 shrink-0 w-full sm:w-auto">
