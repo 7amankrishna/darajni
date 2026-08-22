@@ -100,7 +100,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-md lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
+      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
         <div className="hidden border-b border-border bg-surface-alt text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
             <span>{shippingLabel}</span>

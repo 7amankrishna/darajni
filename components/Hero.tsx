@@ -49,9 +49,13 @@ export default function Hero({
     <section className="relative flex min-h-[90vh] w-full flex-col bg-background text-text-primary overflow-hidden">
       {/* Background Image on Right Side */}
       <div className="absolute inset-0 z-0 flex justify-end">
-        <div className="relative h-full w-full lg:w-[65%]">
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 lg:via-background/40 to-transparent z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
+        <div className="relative h-full w-full lg:w-[70%]">
+          {/* Dynamic sophisticated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 lg:via-background/30 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
+          {/* Subtle radial shadow to add depth without washing out the image */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-black/5 to-black/20 z-10 mix-blend-multiply opacity-60 dark:opacity-40" />
+
           <ProductImage
             key={featuredProduct?.id ?? "hero-fallback"}
             src={heroImage}
@@ -82,22 +86,22 @@ export default function Hero({
       )}
 
       {/* Main Content */}
-      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:py-32">
+      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[180px] lg:pb-32">
         <div className="max-w-xl pr-6 sm:pr-12">
           <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest text-accent sm:text-text-secondary">
             New Season, New You
           </p>
           
-          <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem]">
+          <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem] drop-shadow-sm">
             Elevate Your
-            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none ${cursiveFont.className}`}>
+            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none drop-shadow-md ${cursiveFont.className}`}>
               Style!
             </span>
           </h1>
 
-          <p className="mt-1 sm:mt-3 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium">
+          <p className="mt-1 sm:mt-4 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium">
             Timeless pieces. Modern looks.<br className="sm:hidden" />
-            <span className="hidden sm:inline">Made to empower every woman.</span>
+            <span className="hidden sm:inline"> Made to empower every woman.</span>
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
