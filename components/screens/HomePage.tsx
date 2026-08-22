@@ -18,9 +18,10 @@ import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-h
 import { EventsSlider } from "@/components/events-slider";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
-import { getCatalog } from "@/lib/data/catalog";
 import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
 import { getActiveEventBanners } from "@/lib/data/events";
+import { getRequestedDresses } from "@/lib/data/requested-dresses";
+import { getStoreSettings } from "@/lib/data/catalog";
 import { getRequestedDresses } from "@/lib/data/requested-dresses";
 
 function CustomCoutureBanner() {
@@ -171,11 +172,12 @@ function ClosingCta() {
 }
 
 export default async function HomePage() {
-  const [{ products, categories }, homepageSlides, eventBanners, requestedDresses] = await Promise.all([
+  const [{ products, categories }, homepageSlides, eventBanners, requestedDresses, settings] = await Promise.all([
     getCatalog(),
     getActiveHomepageSlides(),
     getActiveEventBanners(),
     getRequestedDresses(),
+    getStoreSettings(),
   ]);
   const availableCategories = categories.filter((category) =>
     products.some((product) => product.category.id === category.id),
@@ -261,7 +263,7 @@ export default async function HomePage() {
         }}
       />
       <main id="main-content">
-        <Hero products={products} />
+        <Hero products={products} settings={settings} />
         <EventsSlider eventBanners={eventBanners} />
         <HomepageLaunchSliderLazy slides={homepageSlides} />
         

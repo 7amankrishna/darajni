@@ -381,6 +381,12 @@ export interface Database {
           tax_rate: number;
           developer_support_number: string;
           designer_support_number: string;
+          hero_eyebrow: string;
+          hero_title: string;
+          hero_cursive_title: string;
+          hero_subtitle: string;
+          hero_font_family: string;
+          hero_accent_color: string;
           updated_at: string;
         };
         Insert: {
@@ -390,6 +396,12 @@ export interface Database {
           tax_rate?: number;
           developer_support_number?: string;
           designer_support_number?: string;
+          hero_eyebrow?: string;
+          hero_title?: string;
+          hero_cursive_title?: string;
+          hero_subtitle?: string;
+          hero_font_family?: string;
+          hero_accent_color?: string;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["settings"]["Insert"]>;

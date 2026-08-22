@@ -3,21 +3,29 @@
 import { ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Great_Vibes } from "next/font/google";
+import { Great_Vibes, Playfair_Display, Cinzel, Montserrat } from "next/font/google";
 
 import { ProductImage } from "@/components/product/product-image";
-import type { Product } from "@/types/commerce";
+import type { Product, StoreSettings } from "@/types/commerce";
 
-const cursiveFont = Great_Vibes({
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
+const greatVibes = Great_Vibes({ weight: "400", subsets: ["latin"], display: "swap" });
+const playfair = Playfair_Display({ weight: "400", subsets: ["latin"], display: "swap" });
+const cinzel = Cinzel({ weight: "400", subsets: ["latin"], display: "swap" });
+const montserrat = Montserrat({ weight: "400", subsets: ["latin"], display: "swap" });
+
+const fontMap: Record<string, string> = {
+  "Great_Vibes": greatVibes.className,
+  "Playfair_Display": playfair.className,
+  "Cinzel": cinzel.className,
+  "Montserrat": montserrat.className,
+};
 
 export default function Hero({
   products,
+  settings,
 }: {
   products: Product[];
+  settings: StoreSettings;
 }) {
   const featuredProducts = products.filter((product) => product.isFeatured);
   const heroProducts = featuredProducts.length ? featuredProducts : products;
@@ -97,20 +105,22 @@ export default function Hero({
       {/* Main Content */}
       <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[280px] lg:pb-32">
         <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest text-accent sm:text-text-secondary">
-            New Season, New You
+          <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest sm:text-text-secondary" style={{ color: settings.heroAccentColor }}>
+            {settings.heroEyebrow}
           </p>
           
           <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem] drop-shadow-sm">
-            The Art of
-            <span className={`block text-accent pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none drop-shadow-md ${cursiveFont.className}`}>
-              Darajni.
+            {settings.heroTitle}
+            <span 
+              className={`block pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none drop-shadow-md ${fontMap[settings.heroFontFamily] || greatVibes.className}`}
+              style={{ color: settings.heroAccentColor }}
+            >
+              {settings.heroCursiveTitle}
             </span>
           </h1>
 
-          <p className="mt-1 sm:mt-4 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium">
-            Timeless pieces. Modern looks.<br className="sm:hidden" />
-            <span className="hidden sm:inline"> Made to empower every woman.</span>
+          <p className="mt-1 sm:mt-4 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium whitespace-pre-line">
+            {settings.heroSubtitle}
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">

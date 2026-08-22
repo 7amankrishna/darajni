@@ -36,6 +36,12 @@ export interface StoreSettings {
   taxRate: number;
   developerSupportNumber: string;
   designerSupportNumber: string;
+  heroEyebrow: string;
+  heroTitle: string;
+  heroCursiveTitle: string;
+  heroSubtitle: string;
+  heroFontFamily: string;
+  heroAccentColor: string;
 }
 
 export interface HomepageSlide {

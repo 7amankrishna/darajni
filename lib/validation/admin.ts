@@ -106,6 +106,12 @@ export const settingsInputSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9]{0,20}$/),
+  heroEyebrow: z.string().trim().max(100),
+  heroTitle: z.string().trim().max(100),
+  heroCursiveTitle: z.string().trim().max(100),
+  heroSubtitle: z.string().trim().max(200),
+  heroFontFamily: z.string().trim().max(50),
+  heroAccentColor: z.string().trim().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color code"),
 });
 
 export const promoInputSchema = z

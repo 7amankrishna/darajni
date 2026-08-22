@@ -171,7 +171,7 @@ export const getStoreSettings = unstable_cache(
     const { data, error } = await supabase
       .from("settings")
       .select(
-        "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number",
+        "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number, hero_eyebrow, hero_title, hero_cursive_title, hero_subtitle, hero_font_family, hero_accent_color",
       )
       .eq("id", true)
       .maybeSingle();
@@ -191,6 +191,12 @@ export const getStoreSettings = unstable_cache(
       designerSupportNumber:
         String(data.designer_support_number || "") ||
         defaults.designerSupportNumber,
+      heroEyebrow: String(data.hero_eyebrow || "") || defaults.heroEyebrow,
+      heroTitle: String(data.hero_title || "") || defaults.heroTitle,
+      heroCursiveTitle: String(data.hero_cursive_title || "") || defaults.heroCursiveTitle,
+      heroSubtitle: String(data.hero_subtitle || "") || defaults.heroSubtitle,
+      heroFontFamily: String(data.hero_font_family || "") || defaults.heroFontFamily,
+      heroAccentColor: String(data.hero_accent_color || "") || defaults.heroAccentColor,
     };
   },
   ["storefront-settings"],

@@ -112,7 +112,84 @@ export function SettingsPanel({ settings }: { settings: StoreSettings }) {
             maxLength={20}
           />
         </div>
-        <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-border p-4">
+      </div>
+
+      <h3 className="font-display mt-10 text-2xl">Hero Customization</h3>
+      <div className="glass-panel mt-4 grid gap-5 p-6 sm:grid-cols-2">
+        <div>
+          <label htmlFor="hero-eyebrow" className="field-label">Eyebrow Text</label>
+          <input
+            id="hero-eyebrow"
+            type="text"
+            value={draft.heroEyebrow}
+            onChange={(e) => setDraft((curr) => ({ ...curr, heroEyebrow: e.target.value }))}
+            className="field"
+          />
+        </div>
+        <div>
+          <label htmlFor="hero-title" className="field-label">Main Title</label>
+          <input
+            id="hero-title"
+            type="text"
+            value={draft.heroTitle}
+            onChange={(e) => setDraft((curr) => ({ ...curr, heroTitle: e.target.value }))}
+            className="field"
+          />
+        </div>
+        <div>
+          <label htmlFor="hero-cursive" className="field-label">Cursive Title</label>
+          <input
+            id="hero-cursive"
+            type="text"
+            value={draft.heroCursiveTitle}
+            onChange={(e) => setDraft((curr) => ({ ...curr, heroCursiveTitle: e.target.value }))}
+            className="field"
+          />
+        </div>
+        <div>
+          <label htmlFor="hero-subtitle" className="field-label">Subtitle Text</label>
+          <input
+            id="hero-subtitle"
+            type="text"
+            value={draft.heroSubtitle}
+            onChange={(e) => setDraft((curr) => ({ ...curr, heroSubtitle: e.target.value }))}
+            className="field"
+          />
+        </div>
+        <div>
+          <label htmlFor="hero-font" className="field-label">Cursive Font</label>
+          <select
+            id="hero-font"
+            value={draft.heroFontFamily}
+            onChange={(e) => setDraft((curr) => ({ ...curr, heroFontFamily: e.target.value }))}
+            className="field bg-surface"
+          >
+            <option value="Great_Vibes">Great Vibes</option>
+            <option value="Playfair_Display">Playfair Display</option>
+            <option value="Cinzel">Cinzel</option>
+            <option value="Montserrat">Montserrat</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="hero-color" className="field-label">Accent Color (Hex)</label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={draft.heroAccentColor}
+              onChange={(e) => setDraft((curr) => ({ ...curr, heroAccentColor: e.target.value }))}
+              className="h-10 w-12 cursor-pointer rounded-md border border-border p-1 bg-surface"
+            />
+            <input
+              id="hero-color"
+              type="text"
+              value={draft.heroAccentColor}
+              onChange={(e) => setDraft((curr) => ({ ...curr, heroAccentColor: e.target.value }))}
+              className="field uppercase"
+              placeholder="#B58A4A"
+            />
+          </div>
+        </div>
+        <label className="sm:col-span-2 flex items-center justify-between rounded-xl border border-border p-4 mt-2">
           <div>
             <p className="text-sm font-semibold">Cash on delivery</p>
             <p className="mt-1 text-xs text-text-secondary">

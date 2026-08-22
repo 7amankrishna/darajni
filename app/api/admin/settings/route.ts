@@ -36,6 +36,12 @@ export async function PUT(request: Request) {
       tax_rate: value.taxRate,
       developer_support_number: value.developerSupportNumber,
       designer_support_number: value.designerSupportNumber,
+      hero_eyebrow: value.heroEyebrow,
+      hero_title: value.heroTitle,
+      hero_cursive_title: value.heroCursiveTitle,
+      hero_subtitle: value.heroSubtitle,
+      hero_font_family: value.heroFontFamily,
+      hero_accent_color: value.heroAccentColor,
     })
     .eq("id", true);
   if (error) {

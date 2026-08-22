@@ -257,6 +257,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       settingsRow.developer_support_number || "",
     ),
     designerSupportNumber: String(settingsRow.designer_support_number || ""),
+    heroEyebrow: String(settingsRow.hero_eyebrow || "New Season, New You"),
+    heroTitle: String(settingsRow.hero_title || "The Art of"),
+    heroCursiveTitle: String(settingsRow.hero_cursive_title || "Darajni."),
+    heroSubtitle: String(settingsRow.hero_subtitle || "Timeless pieces. Modern looks. Made to empower every woman."),
+    heroFontFamily: String(settingsRow.hero_font_family || "Great_Vibes"),
+    heroAccentColor: String(settingsRow.hero_accent_color || "#B58A4A"),
   };
 
   const requestedDresses = (dressesResult?.data ?? []).map((row: any) => ({
