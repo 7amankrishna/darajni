@@ -68,7 +68,7 @@ export default function DressShowcase({
                   ))}
                 </div>
                 <div className="relative z-10 max-w-[68%]">
-                  <span className="text-[0.62rem] font-extrabold uppercase text-accent">
+                  <span className="text-[0.62rem] font-extrabold uppercase text-text-secondary">
                     {categoryProducts.length} design{categoryProducts.length === 1 ? "" : "s"}
                   </span>
                   <h3 className="font-display mt-4 text-4xl leading-none text-text-primary">

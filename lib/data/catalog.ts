@@ -164,6 +164,12 @@ export const getStoreSettings = unstable_cache(
       designerSupportNumber:
         process.env.NEXT_PUBLIC_DESIGNER_SUPPORT_WHATSAPP?.replace(/\D/g, "") ??
         "",
+      heroEyebrow: "New Season, New You",
+      heroTitle: "The Art of",
+      heroCursiveTitle: "Darajni.",
+      heroSubtitle: "Timeless pieces. Modern looks.\nMade to empower every woman.",
+      heroFontFamily: "Great_Vibes",
+      heroAccentColor: "#B58A4A",
     };
     const supabase = createPublicClient();
     if (!supabase) return defaults;

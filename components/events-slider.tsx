@@ -34,7 +34,7 @@ export function EventsSlider({ eventBanners }: { eventBanners: EventBanner[] }) 
       <div className="section-shell">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end mb-8">
           <div>
-            <p className="eyebrow text-accent">Happenings</p>
+            <p className="eyebrow text-text-secondary">Happenings</p>
             <h2 id="events-slider-title" className="font-display mt-3 text-4xl font-light text-text-primary sm:text-5xl">
               Launches &amp; Events
             </h2>

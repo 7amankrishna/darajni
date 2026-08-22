@@ -196,7 +196,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       supabase
         .from("settings")
         .select(
-          "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number",
+          "shipping_charge, cod_enabled, tax_rate, developer_support_number, designer_support_number, hero_eyebrow, hero_title, hero_cursive_title, hero_subtitle, hero_font_family, hero_accent_color",
         )
         .eq("id", true)
         .single(),

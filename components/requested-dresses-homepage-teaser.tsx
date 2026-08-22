@@ -16,7 +16,7 @@ export function RequestedDressesHomepageTeaser({
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="eyebrow text-accent">Community Inspiration Studio</p>
+            <p className="eyebrow text-text-secondary">Community Inspiration Studio</p>
             <h2 className="font-display mt-3 text-4xl font-light text-text-primary sm:text-6xl">
               Requested Dresses Preview
             </h2>

@@ -1082,7 +1082,7 @@ a.footer-contact-row:hover {
 .footer-contact-row small {
   display: block;
   margin-bottom: 0.2rem;
-  color: #d9b56b;
+  color: var(--text-secondary);
   font-size: 0.56rem;
   font-weight: 800;
   letter-spacing: 0.06em;

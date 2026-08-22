@@ -93,8 +93,8 @@ export default function Footer({
           <div className="flex items-center gap-3">
             <BrandLogo className="h-14 w-14 border border-accent/35 bg-background" />
             <div>
-              <h4 className="font-display text-lg font-bold text-text-primary">DARAJNI</h4>
-              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-accent">
+              <div className="font-display text-lg font-bold text-text-primary">DARAJNI</div>
+              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-text-secondary">
                 Designer House
               </p>
             </div>

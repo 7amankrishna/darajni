@@ -62,6 +62,7 @@ export default function Hero({
           src={heroImage}
           alt=""
           sizes="100vw"
+          priority
           className="h-full w-full object-cover blur-[80px] scale-110 opacity-60 dark:opacity-40 transition-opacity duration-1000 ease-out"
         />
       </div>
@@ -89,12 +90,14 @@ export default function Hero({
         <>
           <button
             onClick={prevSlide}
+            aria-label="Previous slide"
             className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:left-8"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={nextSlide}
+            aria-label="Next slide"
             className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:right-8"
           >
             <ChevronRight className="h-5 w-5" />

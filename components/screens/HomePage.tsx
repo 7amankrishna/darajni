@@ -8,6 +8,7 @@ import {
   Truck,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import DressShowcase from "@/components/DressShowcase";
@@ -18,11 +19,11 @@ import { RequestedDressesHomepageTeaser } from "@/components/requested-dresses-h
 import { EventsSlider } from "@/components/events-slider";
 import { siteConfig } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
+import type { Product, Category } from "@/types/commerce";
 import { getActiveHomepageSlides } from "@/lib/data/homepage-slides";
 import { getActiveEventBanners } from "@/lib/data/events";
 import { getRequestedDresses } from "@/lib/data/requested-dresses";
-import { getStoreSettings } from "@/lib/data/catalog";
-import { getRequestedDresses } from "@/lib/data/requested-dresses";
+import { getCatalog, getStoreSettings } from "@/lib/data/catalog";
 
 function CustomCoutureBanner() {
   return (
@@ -75,10 +76,16 @@ function ShopByOccasion({ products }: { products: any[] }) {
              return (
                <Link key={occ.name} href={`/collection?category=${occ.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-surface-alt shadow-sm">
                  {image && (
-                   <img src={image} alt={occ.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                   <Image 
+                     src={image} 
+                     alt="" 
+                     fill
+                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
+                     className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                   />
                  )}
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                 <div className="absolute bottom-4 inset-x-0 text-center">
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none" />
+                 <div className="absolute bottom-4 inset-x-0 text-center z-20 pointer-events-none">
                    <span className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-white">{occ.name}</span>
                  </div>
                </Link>
@@ -179,10 +186,10 @@ export default async function HomePage() {
     getRequestedDresses(),
     getStoreSettings(),
   ]);
-  const availableCategories = categories.filter((category) =>
-    products.some((product) => product.category.id === category.id),
+  const availableCategories = categories.filter((category: Category) =>
+    products.some((product: Product) => product.category.id === category.id),
   );
-  const featured = products.filter((product) => product.isFeatured).slice(0, 6); // Show 6 featured products
+  const featured = products.filter((product: Product) => product.isFeatured).slice(0, 6); // Show 6 featured products
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -208,12 +215,12 @@ export default async function HomePage() {
       url: siteConfig.siteUrl,
       description:
         `A live catalog of DARAJNI ${availableCategories
-          .map((category) => category.name.toLowerCase())
+          .map((category: Category) => category.name.toLowerCase())
           .join(", ") || "designer occasion wear"}.`,
       mainEntity: {
         "@type": "ItemList",
         numberOfItems: products.length,
-        itemListElement: products.map((product, index) => ({
+        itemListElement: products.map((product: Product, index: number) => ({
           "@type": "ListItem",
           position: index + 1,
           url: `${siteConfig.siteUrl}/design/${product.slug}`,
@@ -225,7 +232,7 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "DARAJNI collection",
-      itemListElement: products.map((product, index) => ({
+      itemListElement: products.map((product: Product, index: number) => ({
         "@type": "ListItem",
         position: index + 1,
         url: `${siteConfig.siteUrl}/design/${product.slug}`,
