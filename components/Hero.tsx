@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Great_Vibes } from "next/font/google";
@@ -100,17 +100,12 @@ export default function Hero({
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/collection"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-xs font-bold uppercase tracking-widest text-surface shadow-lg transition-transform hover:scale-105 hover:bg-accent-hover"
-            >
-              Shop Now
-            </Link>
-            <Link
-              href="/collection"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-surface px-8 text-xs font-bold uppercase tracking-widest text-text-primary shadow-md transition-transform hover:scale-105 hover:bg-surface-alt border border-border"
-            >
+            <Link href="/collection" className="primary-button">
               Explore Collection
+              <ShoppingBag className="h-4 w-4" />
+            </Link>
+            <Link href="/requested-dresses" className="secondary-button">
+              Request a Custom Dress
             </Link>
           </div>
         </div>
