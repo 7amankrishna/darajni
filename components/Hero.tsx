@@ -47,14 +47,23 @@ export default function Hero({
 
   return (
     <section className="relative flex min-h-[90vh] w-full flex-col bg-background text-text-primary overflow-hidden">
+      {/* Dynamic blurred background to extract image color */}
+      <div className="absolute inset-0 z-0">
+        <ProductImage
+          key={`bg-${featuredProduct?.id ?? "hero-fallback"}`}
+          src={heroImage}
+          alt=""
+          sizes="100vw"
+          className="h-full w-full object-cover blur-[80px] scale-110 opacity-60 dark:opacity-40 transition-opacity duration-1000 ease-out"
+        />
+      </div>
+
       {/* Background Image on Right Side */}
       <div className="absolute inset-0 z-0 flex justify-end">
         <div className="relative h-full w-full lg:w-[70%]">
-          {/* Dynamic sophisticated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 lg:via-background/30 to-transparent z-10" />
+          {/* Frosted glass blend that takes on the underlying image color instead of a flat white gradient */}
+          <div className="absolute inset-0 z-10 backdrop-blur-2xl bg-background/20 [mask-image:linear-gradient(to_right,black_10%,transparent_100%)] lg:[mask-image:linear-gradient(to_right,black_0%,transparent_80%)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
-          {/* Subtle radial shadow to add depth without washing out the image */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-black/5 to-black/20 z-10 mix-blend-multiply opacity-60 dark:opacity-40" />
 
           <ProductImage
             key={featuredProduct?.id ?? "hero-fallback"}
