@@ -372,6 +372,8 @@ export type DeliveryEstimate =
       slowestDays: number;
       codAvailable: boolean;
       fastestCourier: string | null;
+      district: string | null;
+      state: string | null;
     }
   | { status: "not-serviceable" }
   | { status: "unavailable" };
@@ -395,6 +397,68 @@ function daysFromEtd(value: unknown): number | null {
   return diff >= 0 ? diff : 0;
 }
 
+interface PostalPincodeInfo {
+  valid: boolean;
+  district: string | null;
+  state: string | null;
+}
+
+// India Post's official directory is the source of truth for pincode
+// EXISTENCE. ShipRocket's serviceability alone is not enough: surface
+// couriers report reach for pincodes that do not exist, which produced
+// false "Deliverable" verdicts. Cached ~a month; postal data never changes.
+const getPostalPincodeInfo = unstable_cache(
+  async (pincode: string): Promise<PostalPincodeInfo> => {
+    try {
+      const response = await fetch(
+        `https://api.postalpincode.in/pincode/${pincode}`,
+        { cache: "no-store", signal: AbortSignal.timeout(5_000) },
+      );
+      if (!response.ok) return { valid: true, district: null, state: null };
+
+      const body = (await response.json()) as Array<{
+        Status?: unknown;
+        Message?: unknown;
+        PostOffice?: unknown;
+      }>;
+      const entry = Array.isArray(body) ? body[0] : null;
+      const offices = Array.isArray(entry?.PostOffice)
+        ? (entry.PostOffice as Array<Record<string, unknown>>)
+        : [];
+
+      if (!entry || entry.Status !== "Success" || !offices.length) {
+        return { valid: false, district: null, state: null };
+      }
+
+      const first = offices[0];
+      const district =
+        typeof first.District === "string"
+          ? first.District
+          : typeof first.Districtname === "string"
+            ? first.Districtname
+            : null;
+      const state =
+        typeof first.State === "string"
+          ? first.State
+          : typeof first.Statename === "string"
+            ? first.Statename
+            : null;
+
+      return {
+        valid: true,
+        district: district?.slice(0, 60) ?? null,
+        state: state?.slice(0, 60) ?? null,
+      };
+    } catch {
+      // Directory unreachable: fall through to the ShipRocket-only verdict
+      // rather than blocking legitimate orders.
+      return { valid: true, district: null, state: null };
+    }
+  },
+  ["india-post-pincode"],
+  { revalidate: 60 * 60 * 24 * 30, tags: ["postal-pincodes"] },
+);
+
 // Cached per delivery pincode for a day: courier ETDs move slowly, so repeat
 // lookups never touch the Shiprocket API again for the same pincode.
 export const getDeliveryEstimateForPincode = unstable_cache(
@@ -407,6 +471,11 @@ export const getDeliveryEstimateForPincode = unstable_cache(
     const pickupPostcode = siteConfig.postalCode.replace(/\D/g, "");
     if (!/^\d{6}$/.test(pickupPostcode)) return { status: "unavailable" };
 
+    // Gate 1 — the pincode must EXIST in India Post's directory. This is what
+    // catches made-up pincodes that surface couriers falsely claim to reach.
+    const postal = await getPostalPincodeInfo(deliveryPincode);
+    if (!postal.valid) return { status: "not-serviceable" };
+
     try {
       let token = await authenticate();
       if (!token) return { status: "unavailable" };
@@ -414,7 +483,10 @@ export const getDeliveryEstimateForPincode = unstable_cache(
       const query = new URLSearchParams({
         pickup_postcode: pickupPostcode,
         delivery_postcode: deliveryPincode,
-        cod: "1",
+        // Deliberately omit the `cod` filter: requesting cod=1 makes
+        // ShipRocket return an EMPTY courier list on prepaid-only lanes,
+        // which would falsely mark reachable pincodes as not serviceable.
+        // Per-courier `cod` flags below give us COD support instead.
         weight: String(environment.parcel.weightKg),
       });
 
@@ -479,6 +551,8 @@ export const getDeliveryEstimateForPincode = unstable_cache(
           slowestDays: sortedDays[sortedDays.length - 1],
           codAvailable: daysPerCourier.some((courier) => courier.cod),
           fastestCourier,
+          district: postal.district,
+          state: postal.state,
         };
       }
 

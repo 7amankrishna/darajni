@@ -25,5 +25,8 @@ export async function GET(request: Request) {
     return apiError("Delivery estimates are temporarily unavailable.", 503);
   }
 
-  return NextResponse.json({ estimate });
+  const response = NextResponse.json({ estimate });
+  // Verdicts change as couriers update lanes; never let the browser cache one.
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }

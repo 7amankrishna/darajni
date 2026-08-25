@@ -11,6 +11,8 @@ type Estimate =
       slowestDays: number;
       codAvailable: boolean;
       fastestCourier: string | null;
+      district: string | null;
+      state: string | null;
     }
   | { status: "not-serviceable" }
   | { status: "unavailable" };
@@ -106,6 +108,12 @@ export function PincodeChecker() {
               <p className="flex items-center gap-2 font-semibold text-success">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
                 Serviceable · {result.pincode}
+                {estimate.district && (
+                  <span className="font-normal text-text-secondary">
+                    ({estimate.district}
+                    {estimate.state ? `, ${estimate.state}` : ""})
+                  </span>
+                )}
               </p>
               <p className="mt-1.5 text-text-secondary">
                 Delivery by{" "}
