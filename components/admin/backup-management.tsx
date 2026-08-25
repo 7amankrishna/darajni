@@ -80,21 +80,23 @@ function formatDate(iso: string): string {
 export function BackupManagement() {
   const [overview, setOverview] = useState<BackupOverview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [busyObject, setBusyObject] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const response = await fetch("/api/admin/backup", { cache: "no-store" });
       const data = (await response.json()) as BackupOverview & { error?: string };
       if (!response.ok) {
-        toast.error(data.error || "Could not load backup status.");
+        setLoadError(data.error || `Backup status failed (HTTP ${response.status}).`);
         return;
       }
       setOverview(data);
     } catch {
-      toast.error("Could not load backup status.");
+      setLoadError("Could not reach the backup service.");
     } finally {
       setLoading(false);
     }
@@ -242,7 +244,17 @@ export function BackupManagement() {
         </div>
       </div>
 
-      {!allConfigured && !loading && (
+      {loadError && (
+        <div className="glass-panel mt-6 border-red-500/40 p-5 text-sm">
+          <p className="font-bold text-red-400">Backup status could not load</p>
+          <p className="mt-1 text-text-secondary">{loadError}</p>
+          <button type="button" onClick={() => void load()} className="secondary-button mt-3">
+            <RefreshCw className="h-4 w-4" /> Try again
+          </button>
+        </div>
+      )}
+
+      {!allConfigured && !loading && !loadError && (
         <div className="glass-panel mt-6 border-red-500/40 p-5 text-sm">
           <p className="flex items-center gap-2 font-bold">
             <ShieldAlert className="h-4 w-4 text-red-400" />
@@ -346,6 +358,17 @@ export function BackupManagement() {
       )}
 
       <div className="glass-panel mt-6 overflow-hidden p-0">
+        <div className="border-b border-border bg-black/10 px-4 py-3 text-xs text-text-secondary">
+          <ShieldAlert className="mr-2 inline h-3 w-3 text-amber-400" />
+          To restore: press <strong>Restore</strong> on a row below, then type
+          <strong> RESTORE</strong> when asked. A safety backup of the current data is
+          always taken first; logins are not affected.
+          {overview?.restoreConfigured === false && (
+            <span className="mt-1 block text-amber-400">
+              Restore is disabled until BACKUP_RESTORE_GH_TOKEN is added to Vercel.
+            </span>
+          )}
+        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-text-secondary">
