@@ -87,33 +87,33 @@ export default function Footer({
   ];
 
   return (
-    <footer className="mt-auto border-t border-border bg-background pb-24 pt-14 text-text-primary transition-colors md:pb-10">
+    <footer className="site-footer mt-auto pb-24 pt-16 transition-colors md:pb-12">
       <div className="section-shell grid gap-10 lg:grid-cols-[1.25fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <BrandLogo className="h-14 w-14 border border-accent/35 bg-background" />
+            <BrandLogo className="h-14 w-14 border border-[#D8B57C]/40 bg-white/5" />
             <div>
-              <div className="font-display text-lg font-bold text-text-primary">DARAJNI</div>
-              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-text-secondary">
+              <div className="font-display text-lg font-bold text-[#F6EFE5]">DARAJNI</div>
+              <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.16em] text-[#D8B57C]/80">
                 Designer House
               </p>
             </div>
           </div>
-          <p className="mt-4 max-w-xs text-sm leading-6 text-text-secondary">
+          <p className="mt-4 max-w-xs text-sm leading-6 text-[#BBAE9C]">
             Premium Indian occasion wear from Bihar Sharif, custom-sized with
             clear communication and delivered Pan India.
           </p>
-          <div className="mt-6 grid max-w-md gap-2 text-xs text-text-secondary">
+          <div className="mt-6 grid max-w-md gap-2 text-xs text-[#BBAE9C]">
             <a href={whatsappHref} className="footer-contact-row group">
               <MessageCircle className="h-4 w-4 text-[#35C66D]" />
               <span><small>Customer support</small>{supportNumber ? `+${supportNumber}` : "WhatsApp support"}</span>
             </a>
             <a href={`mailto:${siteConfig.email}`} className="footer-contact-row group">
-              <Mail className="h-4 w-4 text-accent" />
+              <Mail className="h-4 w-4 text-[#D8B57C]" />
               <span><small>Email</small>{siteConfig.email}</span>
             </a>
             <span className="footer-contact-row">
-              <MapPin className="h-4 w-4 text-accent" />
+              <MapPin className="h-4 w-4 text-[#D8B57C]" />
               <span><small>Studio location</small>{siteConfig.locality}, {siteConfig.region} {siteConfig.postalCode}</span>
             </span>
           </div>
@@ -122,12 +122,12 @@ export default function Footer({
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {footerColumns.map((column) => (
             <div key={column.title}>
-              <p className="text-[0.68rem] font-extrabold uppercase text-text-secondary transition hover:text-accent">
+              <p className="text-[0.64rem] font-extrabold uppercase tracking-[0.18em] text-[#8E8071]">
                 {column.title}
               </p>
-              <div className="mt-4 grid gap-3 text-sm text-text-secondary">
+              <div className="mt-4 grid gap-3 text-sm text-[#BBAE9C]">
                 {column.links.map(([label, href]) => (
-                  <Link key={label} href={href} className="hover:text-text-primary">
+                  <Link key={label} href={href} className="transition-colors hover:text-[#F6EFE5]">
                     {label}
                   </Link>
                 ))}
@@ -137,14 +137,14 @@ export default function Footer({
         </div>
       </div>
 
-      <div className="section-shell mt-16 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-text-secondary sm:flex-row">
+      <div className="section-shell mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-xs text-[#BBAE9C] sm:flex-row">
         <div className="flex flex-wrap gap-4">
           <span className="inline-flex items-center gap-2">
-            <Truck className="h-3.5 w-3.5 text-accent" />
+            <Truck className="h-3.5 w-3.5 text-[#D8B57C]" />
             Pan-India delivery
           </span>
           <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+            <ShieldCheck className="h-3.5 w-3.5 text-[#D8B57C]" />
             Secure checkout
           </span>
         </div>
@@ -159,7 +159,7 @@ export default function Footer({
               target="_blank"
               rel="noreferrer"
               aria-label="@darajni.in on Instagram"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 font-bold text-accent transition hover:border-accent hover:text-text-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-2 font-bold text-[#D8B57C] transition hover:border-[#D8B57C]/60 hover:text-[#F6EFE5]"
             >
               <InstagramIcon />
               @darajni.in
@@ -169,7 +169,7 @@ export default function Footer({
               target="_blank"
               rel="noreferrer"
               aria-label="@bruhh.aman on Instagram"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 font-bold text-accent transition hover:border-accent hover:text-text-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-2 font-bold text-[#D8B57C] transition hover:border-[#D8B57C]/60 hover:text-[#F6EFE5]"
             >
               <InstagramIcon />
               @bruhh.aman

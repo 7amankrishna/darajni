@@ -28,14 +28,16 @@ import { getCatalog, getStoreSettings } from "@/lib/data/catalog";
 function CustomCoutureBanner() {
   return (
     <section className="bg-background px-4 py-8 sm:py-12 mt-8">
-      <div className="section-shell flex flex-col sm:flex-row items-center justify-between gap-6 rounded-2xl bg-[#F9F6F0] p-8 sm:p-12 border border-[#E5DDD3] shadow-sm relative overflow-hidden">
+      <div className="section-shell flex flex-col sm:flex-row items-center justify-between gap-6 rounded-[1.75rem] bg-surface p-8 sm:p-12 border border-border shadow-[var(--shadow-luxe-sm)] relative overflow-hidden">
+        {/* Couture inner frame */}
+        <div className="pointer-events-none absolute inset-3 rounded-[1.35rem] border border-accent/20" aria-hidden="true" />
         {/* Subtle decorative background element */}
         <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
           <Sparkles className="w-64 h-64 text-accent" />
         </div>
         
         <div className="relative z-10 flex-1 space-y-3 text-center sm:text-left">
-          <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-accent">Custom Couture</p>
+          <p className="eyebrow">Custom Couture</p>
           <h2 className="font-display text-4xl sm:text-5xl text-text-primary leading-tight">
             Designed For You.<br />
             <span className="italic text-accent">Made By Darajni.</span>
@@ -45,7 +47,7 @@ function CustomCoutureBanner() {
           </p>
         </div>
         <div className="relative z-10 shrink-0 w-full sm:w-auto">
-          <Link href="/requested-dresses" className="secondary-button w-full sm:w-auto group !border-accent/40 !bg-surface">
+          <Link href="/requested-dresses" className="secondary-button w-full sm:w-auto group">
             DESIGN YOUR LOOK <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -66,27 +68,30 @@ function ShopByOccasion({ products }: { products: any[] }) {
     <section className="bg-background py-16 sm:py-20">
       <div className="section-shell">
         <div className="flex items-center justify-center gap-4 mb-10">
-          <div className="h-px w-8 bg-accent/40" />
-          <h2 className="font-display text-xl tracking-widest uppercase text-text-primary text-center">Shop By Occasion</h2>
-          <div className="h-px w-8 bg-accent/40" />
+          <div className="h-px w-10 bg-accent/50" aria-hidden="true" />
+          <h2 className="font-display text-3xl sm:text-4xl text-text-primary text-center whitespace-nowrap">
+            Shop By Occasion
+          </h2>
+          <div className="h-px w-10 bg-accent/50" aria-hidden="true" />
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
           {occasions.map((occ, idx) => {
              const image = products[idx % products.length]?.images?.[0];
              return (
-               <Link key={occ.name} href={`/collection?category=${occ.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-surface-alt shadow-sm">
+               <Link key={occ.name} href={`/collection?category=${occ.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-[1.25rem] border border-white/10 bg-surface-alt shadow-[0_18px_44px_-20px_rgba(42,26,16,0.35)] transition-all duration-500 hover:border-accent/60 hover:shadow-[0_28px_64px_-24px_rgba(42,26,16,0.45)]">
                  {image && (
                    <Image 
                      src={image} 
                      alt="" 
                      fill
                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
-                     className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
                    />
                  )}
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 pointer-events-none" />
-                 <div className="absolute bottom-4 inset-x-0 text-center z-20 pointer-events-none">
-                   <span className="text-[0.65rem] font-bold tracking-[0.2em] uppercase text-white">{occ.name}</span>
+                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent z-10 pointer-events-none" />
+                 <div className="absolute inset-x-3 bottom-5 z-20 flex flex-col items-center gap-2.5 pointer-events-none">
+                   <span className="h-px w-7 bg-white/70 transition-all duration-500 group-hover:w-12 group-hover:bg-accent" aria-hidden="true" />
+                   <span className="text-[0.68rem] font-bold tracking-[0.22em] uppercase text-white">{occ.name}</span>
                  </div>
                </Link>
              );
@@ -126,15 +131,18 @@ function PolicyPreview() {
             <Link
               key={title}
               href={href}
-              className="rounded-2xl border border-border bg-surface p-6 transition hover:-translate-y-1 hover:border-accent"
+              className="group/card rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[var(--shadow-luxe-sm)]"
             >
-              <Icon className="h-5 w-5 text-accent" />
+              <span className="icon-medallion">
+                <Icon className="h-5 w-5" />
+              </span>
               <h3 className="font-display mt-5 text-2xl text-text-primary">
                 {title}
               </h3>
               <p className="mt-2 text-sm leading-6 text-text-secondary">{text}</p>
-              <span className="mt-5 inline-flex text-xs font-extrabold uppercase text-primary">
+              <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-[0.1em] text-[var(--gold-dark)] transition-all duration-300 group-hover/card:gap-2.5">
                 View policy
+                <ArrowRight className="h-3 w-3" />
               </span>
             </Link>
           ))}
@@ -286,13 +294,13 @@ export default async function HomePage() {
           <section data-reveal className="bg-background py-16 sm:py-24">
             <div className="section-shell">
               <div className="flex items-center gap-4 mb-8">
-                <h2 className="font-display text-lg tracking-widest uppercase text-text-primary whitespace-nowrap">
+                <h2 className="font-display text-3xl sm:text-4xl text-text-primary whitespace-nowrap">
                   New Arrivals
                 </h2>
-                <div className="h-px flex-1 bg-border/60" />
+                <div className="h-px flex-1 bg-accent/25" />
                 <Link
                   href="/collection?sort=newest"
-                  className="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-accent hover:text-text-primary transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[var(--gold-dark)] transition-colors hover:text-text-primary whitespace-nowrap"
                   aria-label="View new arrivals"
                 >
                   View All

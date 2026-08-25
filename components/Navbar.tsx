@@ -34,7 +34,7 @@ const mobileLinks = [
 function Badge({ count }: { count: number }) {
   if (count < 1) return null;
   return (
-    <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-[#6E0F1A] px-1 text-[0.6rem] font-bold text-white">
+    <span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-[var(--maroon)] px-1 text-[0.6rem] font-bold text-white shadow-[0_2px_8px_rgba(110,15,26,0.4)] ring-1 ring-white/25">
       {count > 99 ? "99+" : count}
     </span>
   );
@@ -100,18 +100,23 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/40 bg-background/90 transition-colors backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
-        <div className="hidden border-b border-border bg-surface-alt text-text-primary lg:block">
-          <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.72rem] font-semibold">
+      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/50 bg-background/85 transition-colors backdrop-blur-xl shadow-[0_10px_36px_-14px_rgba(42,26,16,0.14)] lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
+        <div className="hidden border-b border-border/60 bg-surface-alt/70 text-text-primary lg:block">
+          <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.64rem] font-bold uppercase tracking-[0.12em] text-text-secondary">
             <span>{shippingLabel}</span>
-            <span>
-              {codEnabled ? "COD Available | " : ""}Secure Payments | Exchange Support
+            <span className="flex items-center gap-2">
+              <span className="h-3 w-px bg-accent/40" aria-hidden="true" />
+              {codEnabled ? "COD Available" : ""}
+              {codEnabled ? <span className="h-3 w-px bg-accent/40" aria-hidden="true" /> : null}
+              Secure Payments
+              <span className="h-3 w-px bg-accent/40" aria-hidden="true" />
+              Exchange Support
             </span>
             <a
               href={whatsappHref}
               target={supportNumber ? "_blank" : undefined}
               rel="noreferrer"
-              className="text-accent hover:text-text-primary"
+              className="text-[var(--gold-dark)] transition-colors hover:text-text-primary"
             >
               {supportLabel}
             </a>
@@ -154,7 +159,7 @@ export default function Navbar({
               <Link
                 key={link.label}
                 href={link.href}
-                className="relative whitespace-nowrap p-1.5 text-[0.8rem] font-medium text-text-primary transition hover:text-accent 2xl:p-2.5 2xl:text-base"
+                className="nav-link relative whitespace-nowrap p-1.5 text-[0.8rem] font-medium text-text-primary transition hover:text-accent 2xl:p-2.5 2xl:text-base"
               >
                 {link.label}
               </Link>

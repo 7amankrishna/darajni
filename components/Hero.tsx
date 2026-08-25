@@ -91,14 +91,14 @@ export default function Hero({
           <button
             onClick={prevSlide}
             aria-label="Previous slide"
-            className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:left-8"
+            className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-accent/25 bg-surface/70 text-text-primary shadow-lg backdrop-blur transition hover:border-accent hover:bg-surface hover:text-accent sm:left-8"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={nextSlide}
             aria-label="Next slide"
-            className="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-surface/70 text-text-primary shadow-md backdrop-blur transition hover:bg-surface sm:right-8"
+            className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-accent/25 bg-surface/70 text-text-primary shadow-lg backdrop-blur transition hover:border-accent hover:bg-surface hover:text-accent sm:right-8"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -108,7 +108,8 @@ export default function Hero({
       {/* Main Content */}
       <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[280px] lg:pb-32">
         <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-widest sm:text-text-secondary" style={{ color: settings.heroAccentColor }}>
+          <p className="flex items-center gap-3 text-[0.65rem] font-bold uppercase tracking-[0.22em] sm:text-xs" style={{ color: settings.heroAccentColor }}>
+            <span className="hidden h-px w-10 bg-current opacity-60 sm:block" aria-hidden="true" />
             {settings.heroEyebrow}
           </p>
           
@@ -146,31 +147,39 @@ export default function Hero({
       </div>
 
       {/* Bottom Feature Banner - Hidden on mobile to clean up space, visible on tablet+ */}
-      <div className="relative z-10 mx-auto mb-6 mt-12 hidden w-[95%] max-w-[85rem] rounded-2xl bg-surface/80 py-5 px-2 shadow-sm backdrop-blur-xl sm:block sm:mb-10 sm:mt-auto border border-border/50">
-        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-border">
-          <div className="flex items-center gap-3 px-2 sm:px-6">
-            <Truck className="h-6 w-6 text-accent shrink-0" />
+      <div className="relative z-10 mx-auto mb-6 mt-12 hidden w-[95%] max-w-[85rem] rounded-[1.5rem] border border-accent/25 bg-surface/75 py-5 px-2 shadow-[0_24px_64px_-28px_rgba(42,26,16,0.35)] backdrop-blur-xl sm:block sm:mb-10 sm:mt-auto">
+        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-border/70">
+          <div className="flex items-center gap-3.5 px-2 sm:px-6">
+            <span className="icon-medallion">
+              <Truck className="h-5 w-5" />
+            </span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-text-primary truncate">Free Shipping</p>
               <p className="text-xs text-text-secondary truncate">On orders over ₹999</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 px-2 sm:px-6">
-            <ShieldCheck className="h-6 w-6 text-accent shrink-0" />
+          <div className="flex items-center gap-3.5 px-2 sm:px-6">
+            <span className="icon-medallion">
+              <ShieldCheck className="h-5 w-5" />
+            </span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-text-primary truncate">Secure Payment</p>
               <p className="text-xs text-text-secondary truncate">100% secure checkout</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 px-2 sm:px-6">
-            <RefreshCcw className="h-6 w-6 text-accent shrink-0" />
+          <div className="flex items-center gap-3.5 px-2 sm:px-6">
+            <span className="icon-medallion">
+              <RefreshCcw className="h-5 w-5" />
+            </span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-text-primary truncate">Easy Returns</p>
               <p className="text-xs text-text-secondary truncate">7-day return policy</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 px-2 sm:px-6">
-            <HeadphonesIcon className="h-6 w-6 text-accent shrink-0" />
+          <div className="flex items-center gap-3.5 px-2 sm:px-6">
+            <span className="icon-medallion">
+              <HeadphonesIcon className="h-5 w-5" />
+            </span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-text-primary truncate">24/7 Support</p>
               <p className="text-xs text-text-secondary truncate">We're here to help</p>

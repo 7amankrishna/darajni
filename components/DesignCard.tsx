@@ -16,7 +16,7 @@ export default function DesignCard({ product }: { product: Product }) {
     : product.fabric;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_10px_30px_rgba(58,46,37,0.04)] transition-all duration-300 hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_20px_48px_rgba(58,46,37,0.1)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_10px_30px_rgba(58,46,37,0.05)] transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/60 hover:shadow-[0_28px_64px_-24px_rgba(42,26,16,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
       {/* Media Box with Portrait 3:4 Ratio & Slow Cinematic Scale */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt">
         <Link href={`/design/${product.slug}`} className="block h-full w-full">
@@ -26,12 +26,12 @@ export default function DesignCard({ product }: { product: Product }) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         </Link>
 
         {/* Top Badges */}
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#FAF7F2] backdrop-blur-sm">
+          <span className="rounded-full border border-white/20 bg-[#241A12]/70 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#F6EFE5] backdrop-blur-md">
             {fabricTag}
           </span>
         </div>
