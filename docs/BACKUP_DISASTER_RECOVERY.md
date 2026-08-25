@@ -237,6 +237,24 @@ npm run backup:restore-verify -- --latest \
 > Credentials reach `pg_restore` only via the `PG*` process environment, never
 > on the command line.
 
+### Restore from the admin panel (one-click, guarded)
+
+The Backups tab has a **Restore** button per backup. The flow is designed so a
+bad restore can never strand you:
+
+1. You type `RESTORE` to confirm (plus admin login, same-origin, rate limit 3/hour).
+2. The panel dispatches the guarded **"Restore Database Backup"** GitHub
+   Actions workflow — restores NEVER run on serverless.
+3. The workflow FIRST takes a fresh safety backup of the current state, then
+   verifies + decrypts the selected backup and runs
+   `pg_restore --clean --if-exists` limited to the **public** schema.
+4. Progress and the final result appear in the Backups tab; an email is sent
+   on completion or failure. Supabase logins (auth schema) are not touched.
+
+One-time setup: create a fine-grained GitHub token (github.com/settings/tokens →
+Only select repository `darajni` → Permissions → Actions: Read & Write) and add
+it to Vercel as `BACKUP_RESTORE_GH_TOKEN`.
+
 ### Restore prerequisites
 
 - `pg_restore` installed, matching the server's major version (Postgres 15).

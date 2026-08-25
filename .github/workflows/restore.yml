@@ -1,0 +1,81 @@
+name: Restore Database Backup
+
+# DANGEROUS BY DESIGN — guarded by multiple gates:
+#   1. Manual dispatch only (never scheduled).
+#   2. The confirm_phrase input MUST be exactly "RESTORE" (checked below).
+#   3. Only triggered by authenticated admin requests via /api/admin/backup.
+#
+# What happens, in order:
+#   1. SAFETY BACKUP of the CURRENT database state (so the pre-restore state
+#      can itself be restored if anything goes wrong). This is not optional.
+#   2. Download + verify + decrypt the selected backup (any integrity failure
+#      aborts before pg_restore runs).
+#   3. pg_restore --clean --if-exists limited to the `public` schema:
+#      application tables are recreated exactly as captured. Supabase system
+#      schemas (auth/storage/realtime/cron) are NOT touched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_object_name:
+        description: "Archive object name under backups/<env>/, its backupId, or 'latest'"
+        required: true
+        default: "latest"
+      confirm_phrase:
+        description: 'Type RESTORE to confirm'
+        required: true
+
+concurrency:
+  group: supabase-backup
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    if: github.event.inputs.confirm_phrase == 'RESTORE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Install PostgreSQL client 17 (matching server major version)
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          pg_restore --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 1 — snapshot the current state FIRST so a bad restore is reversible.
+      - name: Safety backup of current database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          BACKUP_ENV: production
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BACKUP_DEST_SUPABASE_URL: ${{ secrets.BACKUP_DEST_SUPABASE_URL }}
+          BACKUP_DEST_SERVICE_ROLE_KEY: ${{ secrets.BACKUP_DEST_SERVICE_ROLE_KEY }}
+        run: npx tsx scripts/backup-run.ts --db-only --env production
+
+      # Step 2+3 — verify, decrypt, and restore the selected backup.
+      - name: Restore selected backup (public schema)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          BACKUP_ENV: production
+          BACKUP_DEST_SUPABASE_URL: ${{ secrets.BACKUP_DEST_SUPABASE_URL }}
+          BACKUP_DEST_SERVICE_ROLE_KEY: ${{ secrets.BACKUP_DEST_SERVICE_ROLE_KEY }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          GH_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npx tsx scripts/restore-run.ts --backup "${{ github.event.inputs.backup_object_name }}" --env production

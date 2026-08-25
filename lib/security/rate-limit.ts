@@ -46,6 +46,7 @@ export const RATE_LIMITS = {
   adminMutation: { scope: "admin-mutation", limit: 60, windowSeconds: 15 * 60 },
   adminUpload: { scope: "admin-upload", limit: 20, windowSeconds: 15 * 60 },
   adminBackupRun: { scope: "admin-backup-run", limit: 4, windowSeconds: 60 * 60 },
+  adminRestoreRun: { scope: "admin-restore-run", limit: 3, windowSeconds: 60 * 60 },
   backup: { scope: "backup", limit: 6, windowSeconds: 60 * 60 },
   checkout: { scope: "checkout", limit: 5, windowSeconds: 15 * 60 },
   checkoutCancel: { scope: "checkout-cancel", limit: 20, windowSeconds: 15 * 60 },

@@ -64,6 +64,15 @@ export function getCronSecret() {
   return dedicatedSecret("CRON_SECRET", 32);
 }
 
+/**
+ * Fine-grained GitHub token with Actions: Read & Write on this repository,
+ * used solely to dispatch the guarded "Restore Database Backup" workflow from
+ * the admin panel. Server-only; never exposed to the browser.
+ */
+export function getBackupRestoreGithubToken() {
+  return dedicatedSecret("BACKUP_RESTORE_GH_TOKEN", 30);
+}
+
 export function getPayUEnvironment() {
   // Support both variable naming conventions so a valid existing deployment
   // does not silently disable online payments during the PayU migration.

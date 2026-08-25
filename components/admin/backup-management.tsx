@@ -39,9 +39,21 @@ interface BackupOverview {
   pgDumpAvailable: boolean;
   configured: { database: boolean; encryptionKey: boolean; storage: boolean };
   destination?: "separate-project" | "same-project";
+  restoreConfigured?: boolean;
+  restoreStatus?: RestoreStatusDto | null;
   latestRun: BackupStatusDto | null;
   latestSuccessful: BackupStatusDto | null;
   backups: BackupSummaryDto[];
+}
+
+interface RestoreStatusDto {
+  status: "running" | "success" | "failed";
+  objectName: string;
+  startedAt: string;
+  finishedAt?: string;
+  durationMs?: number;
+  error?: string;
+  runUrl?: string;
 }
 
 interface RunResultDto {
@@ -172,6 +184,37 @@ export function BackupManagement() {
     }
   };
 
+  const restore = async (objectName: string, createdAt: string) => {
+    const answer = window.prompt(
+      `DANGER: This will OVERWRITE the current store data (products, orders, settings) with the backup from ${formatDate(createdAt)}.\n\n` +
+        "A safety backup of the current state is taken first. Supabase logins are not affected.\n\n" +
+        'Type RESTORE to continue:',
+    );
+    if (answer !== "RESTORE") {
+      toast.info("Restore cancelled.");
+      return;
+    }
+    setBusyObject(objectName);
+    try {
+      const response = await fetch("/api/admin/backup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restore", objectName, confirm: answer }),
+      });
+      const data = (await response.json()) as { dispatched?: boolean; message?: string; error?: string };
+      if (!response.ok) {
+        toast.error(data.error || "Could not start the restore.");
+        return;
+      }
+      toast.success(data.message || "Restore started.");
+      await load();
+    } catch {
+      toast.error("Restore request failed.");
+    } finally {
+      setBusyObject(null);
+    }
+  };
+
   const allConfigured =
     overview?.configured.database &&
     overview?.configured.encryptionKey &&
@@ -216,6 +259,14 @@ export function BackupManagement() {
         </div>
       )}
 
+      {!overview?.restoreConfigured && !loading && (
+        <div className="glass-panel mt-6 p-4 text-xs text-text-secondary">
+          <ShieldAlert className="mr-2 inline h-3 w-3" />
+          Restore buttons are disabled until BACKUP_RESTORE_GH_TOKEN is added to Vercel
+          (a GitHub token with Actions access). See docs/BACKUP_DISASTER_RECOVERY.md.
+        </div>
+      )}
+
       <div className="glass-panel mt-6 grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="text-xs uppercase tracking-wider text-text-secondary">Backup destination</p>
@@ -254,6 +305,46 @@ export function BackupManagement() {
         </div>
       </div>
 
+      {overview?.restoreStatus && (
+        <div
+          className={`glass-panel mt-6 p-5 text-sm ${
+            overview.restoreStatus.status === "failed" ? "border-red-500/40" : ""
+          }`}
+        >
+          <p className="font-semibold">
+            Last restore:{" "}
+            <span
+              className={
+                overview.restoreStatus.status === "success"
+                  ? "text-green-400"
+                  : overview.restoreStatus.status === "failed"
+                    ? "text-red-400"
+                    : "text-amber-400"
+              }
+            >
+              {overview.restoreStatus.status}
+            </span>{" "}
+            · {formatDate(overview.restoreStatus.startedAt)}
+            {overview.restoreStatus.durationMs
+              ? ` · ${Math.round(overview.restoreStatus.durationMs / 1000)}s`
+              : ""}
+          </p>
+          {overview.restoreStatus.error && (
+            <p className="mt-1 text-xs text-red-400">{overview.restoreStatus.error}</p>
+          )}
+          {overview.restoreStatus.runUrl && (
+            <a
+              href={overview.restoreStatus.runUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-block text-xs underline"
+            >
+              View restore run on GitHub Actions
+            </a>
+          )}
+        </div>
+      )}
+
       <div className="glass-panel mt-6 overflow-hidden p-0">
         <table className="w-full text-sm">
           <thead>
@@ -286,6 +377,20 @@ export function BackupManagement() {
                 <td className="px-4 py-3 font-mono text-xs">{backup.checksum.slice(0, 12)}…</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void restore(backup.objectName, backup.createdAt)}
+                      className="danger-button !px-3"
+                      disabled={busyObject === backup.objectName}
+                      title="Overwrite current data with this backup (safety backup taken first)"
+                    >
+                      {busyObject === backup.objectName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <HardDriveDownload className="h-4 w-4" />
+                      )}
+                      Restore
+                    </button>
                     <button
                       type="button"
                       onClick={() => void verify(backup.objectName)}

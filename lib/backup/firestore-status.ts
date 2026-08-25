@@ -84,3 +84,48 @@ export async function getLatestSuccessfulBackupStatus(
     return null;
   }
 }
+
+export interface RestoreStatusRecord {
+  status: "running" | "success" | "failed";
+  env: string;
+  /** Archive object name that was restored. */
+  objectName: string;
+  backupId?: string;
+  startedAt: string;
+  finishedAt?: string;
+  durationMs?: number;
+  error?: string;
+  /** GitHub Actions run URL when the restore ran in CI. */
+  runUrl?: string;
+}
+
+function restoreStatusObjectName(env: string): string {
+  return `${backupPrefix(env)}_status/restore-latest.json`;
+}
+
+/** Best-effort restore status write; failures are swallowed. */
+export async function recordRestoreStatus(
+  env: string,
+  record: RestoreStatusRecord,
+): Promise<void> {
+  try {
+    await uploadJson(restoreStatusObjectName(env), JSON.stringify(record, null, 2), {
+      backupId: record.backupId ?? "",
+      status: record.status,
+      env,
+    });
+  } catch {
+    // Non-fatal.
+  }
+}
+
+/** Read the last restore status, or null if never restored. */
+export async function getRestoreStatus(env: string): Promise<RestoreStatusRecord | null> {
+  try {
+    const name = restoreStatusObjectName(env);
+    if (!(await objectExists(name))) return null;
+    return JSON.parse(await downloadAsText(name)) as RestoreStatusRecord;
+  } catch {
+    return null;
+  }
+}
