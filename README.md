@@ -12,6 +12,13 @@ orders, analytics, settings, image uploads, invoices, and packing slips.
 
 ## Contents
 
+> **Quick orientation:** agents/developers should start with [`AGENTS.md`](./AGENTS.md),
+> then the focused guides in [`docs/`](./docs): [Directory map](./docs/DIRECTORY_MAP.md) ·
+> [Architecture](./docs/ARCHITECTURE.md) · [API routes](./docs/API_ROUTES.md) ·
+> [Database](./docs/DATABASE.md) · [Design system](./docs/DESIGN_SYSTEM.md) ·
+> [Flows](./docs/FLOWS.md) · [Environment](./docs/ENVIRONMENT.md).
+> This README remains the full long-form reference.
+
 - [Application capabilities](#application-capabilities)
 - [Technology stack](#technology-stack)
 - [Roles and access control](#roles-and-access-control)
