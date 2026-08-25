@@ -98,6 +98,30 @@ export default function Navbar({
     };
   }, []);
 
+  // Close the drawer after navigation so it never stays open across routes.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // Lock page scroll while the drawer is open.
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
+    };
+  }, [open]);
+
   return (
     <>
       <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/50 bg-background/85 transition-colors backdrop-blur-xl shadow-[0_10px_36px_-14px_rgba(42,26,16,0.14)] lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
@@ -204,7 +228,7 @@ export default function Navbar({
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-30 mt-[74px] flex flex-col bg-background/98 backdrop-blur-xl animate-in slide-in-from-top-2 fade-in duration-300 xl:hidden">
+        <div className="fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-background/98 backdrop-blur-xl animate-in slide-in-from-top-2 fade-in duration-300 xl:hidden">
           <div className="flex-1 overflow-y-auto px-5 py-6">
             <div className="grid gap-2">
               {navLinks.map((link, index) => (
