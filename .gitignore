@@ -8,6 +8,5 @@ dist/
 .DS_Store
 *.log
 *.tsbuildinfo
-
 .vercel
 .env*
