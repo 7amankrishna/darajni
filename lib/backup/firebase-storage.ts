@@ -47,7 +47,6 @@ async function ensureBucket(): Promise<void> {
       if ((buckets ?? []).some((b) => b.name === SUPABASE_BUCKET)) return;
       const { error } = await client.storage.createBucket(SUPABASE_BUCKET, {
         public: false,
-        fileSizeLimit: "52428800000", // 50 GiB, generous headroom for dumps
       });
       // Another worker may have created it concurrently; ignore that error.
       if (error && !/already exists/i.test(error.message)) throw error;
@@ -98,10 +97,11 @@ export interface ArchiveUploadResult {
 
 /**
  * Archives larger than this are split into sequential `.part-NNNN` objects so
- * backups stay compatible with Supabase Storage per-file size limits (e.g. the
- * free plan's ~50 MB cap). Parts are rejoined in order on restore/verify.
+ * backups stay compatible with Supabase Storage per-file size limits (the
+ * free plan caps uploads well below 50 MB in practice). Parts are rejoined in
+ * order on restore/verify.
  */
-const CHUNK_SIZE = 40 * 1024 * 1024;
+const CHUNK_SIZE = 16 * 1024 * 1024;
 
 /** Upload an encrypted archive to Supabase Storage and verify size. */
 export async function uploadEncryptedArchive(input: ArchiveUploadInput): Promise<ArchiveUploadResult> {

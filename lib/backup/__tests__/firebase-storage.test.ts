@@ -180,8 +180,8 @@ describe("uploadEncryptedArchive", () => {
 });
 
 describe("uploadEncryptedArchive (chunked)", () => {
-  it("splits archives over 40 MiB into ordered parts", async () => {
-    const chunk = 40 * 1024 * 1024;
+  it("splits archives over the chunk size into ordered parts", async () => {
+    const chunk = 16 * 1024 * 1024;
     const big = Buffer.alloc(chunk * 2 + 1000, 7); // 2 full chunks + remainder
     readFileMock.mockResolvedValue(big as never);
     statSyncMock.mockReturnValue({ size: big.length } as never);
