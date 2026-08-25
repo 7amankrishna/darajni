@@ -20,6 +20,7 @@ import {
   getLatestBackupStatus,
   getLatestSuccessfulBackupStatus,
 } from "@/lib/backup/firestore-status";
+import { sendBackupNotification } from "@/lib/backup/notify";
 
 interface ParsedArgs {
   status: boolean;
@@ -115,6 +116,19 @@ async function main(): Promise<void> {
     components: componentsFor(args),
     ...(args.env ? { env: args.env } : {}),
     dryRun: args.dryRun,
+  });
+
+  await sendBackupNotification({
+    status: result.status,
+    env: result.env,
+    error: result.error,
+    startedAt: result.startedAt,
+    durationMs: result.durationMs,
+    dump:
+      result.dbDump?.status === "success"
+        ? { bytes: result.dbDump.bytes, objectName: result.dbDump.objectName }
+        : undefined,
+    retention: result.retention,
   });
 
   console.log(JSON.stringify(result, null, 2));
