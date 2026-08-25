@@ -1,5 +1,9 @@
 # Database (Supabase Postgres)
 
+> **Fresh deployment:** run `supabase/master_schema.sql` once (Supabase SQL
+> Editor or psql) — it concatenates every migration below in order with
+> post-setup checklist (first admin bootstrap) and verification queries.
+
 Migrations live in `supabase/migrations/` and are **applied manually** (SQL
 editor or `supabase db push`). Full index with dates in
 `docs/DIRECTORY_MAP.md`. Tests/assertions in `supabase/tests/`.

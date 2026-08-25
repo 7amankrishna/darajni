@@ -710,6 +710,10 @@ npm run audit      # Dependency security audit
 
 Migrations are stored in `supabase/migrations` and run in timestamp order:
 
+> **Fresh install shortcut:** run `supabase/master_schema.sql` once instead of
+> every migration individually — it contains all migrations in order plus the
+> first-admin bootstrap checklist and verification queries.
+
 | Migration | Purpose |
 |---|---|
 | `20260624000000_initial_schema.sql` | Legacy initial account, catalog, review, and Storage foundation |
