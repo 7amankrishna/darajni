@@ -83,15 +83,15 @@ export default async function Page() {
   );
 
   return (
-    <main className="min-h-[70vh] bg-[#FFF8EF] py-14 sm:py-20">
+    <main className="min-h-[70vh] bg-[var(--blush)] py-14 sm:py-20">
       <div className="section-shell">
         <div className="mx-auto max-w-2xl text-center">
-          <MessageCircle className="mx-auto h-10 w-10 text-[#B8893B]" />
+          <MessageCircle className="mx-auto h-10 w-10 text-accent" />
           <p className="eyebrow mt-5">Customer care</p>
-          <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
             How can we help you?
           </h1>
-          <p className="mt-5 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-5 text-sm leading-7 text-text-secondary">
             Choose the closest topic and DARAJNI will guide you clearly. Orders
             should still be placed through the website cart and secure checkout.
           </p>
@@ -103,14 +103,14 @@ export default async function Page() {
             const href = card.title === "WhatsApp Support" ? whatsappHref : card.href;
             const external = card.title === "WhatsApp Support" && Boolean(supportNumber);
             return (
-              <article key={card.title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7 shadow-[0_18px_50px_rgba(83,54,22,0.07)]">
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+              <article key={card.title} className="rounded-2xl border border-border bg-surface p-7 shadow-[0_18px_50px_rgba(83,54,22,0.07)]">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-surface-alt text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h2 className="font-display mt-6 text-4xl leading-none text-[#171717]">
+                <h2 className="font-display mt-6 text-4xl leading-none text-text-primary">
                   {card.title}
                 </h2>
-                <p className="mt-4 text-sm leading-7 text-[#6F6255]">
+                <p className="mt-4 text-sm leading-7 text-text-secondary">
                   {card.description}
                 </p>
                 {href.startsWith("#") ? (
@@ -134,7 +134,7 @@ export default async function Page() {
 
         <section
           id="contact"
-          className="mt-10 rounded-2xl border border-[#E9DCCB] bg-[#171717] p-7 text-white shadow-[0_18px_50px_rgba(83,54,22,0.1)] sm:p-9"
+          className="mt-10 rounded-2xl border border-border bg-[#241B12] p-7 text-white shadow-[0_18px_50px_rgba(83,54,22,0.1)] sm:p-9"
         >
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div>

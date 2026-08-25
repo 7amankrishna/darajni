@@ -94,7 +94,7 @@ export default async function Page({
           <div className="border-b border-border p-5 sm:p-6">
             <p className="eyebrow">Order items</p>
           </div>
-          <div className="divide-y divide-[#E9DCCB]">
+          <div className="divide-y divide-border">
             {order.items.map((item) => (
               <div
                 key={item.id}

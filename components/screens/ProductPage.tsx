@@ -12,6 +12,7 @@ import DesignCard from "@/components/DesignCard";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductInfoTabs } from "@/components/product/product-info-tabs";
 import { ProductPurchase } from "@/components/product/product-purchase";
+import ProductReviews from "@/components/product/product-reviews";
 import { formatPrice, siteConfig, whatsappSupportLink } from "@/config/site";
 import {
   formatDate,
@@ -19,7 +20,7 @@ import {
   getProductPrice,
   isProductInformationUncertain,
 } from "@/lib/commerce";
-import type { Product, StoreSettings } from "@/types/commerce";
+import type { Product, ProductReview, StoreSettings } from "@/types/commerce";
 
 const sizeRows = [
   ["XS", "32", "26", "34", "Custom"],
@@ -154,7 +155,7 @@ function StickyHelpPanel({
           <a href={whatsappHref} className="whatsapp-button w-full">
             WhatsApp us
           </a>
-          <a href={`mailto:${siteConfig.email}`} className="secondary-button w-full !border-white/30 !bg-transparent !text-white">
+          <a href={`mailto:${siteConfig.email}`} className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[18px] border border-white/30 bg-transparent px-6 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:border-white/60 hover:bg-white/10">
             <Mail className="h-4 w-4" />
             Email support
           </a>
@@ -169,11 +170,15 @@ export default function ProductPage({
   related,
   supportNumber,
   settings,
+  reviews,
+  isAuthenticated,
 }: {
   product: Product;
   related: Product[];
   supportNumber: string;
   settings: StoreSettings;
+  reviews: ProductReview[];
+  isAuthenticated: boolean;
 }) {
   const price = getProductPrice(product);
   const descriptionNeedsConfirmation = isProductInformationUncertain(
@@ -262,6 +267,12 @@ export default function ProductPage({
           </div>
           <StickyHelpPanel product={product} supportNumber={supportNumber} />
         </section>
+
+        <ProductReviews
+          productId={product.id}
+          reviews={reviews}
+          isAuthenticated={isAuthenticated}
+        />
 
         {related.length > 0 && (
           <section data-reveal className="py-20">

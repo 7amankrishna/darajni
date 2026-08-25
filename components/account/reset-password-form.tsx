@@ -78,14 +78,14 @@ export function ResetPasswordForm() {
   };
 
   return (
-    <main className="bg-[#FFF8EF] py-12 sm:py-16">
+    <main className="bg-[var(--blush)] py-12 sm:py-16">
       <div className="section-shell mx-auto max-w-2xl">
         <section className="premium-card p-6 sm:p-9">
-          <div className="grid h-12 w-12 place-items-center rounded-full bg-[#F6E9DD] text-[#B8893B]">
+          <div className="grid h-12 w-12 place-items-center rounded-full bg-surface-alt text-accent">
             {complete ? <Check className="h-5 w-5" /> : <KeyRound className="h-5 w-5" />}
           </div>
           <p className="eyebrow mt-6">Customer account</p>
-          <h1 className="font-display mt-3 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-3 text-5xl leading-none text-text-primary sm:text-6xl">
             {complete ? "Password updated" : "Choose a new password"}
           </h1>
 
@@ -118,7 +118,7 @@ export function ResetPasswordForm() {
               <Link href="/forgot-password" className="primary-button mt-5 w-full">Request a new link</Link>
             </div>
           ) : (
-            <p className="mt-7 flex items-center gap-2 text-sm text-[#6F6255]">
+            <p className="mt-7 flex items-center gap-2 text-sm text-text-secondary">
               <Loader2 className="h-4 w-4 animate-spin" /> Checking your reset link
             </p>
           )}

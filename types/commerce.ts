@@ -79,6 +79,15 @@ export interface RequestedDress {
   createdAt: string;
 }
 
+export interface ProductReview {
+  id: string;
+  productId: string;
+  userName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
 export type PromoCodeType = "coupon" | "voucher";
 export type PromoDiscountType = "percentage" | "fixed_amount";
 

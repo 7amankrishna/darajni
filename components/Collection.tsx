@@ -377,7 +377,7 @@ export default function Collection({
       {mode === "page" && (
         <a
           href="#collection-filters"
-          className="fixed bottom-24 left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#111111] px-4 text-xs font-extrabold uppercase text-white shadow-lg md:hidden"
+          className="fixed bottom-24 left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#241B12] px-4 text-xs font-extrabold uppercase text-white shadow-lg md:hidden"
         >
           <Filter className="h-4 w-4" />
           Filter

@@ -5,6 +5,8 @@ import ProductPage from "@/components/screens/ProductPage";
 import { siteConfig } from "@/config/site";
 import { isProductInformationUncertain } from "@/lib/commerce";
 import { getCatalog, getProductBySlug, getStoreSettings } from "@/lib/data/catalog";
+import { getProductReviews } from "@/lib/data/reviews";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -45,6 +47,15 @@ export default async function DesignPage({
   ]);
   if (!product) notFound();
 
+  const authClient = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = authClient
+    ? await authClient.auth.getUser()
+    : { data: { user: null } };
+  const isAuthenticated = Boolean(user && !user.is_anonymous);
+  const reviews = await getProductReviews(product.id);
+
   const related = catalog.products
     .filter(
       (item) =>
@@ -64,6 +75,21 @@ export default async function DesignPage({
     sku: product.id,
     category: product.category.name,
     brand: { "@type": "Brand", name: siteConfig.shortName },
+    ...(reviews.length
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: (
+              Math.round(
+                (reviews.reduce((sum, review) => sum + review.rating, 0) /
+                  reviews.length) *
+                  10,
+              ) / 10
+            ).toFixed(1),
+            reviewCount: reviews.length,
+          },
+        }
+      : {}),
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
@@ -89,6 +115,8 @@ export default async function DesignPage({
         related={related}
         supportNumber={settings.designerSupportNumber || settings.developerSupportNumber}
         settings={settings}
+        reviews={reviews}
+        isAuthenticated={isAuthenticated}
       />
     </>
   );

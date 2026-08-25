@@ -33,7 +33,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
   const fabricNeedsConfirmation = isProductInformationUncertain(product.fabric);
 
   return (
-    <section className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-4 sm:p-6">
+    <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
       <div className="flex min-w-0 gap-2 overflow-x-auto pb-2">
         {tabs.map((tab) => (
           <button
@@ -42,8 +42,8 @@ export function ProductInfoTabs({ product }: { product: Product }) {
             onClick={() => setActive(tab)}
             className={`min-h-11 shrink-0 rounded-xl border px-4 py-2 text-xs font-extrabold uppercase ${
               active === tab
-                ? "border-[#111111] bg-[#111111] text-white"
-                : "border-[#E9DCCB] text-[#6F6255]"
+                ? "border-[#241B12] bg-[#241B12] text-white"
+                : "border-border text-text-secondary"
             }`}
           >
             {tab}
@@ -51,10 +51,10 @@ export function ProductInfoTabs({ product }: { product: Product }) {
         ))}
       </div>
 
-      <div className="mt-6 text-sm leading-7 text-[#5F5348]">
+      <div className="mt-6 text-sm leading-7 text-text-secondary">
         {active === "Description" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               About this design
             </h3>
             <p className="mt-4">
@@ -67,12 +67,12 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
         {active === "Fabric & Care" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               Fabric finish and care
             </h3>
             <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl bg-[#F6E9DD] p-4">
-                <dt className="text-xs font-extrabold uppercase text-[#B8893B]">
+              <div className="rounded-xl bg-surface-alt p-4">
+                <dt className="text-xs font-extrabold uppercase text-accent">
                   Fabric
                 </dt>
                 <dd className="mt-2">
@@ -81,8 +81,8 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                     : product.fabric}
                 </dd>
               </div>
-              <div className="rounded-xl bg-[#F6E9DD] p-4">
-                <dt className="text-xs font-extrabold uppercase text-[#B8893B]">
+              <div className="rounded-xl bg-surface-alt p-4">
+                <dt className="text-xs font-extrabold uppercase text-accent">
                   Garment care
                 </dt>
                 <dd className="mt-2">
@@ -95,12 +95,12 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
         {active === "Size Guide" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               Standard reference chart
             </h3>
             <div className="table-scroll mt-5">
               <table className="w-full min-w-[520px] text-left text-xs">
-                <thead className="bg-[#F6E9DD] text-[#6F6255]">
+                <thead className="bg-surface-alt text-text-secondary">
                   <tr>
                     {["Size", "Bust", "Waist", "Hip", "Length"].map((head) => (
                       <th key={head} className="px-4 py-3 font-extrabold uppercase">
@@ -109,7 +109,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E9DCCB]">
+                <tbody className="divide-y divide-border">
                   {sizeRows.map((row) => (
                     <tr key={row[0]}>
                       {row.map((cell) => (
@@ -131,7 +131,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
         {active === "Shipping & Exchange" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               Shipping and exchange
             </h3>
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -141,7 +141,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
                 "Exchange requests must be raised within seven days of delivery.",
                 "Custom-size rules are explained on the return and exchange page.",
               ].map((item) => (
-                <li key={item} className="rounded-xl bg-[#F6E9DD] p-4">
+                <li key={item} className="rounded-xl bg-surface-alt p-4">
                   {item}
                 </li>
               ))}
@@ -151,14 +151,14 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
         {active === "Reviews" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               Reviews
             </h3>
             <div className="mt-6 text-center py-12">
-              <p className="mb-4 text-sm leading-7 text-[#5F5348]">
+              <p className="mb-4 text-sm leading-7 text-text-secondary">
                 No verified reviews yet. Be the first to share your experience!
               </p>
-              <p className="mb-4 text-xs leading-5 text-[#6F6255]">
+              <p className="mb-4 text-xs leading-5 text-text-secondary">
                 Reviews and delivery photos from verified buyers will appear here
                 after purchase.
               </p>
@@ -175,7 +175,7 @@ export function ProductInfoTabs({ product }: { product: Product }) {
 
         {active === "Reviews" && (
           <div>
-            <h3 className="font-display text-3xl leading-none text-[#171717]">
+            <h3 className="font-display text-3xl leading-none text-text-primary">
               Reviews
             </h3>
             <p className="mt-4">

@@ -20,15 +20,15 @@ export default async function Page() {
   );
 
   return (
-    <main className="bg-[#FFF8EF] py-14 sm:py-20">
+    <main className="bg-[var(--blush)] py-14 sm:py-20">
       <div className="section-shell max-w-5xl">
         <div className="mx-auto max-w-3xl text-center">
-          <HeartHandshake className="mx-auto h-10 w-10 text-[#B8893B]" />
+          <HeartHandshake className="mx-auto h-10 w-10 text-accent" />
           <p className="eyebrow mt-5">Return & exchange</p>
-          <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
             Easy exchange, clearly explained.
           </h1>
-          <p className="mt-5 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-5 text-sm leading-7 text-text-secondary">
             Contact DARAJNI within seven calendar days of delivery. Eligibility
             depends on the product condition, the issue reported and whether
             the outfit was made to your measurements.
@@ -36,12 +36,12 @@ export default async function Page() {
         </div>
 
         <section className="mt-10 grid gap-5 md:grid-cols-2">
-          <article className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+          <article className="rounded-2xl border border-border bg-surface p-7">
             <CheckCircle2 className="h-6 w-6 text-[#1FAF54]" />
-            <h2 className="font-display mt-5 text-4xl leading-none text-[#171717]">
+            <h2 className="font-display mt-5 text-4xl leading-none text-text-primary">
               Exchange eligibility
             </h2>
-            <ul className="mt-5 grid gap-3 text-sm leading-7 text-[#5F5348]">
+            <ul className="mt-5 grid gap-3 text-sm leading-7 text-text-secondary">
               <li>Raise the request within seven calendar days of delivery.</li>
               <li>The product must be unused, unwashed and unaltered.</li>
               <li>Original tags and packaging must remain intact.</li>
@@ -49,7 +49,7 @@ export default async function Page() {
             </ul>
           </article>
 
-          <article className="rounded-2xl border border-[#E9DCCB] bg-[#171717] p-7 text-white">
+          <article className="rounded-2xl border border-border bg-[#241B12] p-7 text-white">
             <AlertCircle className="h-6 w-6 text-[#D9B56B]" />
             <h2 className="font-display mt-5 text-4xl leading-none">
               Custom-size rule
@@ -65,24 +65,24 @@ export default async function Page() {
         </section>
 
         <section className="mt-5 grid gap-5 md:grid-cols-2">
-          <article className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+          <article className="rounded-2xl border border-border bg-surface p-7">
             <p className="eyebrow">Shipping & resolution</p>
-            <h2 className="font-display mt-4 text-3xl leading-none text-[#171717]">
+            <h2 className="font-display mt-4 text-3xl leading-none text-text-primary">
               Confirm the resolution before sending anything.
             </h2>
-            <p className="mt-4 text-sm leading-7 text-[#5F5348]">
+            <p className="mt-4 text-sm leading-7 text-text-secondary">
               Support will confirm whether the approved resolution is an
               alteration, exchange, replacement or refund, along with the
               return address and who pays reverse shipping. Do not send a
               product without that confirmation.
             </p>
           </article>
-          <article className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+          <article className="rounded-2xl border border-border bg-surface p-7">
             <p className="eyebrow">Refund timing</p>
-            <h2 className="font-display mt-4 text-3xl leading-none text-[#171717]">
+            <h2 className="font-display mt-4 text-3xl leading-none text-text-primary">
               Timing is confirmed after inspection.
             </h2>
-            <p className="mt-4 text-sm leading-7 text-[#5F5348]">
+            <p className="mt-4 text-sm leading-7 text-text-secondary">
               If a refund is approved, DARAJNI support will confirm the method
               and processing estimate after the returned product is received
               and inspected. Bank or payment-provider posting time can be
@@ -91,7 +91,7 @@ export default async function Page() {
           </article>
         </section>
 
-        <section className="mt-10 rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-7">
+        <section className="mt-10 rounded-2xl border border-border bg-surface p-7">
           <p className="eyebrow">Process</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-5">
             {[
@@ -101,7 +101,7 @@ export default async function Page() {
               "Team reviews request",
               "Pickup, exchange or alteration decision",
             ].map((step, index) => (
-              <div key={step} className="rounded-xl bg-[#F6E9DD] p-4 text-sm leading-6 text-[#5F5348]">
+              <div key={step} className="rounded-xl bg-surface-alt p-4 text-sm leading-6 text-text-secondary">
                 <span className="font-display text-2xl text-[#6E0F1A]">
                   {index + 1}
                 </span>

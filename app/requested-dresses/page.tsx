@@ -27,7 +27,7 @@ export default async function RequestedDressesPage() {
         <h1 className="font-display mt-3 text-5xl leading-tight text-[#3A2E25] sm:text-6xl">
           Request a Custom Dress
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#6F6255]">
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-text-secondary">
           Share reference images of dress designs you love. Our master artisans in Bihar Sharif review community requests for future couture collections.
         </p>
       </div>

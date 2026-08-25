@@ -50,14 +50,14 @@ export default async function Page() {
     ],
   ];
   return (
-    <main className="bg-[#FFF8EF] py-14 sm:py-20">
+    <main className="bg-[var(--blush)] py-14 sm:py-20">
       <div className="section-shell max-w-5xl">
         <div className="mx-auto max-w-3xl text-center">
           <p className="eyebrow">Shipping policy</p>
-          <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
             Pan-India delivery, clearly explained.
           </h1>
-          <p className="mt-5 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-5 text-sm leading-7 text-text-secondary">
             Most orders are estimated to arrive within 7–12 calendar days.
             Your shipping charge is displayed before payment, and custom-size
             confirmation or carrier disruptions can extend the estimate.
@@ -66,12 +66,12 @@ export default async function Page() {
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {summaries.map(([title, text, Icon]) => (
-            <article key={title} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
-              <Icon className="h-5 w-5 text-[#B8893B]" />
-              <h2 className="font-display mt-5 text-2xl leading-none text-[#171717]">
+            <article key={title} className="rounded-2xl border border-border bg-surface p-5">
+              <Icon className="h-5 w-5 text-accent" />
+              <h2 className="font-display mt-5 text-2xl leading-none text-text-primary">
                 {title}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[#6F6255]">{text}</p>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">{text}</p>
             </article>
           ))}
         </div>
@@ -80,12 +80,12 @@ export default async function Page() {
           {details.map(([title, text]) => (
             <details
               key={title}
-              className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5"
+              className="rounded-2xl border border-border bg-surface p-5"
             >
-              <summary className="cursor-pointer font-display text-2xl text-[#171717]">
+              <summary className="cursor-pointer font-display text-2xl text-text-primary">
                 {title}
               </summary>
-              <p className="mt-4 text-sm leading-7 text-[#6F6255]">{text}</p>
+              <p className="mt-4 text-sm leading-7 text-text-secondary">{text}</p>
             </details>
           ))}
         </section>

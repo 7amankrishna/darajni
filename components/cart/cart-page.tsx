@@ -193,7 +193,7 @@ export function CartPage({ settings }: { settings: StoreSettings }) {
                 <span>{formatPrice(tax)}</span>
               </div>
             </div>
-            <div className="my-5 h-px bg-[#E9DCCB]" />
+            <div className="my-5 h-px bg-border" />
             <div className="flex items-end justify-between">
               <span className="text-sm font-semibold text-text-primary">Estimated total</span>
               <span className="font-display text-3xl font-semibold text-text-primary">

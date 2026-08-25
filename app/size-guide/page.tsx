@@ -32,15 +32,15 @@ export default async function Page() {
   );
 
   return (
-    <main className="bg-[#FFF8EF] py-14 sm:py-20">
+    <main className="bg-[var(--blush)] py-14 sm:py-20">
       <div className="section-shell">
         <div className="mx-auto max-w-3xl text-center">
-          <Ruler className="mx-auto h-10 w-10 text-[#B8893B]" />
+          <Ruler className="mx-auto h-10 w-10 text-accent" />
           <p className="eyebrow mt-5">Size guide</p>
-          <h1 className="font-display mt-4 text-5xl leading-none text-[#171717] sm:text-6xl">
+          <h1 className="font-display mt-4 text-5xl leading-none text-text-primary sm:text-6xl">
             Find your perfect fit
           </h1>
-          <p className="mt-5 text-sm leading-7 text-[#6F6255]">
+          <p className="mt-5 text-sm leading-7 text-text-secondary">
             Use this guide to measure at home. For help, our team can guide you
             on WhatsApp.
           </p>
@@ -49,11 +49,11 @@ export default async function Page() {
         <section className="mt-12 grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
           <MeasurementGuideFigure />
 
-          <div className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
+          <div className="rounded-2xl border border-border bg-surface p-5 shadow-[0_18px_50px_rgba(83,54,22,0.08)] sm:p-7">
             <p className="eyebrow">Size chart</p>
             <div className="table-scroll mt-5">
-              <table className="w-full min-w-[680px] text-left text-sm text-[#5F5348]">
-                <thead className="bg-[#F6E9DD] text-xs uppercase text-[#6F6255]">
+              <table className="w-full min-w-[680px] text-left text-sm text-text-secondary">
+                <thead className="bg-surface-alt text-xs uppercase text-text-secondary">
                   <tr>
                     {["Size", "Bust", "Waist", "Hip", "Shoulder", "Length"].map((head) => (
                       <th key={head} className="px-4 py-3 font-extrabold">
@@ -62,7 +62,7 @@ export default async function Page() {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E9DCCB]">
+                <tbody className="divide-y divide-border">
                   {sizeRows.map((row) => (
                     <tr key={row[0]}>
                       {row.map((cell, index) => (
@@ -88,11 +88,11 @@ export default async function Page() {
               "Measure sleeve from shoulder point to desired sleeve end.",
               "Measure blouse or lehenga length from the starting point to the desired hem.",
             ].map((step, index) => (
-              <article key={step} className="rounded-2xl border border-[#E9DCCB] bg-[#FFFDF8] p-5">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#171717] text-sm font-bold text-white">
+              <article key={step} className="rounded-2xl border border-border bg-surface p-5">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#241B12] text-sm font-bold text-white">
                   {index + 1}
                 </span>
-                <p className="mt-5 text-sm font-semibold leading-6 text-[#171717]">
+                <p className="mt-5 text-sm font-semibold leading-6 text-text-primary">
                   {step}
                 </p>
               </article>
@@ -100,7 +100,7 @@ export default async function Page() {
           </div>
         </section>
 
-        <section className="mt-12 rounded-2xl border border-[#E9DCCB] bg-[#171717] p-7 text-white sm:p-9">
+        <section className="mt-12 rounded-2xl border border-border bg-[#241B12] p-7 text-white sm:p-9">
           <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div>
               <p className="text-[0.68rem] font-extrabold uppercase text-[#D9B56B]">

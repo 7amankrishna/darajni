@@ -85,7 +85,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
             </div>
             
             <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
-              <span className="rounded-full bg-[#111111]/85 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider text-[#FAF7F2] backdrop-blur-sm">
+              <span className="rounded-full border border-white/20 bg-[#241A12]/70 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#F6EFE5] backdrop-blur-md">
                 {fabricTag}
               </span>
             </div>
