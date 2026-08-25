@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
 import BrandLogo from "@/components/BrandLogo";
@@ -103,22 +104,38 @@ export default function Navbar({
     setOpen(false);
   }, [pathname]);
 
-  // Lock page scroll while the drawer is open.
+  // Hard-lock page scroll while the drawer is open. position:fixed on the body
+  // (with the scroll offset preserved) also stops iOS rubber-band bleed-through
+  // that plain overflow:hidden cannot prevent.
   useEffect(() => {
     if (!open) return;
 
-    const previousOverflow = document.body.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
+    const { body } = document;
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      paddingRight: body.style.paddingRight,
+    };
 
-    document.body.style.overflow = "hidden";
+    body.style.overflow = "hidden";
     if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      body.style.paddingRight = `${scrollbarWidth}px`;
     }
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
+      body.style.overflow = previous.overflow;
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.width = previous.width;
+      body.style.paddingRight = previous.paddingRight;
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
@@ -227,42 +244,45 @@ export default function Navbar({
 
       </header>
 
-      {open && (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-background/98 backdrop-blur-xl animate-in slide-in-from-top-2 fade-in duration-300 xl:hidden">
-          <div className="flex-1 overflow-y-auto px-5 py-6">
-            <div className="grid gap-2">
-              {navLinks.map((link, index) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3.5 text-[0.85rem] font-bold tracking-wide text-text-primary transition-all hover:bg-surface-alt hover:text-accent hover:translate-x-1"
-                  style={{ animationDelay: `${index * 50}ms` }}
+      {open &&
+        createPortal(
+          // Portaled to document.body so no ancestor (transform/filter) can
+          // turn the fixed drawer into a scroll-away box.
+          <div className="mobile-drawer fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-background/95 backdrop-blur-xl xl:hidden">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6">
+              <div className="grid gap-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-4 py-3.5 text-[0.85rem] font-bold tracking-wide text-text-primary transition-all hover:bg-surface-alt hover:text-accent hover:translate-x-1"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-8 border-t border-border pt-6">
+                <a
+                  href={whatsappHref}
+                  target={supportNumber ? "_blank" : undefined}
+                  rel="noreferrer"
+                  className="whatsapp-button w-full shadow-lg shadow-success/20"
                 >
-                  {link.label}
-                </Link>
-              ))}
+                  <MessageCircle className="h-4 w-4" />
+                  WhatsApp support
+                </a>
+              </div>
+              <div className="mt-6 flex h-16 items-center justify-between rounded-xl border border-border bg-surface-alt/50 px-4">
+                <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-text-primary">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
             </div>
-            <div className="mt-8 border-t border-border pt-6">
-              <a
-                href={whatsappHref}
-                target={supportNumber ? "_blank" : undefined}
-                rel="noreferrer"
-                className="whatsapp-button w-full shadow-lg shadow-success/20"
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp support
-              </a>
-            </div>
-            <div className="mt-6 flex h-16 items-center justify-between rounded-xl border border-border bg-surface-alt/50 px-4">
-              <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-text-primary">
-                Theme
-              </span>
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       <a
         href={whatsappHref}
