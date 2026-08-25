@@ -204,8 +204,8 @@ if (supabaseDbUrl) {
     const parsed = new URL(supabaseDbUrl);
     if (parsed.protocol !== "postgresql:" && parsed.protocol !== "postgres:") {
       errors.push("SUPABASE_DB_URL must use the postgresql:// (or postgres://) scheme.");
-    } else if (/pooler\.supabase\.(com|co)/i.test(parsed.hostname)) {
-      errors.push("SUPABASE_DB_URL points to the Supabase pooler; use the direct connection on port 5432 instead.");
+    } else if (/pooler\.supabase\.(com|co)/i.test(parsed.hostname) && parsed.port === "6543") {
+      errors.push("SUPABASE_DB_URL points to the transaction pooler (port 6543); use port 5432 (session pooler or direct).");
     } else if (!parsed.hostname || !parsed.username || !parsed.password || !parsed.pathname.replace(/^\//, "")) {
       errors.push("SUPABASE_DB_URL must include host, user, password, and a database name.");
     }

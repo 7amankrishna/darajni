@@ -155,9 +155,13 @@ export function getSupabaseDbUrl(): SupabaseDbConnection | null {
   const conn = parsePostgresUrl(raw);
 
   if (/pooler\.supabase\.(com|co)/i.test(conn.host)) {
-    throw new BackupEnvError(
-      "SUPABASE_DB_URL points to the Supabase pooler (PgBouncer), which cannot run pg_dump reliably. Use the direct connection on port 5432, not the pooler on port 6543.",
-    );
+    if (conn.port === 6543) {
+      throw new BackupEnvError(
+        "SUPABASE_DB_URL points to the transaction pooler (port 6543), which cannot run pg_dump. Use port 5432 (session pooler or direct connection).",
+      );
+    }
+    // Session pooler (port 5432) is allowed: it is IPv4-reachable (needed for
+    // hosts without IPv6, e.g. CI runners) and supports pg_dump/pg_restore.
   }
 
   const isSupabaseHost =

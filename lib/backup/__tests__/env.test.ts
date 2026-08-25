@@ -162,10 +162,20 @@ describe("getSupabaseDbUrl", () => {
     expect(() => getSupabaseDbUrl()).toThrow(/placeholder/);
   });
 
-  it("rejects the Supabase pooler host", () => {
+  it("rejects the transaction pooler (port 6543)", () => {
     process.env.SUPABASE_DB_URL =
       "postgresql://u:p@aws-0.pooler.supabase.com:6543/db";
-    expect(() => getSupabaseDbUrl()).toThrow(/pooler/i);
+    expect(() => getSupabaseDbUrl()).toThrow(/transaction pooler/i);
+  });
+
+  it("allows the session pooler (port 5432) and forces sslmode=require", () => {
+    process.env.SUPABASE_DB_URL =
+      "postgresql://postgres.proj:pw@aws-0.ap-south-1.pooler.supabase.com:5432/postgres";
+    const conn = getSupabaseDbUrl();
+    expect(conn).not.toBeNull();
+    expect(conn!.host).toBe("aws-0.ap-south-1.pooler.supabase.com");
+    expect(conn!.sslmode).toBe("require");
+    expect(conn!.pgEnv.PGSSLMODE).toBe("require");
   });
 
   it("forces sslmode=require for supabase hosts", () => {
