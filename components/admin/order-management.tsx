@@ -32,7 +32,10 @@ import {
 } from "@/components/ui/table";
 import { formatPrice } from "@/config/site";
 import { formatDate } from "@/lib/commerce";
-import type { AdminOrder } from "@/types/admin";
+import type {
+  AdminOrder,
+  OrderDeliverabilityStatus,
+} from "@/types/admin";
 import type { OrderStatus } from "@/types/database";
 
 const statusStyle: Record<OrderStatus, string> = {
@@ -43,6 +46,44 @@ const statusStyle: Record<OrderStatus, string> = {
   delivered: "bg-emerald-400/10 text-emerald-200",
   cancelled: "bg-red-400/10 text-red-200",
 };
+
+const deliverabilityMeta: Record<
+  OrderDeliverabilityStatus,
+  { label: string; className: string }
+> = {
+  serviceable: {
+    label: "Deliverable",
+    className: "bg-emerald-400/10 text-emerald-200",
+  },
+  cod_unavailable: {
+    label: "COD unsupported",
+    className: "bg-amber-400/10 text-amber-200",
+  },
+  not_serviceable: {
+    label: "Not deliverable",
+    className: "bg-red-400/10 text-red-200",
+  },
+  unverified: {
+    label: "Unverified",
+    className: "bg-white/5 text-white/50",
+  },
+};
+
+function DeliverabilityBadge({ order }: { order: AdminOrder }) {
+  const meta = deliverabilityMeta[order.deliverabilityStatus];
+  return (
+    <span
+      title={
+        order.deliverabilityDays !== null
+          ? `Fastest courier transit ~${order.deliverabilityDays} day(s)`
+          : undefined
+      }
+      className={`status-pill ${meta.className}`}
+    >
+      {meta.label}
+    </span>
+  );
+}
 
 const actions: Partial<
   Record<
@@ -186,6 +227,9 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   <TableCell>
                     <p>{order.customerName}</p>
                     <p className="mt-1 text-xs text-text-secondary">{order.phone}</p>
+                    <p className="mt-1.5">
+                      <DeliverabilityBadge order={order} />
+                    </p>
                   </TableCell>
                   <TableCell>{formatPrice(order.total)}</TableCell>
                   <TableCell>
@@ -272,6 +316,15 @@ export function OrderManagement({ orders }: { orders: AdminOrder[] }) {
                   {selected.address}, {selected.city}, {selected.state} {selected.pincode}
                   {selected.landmark ? ` · ${selected.landmark}` : ""}
                 </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <DeliverabilityBadge order={selected} />
+                  {selected.deliverabilityDays !== null && (
+                    <span className="text-xs text-text-secondary">
+                      Fastest courier transit ~{selected.deliverabilityDays}{" "}
+                      day{selected.deliverabilityDays === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </div>
               </section>
             </div>
             <section className="rounded-xl border border-border">

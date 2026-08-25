@@ -1,5 +1,8 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
+import { siteConfig } from "@/config/site";
 import { getShiprocketEnvironment } from "@/lib/config/server-env";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
@@ -353,4 +356,173 @@ export async function retryShiprocketOrderSyncs(limit = 25) {
     if (result.status === "synced") synced += 1;
   }
   return { attempted: data?.length ?? 0, synced };
+}
+
+type ServiceabilityCourierRow = {
+  courier_name?: unknown;
+  estimated_delivery_days?: unknown;
+  etd?: unknown;
+  cod?: unknown;
+};
+
+export type DeliveryEstimate =
+  | {
+      status: "serviceable";
+      fastestDays: number;
+      slowestDays: number;
+      codAvailable: boolean;
+      fastestCourier: string | null;
+    }
+  | { status: "not-serviceable" }
+  | { status: "unavailable" };
+
+function parseDeliveryDays(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.max(0, Math.round(value));
+  }
+  if (typeof value === "string") {
+    const match = value.match(/\d+/);
+    if (match) return Math.max(0, Number(match[0]));
+  }
+  return null;
+}
+
+function daysFromEtd(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const diff = Math.ceil((date.getTime() - Date.now()) / 86_400_000);
+  return diff >= 0 ? diff : 0;
+}
+
+// Cached per delivery pincode for a day: courier ETDs move slowly, so repeat
+// lookups never touch the Shiprocket API again for the same pincode.
+export const getDeliveryEstimateForPincode = unstable_cache(
+  async (deliveryPincode: string): Promise<DeliveryEstimate> => {
+    if (!/^\d{6}$/.test(deliveryPincode)) return { status: "unavailable" };
+
+    const environment = getShiprocketEnvironment();
+    if (!environment) return { status: "unavailable" };
+
+    const pickupPostcode = siteConfig.postalCode.replace(/\D/g, "");
+    if (!/^\d{6}$/.test(pickupPostcode)) return { status: "unavailable" };
+
+    try {
+      let token = await authenticate();
+      if (!token) return { status: "unavailable" };
+
+      const query = new URLSearchParams({
+        pickup_postcode: pickupPostcode,
+        delivery_postcode: deliveryPincode,
+        cod: "1",
+        weight: String(environment.parcel.weightKg),
+      });
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        let response: Response;
+        try {
+          response = await fetch(
+            `${SHIPROCKET_BASE_URL}/courier/serviceability/?${query}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              cache: "no-store",
+              signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+            },
+          );
+        } catch {
+          return { status: "unavailable" };
+        }
+
+        if (response.status === 401 && attempt === 0) {
+          cachedToken = null;
+          token = await authenticate();
+          if (!token) return { status: "unavailable" };
+          continue;
+        }
+
+        const data = await readJson(response);
+        if (!response.ok) return { status: "unavailable" };
+
+        const payload = (data.data ?? {}) as Record<string, unknown>;
+        const couriers = Array.isArray(payload.available_courier_companies)
+          ? (payload.available_courier_companies as ServiceabilityCourierRow[])
+          : [];
+
+        if (!couriers.length) return { status: "not-serviceable" };
+
+        const daysPerCourier = couriers.map((courier) => ({
+          days:
+            parseDeliveryDays(courier.estimated_delivery_days) ??
+            daysFromEtd(courier.etd),
+          name:
+            typeof courier.courier_name === "string"
+              ? courier.courier_name.slice(0, 60)
+              : null,
+          cod: Number(courier.cod) === 1,
+        }));
+
+        const knownDays = daysPerCourier
+          .map((courier) => courier.days)
+          .filter((days): days is number => days !== null);
+
+        if (!knownDays.length) return { status: "unavailable" };
+
+        const sortedDays = [...new Set(knownDays)].sort((a, b) => a - b);
+        const fastestDays = sortedDays[0];
+        const fastestCourier =
+          daysPerCourier.find((courier) => courier.days === fastestDays)?.name ??
+          null;
+
+        return {
+          status: "serviceable",
+          fastestDays,
+          slowestDays: sortedDays[sortedDays.length - 1],
+          codAvailable: daysPerCourier.some((courier) => courier.cod),
+          fastestCourier,
+        };
+      }
+
+      return { status: "unavailable" };
+    } catch {
+      // Never leak Shiprocket internals to the storefront; the UI falls back
+      // to the standard 7-12 day copy when the estimate cannot be verified.
+      return { status: "unavailable" };
+    }
+  },
+  ["shiprocket-delivery-estimate"],
+  { revalidate: 60 * 60 * 24, tags: ["serviceability"] },
+);
+
+export type OrderDeliverabilityStatus =
+  | "unverified"
+  | "serviceable"
+  | "cod_unavailable"
+  | "not_serviceable";
+
+export interface OrderDeliverability {
+  status: OrderDeliverabilityStatus;
+  days: number | null;
+}
+
+// Maps a cached pincode estimate onto the order-level verdict stored for the
+// admin panel. A COD order on a prepaid-only lane is flagged separately so
+// operations can call the customer before dispatch.
+export async function assessOrderDeliverability(
+  pincode: string,
+  paymentMethod: string,
+): Promise<OrderDeliverability> {
+  const estimate = await getDeliveryEstimateForPincode(pincode);
+
+  if (estimate.status === "not-serviceable") {
+    return { status: "not_serviceable", days: null };
+  }
+  if (estimate.status === "unavailable") {
+    return { status: "unverified", days: null };
+  }
+
+  const codBlocked = !estimate.codAvailable && paymentMethod === "cod";
+  return {
+    status: codBlocked ? "cod_unavailable" : "serviceable",
+    days: estimate.fastestDays,
+  };
 }

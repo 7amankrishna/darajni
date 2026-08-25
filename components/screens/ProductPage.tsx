@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 
 import DesignCard from "@/components/DesignCard";
+import { PincodeChecker } from "@/components/product/pincode-checker";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { ProductInfoTabs } from "@/components/product/product-info-tabs";
 import { ProductPurchase } from "@/components/product/product-purchase";
@@ -126,6 +127,7 @@ function StickyHelpPanel({
           <p>Custom orders may take extra confirmation time.</p>
           <p>Delivery may vary by location and courier availability.</p>
         </div>
+        <PincodeChecker />
       </section>
 
       <section className="rounded-2xl border border-border bg-surface p-5">

@@ -66,6 +66,21 @@ function mapOrder(row: Record<string, unknown>): AdminOrder {
     paymentMethod: row.payment_method as AdminOrder["paymentMethod"],
     paymentStatus: row.payment_status as AdminOrder["paymentStatus"],
     status: row.status as AdminOrder["status"],
+    deliverabilityStatus: (
+      typeof row.deliverability_status === "string" &&
+      [
+        "unverified",
+        "serviceable",
+        "cod_unavailable",
+        "not_serviceable",
+      ].includes(row.deliverability_status)
+        ? row.deliverability_status
+        : "unverified"
+    ) as AdminOrder["deliverabilityStatus"],
+    deliverabilityDays:
+      row.deliverability_days === null || row.deliverability_days === undefined
+        ? null
+        : Number(row.deliverability_days),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
     items: items.map((item) => {

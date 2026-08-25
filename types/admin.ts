@@ -23,6 +23,12 @@ export interface AdminOrderItem {
   lineTotal: number;
 }
 
+export type OrderDeliverabilityStatus =
+  | "unverified"
+  | "serviceable"
+  | "cod_unavailable"
+  | "not_serviceable";
+
 export interface AdminOrder {
   id: string;
   orderNumber: string;
@@ -43,6 +49,8 @@ export interface AdminOrder {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   status: OrderStatus;
+  deliverabilityStatus: OrderDeliverabilityStatus;
+  deliverabilityDays: number | null;
   createdAt: string;
   updatedAt: string;
   items: AdminOrderItem[];

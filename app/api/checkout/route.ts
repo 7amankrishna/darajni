@@ -9,7 +9,7 @@ import {
   getRazorpayOrderEnvironment,
 } from "@/lib/config/server-env";
 import { generatePayURequestHash } from "@/lib/security/payu";
-import { syncShiprocketOrder } from "@/lib/shiprocket";
+import { syncShiprocketOrder, assessOrderDeliverability } from "@/lib/shiprocket";
 import {
   apiError,
   internalApiError,
@@ -169,6 +169,40 @@ export async function POST(request: Request) {
       console.error("Checkout order account link failed", linkError.message);
     }
   }
+
+  // Address deliverability is metadata for the admin panel, never a checkout
+  // gate: an assessment runs after the response so ShipRocket latency (first
+  // lookup per pincode) cannot slow the customer's payment handoff.
+  after(async () => {
+    try {
+      const assessment = await assessOrderDeliverability(
+        customer.pincode.trim(),
+        paymentMethod,
+      );
+      if (assessment.status === "unverified") return;
+      const { error: deliverabilityError } = await supabase
+        .from("orders")
+        .update({
+          deliverability_status: assessment.status,
+          deliverability_days: assessment.days,
+          deliverability_checked_at: new Date().toISOString(),
+        })
+        .eq("id", order.order_id);
+      if (deliverabilityError) {
+        console.error(
+          "Order deliverability update failed",
+          deliverabilityError.message,
+        );
+      }
+    } catch (assessmentError) {
+      console.error(
+        "Order deliverability assessment failed",
+        assessmentError instanceof Error
+          ? assessmentError.message.slice(0, 300)
+          : "Unknown error",
+      );
+    }
+  });
 
   let token: string;
   try {
