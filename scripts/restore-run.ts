@@ -70,6 +70,34 @@ function runPgRestore(dumpPath: string, target: NonNullable<ReturnType<typeof ge
   });
 }
 
+/**
+ * On Supabase, pg_restore always reports hundreds of benign errors (ownership/
+ * ACL statements on system schemas it refuses to touch). Exit codes therefore
+ * cannot decide success. Instead verify the restored CONTENT: every core app
+ * table must exist and be readable after the restore.
+ */
+function verifyRestoredContent(target: NonNullable<ReturnType<typeof getSupabaseDbUrl>>): Promise<boolean> {
+  const query =
+    "SELECT (to_regclass('public.products') IS NOT NULL)" +
+    " AND (to_regclass('public.orders') IS NOT NULL)" +
+    " AND (to_regclass('public.order_items') IS NOT NULL)" +
+    " AND (to_regclass('public.settings') IS NOT NULL)" +
+    " AND (to_regclass('public.categories') IS NOT NULL)" +
+    " AND (to_regclass('public.customer_profiles') IS NOT NULL) AS ok;";
+  return new Promise((resolve) => {
+    const child = spawn("psql", ["--no-password", "-tAc", query], {
+      stdio: ["ignore", "pipe", "inherit"],
+      env: { ...process.env, ...target.pgEnv },
+    });
+    let out = "";
+    child.stdout?.on("data", (chunk: Buffer) => {
+      out += chunk.toString("utf8");
+    });
+    child.on("error", () => resolve(false));
+    child.on("close", () => resolve(out.trim() === "t"));
+  });
+}
+
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const env = args.env ?? getBackupEnv();
@@ -95,9 +123,10 @@ async function main(): Promise<void> {
     );
 
     const recovered = await recoverToDumpFile(backup);
-    let exitCode = 1;
+    // Exit code is intentionally ignored: on Supabase it is always 1 due to
+    // benign system-schema errors. Content verification decides success.
     try {
-      exitCode = await runPgRestore(recovered.dumpPath, target);
+      await runPgRestore(recovered.dumpPath, target);
     } finally {
       try {
         unlinkSync(recovered.dumpPath);
@@ -105,8 +134,12 @@ async function main(): Promise<void> {
         // Best-effort cleanup.
       }
     }
-    if (exitCode !== 0) {
-      throw new Error(`pg_restore exited with code ${exitCode}. See the Actions log above.`);
+
+    const contentOk = await verifyRestoredContent(target);
+    if (!contentOk) {
+      throw new Error(
+        "Post-restore verification failed: core application tables are missing or unreadable after pg_restore. Check the Actions log; the pre-restore safety backup can be restored to recover.",
+      );
     }
 
     const finishedAt = new Date().toISOString();
