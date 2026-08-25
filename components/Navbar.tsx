@@ -104,38 +104,34 @@ export default function Navbar({
     setOpen(false);
   }, [pathname]);
 
-  // Hard-lock page scroll while the drawer is open. position:fixed on the body
-  // (with the scroll offset preserved) also stops iOS rubber-band bleed-through
-  // that plain overflow:hidden cannot prevent.
+  // Lock the ROOT SCROLLER (<html>) while the drawer is open. Freezing <body>
+  // with position:fixed would drag the sticky header off-screen once the page
+  // is scrolled; locking <html> keeps it stuck at the top with zero shift,
+  // while overscroll-behavior blocks iOS rubber-band bleed-through.
   useEffect(() => {
     if (!open) return;
 
-    const { body } = document;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const scrollY = window.scrollY;
+    const { body, documentElement } = document;
+    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
     const previous = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-      paddingRight: body.style.paddingRight,
+      htmlOverflow: documentElement.style.overflow,
+      htmlOverscroll: documentElement.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyPaddingRight: body.style.paddingRight,
     };
 
+    documentElement.style.overflow = "hidden";
+    documentElement.style.overscrollBehavior = "none";
     body.style.overflow = "hidden";
     if (scrollbarWidth > 0) {
       body.style.paddingRight = `${scrollbarWidth}px`;
     }
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.width = "100%";
 
     return () => {
-      body.style.overflow = previous.overflow;
-      body.style.position = previous.position;
-      body.style.top = previous.top;
-      body.style.width = previous.width;
-      body.style.paddingRight = previous.paddingRight;
-      window.scrollTo(0, scrollY);
+      documentElement.style.overflow = previous.htmlOverflow;
+      documentElement.style.overscrollBehavior = previous.htmlOverscroll;
+      body.style.overflow = previous.bodyOverflow;
+      body.style.paddingRight = previous.bodyPaddingRight;
     };
   }, [open]);
 
