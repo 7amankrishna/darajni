@@ -55,7 +55,6 @@ export default function Navbar({
   hasSaleProducts: boolean;
 }) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
   const [open, setOpen] = useState(false);
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
@@ -137,7 +136,12 @@ export default function Navbar({
 
   return (
     <>
-      <header className={cn("inset-x-0 top-0 z-40 h-[64px] border-b border-border/50 bg-background/85 transition-colors backdrop-blur-xl shadow-[0_10px_36px_-14px_rgba(42,26,16,0.14)] lg:h-[109px]", isHome ? "sticky lg:fixed" : "sticky")}>
+      {/* Spacer holds the layout because the header is always position:fixed.
+          A fixed header cannot be dislodged by scroll position, sticky
+          containing blocks, or the drawer's scroll lock. */}
+      <div aria-hidden="true" className="h-16 lg:h-[109px]" />
+
+      <header className="fixed inset-x-0 top-0 z-40 h-[64px] border-b border-border/50 bg-background/85 transition-colors backdrop-blur-xl shadow-[0_10px_36px_-14px_rgba(42,26,16,0.14)] lg:h-[109px]">
         <div className="hidden border-b border-border/60 bg-surface-alt/70 text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.64rem] font-bold uppercase tracking-[0.12em] text-text-secondary">
             <span>{shippingLabel}</span>

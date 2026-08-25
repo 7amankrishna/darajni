@@ -1985,6 +1985,7 @@ html.js-reveal [data-reveal].is-revealed {
   body > header,
   body > footer,
   header.sticky,
+  header.fixed,
   footer.border-t {
     display: none !important;
   }
