@@ -74,6 +74,7 @@ vi.mock("fs/promises", () => ({
 }));
 
 import { statSync } from "node:fs";
+import * as fsPromises from "fs/promises";
 import {
   uploadEncryptedArchive,
   uploadJson,
@@ -82,6 +83,7 @@ import {
 } from "@/lib/backup/firebase-storage";
 
 const statSyncMock = vi.mocked(statSync);
+const readFileMock = vi.mocked(fsPromises.readFile);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -175,6 +177,36 @@ describe("uploadEncryptedArchive", () => {
     ).resolves.toBeTruthy();
     expect(fromMock.upload).toHaveBeenCalledTimes(2);
   }, 15000);
+});
+
+describe("uploadEncryptedArchive (chunked)", () => {
+  it("splits archives over 40 MiB into ordered parts", async () => {
+    const chunk = 40 * 1024 * 1024;
+    const big = Buffer.alloc(chunk * 2 + 1000, 7); // 2 full chunks + remainder
+    readFileMock.mockResolvedValue(big as never);
+    statSyncMock.mockReturnValue({ size: big.length } as never);
+    const uploaded: Array<{ name: string; size: number }> = [];
+    fromMock.upload.mockImplementation(async (objectName: string, buffer: Buffer) => {
+      uploaded.push({ name: objectName, size: buffer.length });
+      return { data: { path: objectName }, error: null };
+    });
+
+    const res = await uploadEncryptedArchive({
+      localPath: "/tmp/big.enc",
+      objectName: "backups/production/big.dump.enc",
+      contentType: "application/octet-stream",
+      metadata: {},
+    });
+
+    expect(res.parts).toHaveLength(3);
+    expect(res.size).toBe(big.length);
+    expect(uploaded.map((p) => p.name)).toEqual([
+      "backups/production/big.dump.enc.part-0001",
+      "backups/production/big.dump.enc.part-0002",
+      "backups/production/big.dump.enc.part-0003",
+    ]);
+    expect(uploaded.map((p) => p.size)).toEqual([chunk, chunk, 1000]);
+  });
 });
 
 describe("uploadJson", () => {

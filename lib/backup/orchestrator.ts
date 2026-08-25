@@ -144,6 +144,8 @@ export interface BackupManifest {
     format: string;
     encryptedSize: number;
     contentType: string;
+    /** Present when the archive is stored as multiple ordered chunked parts. */
+    parts?: Array<{ objectName: string; size: number }>;
   };
   encryption: {
     algorithm: "aes-256-gcm";
@@ -303,6 +305,47 @@ async function runDbDump(args: RunDbDumpArgs): Promise<DbDumpResult> {
     const createdAtEpochMs = timestamp.getTime();
     const serverVersion = await probeServerVersion(config.supabaseDb);
 
+    if (dryRun) {
+      log("db", `dry-run: dump verified (${hasher.getBytes()} encrypted bytes) — not uploaded`);
+      return {
+        status: "success",
+        reason: "dry-run: not uploaded",
+        objectName,
+        manifestObjectName: manifestName,
+        createdAt,
+        createdAtEpochMs,
+        bytes: encryptedBytes,
+        checksum,
+        pgDumpVersion,
+        pgDumpMajor,
+        serverVersion: serverVersion ?? "unknown",
+        durationMs: Date.now() - startedAt,
+      };
+    }
+
+    const uploadResult = await uploadEncryptedArchive({
+      localPath: tempFile,
+      objectName,
+      contentType: "application/octet-stream",
+      metadata: {
+        backupId,
+        env,
+        createdAt,
+        algorithm: "aes-256-gcm",
+        iv: ivBase64,
+        authTag: authTagBase64,
+        checksum,
+        encryptedSize: String(encryptedBytes),
+        pgDumpVersion,
+      },
+    });
+    log(
+      "db",
+      uploadResult.parts
+        ? `uploaded ${encryptedBytes} encrypted bytes as ${uploadResult.parts.length} parts to ${objectName}`
+        : `uploaded ${encryptedBytes} encrypted bytes to ${objectName}`,
+    );
+
     const manifest: BackupManifest = {
       backupVersion: 1,
       backupId,
@@ -321,48 +364,13 @@ async function runDbDump(args: RunDbDumpArgs): Promise<DbDumpResult> {
         format: "pg_dump-custom-Fc-encrypted",
         encryptedSize: encryptedBytes,
         contentType: "application/octet-stream",
+        ...(uploadResult.parts ? { parts: uploadResult.parts } : {}),
       },
       encryption: { algorithm: "aes-256-gcm", ivBase64, authTagBase64 },
       integrity: { algorithm: "sha256", checksum },
       versions: { pgDump: pgDumpVersion, pgDumpMajor, server: serverVersion ?? "unknown" },
       status: "success",
     };
-
-    if (dryRun) {
-      log("db", `dry-run: dump verified (${encryptedBytes} encrypted bytes) — not uploaded`);
-      return {
-        status: "success",
-        reason: "dry-run: not uploaded",
-        objectName,
-        manifestObjectName: manifestName,
-        createdAt,
-        createdAtEpochMs,
-        bytes: encryptedBytes,
-        checksum,
-        pgDumpVersion,
-        pgDumpMajor,
-        serverVersion: serverVersion ?? "unknown",
-        durationMs: Date.now() - startedAt,
-      };
-    }
-
-    await uploadEncryptedArchive({
-      localPath: tempFile,
-      objectName,
-      contentType: "application/octet-stream",
-      metadata: {
-        backupId,
-        env,
-        createdAt,
-        algorithm: "aes-256-gcm",
-        iv: ivBase64,
-        authTag: authTagBase64,
-        checksum,
-        encryptedSize: String(encryptedBytes),
-        pgDumpVersion,
-      },
-    });
-    log("db", `uploaded ${encryptedBytes} encrypted bytes to ${objectName}`);
 
     await uploadJson(manifestName, JSON.stringify(manifest, null, 2), {
       backupId,
@@ -461,6 +469,13 @@ async function runRetention(args: RunRetentionArgs): Promise<RetentionOutcome> {
     for (const candidate of selection.toDelete) {
       try {
         await deleteObject(candidate.objectName);
+        // Chunked archives have no single base object; remove their parts.
+        const partNames = listed
+          .map((o) => o.name)
+          .filter((name) => name.startsWith(`${candidate.objectName}.part-`));
+        for (const partName of partNames) {
+          await deleteObject(partName);
+        }
         await deleteObject(candidate.manifestObjectName);
         deleted += 1;
         log("retention", `deleted ${candidate.objectName}`);

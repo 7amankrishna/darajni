@@ -56,6 +56,8 @@ interface RestoreManifest {
     format: string;
     encryptedSize: number;
     contentType: string;
+    /** Present when the archive is stored as multiple ordered chunked parts. */
+    parts?: Array<{ objectName: string; size: number }>;
   };
   encryption: {
     algorithm: string;
@@ -212,6 +214,41 @@ function pickBackup(
   return undefined;
 }
 
+/**
+ * Download the archive to `encPath`. Chunked archives (parts listed in the
+ * manifest) are downloaded part-by-part and concatenated in order.
+ */
+async function downloadArchive(manifest: RestoreManifest, encPath: string): Promise<void> {
+  if (!manifest.archive.parts?.length) {
+    await downloadToFile(manifest.archive.objectName, encPath);
+    return;
+  }
+  const parts = [...manifest.archive.parts].sort((a, b) =>
+    a.objectName.localeCompare(b.objectName),
+  );
+  console.log(`Downloading ${parts.length} encrypted parts…`);
+  let first = true;
+  for (const part of parts) {
+    const partPath = tempPath("part");
+    try {
+      await downloadToFile(part.objectName, partPath);
+      const size = statSync(partPath).size;
+      if (size !== part.size) {
+        throw new Error(
+          `Part ${part.objectName} downloaded as ${size} bytes but the manifest says ${part.size}.`,
+        );
+      }
+      await pipeline(
+        createReadStream(partPath),
+        createWriteStream(encPath, { flags: first ? "w" : "a" }),
+      );
+      first = false;
+    } finally {
+      safeUnlink(partPath);
+    }
+  }
+}
+
 async function verifyAndDecrypt(
   manifest: RestoreManifest,
   key: Buffer,
@@ -222,7 +259,7 @@ async function verifyAndDecrypt(
   // removed by the caller's finally so the operator's printed pg_restore command
   // stays valid until the script exits.
   try {
-    await downloadToFile(manifest.archive.objectName, encPath);
+    await downloadArchive(manifest, encPath);
 
     const localSize = statSync(encPath).size;
     if (localSize !== manifest.archive.encryptedSize) {

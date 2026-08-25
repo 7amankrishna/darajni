@@ -83,11 +83,25 @@ export interface ArchiveUploadInput {
   metadata: Record<string, string>;
 }
 
+export interface ArchivePart {
+  objectName: string;
+  size: number;
+}
+
 export interface ArchiveUploadResult {
   objectName: string;
   size: number;
   generation: string | undefined;
+  /** Present when the archive exceeded CHUNK_SIZE and was stored as parts. */
+  parts?: ArchivePart[];
 }
+
+/**
+ * Archives larger than this are split into sequential `.part-NNNN` objects so
+ * backups stay compatible with Supabase Storage per-file size limits (e.g. the
+ * free plan's ~50 MB cap). Parts are rejoined in order on restore/verify.
+ */
+const CHUNK_SIZE = 40 * 1024 * 1024;
 
 /** Upload an encrypted archive to Supabase Storage and verify size. */
 export async function uploadEncryptedArchive(input: ArchiveUploadInput): Promise<ArchiveUploadResult> {
@@ -95,6 +109,26 @@ export async function uploadEncryptedArchive(input: ArchiveUploadInput): Promise
   await ensureBucket();
   const localSize = statSync(input.localPath).size;
   const buffer = await import("fs/promises").then((m) => m.readFile(input.localPath));
+
+  if (buffer.length > CHUNK_SIZE) {
+    const parts: ArchivePart[] = [];
+    let index = 1;
+    for (let offset = 0; offset < buffer.length; offset += CHUNK_SIZE) {
+      const slice = buffer.subarray(offset, Math.min(offset + CHUNK_SIZE, buffer.length));
+      const partName = `${input.objectName}.part-${String(index).padStart(4, "0")}`;
+      await withRetry(async () => {
+        const { error } = await client.storage.from(SUPABASE_BUCKET).upload(partName, slice, {
+          contentType: input.contentType,
+          upsert: false,
+        });
+        if (error) throw error;
+      });
+      parts.push({ objectName: partName, size: slice.length });
+      index += 1;
+    }
+    return { objectName: input.objectName, size: localSize, generation: undefined, parts };
+  }
+
   await withRetry(async () => {
     const { data, error } = await client.storage.from(SUPABASE_BUCKET).upload(input.objectName, buffer, {
       contentType: input.contentType,
@@ -188,19 +222,32 @@ export interface ListedObject {
   customMetadata: Record<string, string> | undefined;
 }
 
-/** List object names under a prefix with basic metadata. */
+/** Recursively collect every object under a folder path (Supabase lists one level at a time). */
+async function listAllRecursive(client: SupabaseClient, folderPath: string): Promise<ListedObject[]> {
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(folderPath, { limit: 1000 });
+  if (error) throw error;
+  const out: ListedObject[] = [];
+  for (const entry of data ?? []) {
+    // id === null marks a virtual folder in Supabase Storage listings.
+    if (entry.id === null) {
+      out.push(...(await listAllRecursive(client, `${folderPath}/${entry.name}`)));
+      continue;
+    }
+    out.push({
+      name: `${folderPath}/${entry.name}`,
+      size: entry.metadata?.size ? Number(entry.metadata.size) : 0,
+      updated: entry.updated_at,
+      customMetadata: undefined,
+    });
+  }
+  return out;
+}
+
+/** List every object name under a prefix (recursively) with basic metadata. */
 export async function listObjects(prefix: string): Promise<ListedObject[]> {
   const client = getClient();
   await ensureBucket();
-  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(prefix, { limit: 1000 });
-  if (error) throw error;
-  return (data ?? []).map((obj) => ({
-    name: obj.name,
-    size: obj.metadata?.size ? Number(obj.metadata.size) : 0,
-    updated: obj.updated_at,
-    // Supabase does not expose arbitrary custom metadata on list; leave undefined.
-    customMetadata: undefined,
-  }));
+  return listAllRecursive(client, prefix.replace(/\/+$/, ""));
 }
 
 /** Delete a single object. */
@@ -211,13 +258,19 @@ export async function deleteObject(objectName: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Whether an object exists. */
+/** Whether an object exists (checks its parent folder listing by name). */
 export async function objectExists(objectName: string): Promise<boolean> {
   const client = getClient();
   await ensureBucket();
-  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(objectName);
+  const slash = objectName.lastIndexOf("/");
+  const dir = slash >= 0 ? objectName.slice(0, slash) : "";
+  const base = slash >= 0 ? objectName.slice(slash + 1) : objectName;
+  const { data, error } = await client.storage.from(SUPABASE_BUCKET).list(dir, {
+    limit: 1000,
+    search: base,
+  });
   if (error) throw error;
-  return (data?.length ?? 0) > 0;
+  return (data ?? []).some((entry) => entry.name === base && entry.id !== null);
 }
 
 /** Fetch full object metadata. */
