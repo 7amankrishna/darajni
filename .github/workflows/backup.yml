@@ -59,17 +59,18 @@ jobs:
       - name: Run backup
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
           BACKUP_RETENTION_DAYS: ${{ secrets.BACKUP_RETENTION_DAYS }}
           BACKUP_ENV: ${{ github.event.inputs.env || 'production' }}
-          # Optional Supabase Storage file backup (set BACKUP_STORAGE_ENABLED in
-          # repo variables to "1" to enable).
+          # Backup destination (Supabase Storage, bucket auto-created).
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Optional dedicated backup destination (a DIFFERENT Supabase project).
+          # When these secrets are set they take priority over the ones above.
+          BACKUP_DEST_SUPABASE_URL: ${{ secrets.BACKUP_DEST_SUPABASE_URL }}
+          BACKUP_DEST_SERVICE_ROLE_KEY: ${{ secrets.BACKUP_DEST_SERVICE_ROLE_KEY }}
+          # Optional Supabase Storage file backup (set BACKUP_STORAGE_ENABLED in
+          # repo variables to "1" to enable).
           BACKUP_STORAGE_ENABLED: ${{ vars.BACKUP_STORAGE_ENABLED }}
         run: |
           ARGS="--env ${{ github.event.inputs.env || 'production' }}"

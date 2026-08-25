@@ -155,7 +155,6 @@ const secrets = [
   "SHIPROCKET_WEBHOOK_TOKEN",
   "UPSTASH_REDIS_REST_TOKEN",
   "BACKUP_ENCRYPTION_KEY",
-  "FIREBASE_PRIVATE_KEY",
   "SUPABASE_DB_URL",
 ].filter((name) => value(name));
 for (let index = 0; index < secrets.length; index += 1) {
@@ -199,30 +198,6 @@ if (backupKey) {
   }
 }
 
-const firebaseNames = [
-  "FIREBASE_PROJECT_ID",
-  "FIREBASE_CLIENT_EMAIL",
-  "FIREBASE_PRIVATE_KEY",
-  "FIREBASE_STORAGE_BUCKET",
-];
-const firebaseValues = firebaseNames.map(value);
-const firebaseConfigured = firebaseValues.every(Boolean);
-if (firebaseValues.some(Boolean) && !firebaseConfigured) {
-  errors.push(`Configure all Firebase variables together: ${firebaseNames.join(", ")}.`);
-}
-if (firebaseConfigured) {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(firebaseValues[1])) {
-    errors.push("FIREBASE_CLIENT_EMAIL must be a valid service-account email address.");
-  }
-  const normalizedKey = firebaseValues[2].replace(/\\n/g, "\n");
-  if (!normalizedKey.includes("BEGIN PRIVATE KEY") || !normalizedKey.includes("END PRIVATE KEY")) {
-    errors.push("FIREBASE_PRIVATE_KEY is missing PEM BEGIN/END markers. Paste the full key block.");
-  }
-  if (/\s/.test(firebaseValues[3]) || firebaseValues[3].includes("/")) {
-    errors.push("FIREBASE_STORAGE_BUCKET must be a bucket name with no spaces or slashes (e.g. my-project.appspot.com).");
-  }
-}
-
 const supabaseDbUrl = value("SUPABASE_DB_URL");
 if (supabaseDbUrl) {
   try {
@@ -244,6 +219,8 @@ if (retentionDays) {
   const n = Number(retentionDays);
   if (!Number.isInteger(n) || n < 1) {
     errors.push("BACKUP_RETENTION_DAYS must be a positive integer.");
+  } else if (n > 30) {
+    warnings.push("BACKUP_RETENTION_DAYS above 30 is clamped to 30 by the backup worker (maximum retention is 30 days).");
   }
 }
 
@@ -271,8 +248,8 @@ if (storageEnabled) {
   }
 }
 
-if (!backupKey && !firebaseConfigured && !supabaseDbUrl) {
-  warnings.push("Backups are not configured. Set FIREBASE_*, SUPABASE_DB_URL, and BACKUP_ENCRYPTION_KEY to enable encrypted PostgreSQL backups. See docs/BACKUP_DISASTER_RECOVERY.md.");
+if (!backupKey && !supabaseDbUrl) {
+  warnings.push("Backups are not configured. Set SUPABASE_DB_URL and BACKUP_ENCRYPTION_KEY to enable encrypted PostgreSQL backups (stored in Supabase Storage). See docs/BACKUP_DISASTER_RECOVERY.md.");
 }
 
 for (const warning of warnings) console.warn(`WARNING: ${warning}`);

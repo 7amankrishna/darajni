@@ -307,7 +307,7 @@ async function main(): Promise<void> {
   const key = getBackupEncryptionKey();
   if (!key) {
     throw new Error(
-      "BACKUP_ENCRYPTION_KEY is not set. The key is required to decrypt backups and is never stored in Firebase.",
+      "BACKUP_ENCRYPTION_KEY is not set. The key is required to decrypt backups and is never stored in Supabase Storage.",
     );
   }
 

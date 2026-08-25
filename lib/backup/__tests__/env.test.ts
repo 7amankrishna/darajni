@@ -3,26 +3,25 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   BackupEnvError,
   describeSupabaseDb,
+  getBackupBucket,
+  getBackupDestinationCredentials,
   getBackupEncryptionKey,
   getBackupEnv,
   getDbSchemas,
   getDumpTimeoutMs,
-  getFirebaseServiceAccount,
-  getFirebaseStorageBucket,
   getRetentionDays,
   getSupabaseDbUrl,
   getSupabaseStorageCredentials,
+  isDedicatedBackupDestination,
   isStorageBackupEnabled,
-  normalizePrivateKey,
   parsePostgresUrl,
 } from "@/lib/backup/env";
 
 const MANAGED = [
   "BACKUP_ENCRYPTION_KEY",
-  "FIREBASE_PROJECT_ID",
-  "FIREBASE_CLIENT_EMAIL",
-  "FIREBASE_PRIVATE_KEY",
-  "FIREBASE_STORAGE_BUCKET",
+  "BACKUP_BUCKET",
+  "BACKUP_DEST_SUPABASE_URL",
+  "BACKUP_DEST_SERVICE_ROLE_KEY",
   "SUPABASE_DB_URL",
   "NEXT_PUBLIC_SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
@@ -75,78 +74,28 @@ describe("getBackupEncryptionKey", () => {
   });
 });
 
-describe("normalizePrivateKey", () => {
-  it("decodes escaped newlines and strips surrounding quotes", () => {
-    const raw = '"-----BEGIN PRIVATE KEY-----\\nABC\\n-----END PRIVATE KEY-----\\n"';
-    const out = normalizePrivateKey(raw);
-    expect(out.startsWith('"')).toBe(false);
-    expect(out).toContain("\n");
-    expect(out).not.toContain("\\n");
-  });
-
-  it("normalizes CRLF to LF", () => {
-    expect(normalizePrivateKey("a\r\nb\rc")).toBe("a\nb\nc");
-  });
-});
-
-describe("getFirebaseServiceAccount", () => {
-  const PEM =
-    "-----BEGIN PRIVATE KEY-----\nMII\n-----END PRIVATE KEY-----\n";
-
-  it("returns null when nothing is set", () => {
-    expect(getFirebaseServiceAccount()).toBeNull();
-  });
-
-  it("throws when partially configured", () => {
-    process.env.FIREBASE_PROJECT_ID = "proj";
-    expect(() => getFirebaseServiceAccount()).toThrow(/partially configured/);
-  });
-
-  it("throws on an invalid client email", () => {
-    process.env.FIREBASE_PROJECT_ID = "proj";
-    process.env.FIREBASE_CLIENT_EMAIL = "not-an-email";
-    process.env.FIREBASE_PRIVATE_KEY = PEM;
-    expect(() => getFirebaseServiceAccount()).toThrow(/email/);
-  });
-
-  it("throws when the private key lacks PEM markers", () => {
-    process.env.FIREBASE_PROJECT_ID = "proj";
-    process.env.FIREBASE_CLIENT_EMAIL = "sa@proj.iam.gserviceaccount.com";
-    process.env.FIREBASE_PRIVATE_KEY = "no markers here";
-    expect(() => getFirebaseServiceAccount()).toThrow(/BEGIN PRIVATE KEY/);
-  });
-
-  it("returns the normalized account", () => {
-    process.env.FIREBASE_PROJECT_ID = "proj";
-    process.env.FIREBASE_CLIENT_EMAIL = "sa@proj.iam.gserviceaccount.com";
-    process.env.FIREBASE_PRIVATE_KEY = PEM.replace(/\n/g, "\\n");
-    const acct = getFirebaseServiceAccount();
-    expect(acct).not.toBeNull();
-    expect(acct!.projectId).toBe("proj");
-    expect(acct!.privateKey).toContain("\n");
-  });
-});
-
-describe("getFirebaseStorageBucket", () => {
-  it("returns null when unset", () => {
-    expect(getFirebaseStorageBucket()).toBeNull();
+describe("getBackupBucket", () => {
+  it("defaults to 'backups' when unset", () => {
+    expect(getBackupBucket()).toBe("backups");
   });
 
   it("throws on a placeholder", () => {
-    process.env.FIREBASE_STORAGE_BUCKET = "your_bucket";
-    expect(() => getFirebaseStorageBucket()).toThrow(/placeholder/);
+    process.env.BACKUP_BUCKET = "your_bucket";
+    expect(() => getBackupBucket()).toThrow(/placeholder/);
   });
 
-  it("throws on spaces or slashes", () => {
-    process.env.FIREBASE_STORAGE_BUCKET = "bad bucket";
-    expect(() => getFirebaseStorageBucket()).toThrow();
-    process.env.FIREBASE_STORAGE_BUCKET = "bad/bucket";
-    expect(() => getFirebaseStorageBucket()).toThrow();
+  it("throws on invalid bucket names", () => {
+    process.env.BACKUP_BUCKET = "bad bucket";
+    expect(() => getBackupBucket()).toThrow(/BACKUP_BUCKET/);
+    process.env.BACKUP_BUCKET = "-bad";
+    expect(() => getBackupBucket()).toThrow();
+    process.env.BACKUP_BUCKET = "ab";
+    expect(() => getBackupBucket()).toThrow();
   });
 
-  it("returns a valid bucket name", () => {
-    process.env.FIREBASE_STORAGE_BUCKET = "my-project.appspot.com";
-    expect(getFirebaseStorageBucket()).toBe("my-project.appspot.com");
+  it("returns a valid custom bucket name", () => {
+    process.env.BACKUP_BUCKET = "darajni-backups-prod";
+    expect(getBackupBucket()).toBe("darajni-backups-prod");
   });
 });
 
@@ -251,6 +200,44 @@ describe("getSupabaseStorageCredentials", () => {
   });
 });
 
+describe("getBackupDestinationCredentials", () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://app.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "app-service-key";
+  });
+
+  it("falls back to the app's own project when no destination vars are set", () => {
+    expect(getBackupDestinationCredentials()).toEqual({
+      url: "https://app.supabase.co",
+      serviceRoleKey: "app-service-key",
+    });
+    expect(isDedicatedBackupDestination()).toBe(false);
+  });
+
+  it("prefers the dedicated destination when both vars are set", () => {
+    process.env.BACKUP_DEST_SUPABASE_URL = "https://backupvault.supabase.co";
+    process.env.BACKUP_DEST_SERVICE_ROLE_KEY = "vault-service-key";
+    expect(getBackupDestinationCredentials()).toEqual({
+      url: "https://backupvault.supabase.co",
+      serviceRoleKey: "vault-service-key",
+    });
+    expect(isDedicatedBackupDestination()).toBe(true);
+  });
+
+  it("throws when only one destination var is set", () => {
+    process.env.BACKUP_DEST_SUPABASE_URL = "https://backupvault.supabase.co";
+    expect(() => getBackupDestinationCredentials()).toThrow(/together/);
+  });
+
+  it("throws on placeholder or non-https URL values", () => {
+    process.env.BACKUP_DEST_SUPABASE_URL = "your_backup_project_url";
+    process.env.BACKUP_DEST_SERVICE_ROLE_KEY = "vault-service-key";
+    expect(() => getBackupDestinationCredentials()).toThrow(/placeholder/i);
+    process.env.BACKUP_DEST_SUPABASE_URL = "not-a-url";
+    expect(() => getBackupDestinationCredentials()).toThrow(/project URL/);
+  });
+});
+
 describe("getBackupEnv", () => {
   it("defaults to production", () => {
     expect(getBackupEnv()).toBe("production");
@@ -275,6 +262,11 @@ describe("getRetentionDays", () => {
   it("parses a valid integer", () => {
     process.env.BACKUP_RETENTION_DAYS = "14";
     expect(getRetentionDays()).toBe(14);
+  });
+
+  it("clamps values above the 30-day maximum", () => {
+    process.env.BACKUP_RETENTION_DAYS = "90";
+    expect(getRetentionDays()).toBe(30);
   });
 
   it("throws on a non-positive or non-integer", () => {

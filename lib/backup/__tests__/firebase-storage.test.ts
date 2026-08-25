@@ -1,98 +1,152 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock firebase-admin app + storage and the env getters.
-vi.mock("firebase-admin/app", () => ({
-  initializeApp: vi.fn(() => ({})),
-  cert: vi.fn(() => ({})),
-  getApps: vi.fn(() => []),
-}));
-
-vi.mock("firebase-admin/storage", () => ({
-  getStorage: vi.fn(),
-}));
-
+// Mock the env getters BEFORE importing the module under test (the bucket
+// name is resolved at module load time).
 vi.mock("@/lib/backup/env", () => ({
-  getFirebaseServiceAccount: vi.fn(() => ({
-    projectId: "p",
-    clientEmail: "sa@p.iam.gserviceaccount.com",
-    privateKey: "-----BEGIN PRIVATE KEY-----\nx\n-----END PRIVATE KEY-----\n",
+  getBackupDestinationCredentials: vi.fn(() => ({
+    url: "https://x.supabase.co",
+    serviceRoleKey: "service-key",
   })),
-  getFirebaseStorageBucket: vi.fn(() => "bucket.appspot.com"),
+  getBackupBucket: vi.fn(() => "backups"),
+}));
+
+// In-memory fake of the Supabase Storage API surface used by the module.
+const storageState = {
+  buckets: [] as string[],
+  objects: new Map<string, Buffer>(),
+};
+
+function makeFromMock() {
+  return {
+    upload: vi.fn(async (objectName: string, buffer: Buffer) => {
+      if (storageState.objects.has(objectName)) {
+        return { data: null, error: { message: "Duplicate" } };
+      }
+      storageState.objects.set(objectName, buffer);
+      return { data: { path: objectName }, error: null };
+    }),
+    download: vi.fn(async (objectName: string) => {
+      const bytes = storageState.objects.get(objectName);
+      if (!bytes) return { data: null, error: { message: "Object not found" } };
+      const copy = new Uint8Array(bytes);
+      return {
+        data: {
+          size: copy.byteLength,
+          arrayBuffer: async () => copy.buffer.slice(copy.byteOffset, copy.byteOffset + copy.byteLength),
+        },
+        error: null,
+      };
+    }),
+    list: vi.fn(async () => ({ data: [], error: null })),
+    remove: vi.fn(async () => ({ data: [], error: null })),
+  };
+}
+
+type FromMock = ReturnType<typeof makeFromMock>;
+
+const fromMock: FromMock = makeFromMock();
+
+const storageClient = {
+  storage: {
+    listBuckets: vi.fn(async () => ({ data: storageState.buckets.map((name) => ({ name })), error: null })),
+    createBucket: vi.fn(async (name: string) => {
+      if (storageState.buckets.includes(name)) {
+        return { data: null, error: { message: "The requested bucket already exists" } };
+      }
+      storageState.buckets.push(name);
+      return { data: { name }, error: null };
+    }),
+    from: vi.fn(() => fromMock),
+  },
+};
+
+vi.mock("@supabase/supabase-js", () => ({
+  createClient: vi.fn(() => storageClient),
 }));
 
 vi.mock("node:fs", () => ({
   statSync: vi.fn(() => ({ size: 100 })),
 }));
 
-import { getStorage } from "firebase-admin/storage";
+vi.mock("fs/promises", () => ({
+  readFile: vi.fn(async () => Buffer.alloc(100, 1)),
+  writeFile: vi.fn(async () => {}),
+}));
+
 import { statSync } from "node:fs";
 import {
   uploadEncryptedArchive,
   uploadJson,
   downloadAsText,
-  listObjects,
   deleteObject,
-  objectExists,
 } from "@/lib/backup/firebase-storage";
 
-const getStorageMock = vi.mocked(getStorage);
 const statSyncMock = vi.mocked(statSync);
-
-// Build a fake bucket whose file() and methods we can interrogate.
-function makeBucket() {
-  const fileObj = {
-    save: vi.fn(async () => {}),
-    download: vi.fn(async () => [Buffer.from("hello")] as never),
-    delete: vi.fn(async () => {}),
-    exists: vi.fn(async () => [true] as never),
-    getMetadata: vi.fn(async () => [{ size: 100, generation: "7" }] as never),
-    name: "obj",
-    metadata: {},
-  };
-  const bucket = {
-    upload: vi.fn(async () => [fileObj] as never),
-    file: vi.fn(() => fileObj),
-    getFiles: vi.fn(async () => [[]] as never),
-  };
-  return { bucket, fileObj };
-}
-
-let bucket: ReturnType<typeof makeBucket>["bucket"];
-let fileObj: ReturnType<typeof makeBucket>["fileObj"];
 
 beforeEach(() => {
   vi.clearAllMocks();
-  const made = makeBucket();
-  bucket = made.bucket;
-  fileObj = made.fileObj;
-  getStorageMock.mockReturnValue({ bucket: () => bucket } as never);
+  // Reset the fake backend and the per-process bucket cache between tests.
+  storageState.buckets.length = 0;
+  storageState.objects.clear();
+  Object.assign(fromMock, makeFromMock());
   statSyncMock.mockReturnValue({ size: 100 } as never);
 });
 
 describe("uploadEncryptedArchive", () => {
-  it("uploads resumable and verifies the remote size matches the local size", async () => {
-    fileObj.getMetadata.mockResolvedValue([
-      { size: 100, generation: "7" },
-    ] as never);
-    const res = await uploadEncryptedArchive({
-      localPath: "/tmp/x.enc",
-      objectName: "backups/production/x.enc",
-      contentType: "application/octet-stream",
-      metadata: { backupId: "id" },
+  it("creates the backup bucket once and uploads + verifies size", async () => {
+    const payload = Buffer.alloc(100, 1);
+    fromMock.upload.mockImplementation(async (_name: string, buffer: Buffer) => {
+      storageState.objects.set(_name, buffer);
+      return { data: { path: _name }, error: null };
     });
-    expect(bucket.upload).toHaveBeenCalledWith(
-      "/tmp/x.enc",
-      expect.objectContaining({
-        destination: "backups/production/x.enc",
-        resumable: true,
+    fromMock.download.mockImplementation(async (objectName: string) => {
+      const bytes = storageState.objects.get(objectName)!;
+      const copy = new Uint8Array(bytes);
+      return {
+        data: {
+          size: copy.byteLength,
+          arrayBuffer: async () =>
+            copy.buffer.slice(copy.byteOffset, copy.byteOffset + copy.byteLength),
+        },
+        error: null,
+      };
+    });
+
+    await expect(
+      uploadEncryptedArchive({
+        localPath: "/tmp/x.enc",
+        objectName: "backups/production/x.enc",
+        contentType: "application/octet-stream",
+        metadata: {},
       }),
-    );
-    expect(res.size).toBe(100);
-    expect(res.generation).toBe("7");
+    ).resolves.toEqual({
+      objectName: "backups/production/x.enc",
+      size: 100,
+      generation: undefined,
+    });
+
+    expect(storageClient.storage.from).toHaveBeenCalledWith("backups");
+    expect(storageClient.storage.createBucket).toHaveBeenCalledTimes(1);
+
+    // A second operation must NOT try to create the bucket again.
+    await uploadJson("o.manifest.json", "{}");
+    expect(storageClient.storage.createBucket).toHaveBeenCalledTimes(1);
   });
 
   it("throws when the remote size does not match the local size", async () => {
-    fileObj.getMetadata.mockResolvedValue([{ size: 50 }] as never);
+    fromMock.upload.mockResolvedValue({ data: { path: "o" }, error: null });
+    fromMock.download.mockImplementation(async () => {
+      const bytes = new Uint8Array(50);
+      return {
+        data: {
+          size: bytes.byteLength,
+          arrayBuffer: async () =>
+            bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+        },
+        error: null,
+      };
+    });
+    statSyncMock.mockReturnValue({ size: 100 } as never);
     await expect(
       uploadEncryptedArchive({
         localPath: "/tmp/x.enc",
@@ -104,10 +158,13 @@ describe("uploadEncryptedArchive", () => {
   });
 
   it("retries a transient upload failure then succeeds", async () => {
-    fileObj.getMetadata.mockResolvedValue([{ size: 100 }] as never);
-    bucket.upload
+    fromMock.upload
       .mockRejectedValueOnce(new Error("transient"))
-      .mockResolvedValueOnce([fileObj] as never);
+      .mockResolvedValueOnce({ data: { path: "o" }, error: null });
+    fromMock.download.mockImplementation(async (objectName: string) => ({
+      data: { size: 100, arrayBuffer: async () => new ArrayBuffer(100) },
+      error: null,
+    }));
     await expect(
       uploadEncryptedArchive({
         localPath: "/tmp/x.enc",
@@ -116,15 +173,17 @@ describe("uploadEncryptedArchive", () => {
         metadata: {},
       }),
     ).resolves.toBeTruthy();
-    expect(bucket.upload).toHaveBeenCalledTimes(2);
+    expect(fromMock.upload).toHaveBeenCalledTimes(2);
   }, 15000);
 });
 
 describe("uploadJson", () => {
-  it("saves the JSON string with an application/json content type", async () => {
-    await uploadJson("o.manifest.json", "{\"a\":1}", { backupId: "id" });
-    expect(fileObj.save).toHaveBeenCalledWith(
-      Buffer.from("{\"a\":1}", "utf8"),
+  it("uploads the JSON string with an application/json content type", async () => {
+    fromMock.upload.mockResolvedValue({ data: { path: "o" }, error: null });
+    await uploadJson("o.manifest.json", "{\"a\":1}");
+    expect(fromMock.upload).toHaveBeenCalledWith(
+      "o.manifest.json",
+      expect.any(Buffer),
       expect.objectContaining({ contentType: "application/json" }),
     );
   });
@@ -132,45 +191,26 @@ describe("uploadJson", () => {
 
 describe("downloadAsText", () => {
   it("returns the object contents as utf8", async () => {
-    fileObj.download.mockResolvedValue([Buffer.from("hello")] as never);
-    await expect(downloadAsText("o")).resolves.toBe("hello");
-  });
-});
-
-describe("listObjects", () => {
-  it("maps files to ListedObject with parsed size and metadata", async () => {
-    bucket.getFiles.mockResolvedValue([
-      [
-        {
-          name: "backups/production/a.dump.enc",
-          metadata: { size: "42", updated: "u", metadata: { k: "v" } },
+    const text = "hello manifest";
+    fromMock.download.mockImplementation(async () => {
+      const bytes = new Uint8Array(Buffer.from(text, "utf8"));
+      return {
+        data: {
+          size: bytes.byteLength,
+          arrayBuffer: async () =>
+            bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
         },
-      ],
-    ] as never);
-    const out = await listObjects("backups/production/");
-    expect(bucket.getFiles).toHaveBeenCalledWith({
-      prefix: "backups/production/",
+        error: null,
+      };
     });
-    expect(out).toEqual([
-      {
-        name: "backups/production/a.dump.enc",
-        size: 42,
-        updated: "u",
-        customMetadata: { k: "v" },
-      },
-    ]);
+    await expect(downloadAsText("o")).resolves.toBe(text);
   });
 });
 
-describe("deleteObject / objectExists", () => {
+describe("deleteObject", () => {
   it("deletes the named object", async () => {
-    await deleteObject("o");
-    expect(bucket.file).toHaveBeenCalledWith("o");
-    expect(fileObj.delete).toHaveBeenCalled();
-  });
-
-  it("reports existence", async () => {
-    fileObj.exists.mockResolvedValue([true] as never);
-    await expect(objectExists("o")).resolves.toBe(true);
+    fromMock.remove.mockResolvedValue({ data: [], error: null });
+    await deleteObject("backups/production/o.dump.enc");
+    expect(fromMock.remove).toHaveBeenCalledWith(["backups/production/o.dump.enc"]);
   });
 });

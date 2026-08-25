@@ -108,6 +108,15 @@ function probePgDumpVersion(): Promise<{ version: string; major: number } | null
 }
 
 /**
+ * Whether a usable `pg_dump` binary exists on this host. Used by the admin
+ * health view so operators can see whether DB dumps are possible here (e.g.
+ * they are NOT possible on Vercel serverless; those run via GitHub Actions).
+ */
+export function isPgDumpAvailable(): Promise<boolean> {
+  return probePgDumpVersion().then((v) => v !== null);
+}
+
+/**
  * Best-effort probe of the PostgreSQL SERVER version via `psql`. Returns null
  * when psql is absent or the query fails (non-fatal). Credentials are passed
  * only through the child-process environment, same as the dump itself.

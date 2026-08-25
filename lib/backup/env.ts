@@ -37,13 +37,6 @@ export class BackupEnvError extends Error {
   }
 }
 
-export interface FirebaseServiceAccount {
-  projectId: string;
-  clientEmail: string;
-  // Normalized PEM private key with real newlines (escaped `\n` decoded).
-  privateKey: string;
-}
-
 export interface SupabaseDbConnection {
   host: string;
   port: number;
@@ -83,59 +76,6 @@ export function getBackupEncryptionKey(): Buffer | null {
     );
   }
   return decoded;
-}
-
-/** Decode escaped `\n` sequences and surrounding quotes into a real PEM key. */
-export function normalizePrivateKey(raw: string): string {
-  let key = raw.trim();
-  if (key.length >= 2 && key.startsWith('"') && key.endsWith('"')) {
-    key = key.slice(1, -1);
-  }
-  if (key.length >= 2 && key.startsWith("'") && key.endsWith("'")) {
-    key = key.slice(1, -1);
-  }
-  key = key.replace(/\\n/g, "\n");
-  key = key.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  return key;
-}
-
-export function getFirebaseServiceAccount(): FirebaseServiceAccount | null {
-  const projectId = env("FIREBASE_PROJECT_ID");
-  const clientEmail = env("FIREBASE_CLIENT_EMAIL");
-  const privateKeyRaw = env("FIREBASE_PRIVATE_KEY");
-
-  if (!projectId && !clientEmail && !privateKeyRaw) return null;
-
-  if (!projectId || !clientEmail || !privateKeyRaw) {
-    throw new BackupEnvError(
-      "Firebase service account is partially configured. Set all of FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY together.",
-    );
-  }
-  if (isPlaceholder(projectId)) {
-    throw new BackupEnvError("FIREBASE_PROJECT_ID is still a placeholder.");
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
-    throw new BackupEnvError("FIREBASE_CLIENT_EMAIL must be a valid service-account email address.");
-  }
-  const privateKey = normalizePrivateKey(privateKeyRaw);
-  if (!privateKey.includes("BEGIN PRIVATE KEY") || !privateKey.includes("END PRIVATE KEY")) {
-    throw new BackupEnvError(
-      "FIREBASE_PRIVATE_KEY is missing PEM BEGIN/END markers. Paste the full key including -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY-----.",
-    );
-  }
-  return { projectId, clientEmail, privateKey };
-}
-
-export function getFirebaseStorageBucket(): string | null {
-  const raw = env("FIREBASE_STORAGE_BUCKET");
-  if (!raw) return null;
-  if (isPlaceholder(raw)) {
-    throw new BackupEnvError("FIREBASE_STORAGE_BUCKET is still a placeholder.");
-  }
-  if (/\s/.test(raw) || raw.includes("/")) {
-    throw new BackupEnvError("FIREBASE_STORAGE_BUCKET must be a bucket name with no spaces or slashes (e.g. my-project.appspot.com).");
-  }
-  return raw;
 }
 
 /**
@@ -238,6 +178,44 @@ export function getSupabaseStorageCredentials(): SupabaseStorageCredentials | nu
   return { url, serviceRoleKey };
 }
 
+/**
+ * Credentials of the DESTINATION where encrypted backups are uploaded.
+ *
+ * Prefer a DEDICATED destination project via BACKUP_DEST_SUPABASE_URL +
+ * BACKUP_DEST_SERVICE_ROLE_KEY (e.g. a different Supabase project/account, so
+ * backups survive even if the production project is deleted). When those are
+ * absent, fall back to this app's own Supabase project
+ * (NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY).
+ */
+export function getBackupDestinationCredentials(): SupabaseStorageCredentials | null {
+  const url = env("BACKUP_DEST_SUPABASE_URL");
+  const serviceRoleKey = env("BACKUP_DEST_SERVICE_ROLE_KEY");
+
+  if (!url && !serviceRoleKey) return getSupabaseStorageCredentials();
+
+  if (!url || !serviceRoleKey) {
+    throw new BackupEnvError(
+      "BACKUP_DEST_SUPABASE_URL and BACKUP_DEST_SERVICE_ROLE_KEY must be set together (or set neither to store backups in this app's own Supabase project).",
+    );
+  }
+  if (isPlaceholder(url) || isPlaceholder(serviceRoleKey)) {
+    throw new BackupEnvError(
+      "BACKUP_DEST_SUPABASE_URL / BACKUP_DEST_SERVICE_ROLE_KEY contain placeholder values.",
+    );
+  }
+  if (!/^https:\/\/.+/.test(url)) {
+    throw new BackupEnvError(
+      "BACKUP_DEST_SUPABASE_URL must be the project URL, e.g. https://<project-ref>.supabase.co",
+    );
+  }
+  return { url, serviceRoleKey };
+}
+
+/** True when backups target a dedicated (different) Supabase project. */
+export function isDedicatedBackupDestination(): boolean {
+  return Boolean(env("BACKUP_DEST_SUPABASE_URL") || env("BACKUP_DEST_SERVICE_ROLE_KEY"));
+}
+
 export function getBackupEnv(): string {
   const raw = env("BACKUP_ENV");
   if (!raw) return "production";
@@ -245,14 +223,38 @@ export function getBackupEnv(): string {
   return cleaned || "production";
 }
 
+/**
+ * Maximum retention window allowed by policy: backups are never kept longer
+ * than 30 days. Larger configured values are clamped to this cap.
+ */
+export const MAX_RETENTION_DAYS = 30;
+
 export function getRetentionDays(): number {
   const raw = env("BACKUP_RETENTION_DAYS");
-  if (!raw) return 30;
+  if (!raw) return MAX_RETENTION_DAYS;
   const n = Number(raw);
   if (!Number.isInteger(n) || n < 1) {
     throw new BackupEnvError("BACKUP_RETENTION_DAYS must be a positive integer.");
   }
-  return n;
+  return Math.min(n, MAX_RETENTION_DAYS);
+}
+
+/**
+ * Supabase Storage bucket that holds all backup objects. Defaults to the
+ * conventional "backups" bucket (created automatically on first use).
+ */
+export function getBackupBucket(): string {
+  const raw = env("BACKUP_BUCKET");
+  if (!raw) return "backups";
+  if (isPlaceholder(raw)) {
+    throw new BackupEnvError("BACKUP_BUCKET is still a placeholder.");
+  }
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{2,62}$/.test(raw)) {
+    throw new BackupEnvError(
+      "BACKUP_BUCKET must be 3-63 characters: letters, digits, dots, dashes, or underscores, starting with a letter or digit.",
+    );
+  }
+  return raw;
 }
 
 export function getDumpTimeoutMs(): number {
@@ -304,9 +306,8 @@ export interface BackupConfig {
   dbSchemas: string[] | null;
   storageBackupEnabled: boolean;
   schedule: string;
-  storageBucket: string | null;
+  storageBucket: string;
   encryptionKey: Buffer | null;
-  firebase: FirebaseServiceAccount | null;
   supabaseDb: SupabaseDbConnection | null;
   supabaseStorage: SupabaseStorageCredentials | null;
 }
@@ -319,9 +320,8 @@ export function loadBackupConfig(): BackupConfig {
     dbSchemas: getDbSchemas(),
     storageBackupEnabled: isStorageBackupEnabled(),
     schedule: getBackupSchedule(),
-    storageBucket: getFirebaseStorageBucket(),
+    storageBucket: getBackupBucket(),
     encryptionKey: getBackupEncryptionKey(),
-    firebase: getFirebaseServiceAccount(),
     supabaseDb: getSupabaseDbUrl(),
     supabaseStorage: getSupabaseStorageCredentials(),
   };

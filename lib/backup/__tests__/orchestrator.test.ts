@@ -73,14 +73,8 @@ function baseConfig(overrides: Partial<BackupConfig> = {}): BackupConfig {
     dbSchemas: null,
     storageBackupEnabled: false,
     schedule: "0 2 * * *",
-    storageBucket: "bucket.appspot.com",
+    storageBucket: "backups",
     encryptionKey: Buffer.alloc(32, 9),
-    firebase: {
-      projectId: "p",
-      clientEmail: "sa@p.iam.gserviceaccount.com",
-      privateKey:
-        "-----BEGIN PRIVATE KEY-----\nx\n-----END PRIVATE KEY-----\n",
-    },
     supabaseDb: {
       host: "db.x.supabase.co",
       port: 5432,
@@ -96,7 +90,10 @@ function baseConfig(overrides: Partial<BackupConfig> = {}): BackupConfig {
         PGSSLMODE: "require",
       },
     },
-    supabaseStorage: null,
+    supabaseStorage: {
+      url: "https://x.supabase.co",
+      serviceRoleKey: "service-key",
+    },
     ...overrides,
   };
 }
@@ -200,13 +197,13 @@ describe("runBackup db component", () => {
     expect(result.dbDump?.reason).toBe("encryption-key-not-configured");
   });
 
-  it("skips db when firebase is not configured", async () => {
+  it("skips db when supabase storage is not configured", async () => {
     const result = await runBackup({
       components: ["db"],
-      config: baseConfig({ firebase: null }),
+      config: baseConfig({ supabaseStorage: null }),
       now: Date.UTC(2026, 6, 15),
     });
-    expect(result.dbDump?.reason).toBe("firebase-not-configured");
+    expect(result.dbDump?.reason).toBe("supabase-storage-not-configured");
   });
 
   it("reports skipped (not failed) when pg_dump is missing and dbDumpIfAvailable is set", async () => {

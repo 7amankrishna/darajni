@@ -3,6 +3,7 @@
 import {
   BarChart3,
   CheckCircle,
+  DatabaseBackup,
   LogOut,
   Megaphone,
   Package,
@@ -15,6 +16,7 @@ import { useState } from "react";
 
 import { AnalyticsPanel } from "@/components/admin/analytics-panel";
 import { ApprovalsManagement } from "@/components/admin/approvals-management";
+import { BackupManagement } from "@/components/admin/backup-management";
 import { EventsManagement } from "@/components/admin/events-management";
 import { HomepageSlideManagement } from "@/components/admin/homepage-slide-management";
 import { OrderManagement } from "@/components/admin/order-management";
@@ -32,6 +34,7 @@ type Tab =
   | "events"
   | "launches"
   | "promos"
+  | "backups"
   | "settings";
 
 const tabs: Array<{ value: Tab; label: string; icon: any }> = [
@@ -42,6 +45,7 @@ const tabs: Array<{ value: Tab; label: string; icon: any }> = [
   { value: "events", label: "Events", icon: Megaphone },
   { value: "launches", label: "Launches", icon: Tag },
   { value: "promos", label: "Promos", icon: Tag },
+  { value: "backups", label: "Backups", icon: DatabaseBackup },
   { value: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -128,6 +132,7 @@ export function AdminDashboard({
             <HomepageSlideManagement slides={data.homepageSlides} />
           )}
           {tab === "promos" && <PromoManagement promos={data.promos} />}
+          {tab === "backups" && <BackupManagement />}
           {tab === "settings" && <SettingsPanel settings={data.settings} />}
         </section>
       </div>

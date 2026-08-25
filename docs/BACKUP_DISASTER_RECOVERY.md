@@ -93,17 +93,50 @@ fail loudly; absent optional values simply disable that feature.
 | Variable | Required | Notes |
 |----------|:---:|-------|
 | `SUPABASE_DB_URL` | for DB | Direct connection, **port 5432**. Pooler hosts (port 6543) are rejected. `sslmode=require` is forced for `*.supabase.co` hosts. |
-| `BACKUP_ENCRYPTION_KEY` | for DB | 32-byte key, base64. Generate: `openssl rand -base64 32`. **Never committed or stored in Supabase Storage.** |
-| `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | for DB + storage | Service‑role credentials for Supabase Storage. All required together or none. |
-| *(Supabase Storage bucket name is derived from the object path and does not need a separate config variable.)* |
+| `BACKUP_ENCRYPTION_KEY` | for DB | 32-byte key, base64. Generate: `openssl rand -base64 32`. **Never committed or stored in Supabase Storage. Losing it makes every backup unreadable.** |
+| `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | for DB + storage | Service‑role credentials used as the upload destination. |
+| `BACKUP_DEST_SUPABASE_URL` / `BACKUP_DEST_SERVICE_ROLE_KEY` | recommended | **Dedicated backup destination** — a DIFFERENT Supabase project/account, so backups survive even if the production project is lost. Set BOTH together; when set they take priority over the app's own project above. |
+| `BACKUP_BUCKET` | — | Private Supabase Storage bucket in the destination project. Default `backups`; **created automatically on first run** if missing. |
 | `CRON_SECRET` | for route | ≥32 chars; protects `/api/cron/backup` via constant-time compare. |
 | `BACKUP_ENV` | — | Path segment, default `production`. |
-| `BACKUP_RETENTION_DAYS` | — | Default `30`. |
+| `BACKUP_RETENTION_DAYS` | — | Default `30`. Values above **30 are clamped to 30** (maximum retention is 30 days). |
 | `BACKUP_DUMP_TIMEOUT_MS` | — | Default `600000` (10 min). |
 | `BACKUP_DB_SCHEMAS` | — | Comma-separated schema allow-list; default all schemas. |
-| `BACKUP_STORAGE_ENABLED` | for storage | `1/true/yes/on` to mirror Supabase Storage. |
-| `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | for storage | Service-role key, server-side only. |
+| `BACKUP_STORAGE_ENABLED` | for storage | `1/true/yes/on` to mirror Supabase Storage files into the backup destination. |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | — | Distributed lock + rate limiting. |
+
+### First-time setup (step by step)
+
+1. **Get the direct database URL** — Supabase Dashboard (of your WORKING
+   project) → Project Settings → Database → Connection string → URI → choose
+   the **Direct** one (port 5432). It looks like
+   `postgresql://postgres:[PASSWORD]@db.<project-ref>.supabase.co:5432/postgres`.
+2. **(Recommended) Prepare a separate backup project** — create/choose a
+   DIFFERENT Supabase project (e.g. under another account), open its Dashboard
+   → Project Settings → API, and copy its **Project URL** and **service_role**
+   key. These become `BACKUP_DEST_SUPABASE_URL` and
+   `BACKUP_DEST_SERVICE_ROLE_KEY`. Nothing else is needed there — the private
+   `backups` bucket is created automatically on first upload.
+3. **Generate the encryption key** — run `openssl rand -base64 32` once, save
+   the output somewhere safe (password manager). This is `BACKUP_ENCRYPTION_KEY`.
+4. **Set the environment variables**:
+   - Locally: copy `.env.example` → `.env.local` and fill in `SUPABASE_DB_URL`,
+     `BACKUP_ENCRYPTION_KEY`, `BACKUP_DEST_SUPABASE_URL`,
+     `BACKUP_DEST_SERVICE_ROLE_KEY`, plus your existing
+     `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`.
+   - GitHub repo: Settings → Secrets and variables → Actions → add
+     `SUPABASE_DB_URL`, `BACKUP_ENCRYPTION_KEY`,
+     `BACKUP_DEST_SUPABASE_URL`, `BACKUP_DEST_SERVICE_ROLE_KEY`
+     (these power the scheduled nightly dump into the backup project).
+   - Vercel: Project Settings → Environment Variables → add `CRON_SECRET`
+     (≥32 chars) and, for admin-panel runs, the same destination pair.
+5. **Validate**: `npm run validate:env` — backup problems appear as warnings
+   until configured, then as errors when malformed.
+6. **Do a dry run locally**: `npm run backup:run -- --dry-run` (verifies the
+   dump path without uploading), then a real run: `npm run backup:run`.
+
+No manual bucket creation is needed: the private `backups` bucket is created
+automatically in Supabase Storage on the first upload.
 
 Generate a key and validate the whole configuration:
 
@@ -143,6 +176,26 @@ curl -H "Authorization: Bearer $CRON_SECRET" \
 
 Returns the latest run and latest successful run. **No checksum values, object
 paths, keys, or connection strings are exposed** — only non-sensitive metadata.
+
+### Admin panel (Dashboard → Backups tab)
+
+Signed-in admins get a **Backups** tab in the store dashboard
+(`/admin` → Backups) backed by `/api/admin/backup`:
+
+- **Status at a glance:** configuration health (database URL / encryption key /
+  storage configured), latest run, latest success, and whether this host can
+  produce dumps.
+- **Back up now:** triggers the same orchestrator (db + storage + retention).
+  On Vercel serverless there is no `pg_dump`, so the dump part is skipped there;
+  use GitHub Actions for full dumps.
+- **Verify:** re-computes the SHA-256 of a stored archive and compares it with
+  its manifest — detects corrupted/truncated backups.
+- **Delete:** removes one backup (archive + manifest pair), strictly scoped to
+  the current environment's `backups/{env}/` prefix.
+
+Restores are intentionally **not** performed from the browser: `pg_restore` is
+not available on serverless and an accidental overwrite would be destructive.
+Follow the restore procedure below from a trusted machine instead.
 
 ---
 
@@ -200,8 +253,10 @@ under the exact `backups/{env}/` prefix (never another environment or app).
 Rules:
 - Only successful backups are considered.
 - The newest successful backup is never deleted.
-- Always keep at least the newest **7** successful backups.
-- Beyond those, delete backups older than `BACKUP_RETENTION_DAYS` (default 30).
+- Always keep at least the newest **7** successful backups (safety net for
+  outage periods; with a healthy daily schedule they are always within 30 days).
+- Beyond those, delete backups older than `BACKUP_RETENTION_DAYS` — **capped at
+  30 days maximum** (configured values above 30 are clamped to 30).
 
 Retention deletes both the archive and its manifest as a pair. In `--dry-run`
 it reports `wouldDelete` without deleting.
@@ -252,7 +307,7 @@ decrypt, and `pg_restore` (typically minutes for small/medium databases).
 ## 9. Testing...
 
 ```bash
-npx vitest run lib/backup/__tests__   # 126 unit tests
+npx vitest run lib/backup/__tests__   # unit tests
 npm run typecheck                     # tsc --noEmit
 npm run build                         # typecheck + next build
 ```
