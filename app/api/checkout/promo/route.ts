@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 import {
   apiError,
-  internalApiError,
   pgBusinessRuleMessage,
   rateLimitError,
 } from "@/lib/security/api-response";
@@ -73,23 +72,33 @@ export async function POST(request: Request) {
 
   if (error) {
     const friendly = pgBusinessRuleMessage(error) ?? friendlyPromoError(error.message);
-    return friendly
-      ? apiError(friendly, 409)
-      : internalApiError(
-          "checkout-promo-quote",
-          error,
-          "This coupon or voucher could not be applied.",
-          409,
-        );
+    if (friendly) return apiError(friendly, 409);
+
+    // Not a curated business rule — this is an infrastructure fault (most often
+    // the promo functions missing from the database). Surface a short, safe
+    // diagnostic code so it can be reported without exposing internals, and log
+    // the full error server-side.
+    const dbCode =
+      typeof (error as { code?: unknown }).code === "string"
+        ? (error as { code: string }).code
+        : "unknown";
+    console.error("[checkout-promo-quote]", {
+      code: dbCode,
+      message: error.message?.slice(0, 500),
+    });
+    return apiError(
+      `This coupon or voucher could not be applied right now. (code: ${dbCode})`,
+      409,
+    );
   }
 
   const quote = (Array.isArray(data) ? data[0] : data) as
     | PromoQuoteRow
     | undefined;
   if (!quote) {
-    return NextResponse.json(
-      { error: "This coupon or voucher could not be applied." },
-      { status: 409 },
+    return apiError(
+      "This coupon or voucher could not be applied right now. (code: empty-result)",
+      409,
     );
   }
 
