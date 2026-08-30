@@ -33,6 +33,21 @@ export function rateLimitError(result: RateLimitResult) {
   );
 }
 
+// Postgres reports a bare `raise exception 'message'` from our functions with
+// SQLSTATE P0001. Every such message in our RPCs is a curated, shopper-safe
+// business rule (e.g. "Coupon or voucher code has expired"), so we can surface
+// it verbatim instead of hiding the reason behind a generic error. Anything
+// with a different SQLSTATE is an infrastructure fault and must stay masked.
+export function pgBusinessRuleMessage(error: unknown): string | null {
+  if (!error || typeof error !== "object") return null;
+  const record = error as { code?: unknown; message?: unknown };
+  if (record.code !== "P0001" || typeof record.message !== "string") {
+    return null;
+  }
+  const message = record.message.trim();
+  return message.length > 0 && message.length <= 200 ? message : null;
+}
+
 function safeLogDetail(error: unknown) {
   if (error instanceof Error) {
     return { name: error.name, message: error.message.slice(0, 500) };

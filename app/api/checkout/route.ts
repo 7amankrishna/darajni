@@ -13,6 +13,7 @@ import { syncShiprocketOrder, assessOrderDeliverability } from "@/lib/shiprocket
 import {
   apiError,
   internalApiError,
+  pgBusinessRuleMessage,
   rateLimitError,
 } from "@/lib/security/api-response";
 import {
@@ -131,7 +132,7 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    const friendly = friendlyCheckoutError(error.message);
+    const friendly = pgBusinessRuleMessage(error) ?? friendlyCheckoutError(error.message);
     return friendly
       ? apiError(friendly, 409)
       : internalApiError(

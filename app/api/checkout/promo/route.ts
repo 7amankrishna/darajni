@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {
   apiError,
   internalApiError,
+  pgBusinessRuleMessage,
   rateLimitError,
 } from "@/lib/security/api-response";
 import { RATE_LIMITS, rateLimitRequest } from "@/lib/security/rate-limit";
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    const friendly = friendlyPromoError(error.message);
+    const friendly = pgBusinessRuleMessage(error) ?? friendlyPromoError(error.message);
     return friendly
       ? apiError(friendly, 409)
       : internalApiError(

@@ -408,7 +408,7 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
             </div>
             <div>
               <label htmlFor="promo-usage" className="field-label">
-                Total usage limit optional
+                Limit total redemptions optional
               </label>
               <input
                 id="promo-usage"
@@ -418,7 +418,13 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 value={draft.usageLimit}
                 onChange={(event) => setField("usageLimit", event.target.value)}
                 className="field"
+                placeholder="e.g. 5"
               />
+              <p className="mt-1.5 text-xs leading-5 text-text-secondary">
+                Caps how many times this code can be used across the store. With
+                the per-phone limit at 1, this is the number of customers who can
+                redeem it (e.g. 5 or 10). Leave blank for unlimited.
+              </p>
             </div>
             <div>
               <label htmlFor="promo-phone-limit" className="field-label">
@@ -434,6 +440,10 @@ export function PromoManagement({ promos }: { promos: AdminPromoCode[] }) {
                 className="field"
                 required
               />
+              <p className="mt-1.5 text-xs leading-5 text-text-secondary">
+                How many times a single phone number can use this code. Keep at 1
+                so each customer redeems only once.
+              </p>
             </div>
             <div>
               <label htmlFor="promo-start" className="field-label">
