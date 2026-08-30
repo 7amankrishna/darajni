@@ -1882,6 +1882,7 @@ language plpgsql
 security definer
 set search_path = public, pg_temp
 as $$
+#variable_conflict use_column
 declare
   v_code text := public.normalize_promo_code(p_promo_code);
   v_promo public.promo_codes%rowtype;
@@ -1902,13 +1903,13 @@ begin
     select *
     into v_promo
     from public.promo_codes
-    where code = v_code
+    where promo_codes.code = v_code
     for update;
   else
     select *
     into v_promo
     from public.promo_codes
-    where code = v_code;
+    where promo_codes.code = v_code;
   end if;
 
   if not found then
@@ -1934,7 +1935,7 @@ begin
   select count(*)::integer
   into v_total_redemptions
   from public.promo_redemptions
-  where promo_code_id = v_promo.id;
+  where promo_redemptions.promo_code_id = v_promo.id;
 
   if v_promo.usage_limit is not null
      and v_total_redemptions >= v_promo.usage_limit then
@@ -1946,8 +1947,8 @@ begin
     select count(*)::integer
     into v_phone_redemptions
     from public.promo_redemptions
-    where promo_code_id = v_promo.id
-      and phone_last10 = v_phone_last10;
+    where promo_redemptions.promo_code_id = v_promo.id
+      and promo_redemptions.phone_last10 = v_phone_last10;
 
     if v_phone_redemptions >= v_promo.per_phone_limit then
       raise exception 'This phone number has already used this code';
