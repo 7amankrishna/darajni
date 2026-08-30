@@ -62,13 +62,20 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-7QM5DMJ34G"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-7QM5DMJ34G');
-        </script>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-7QM5DMJ34G"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-7QM5DMJ34G');
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.variable} ${cormorant.variable} antialiased`}>
         <SiteShell>{children}</SiteShell>
