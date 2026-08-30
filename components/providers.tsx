@@ -8,7 +8,7 @@ import { WishlistProvider } from "@/components/wishlist/wishlist-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <CartProvider>
         <WishlistProvider>{children}</WishlistProvider>
       </CartProvider>
