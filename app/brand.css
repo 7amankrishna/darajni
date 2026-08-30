@@ -1156,20 +1156,15 @@ input[type="checkbox"] {
     width: auto;
   }
 
+  /* Two-column product layout: hug the image and keep it in view while the
+     purchase details scroll alongside it. Starts at lg so the horizontal room
+     between 1024–1279px feeds the info column instead of leaving side gaps. */
   .product-gallery {
     grid-template-columns: 3.5rem auto;
-    justify-content: center;
-  }
-}
-
-@media (min-width: 1280px) {
-  /* Two-column product layout: hug the image and keep it in view while the
-     purchase details scroll alongside it. */
-  .product-gallery {
+    justify-content: start;
     position: sticky;
     top: 7rem;
     align-self: start;
-    justify-content: start;
   }
 }
 

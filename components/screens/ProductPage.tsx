@@ -1,5 +1,4 @@
 import {
-  HeartHandshake,
   Mail,
   MessageCircle,
   Ruler,
@@ -79,7 +78,7 @@ function StickyHelpPanel({
   );
 
   return (
-    <aside className="space-y-4 xl:sticky xl:top-32">
+    <aside className="space-y-4 lg:sticky lg:top-32">
       <section className="rounded-2xl border border-border bg-surface p-5">
         <div className="flex items-center gap-3">
           <Ruler className="h-5 w-5 text-accent" />
@@ -128,21 +127,6 @@ function StickyHelpPanel({
           <p>Delivery may vary by location and courier availability.</p>
         </div>
         <PincodeChecker />
-      </section>
-
-      <section className="rounded-2xl border border-border bg-surface p-5">
-        <div className="flex items-center gap-3">
-          <HeartHandshake className="h-5 w-5 text-accent" />
-          <h2 className="font-display text-2xl text-text-primary">Exchange</h2>
-        </div>
-        <ul className="mt-4 grid gap-2 text-sm leading-6 text-text-secondary">
-          <li>Exchange available when eligible.</li>
-          <li>Product must be unused with tags and package intact.</li>
-          <li>Custom-size rules are clearly explained before ordering.</li>
-        </ul>
-        <Link href="/returns-exchange" className="secondary-button mt-4 w-full">
-          Read Policy
-        </Link>
       </section>
 
       <section className="rounded-2xl border border-border bg-primary p-5 text-surface">
@@ -212,7 +196,7 @@ export default function ProductPage({
           <span className="text-text-primary">{product.name}</span>
         </nav>
 
-        <div className="grid min-w-0 items-start gap-8 xl:grid-cols-[auto_minmax(23rem,30rem)] xl:justify-center xl:gap-14">
+        <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[auto_minmax(23rem,30rem)] lg:justify-center lg:gap-14">
           <ProductGallery images={product.images} name={product.name} />
 
           <div className="min-w-0">
@@ -262,7 +246,7 @@ export default function ProductPage({
           </div>
         </div>
 
-        <section data-reveal className="mt-12 grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] xl:gap-8">
+        <section data-reveal className="mt-12 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.42fr)] lg:gap-8">
           <div className="space-y-6">
             <ProductFacts product={product} />
             <ProductInfoTabs product={product} />

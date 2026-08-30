@@ -459,26 +459,43 @@ const getPostalPincodeInfo = unstable_cache(
   { revalidate: 60 * 60 * 24 * 30, tags: ["postal-pincodes"] },
 );
 
+// Standard Pan-India courier window (rolling from the order date). Matches the
+// storefront's "Standard delivery" copy and getEstimatedDelivery().
+const STANDARD_FASTEST_DAYS = 7;
+const STANDARD_SLOWEST_DAYS = 12;
+
 // Cached per delivery pincode for a day: courier ETDs move slowly, so repeat
 // lookups never touch the Shiprocket API again for the same pincode.
 export const getDeliveryEstimateForPincode = unstable_cache(
   async (deliveryPincode: string): Promise<DeliveryEstimate> => {
     if (!/^\d{6}$/.test(deliveryPincode)) return { status: "unavailable" };
 
-    const environment = getShiprocketEnvironment();
-    if (!environment) return { status: "unavailable" };
-
-    const pickupPostcode = siteConfig.postalCode.replace(/\D/g, "");
-    if (!/^\d{6}$/.test(pickupPostcode)) return { status: "unavailable" };
-
-    // Gate 1 — the pincode must EXIST in India Post's directory. This is what
-    // catches made-up pincodes that surface couriers falsely claim to reach.
+    // Existence is the only hard gate: a pincode India Post does not list is the
+    // sole "not serviceable" case. Every real Indian pincode is reachable via our
+    // standard courier window; ShipRocket only REFINES the ETD/COD numbers when
+    // its API is reachable, and never downgrades a real pincode to unserviceable.
     const postal = await getPostalPincodeInfo(deliveryPincode);
     if (!postal.valid) return { status: "not-serviceable" };
 
+    const base: DeliveryEstimate = {
+      status: "serviceable",
+      fastestDays: STANDARD_FASTEST_DAYS,
+      slowestDays: STANDARD_SLOWEST_DAYS,
+      codAvailable: true,
+      fastestCourier: null,
+      district: postal.district,
+      state: postal.state,
+    };
+
+    const environment = getShiprocketEnvironment();
+    if (!environment) return base;
+
+    const pickupPostcode = siteConfig.postalCode.replace(/\D/g, "");
+    if (!/^\d{6}$/.test(pickupPostcode)) return base;
+
     try {
       let token = await authenticate();
-      if (!token) return { status: "unavailable" };
+      if (!token) return base;
 
       const query = new URLSearchParams({
         pickup_postcode: pickupPostcode,
@@ -502,25 +519,25 @@ export const getDeliveryEstimateForPincode = unstable_cache(
             },
           );
         } catch {
-          return { status: "unavailable" };
+          return base;
         }
 
         if (response.status === 401 && attempt === 0) {
           cachedToken = null;
           token = await authenticate();
-          if (!token) return { status: "unavailable" };
+          if (!token) return base;
           continue;
         }
 
         const data = await readJson(response);
-        if (!response.ok) return { status: "unavailable" };
+        if (!response.ok) return base;
 
         const payload = (data.data ?? {}) as Record<string, unknown>;
         const couriers = Array.isArray(payload.available_courier_companies)
           ? (payload.available_courier_companies as ServiceabilityCourierRow[])
           : [];
 
-        if (!couriers.length) return { status: "not-serviceable" };
+        if (!couriers.length) return base;
 
         const daysPerCourier = couriers.map((courier) => ({
           days:
@@ -537,7 +554,7 @@ export const getDeliveryEstimateForPincode = unstable_cache(
           .map((courier) => courier.days)
           .filter((days): days is number => days !== null);
 
-        if (!knownDays.length) return { status: "unavailable" };
+        if (!knownDays.length) return base;
 
         const sortedDays = [...new Set(knownDays)].sort((a, b) => a - b);
         const fastestDays = sortedDays[0];
@@ -556,11 +573,11 @@ export const getDeliveryEstimateForPincode = unstable_cache(
         };
       }
 
-      return { status: "unavailable" };
+      return base;
     } catch {
-      // Never leak Shiprocket internals to the storefront; the UI falls back
-      // to the standard 7-12 day copy when the estimate cannot be verified.
-      return { status: "unavailable" };
+      // Never leak Shiprocket internals to the storefront; a real pincode still
+      // falls back to the standard courier window rather than a false failure.
+      return base;
     }
   },
   ["shiprocket-delivery-estimate"],

@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -71,6 +72,11 @@ function readStoredCart(raw: string | null): CartItem[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
+  const itemsRef = useRef<CartItem[]>(items);
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   useEffect(() => {
     try {
@@ -90,6 +96,83 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       JSON.stringify({ savedAt: Date.now(), items }),
     );
   }, [items, ready]);
+
+  // Reconcile stored cart items against the live catalog so the cart always
+  // shows the current price/stock — the same figures checkout charges from the
+  // database. Without this, a price the admin changed after an item was added
+  // stays frozen in localStorage, so the cart and the final order disagree.
+  const syncPrices = useCallback(async () => {
+    const ids = Array.from(
+      new Set(itemsRef.current.map((item) => item.productId)),
+    );
+    if (!ids.length) return;
+
+    let fresh: Array<{
+      id: string;
+      slug: string;
+      name: string;
+      image: string;
+      unitPrice: number;
+      stock: number;
+    }>;
+    try {
+      const response = await fetch("/api/catalog/prices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!response.ok) return;
+      const data = (await response.json()) as { products?: typeof fresh };
+      fresh = Array.isArray(data.products) ? data.products : [];
+    } catch {
+      // Network hiccup: keep the stored values rather than wiping the cart.
+      return;
+    }
+
+    // An empty list means the catalog itself was unreachable — inconclusive, so
+    // never drop items on it. Only prune when we have a working catalog and a
+    // specific product is missing (unpublished or deleted).
+    if (!fresh.length) return;
+
+    const map = new Map(fresh.map((entry) => [entry.id, entry]));
+    setItems((current) =>
+      current
+        .filter((item) => map.has(item.productId))
+        .map((item) => {
+          const next = map.get(item.productId)!;
+          return {
+            ...item,
+            slug: next.slug,
+            name: next.name,
+            image: next.image,
+            unitPrice: next.unitPrice,
+            stock: next.stock,
+            quantity: Math.min(item.quantity, Math.max(1, next.stock)),
+          };
+        })
+        .filter((item) => item.stock > 0),
+    );
+  }, []);
+
+  // Refresh when the cart becomes ready and whenever the set of products in it
+  // changes (an item added/removed), and again when the tab regains focus — so
+  // catalog edits surface without a manual page reload.
+  const productKey = items.map((item) => item.productId).join(",");
+  useEffect(() => {
+    if (!ready) return;
+    void syncPrices();
+  }, [ready, productKey, syncPrices]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const onFocus = () => void syncPrices();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [ready, syncPrices]);
 
   const addItem = useCallback((item: AddCartItem) => {
     const key = `${item.productId}:${item.size}`;
