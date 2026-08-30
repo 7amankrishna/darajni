@@ -1144,6 +1144,35 @@ input[type="checkbox"] {
   color: #ffffff;
 }
 
+/* Desktop: keep the whole garment visible at a glance. A raw 3:4 stage on
+   wide screens grows taller than the viewport, so the dress gets cut off and
+   users must scroll to see it. Cap the stage to the viewport height and let
+   its width follow the 3:4 ratio; the thumbnails hug it and the info column
+   takes the freed horizontal space. */
+@media (min-width: 1024px) {
+  .product-gallery-stage {
+    height: min(calc(100svh - 12rem), 44rem);
+    aspect-ratio: 3 / 4;
+    width: auto;
+  }
+
+  .product-gallery {
+    grid-template-columns: 3.5rem auto;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* Two-column product layout: hug the image and keep it in view while the
+     purchase details scroll alongside it. */
+  .product-gallery {
+    position: sticky;
+    top: 7rem;
+    align-self: start;
+    justify-content: start;
+  }
+}
+
 .footer-contact-row {
   display: flex;
   min-height: 3.25rem;
