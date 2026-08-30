@@ -39,8 +39,9 @@ export default function DesignCard({ product }: { product: Product }) {
         {/* Wishlist Button */}
         <WishlistButton productId={product.id} productName={product.name} />
 
-        {/* Hover Quick View Trigger */}
-        <div className="absolute inset-x-3 bottom-3 z-10 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* Quick View trigger: revealed on hover for pointer devices,
+            always visible on touch devices (no hover state). */}
+        <div className="absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 [@media(hover:hover)]:translate-y-4 [@media(hover:hover)]:opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
           <QuickViewTrigger product={product} />
         </div>
       </div>
