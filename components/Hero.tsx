@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon, ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag, Truck, ShieldCheck, RefreshCcw, HeadphonesIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Great_Vibes, Playfair_Display, Cinzel, Montserrat } from "next/font/google";
 
 import { ProductImage } from "@/components/product/product-image";
+import { getProductPrice } from "@/lib/commerce";
 import type { Product, StoreSettings } from "@/types/commerce";
 
 const greatVibes = Great_Vibes({ weight: "400", subsets: ["latin"], display: "swap" });
@@ -20,6 +21,12 @@ const fontMap: Record<string, string> = {
   "Montserrat": montserrat.className,
 };
 
+const inr = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+
 export default function Hero({
   products,
   settings,
@@ -32,6 +39,7 @@ export default function Hero({
   const [activeIndex, setActiveIndex] = useState(0);
   const featuredProduct = heroProducts[activeIndex] ?? null;
   const heroImage = featuredProduct?.images[0] ?? "/logo.webp";
+  const cursiveClass = fontMap[settings.heroFontFamily] || greatVibes.className;
 
   useEffect(() => {
     setActiveIndex(0);
@@ -45,89 +53,50 @@ export default function Hero({
     return () => window.clearInterval(timer);
   }, [heroProducts.length]);
 
-  const nextSlide = () => {
-    setActiveIndex((index) => (index + 1) % heroProducts.length);
-  };
-
-  const prevSlide = () => {
-    setActiveIndex((index) => (index - 1 + heroProducts.length) % heroProducts.length);
-  };
-
   return (
-    <section className="relative flex min-h-[90vh] w-full flex-col bg-background text-text-primary overflow-hidden">
-      {/* Dynamic blurred background to extract image color */}
-      <div className="absolute inset-0 z-0">
-        <ProductImage
-          key={`bg-${featuredProduct?.id ?? "hero-fallback"}`}
-          src={heroImage}
-          alt=""
-          sizes="100vw"
-          priority
-          className="h-full w-full object-cover blur-[80px] scale-110 opacity-60 dark:opacity-40 transition-opacity duration-1000 ease-out"
-        />
-      </div>
-
-      {/* Background Image on Right Side */}
-      <div className="absolute inset-0 z-0 flex justify-end">
-        <div className="relative h-full w-full lg:w-[75%] lg:[mask-image:linear-gradient(to_right,transparent,black_15%)]">
-          {/* Frosted glass blend that takes on the underlying image color instead of a flat white gradient */}
-          <div className="absolute inset-0 z-10 backdrop-blur-2xl bg-background/20 [mask-image:linear-gradient(to_right,black_10%,transparent_100%)] lg:[mask-image:linear-gradient(to_right,black_0%,transparent_80%)]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent z-10" />
-
+    <section className="hero-lux relative w-full overflow-hidden bg-background text-text-primary">
+      {/* Feathered garment image on the right */}
+      <div className="absolute inset-0 z-[1] flex justify-end">
+        <div className="hero-lux-media relative h-full w-full lg:w-[66%]">
           <ProductImage
             key={featuredProduct?.id ?? "hero-fallback"}
             src={heroImage}
-            alt="DARAJNI designer collection"
-            sizes="(max-width: 1024px) 100vw, 65vw"
+            alt={featuredProduct ? `${featuredProduct.name} — DARAJNI designer collection` : "DARAJNI designer collection"}
+            sizes="(max-width: 1024px) 100vw, 66vw"
             priority
-            className="h-full w-full object-cover object-top transition-opacity duration-1000 ease-out"
+            className="hero-lux-img h-full w-full object-cover object-top"
           />
         </div>
       </div>
-      
-      {/* Navigation Arrows */}
-      {heroProducts.length > 1 && (
-        <>
-          <button
-            onClick={prevSlide}
-            aria-label="Previous slide"
-            className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-accent/25 bg-surface/70 text-text-primary shadow-lg backdrop-blur transition hover:border-accent hover:bg-surface hover:text-accent sm:left-8"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={nextSlide}
-            aria-label="Next slide"
-            className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-accent/25 bg-surface/70 text-text-primary shadow-lg backdrop-blur transition hover:border-accent hover:bg-surface hover:text-accent sm:right-8"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </>
-      )}
 
-      {/* Main Content */}
-      <div className="section-shell relative z-10 flex flex-1 items-center pt-32 pb-24 lg:pt-[280px] lg:pb-32">
-        <div className="max-w-xl pr-6 sm:pr-12">
-          <p className="flex items-center gap-3 text-[0.65rem] font-bold uppercase tracking-[0.22em] sm:text-xs" style={{ color: settings.heroAccentColor }}>
-            <span className="hidden h-px w-10 bg-current opacity-60 sm:block" aria-hidden="true" />
+      {/* Editorial copy */}
+      <div className="section-shell hero-lux-inner relative z-[3] flex items-center">
+        <div className="hero-lux-copy max-w-[34rem]">
+          <p className="flex items-center gap-3.5 text-[0.68rem] font-bold uppercase tracking-[0.32em]" style={{ color: settings.heroAccentColor }}>
+            <span className="hidden h-px w-10 sm:block" style={{ background: `linear-gradient(90deg, ${settings.heroAccentColor}, transparent)` }} aria-hidden="true" />
             {settings.heroEyebrow}
           </p>
-          
-          <h1 className="mt-5 sm:mt-4 font-display text-[3.5rem] font-normal leading-[0.9] text-text-primary sm:text-7xl lg:text-[5.5rem] drop-shadow-sm">
+
+          <h1 className="font-display mt-5 sm:mt-6 text-[3.2rem] font-medium leading-[0.92] tracking-[-0.01em] text-text-primary sm:text-[4.75rem] lg:text-[6rem]">
             {settings.heroTitle}
-            <span 
-              className={`block pt-1 pb-4 text-[4.5rem] sm:text-[6rem] lg:text-[7rem] leading-none drop-shadow-md ${fontMap[settings.heroFontFamily] || greatVibes.className}`}
-              style={{ color: settings.heroAccentColor }}
+            <span
+              className={`block leading-[0.8] ${cursiveClass}`}
+              style={{
+                fontSize: "clamp(4rem, 8.4vw, 8rem)",
+                marginTop: "-0.06em",
+                color: settings.heroAccentColor,
+                filter: "drop-shadow(0 8px 22px rgba(143,106,53,0.22))",
+              }}
             >
               {settings.heroCursiveTitle}
             </span>
           </h1>
 
-          <p className="mt-1 sm:mt-4 max-w-sm sm:max-w-full text-base leading-relaxed text-text-secondary sm:text-xl sm:font-medium whitespace-pre-line">
+          <p className="mt-6 max-w-[23rem] whitespace-pre-line text-base leading-[1.75] text-text-secondary sm:text-[1.06rem]">
             {settings.heroSubtitle}
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+          <div className="mt-9 flex flex-col flex-wrap items-stretch gap-3.5 sm:flex-row sm:items-center">
             <Link href="/collection" className="primary-button">
               Explore Collection
               <ShoppingBag className="h-4 w-4" />
@@ -136,54 +105,74 @@ export default function Hero({
               Request a Custom Dress
             </Link>
           </div>
+
+          {/* Slide progress */}
+          {heroProducts.length > 1 && (
+            <div className="mt-11 flex items-center gap-5">
+              <div className="flex gap-2.5">
+                {heroProducts.map((product, index) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    aria-label={`Show ${product.name}`}
+                    aria-current={index === activeIndex}
+                    className={`hero-lux-dot ${index === activeIndex ? "is-active" : ""}`}
+                  />
+                ))}
+              </div>
+              <span className="text-[0.72rem] font-semibold tracking-[0.2em] text-text-secondary">
+                <b className="text-text-primary">{String(activeIndex + 1).padStart(2, "0")}</b>
+                {" / "}
+                {String(heroProducts.length).padStart(2, "0")}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="relative z-10 pb-8 text-center sm:hidden">
-        <span className="inline-flex flex-col items-center gap-2 text-[0.6rem] uppercase tracking-[0.2em] text-text-secondary">
-          <span>Scroll to discover</span>
-          <span className="text-accent">&darr;</span>
-        </span>
-      </div>
+      {/* Featured look chip */}
+      {featuredProduct && (
+        <Link
+          href={`/design/${featuredProduct.slug}`}
+          className="hero-lux-featured group"
+          aria-label={`View ${featuredProduct.name}`}
+        >
+          <span className="flex flex-col gap-0.5">
+            <small className="text-[0.56rem] font-extrabold uppercase tracking-[0.22em] text-[var(--gold-dark)]">
+              Featured Look
+            </small>
+            <strong className="font-display text-lg font-semibold leading-none text-text-primary line-clamp-1">
+              {featuredProduct.name}
+            </strong>
+            <span className="mt-0.5 text-xs font-semibold text-text-secondary">
+              {inr.format(getProductPrice(featuredProduct))}
+            </span>
+          </span>
+          <span className="hero-lux-featured-arrow">
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+          </span>
+        </Link>
+      )}
 
-      {/* Bottom Feature Banner - Hidden on mobile to clean up space, visible on tablet+ */}
-      <div className="relative z-10 mx-auto mb-6 mt-12 hidden w-[95%] max-w-[85rem] rounded-[1.5rem] border border-accent/25 bg-surface/75 py-5 px-2 shadow-[0_24px_64px_-28px_rgba(42,26,16,0.35)] backdrop-blur-xl sm:block sm:mb-10 sm:mt-auto">
-        <div className="grid grid-cols-2 gap-y-6 gap-x-2 sm:grid-cols-4 sm:gap-4 sm:divide-x sm:divide-border/70">
-          <div className="flex items-center gap-3.5 px-2 sm:px-6">
-            <span className="icon-medallion">
-              <Truck className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-text-primary truncate">Free Shipping</p>
-              <p className="text-xs text-text-secondary truncate">On orders over ₹999</p>
-            </div>
+      {/* Slim assurance strip */}
+      <div className="hero-lux-assurance relative z-[5]">
+        <div className="section-shell grid grid-cols-2 sm:grid-cols-4">
+          <div className="hero-lux-assure">
+            <Truck className="hero-lux-assure-ico h-4 w-4" />
+            <span>Free Shipping <b>over ₹999</b></span>
           </div>
-          <div className="flex items-center gap-3.5 px-2 sm:px-6">
-            <span className="icon-medallion">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-text-primary truncate">Secure Payment</p>
-              <p className="text-xs text-text-secondary truncate">100% secure checkout</p>
-            </div>
+          <div className="hero-lux-assure">
+            <ShieldCheck className="hero-lux-assure-ico h-4 w-4" />
+            <span>Secure <b>Checkout</b></span>
           </div>
-          <div className="flex items-center gap-3.5 px-2 sm:px-6">
-            <span className="icon-medallion">
-              <RefreshCcw className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-text-primary truncate">Easy Returns</p>
-              <p className="text-xs text-text-secondary truncate">7-day return policy</p>
-            </div>
+          <div className="hero-lux-assure">
+            <RefreshCcw className="hero-lux-assure-ico h-4 w-4" />
+            <span>7-Day <b>Returns</b></span>
           </div>
-          <div className="flex items-center gap-3.5 px-2 sm:px-6">
-            <span className="icon-medallion">
-              <HeadphonesIcon className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-text-primary truncate">24/7 Support</p>
-              <p className="text-xs text-text-secondary truncate">We're here to help</p>
-            </div>
+          <div className="hero-lux-assure">
+            <HeadphonesIcon className="hero-lux-assure-ico h-4 w-4" />
+            <span>Dedicated <b>Support</b></span>
           </div>
         </div>
       </div>
