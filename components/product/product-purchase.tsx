@@ -96,10 +96,10 @@ export function ProductPurchase({
             <Ruler className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="font-display text-3xl leading-none text-text-primary">
+            <h2 className="font-display text-2xl leading-none text-text-primary">
               Select Your Size
             </h2>
-            <p className="mt-2 text-sm leading-6 text-text-secondary">
+            <p className="mt-2 text-[0.8rem] leading-6 text-text-secondary">
               After placing your order, our team will contact you for
               measurements. You can also share them directly on WhatsApp.
             </p>

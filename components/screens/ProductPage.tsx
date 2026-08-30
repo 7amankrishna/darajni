@@ -233,11 +233,11 @@ export default function ProductPage({
                 )}
               </div>
               <p className="eyebrow mt-5">{product.category.name}</p>
-              <h1 className="font-display mt-3 text-5xl leading-[0.92] text-text-primary sm:text-6xl">
+              <h1 className="font-display mt-3 text-3xl leading-[1] text-text-primary sm:text-4xl">
                 {product.name}
               </h1>
               <div className="mt-4 flex items-end justify-between">
-                <p className="font-display text-4xl font-semibold text-text-primary">
+                <p className="font-display text-3xl font-semibold text-text-primary">
                   {formatPrice(price)}
                 </p>
                 <p className="pb-1 text-xs font-semibold uppercase text-text-secondary">
