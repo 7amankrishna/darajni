@@ -1151,7 +1151,7 @@ input[type="checkbox"] {
    takes the freed horizontal space. */
 @media (min-width: 1024px) {
   .product-gallery-stage {
-    height: min(calc(100svh - 12rem), 44rem);
+    height: min(calc(100svh - 10rem), 50rem);
     aspect-ratio: 3 / 4;
     width: auto;
   }

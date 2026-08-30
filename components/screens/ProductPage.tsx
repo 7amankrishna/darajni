@@ -212,7 +212,7 @@ export default function ProductPage({
           <span className="text-text-primary">{product.name}</span>
         </nav>
 
-        <div className="grid min-w-0 items-start gap-8 xl:grid-cols-[auto_minmax(24rem,1fr)] xl:gap-12">
+        <div className="grid min-w-0 items-start gap-8 xl:grid-cols-[auto_minmax(23rem,30rem)] xl:justify-center xl:gap-14">
           <ProductGallery images={product.images} name={product.name} />
 
           <div className="min-w-0">
