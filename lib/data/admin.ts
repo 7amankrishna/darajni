@@ -34,7 +34,9 @@ function mapProduct(row: Record<string, unknown>): Product {
     stock: Number(row.stock),
     price: Number(row.price),
     discount: Number(row.discount),
-    images: Array.isArray(row.images) ? row.images.map(String) : [],
+    images: Array.isArray(row.images)
+      ? row.images.map((img) => normalizeMediaUrl(String(img)) || String(img))
+      : [],
     videoUrl: normalizeMediaUrl(row.video_url ? String(row.video_url) : null),
     category: mapCategory(categoryRow as Record<string, unknown>),
     isFeatured: Boolean(row.is_featured),

@@ -146,6 +146,7 @@ export function ProductGallery({
             <ProductImage
               src={image}
               alt=""
+              priority={true}
               sizes="56px"
               className="object-cover"
             />
@@ -191,7 +192,7 @@ export function ProductGallery({
                     <ProductImage
                       src={image}
                       alt={`${name}, ${labels[index] || `image ${index + 1}`}`}
-                      priority={index === 0}
+                      priority={true}
                       sizes="(max-width: 767px) 100vw, (max-width: 1279px) 56vw, 48vw"
                       className="object-cover transition-transform duration-200 ease-out"
                       style={
@@ -279,6 +280,7 @@ export function ProductGallery({
                 <ProductImage
                   src={gallery[activeIndex]}
                   alt={`${name}, ${labels[activeIndex] || `image ${activeIndex + 1}`}`}
+                  priority={true}
                   sizes="96vw"
                   className="object-contain"
                 />

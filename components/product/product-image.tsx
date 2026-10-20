@@ -1,6 +1,14 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 
+function normalizeSrc(src: string): string {
+  if (!src) return "/logo.webp";
+  if (src.startsWith("http://files.darajni.in")) {
+    return `https://files.darajni.in${src.slice("http://files.darajni.in".length)}`;
+  }
+  return src;
+}
+
 function canOptimize(src: string) {
   if (src.startsWith("/")) return true;
 
@@ -27,14 +35,17 @@ export function ProductImage({
   className?: string;
   style?: CSSProperties;
 }) {
-  if (canOptimize(src)) {
+  const cleanSrc = normalizeSrc(src);
+
+  if (canOptimize(cleanSrc)) {
     return (
       <Image
-        src={src}
+        src={cleanSrc}
         alt={alt}
         fill
         sizes={sizes}
         priority={priority}
+        loading={priority ? "eager" : undefined}
         fetchPriority={priority ? "high" : "auto"}
         className={className}
         style={style}
@@ -47,7 +58,7 @@ export function ProductImage({
     // are moved into the product-images bucket.
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={cleanSrc}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}

@@ -28,18 +28,18 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/product-images/**",
+        pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "*.supabase.co",
-        pathname: "/storage/v1/object/public/requested-dresses/**",
+        hostname: "files.darajni.in",
+        pathname: "/**",
       },
       {
-      protocol: "https",
-      hostname: "files.darajni.in",
-      pathname: "/**",
-  },
+        protocol: "http",
+        hostname: "files.darajni.in",
+        pathname: "/**",
+      },
     ],
     
   },

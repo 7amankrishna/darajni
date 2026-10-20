@@ -25,8 +25,8 @@
 .atelier-button:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 .atelier-button-light { background: var(--atelier-ivory); border-color: var(--atelier-ivory); color: var(--atelier-burgundy); }
 .atelier-button-light:hover { background: var(--atelier-champagne); border-color: var(--atelier-champagne); color: var(--atelier-burgundy); }
-.atelier-button-outline { background: transparent; border-color: color-mix(in srgb, var(--atelier-champagne) 70%, transparent); color: var(--atelier-ivory); }
-.atelier-button-outline:hover { background: color-mix(in srgb, var(--atelier-champagne) 20%, transparent); border-color: var(--atelier-champagne); color: var(--atelier-ivory); }
+.atelier-button-outline { background: var(--atelier-ivory); border: 2px solid var(--atelier-burgundy); color: var(--atelier-burgundy); }
+.atelier-button-outline:hover { background: var(--atelier-burgundy); border-color: var(--atelier-burgundy); color: var(--atelier-ivory); }
 .atelier-text-link { display: inline-flex; align-items: center; gap: 14px; width: fit-content; min-height: 44px; border-bottom: 1px solid currentColor; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 500; transition: gap .25s; }
 .atelier-text-link:hover { gap: 23px; }
 .atelier-slide-controls { display: flex; align-items: center; gap: 10px; margin-top: 42px; font-size: 10px; letter-spacing: .1em; }

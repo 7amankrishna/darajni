@@ -1,10 +1,10 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { ProductImage } from "@/components/product/product-image";
 import { formatPrice } from "@/config/site";
 import { getProductPrice, isProductInformationUncertain } from "@/lib/commerce";
 import type { Product } from "@/types/commerce";
@@ -29,22 +29,39 @@ export function QuickViewTrigger({ product }: { product: Product }) {
     ? "View fabric details"
     : product.fabric;
 
-  const scrollNext = () => {
+  useEffect(() => {
+    if (open) {
+      setCurrentImageIndex(0);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollLeft = 0;
+      }
+    }
+  }, [open]);
+
+  const scrollToIndex = (index: number) => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: scrollContainerRef.current.clientWidth, behavior: "smooth" });
+      const width = scrollContainerRef.current.clientWidth;
+      scrollContainerRef.current.scrollTo({ left: index * width, behavior: "smooth" });
+      setCurrentImageIndex(index);
     }
   };
 
+  const scrollNext = () => {
+    const nextIndex = Math.min(currentImageIndex + 1, images.length - 1);
+    scrollToIndex(nextIndex);
+  };
+
   const scrollPrev = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -scrollContainerRef.current.clientWidth, behavior: "smooth" });
-    }
+    const prevIndex = Math.max(currentImageIndex - 1, 0);
+    scrollToIndex(prevIndex);
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    const index = Math.round(target.scrollLeft / target.clientWidth);
-    setCurrentImageIndex(index);
+    if (target.clientWidth > 0) {
+      const index = Math.round(target.scrollLeft / target.clientWidth);
+      setCurrentImageIndex(index);
+    }
   };
 
   return (
@@ -73,12 +90,12 @@ export function QuickViewTrigger({ product }: { product: Product }) {
             >
               {images.map((img, i) => (
                 <div key={i} className="relative h-full w-full shrink-0 snap-center">
-                  <Image
+                  <ProductImage
                     src={img}
                     alt={`${product.name} - view ${i + 1}`}
-                    fill
-                    className="object-cover object-center"
+                    priority={true}
                     sizes="(max-width: 640px) 100vw, 50vw"
+                    className="object-cover object-center"
                   />
                 </div>
               ))}
@@ -93,6 +110,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
             {images.length > 1 && (
               <>
                 <button
+                  type="button"
                   onClick={scrollPrev}
                   aria-label="Previous product image"
                   className="absolute left-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
@@ -100,6 +118,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
+                  type="button"
                   onClick={scrollNext}
                   aria-label="Next product image"
                   className="absolute right-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
@@ -107,12 +126,15 @@ export function QuickViewTrigger({ product }: { product: Product }) {
                   <ChevronRight className="h-5 w-5" />
                 </button>
                 
-                <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 pointer-events-none">
+                <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 pointer-events-auto">
                   {images.map((_, i) => (
-                    <div
+                    <button
                       key={i}
-                      className={`h-1.5 rounded-full transition-all ${
-                        i === currentImageIndex ? "w-4 bg-surface" : "w-1.5 bg-surface/50"
+                      type="button"
+                      aria-label={`Go to image ${i + 1}`}
+                      onClick={() => scrollToIndex(i)}
+                      className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                        i === currentImageIndex ? "w-5 bg-surface shadow" : "w-1.5 bg-surface/50 hover:bg-surface/80"
                       }`}
                     />
                   ))}

@@ -207,6 +207,9 @@ export default async function HomePage() {
         <div id="collection-preview" />
         <DressShowcase products={products} categories={availableCategories} />
 
+        {/* New Launches Slider */}
+        <HomepageLaunchSliderLazy slides={homepageSlides} />
+
         {/* Featured Products / New Arrivals */}
         {featured.length > 0 && (
           <section data-reveal className="bg-background py-16 sm:py-24">
@@ -230,11 +233,9 @@ export default async function HomePage() {
           </section>
         )}
 
-
         <CustomCoutureBanner products={products} />
         <ShopByOccasion products={products} />
         <EventsSlider eventBanners={eventBanners} />
-        <HomepageLaunchSliderLazy slides={homepageSlides} />
         <AtelierStory products={products} />
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
         <PolicyPreview />
