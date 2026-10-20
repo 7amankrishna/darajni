@@ -3,10 +3,16 @@ import type { CSSProperties } from "react";
 
 function normalizeSrc(src: string): string {
   if (!src) return "/logo.webp";
-  if (src.startsWith("http://files.darajni.in")) {
-    return `https://files.darajni.in${src.slice("http://files.darajni.in".length)}`;
+  let decoded = src;
+  try {
+    decoded = decodeURI(src);
+  } catch {
+    decoded = src;
   }
-  return src;
+  if (decoded.startsWith("http://files.darajni.in")) {
+    return `https://files.darajni.in${decoded.slice("http://files.darajni.in".length)}`;
+  }
+  return decoded;
 }
 
 function canOptimize(src: string) {
@@ -45,6 +51,7 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
+        unoptimized
         loading={priority ? "eager" : undefined}
         fetchPriority={priority ? "high" : "auto"}
         className={className}
