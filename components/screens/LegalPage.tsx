@@ -62,6 +62,23 @@ function PrivacyContent() {
           public image link where possible.
         </p>
       </section>
+      <section>
+        <h2 className="font-display text-3xl text-text-primary">
+          6. Website Analytics &amp; Email Updates
+        </h2>
+        <p className="mt-2">
+          We use Google Analytics to understand visits to public shopping pages.
+          Google Analytics may use cookies and collect device and browsing
+          information. Our page-view integration excludes private account,
+          checkout and order pages, and removes URL query parameters.
+          Your checkout contact details are not sent by this integration.
+        </p>
+        <p className="mt-2">
+          If you choose to subscribe to collection updates, we store your email
+          address and the time of your consent separately from orders.
+          To unsubscribe or request deletion, email {siteConfig.email}.
+        </p>
+      </section>
     </>
   );
 }

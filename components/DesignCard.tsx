@@ -1,4 +1,4 @@
-import { Eye, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { ProductImage } from "@/components/product/product-image";
@@ -12,11 +12,11 @@ export default function DesignCard({ product }: { product: Product }) {
   const price = getProductPrice(product);
   const image = product.images[0] || "/logo.webp";
   const fabricTag = isProductInformationUncertain(product.fabric)
-    ? "Handcrafted Silk"
+    ? "View fabric details"
     : product.fabric;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_10px_30px_rgba(58,46,37,0.05)] transition-all duration-300 hover:-translate-y-1.5 hover:border-accent/60 hover:shadow-[0_28px_64px_-24px_rgba(42,26,16,0.3)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
+    <article className="atelier-product group relative flex flex-col">
       {/* Media Box with Portrait 3:4 Ratio & Slow Cinematic Scale */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt">
         <Link href={`/design/${product.slug}`} className="block h-full w-full">
@@ -31,7 +31,7 @@ export default function DesignCard({ product }: { product: Product }) {
 
         {/* Top Badges */}
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className="rounded-full border border-white/20 bg-[#241A12]/70 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#F6EFE5] backdrop-blur-md">
+          <span className="atelier-fabric">
             {fabricTag}
           </span>
         </div>
@@ -41,13 +41,13 @@ export default function DesignCard({ product }: { product: Product }) {
 
         {/* Quick View trigger: revealed on hover for pointer devices,
             always visible on touch devices (no hover state). */}
-        <div className="absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 [@media(hover:hover)]:translate-y-4 [@media(hover:hover)]:opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="atelier-quick-view absolute inset-x-3 bottom-3 z-10 translate-y-0 opacity-100 transition-all duration-300 [@media(hover:hover)]:translate-y-4 [@media(hover:hover)]:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
           <QuickViewTrigger product={product} />
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="flex flex-1 flex-col justify-between p-5">
+      <div className="flex flex-1 flex-col justify-between py-5">
         <div>
           <div className="flex items-center justify-between gap-2">
             <span className="text-[0.65rem] font-extrabold uppercase tracking-widest text-accent">
@@ -68,8 +68,8 @@ export default function DesignCard({ product }: { product: Product }) {
           </h3>
         </div>
 
-        <div className="mt-4 flex items-baseline justify-between border-t border-border pt-3">
-          <span className="font-display text-2xl font-semibold text-text-primary">
+        <div className="mt-3 flex items-baseline gap-3">
+          <span className="text-sm font-medium text-text-primary">
             {formatPrice(price)}
           </span>
           {product.discount > 0 && (
@@ -77,6 +77,7 @@ export default function DesignCard({ product }: { product: Product }) {
               {formatPrice(product.price)}
             </span>
           )}
+          {product.stock <= 0 && <span className="ml-auto text-xs text-text-secondary">Sold out</span>}
         </div>
       </div>
     </article>

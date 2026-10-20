@@ -118,28 +118,34 @@
 
 :root {
   color-scheme: light;
-  --background: #FBF9F6;
+  --background: #F7F3EC;
   --surface: #FFFFFF;
-  --surface-alt: #F4EFE7;
-  --text-primary: #291F17;
+  --surface-alt: #EEE7DC;
+  --text-primary: #262320;
   --text-secondary: #6E635A;
   --border: #E6DDD0;
-  --primary: #3E2619;
-  --primary-hover: #55331F;
-  --accent: #AE834D;
-  --accent-hover: #C29B62;
+  --primary: #561F2D;
+  --primary-hover: #702C3E;
+  --accent: #795C34;
+  --accent-hover: #561F2D;
   --success: #2E7D32;
   --error: #C62828;
   --cream: #FFFDF8;
   --blush: #FFF8EF;
   --ivory: #FAF8F5;
-  --ink: #291F17;
+  --ink: #262320;
   --muted: #6E635A;
   --radius: 18px;
 
   /* Heritage luxe tokens (previously referenced but undefined) */
-  --maroon: #6E0F1A;
-  --gold: #B9894B;
+  --maroon: #561F2D;
+  --gold: #C8AA78;
+  --atelier-burgundy: #561F2D;
+  --atelier-ivory: #F7F3EC;
+  --atelier-champagne: #C8AA78;
+  --atelier-footer-muted: #D9C5C5;
+  --atelier-overlay: #181312;
+  --atelier-on-image: #FFFFFF;
   --gold-dark: #8F6A35;
   --accent-gradient: linear-gradient(120deg, #DCC08A 0%, #B9894B 48%, #8F6A35 100%);
   --shadow-luxe-sm: 0 10px 32px -12px rgba(56, 38, 26, 0.16);

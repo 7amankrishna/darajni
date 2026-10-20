@@ -8,9 +8,10 @@ import {
   Truck,
   Sparkles,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
+import { CustomCoutureBanner, ShopByOccasion, AtelierStory } from "@/components/home-editorials";
+import { curatedProducts } from "@/lib/storefront";
 import DressShowcase from "@/components/DressShowcase";
 import { FeaturedProductsSlider } from "@/components/featured-products-slider";
 import Hero from "@/components/Hero";
@@ -25,94 +26,16 @@ import { getActiveEventBanners } from "@/lib/data/events";
 import { getRequestedDresses } from "@/lib/data/requested-dresses";
 import { getCatalog, getStoreSettings } from "@/lib/data/catalog";
 
-function CustomCoutureBanner() {
-  return (
-    <section className="bg-background px-4 py-8 sm:py-12 mt-8">
-      <div className="section-shell flex flex-col sm:flex-row items-center justify-between gap-6 rounded-[1.75rem] bg-surface p-8 sm:p-12 border border-border shadow-[var(--shadow-luxe-sm)] relative overflow-hidden">
-        {/* Couture inner frame */}
-        <div className="pointer-events-none absolute inset-3 rounded-[1.35rem] border border-accent/20" aria-hidden="true" />
-        {/* Subtle decorative background element */}
-        <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
-          <Sparkles className="w-64 h-64 text-accent" />
-        </div>
-        
-        <div className="relative z-10 flex-1 space-y-3 text-center sm:text-left">
-          <p className="eyebrow">Custom Couture</p>
-          <h2 className="font-display text-4xl sm:text-5xl text-text-primary leading-tight">
-            Designed For You.<br />
-            <span className="italic text-accent">Made By Darajni.</span>
-          </h2>
-          <p className="max-w-md mx-auto sm:mx-0 text-[0.8rem] text-text-secondary leading-relaxed">
-            Your style is unique, and your outfit should be too.
-          </p>
-        </div>
-        <div className="relative z-10 shrink-0 w-full sm:w-auto">
-          <Link href="/requested-dresses" className="secondary-button w-full sm:w-auto group">
-            DESIGN YOUR LOOK <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ShopByOccasion({ products }: { products: any[] }) {
-  const occasions = [
-    { name: "Wedding", slug: "wedding" },
-    { name: "Festive", slug: "festive" },
-    { name: "Party", slug: "party" },
-    { name: "Everyday", slug: "everyday" }
-  ];
-  
-  return (
-    <section className="bg-background py-16 sm:py-20">
-      <div className="section-shell">
-        <div className="flex items-center justify-center gap-4 mb-10">
-          <div className="h-px w-10 bg-accent/50" aria-hidden="true" />
-          <h2 className="font-display text-3xl sm:text-4xl text-text-primary text-center whitespace-nowrap">
-            Shop By Occasion
-          </h2>
-          <div className="h-px w-10 bg-accent/50" aria-hidden="true" />
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
-          {occasions.map((occ, idx) => {
-             const image = products[idx % products.length]?.images?.[0];
-             return (
-               <Link key={occ.name} href={`/collection?category=${occ.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-[1.25rem] border border-white/10 bg-surface-alt shadow-[0_18px_44px_-20px_rgba(42,26,16,0.35)] transition-all duration-500 hover:border-accent/60 hover:shadow-[0_28px_64px_-24px_rgba(42,26,16,0.45)]">
-                 {image && (
-                   <Image 
-                     src={image} 
-                     alt="" 
-                     fill
-                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
-                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
-                   />
-                 )}
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent z-10 pointer-events-none" />
-                 <div className="absolute inset-x-3 bottom-5 z-20 flex flex-col items-center gap-2.5 pointer-events-none">
-                   <span className="h-px w-7 bg-white/70 transition-all duration-500 group-hover:w-12 group-hover:bg-accent" aria-hidden="true" />
-                   <span className="text-[0.68rem] font-bold tracking-[0.22em] uppercase text-white">{occ.name}</span>
-                 </div>
-               </Link>
-             );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
 function PolicyPreview() {
   const policies: Array<[string, string, string, LucideIcon]> = [
     ["Shipping", "Pan-India delivery with tracking updates.", "/shipping-policy", Truck],
     ["Exchange", "Eligibility and custom-size rules explained.", "/returns-exchange", HeartHandshake],
     ["Custom Size", "Measurements are collected and confirmed.", "/size-guide", Ruler],
-    ["Payment Safety", "COD and Razorpay checkout are clearly shown.", "/terms", ShieldCheck],
+    ["Payment Safety", "Payment options are shown at checkout.", "/terms", ShieldCheck],
   ];
 
   return (
-    <section data-reveal className="bg-surface-alt py-24 sm:py-32">
+    <section data-reveal className="atelier-policies bg-surface-alt py-20 sm:py-24">
       <div className="section-shell">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
@@ -154,7 +77,7 @@ function PolicyPreview() {
 
 function ClosingCta() {
   return (
-    <section data-reveal className="bg-surface px-4 py-16 sm:py-20">
+    <section data-reveal className="atelier-closing bg-surface px-4 py-16 sm:py-20">
       <div className="section-shell closing-cta overflow-hidden rounded-[2rem] border border-accent/35 px-6 py-12 sm:px-10 lg:px-14">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
@@ -197,7 +120,7 @@ export default async function HomePage() {
   const availableCategories = categories.filter((category: Category) =>
     products.some((product: Product) => product.category.id === category.id),
   );
-  const featured = products.filter((product: Product) => product.isFeatured).slice(0, 6); // Show 6 featured products
+  const featured = curatedProducts(products).slice(0, 10);
   const structuredData = [
     {
       "@context": "https://schema.org",
@@ -277,14 +200,8 @@ export default async function HomePage() {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <main id="main-content">
+      <main id="main-content" className="atelier-home">
         <Hero products={products} settings={settings} />
-        <EventsSlider eventBanners={eventBanners} />
-        <HomepageLaunchSliderLazy slides={homepageSlides} />
-        
-        <CustomCoutureBanner />
-        <ShopByOccasion products={products} />
-
         {/* Collection Section ID anchor */}
         <div id="collection-preview" />
         <DressShowcase products={products} categories={availableCategories} />
@@ -294,8 +211,8 @@ export default async function HomePage() {
           <section data-reveal className="bg-background py-16 sm:py-24">
             <div className="section-shell">
               <div className="flex items-center gap-4 mb-8">
-                <h2 className="font-display text-3xl sm:text-4xl text-text-primary whitespace-nowrap">
-                  New Arrivals
+                <h2 className="font-display text-4xl sm:text-6xl text-text-primary">
+                  The Curated Edit
                 </h2>
                 <div className="h-px flex-1 bg-accent/25" />
                 <Link
@@ -313,6 +230,11 @@ export default async function HomePage() {
         )}
 
 
+        <CustomCoutureBanner products={products} />
+        <ShopByOccasion products={products} />
+        <EventsSlider eventBanners={eventBanners} />
+        <HomepageLaunchSliderLazy slides={homepageSlides} />
+        <AtelierStory products={products} />
         <RequestedDressesHomepageTeaser requests={requestedDresses} />
         <PolicyPreview />
         <ClosingCta />

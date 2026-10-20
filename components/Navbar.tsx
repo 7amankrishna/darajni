@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
@@ -56,6 +56,7 @@ export default function Navbar({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const drawer = useRef<HTMLDivElement>(null);
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const whatsappHref = whatsappSupportLink(
@@ -103,6 +104,31 @@ export default function Navbar({
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const focusable = () => Array.from(drawer.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? []);
+    focusable()[0]?.focus();
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+    document.addEventListener("keydown", handleKey);
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      desktop.removeEventListener("change", closeOnDesktop);
+      previousFocus?.focus();
+    };
+  }, [open]);
+
   // Lock the ROOT SCROLLER (<html>) while the drawer is open. Freezing <body>
   // with position:fixed would drag the sticky header off-screen once the page
   // is scrolled; locking <html> keeps it stuck at the top with zero shift,
@@ -139,9 +165,9 @@ export default function Navbar({
       {/* Spacer holds the layout because the header is always position:fixed.
           A fixed header cannot be dislodged by scroll position, sticky
           containing blocks, or the drawer's scroll lock. */}
-      <div aria-hidden="true" className="h-16 lg:h-[109px]" />
+      <div aria-hidden="true" className="atelier-header-spacer" />
 
-      <header className="fixed inset-x-0 top-0 z-40 h-[64px] border-b border-border/50 bg-background/85 transition-colors backdrop-blur-xl shadow-[0_10px_36px_-14px_rgba(42,26,16,0.14)] lg:h-[109px]">
+      <header className="atelier-header fixed inset-x-0 top-0 z-40 border-b border-border bg-background">
         <div className="hidden border-b border-border/60 bg-surface-alt/70 text-text-primary lg:block">
           <div className="section-shell flex h-[34px] items-center justify-between gap-6 text-[0.64rem] font-bold uppercase tracking-[0.12em] text-text-secondary">
             <span>{shippingLabel}</span>
@@ -165,7 +191,7 @@ export default function Navbar({
         </div>
 
         <nav
-          className="section-shell grid h-[64px] min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:flex md:justify-between lg:h-[75px]"
+          className="atelier-nav section-shell"
           aria-label="Main navigation"
         >
           <button
@@ -173,41 +199,43 @@ export default function Navbar({
             className="grid h-10 w-10 place-items-center text-text-primary hover:bg-surface-alt/50 rounded-full transition-colors xl:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
+            aria-controls="atelier-mobile-menu"
             aria-label="Toggle navigation"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
+          <Link href="/about" className="atelier-nav-origin">Bihar Sharif, India<br /><span>A personal approach to occasion wear</span></Link>
 
           <Link
             href="/"
             onClick={() => setOpen(false)}
-            className="group flex shrink-0 items-center justify-center xl:justify-start gap-3 w-full xl:w-auto pr-4 xl:pr-0"
+            className="atelier-wordmark group"
             aria-label="DARAJNI Homepage"
           >
-            <BrandLogo className="hidden lg:block h-9 w-9 text-accent transition-transform group-hover:scale-105 sm:h-11 sm:w-11" />
+            <BrandLogo className="hidden h-8 w-8 text-accent 2xl:block" />
             <span className="block">
-              <span className="font-display block whitespace-nowrap text-xl tracking-[0.08em] text-text-primary sm:text-2xl">
+              <span className="atelier-wordmark-name font-display">
                 DARAJNI
               </span>
-              <span className="hidden lg:block whitespace-nowrap text-[0.48rem] font-bold uppercase tracking-[0.16em] text-accent sm:text-[0.52rem]">
+              <span className="atelier-wordmark-subtitle">
                 Designer House
               </span>
             </span>
           </Link>
 
-          <div className="hidden flex-1 items-center justify-center gap-1.5 px-2 xl:flex 2xl:gap-4">
+          <div className="atelier-nav-links">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="nav-link relative whitespace-nowrap p-1.5 text-[0.8rem] font-medium text-text-primary transition hover:text-accent 2xl:p-2.5 2xl:text-base"
+                className="nav-link"
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-1 sm:gap-2">
+          <div className="atelier-nav-actions flex shrink-0 items-center justify-end gap-0 sm:gap-1">
             <Link
               href="/collection"
               className="grid h-10 w-10 place-items-center rounded-full text-text-primary transition hover:bg-surface-alt/50"
@@ -248,7 +276,11 @@ export default function Navbar({
         createPortal(
           // Portaled to document.body so no ancestor (transform/filter) can
           // turn the fixed drawer into a scroll-away box.
-          <div className="mobile-drawer fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-background/95 backdrop-blur-xl xl:hidden">
+          <div ref={drawer} id="atelier-mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation" className="mobile-drawer atelier-drawer fixed inset-x-0 bottom-0 z-30 flex flex-col bg-background xl:hidden">
+            <div className="flex items-center justify-between border-b border-border px-6 py-3">
+              <span className="eyebrow">Explore DARAJNI</span>
+              <button type="button" onClick={() => setOpen(false)} aria-label="Close navigation" className="grid h-11 w-11 place-items-center"><X size={20} /></button>
+            </div>
             <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6">
               <div className="grid gap-2">
                 {navLinks.map((link) => (

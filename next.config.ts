@@ -9,12 +9,12 @@ const contentSecurityPolicy = [
   // PayU can move a hosted checkout between its secure subdomains. Keep form
   // submissions restricted to this site and PayU only.
   "form-action 'self' https://*.payu.in",
-  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://checkout-ui.shiprocket.com",
+  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://checkout-ui.shiprocket.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline' https://checkout-ui.shiprocket.com",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in https://*.google-analytics.com https://www.googletagmanager.com",
   "media-src 'self' blob: https://*.supabase.co https://files.darajni.in",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://checkout-api.shiprocket.com https://checkout-ui.shiprocket.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://checkout-api.shiprocket.com https://checkout-ui.shiprocket.com https://*.google-analytics.com https://www.googletagmanager.com",
   "frame-src https://*.razorpay.com https://checkout-ui.shiprocket.com",
   "worker-src 'self' blob:",
   ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : []),

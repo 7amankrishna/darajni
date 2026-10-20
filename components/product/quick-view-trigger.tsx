@@ -26,7 +26,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
   const price = getProductPrice(product);
   const images = product.images.length > 0 ? product.images : ["/logo.webp"];
   const fabricTag = isProductInformationUncertain(product.fabric)
-    ? "Handcrafted Silk"
+    ? "View fabric details"
     : product.fabric;
 
   const scrollNext = () => {
@@ -63,7 +63,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
         </button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-3xl overflow-hidden bg-surface text-text-primary sm:p-0">
+      <DialogContent className="max-w-3xl overflow-y-auto bg-surface text-text-primary sm:p-0">
         <div className="grid sm:grid-cols-[1fr_1.2fr]">
           <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt sm:h-full sm:aspect-auto group/gallery">
             <div
@@ -85,7 +85,7 @@ export function QuickViewTrigger({ product }: { product: Product }) {
             </div>
             
             <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
-              <span className="rounded-full border border-white/20 bg-[#241A12]/70 px-3 py-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#F6EFE5] backdrop-blur-md">
+              <span className="atelier-fabric">
                 {fabricTag}
               </span>
             </div>
@@ -94,12 +94,14 @@ export function QuickViewTrigger({ product }: { product: Product }) {
               <>
                 <button
                   onClick={scrollPrev}
+                  aria-label="Previous product image"
                   className="absolute left-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
                   onClick={scrollNext}
+                  aria-label="Next product image"
                   className="absolute right-2 top-1/2 z-10 -translate-y-1/2 hidden h-8 w-8 place-items-center rounded-full bg-surface/80 text-text-primary opacity-0 shadow-sm backdrop-blur transition-opacity hover:bg-surface sm:grid group-hover/gallery:opacity-100"
                 >
                   <ChevronRight className="h-5 w-5" />
