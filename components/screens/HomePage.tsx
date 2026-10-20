@@ -120,7 +120,8 @@ export default async function HomePage() {
   const availableCategories = categories.filter((category: Category) =>
     products.some((product: Product) => product.category.id === category.id),
   );
-  const featured = curatedProducts(products).slice(0, 10);
+  const dbFeatured = products.filter((product: Product) => product.isFeatured && product.isActive);
+  const featured = (dbFeatured.length > 0 ? dbFeatured : curatedProducts(products)).slice(0, 10);
   const structuredData = [
     {
       "@context": "https://schema.org",

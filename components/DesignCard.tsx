@@ -18,7 +18,7 @@ export default function DesignCard({ product }: { product: Product }) {
   return (
     <article className="atelier-product group relative flex flex-col">
       {/* Media Box with Portrait 3:4 Ratio & Slow Cinematic Scale */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-surface-alt rounded-lg">
         <Link href={`/design/${product.slug}`} className="block h-full w-full">
           <ProductImage
             src={image}
