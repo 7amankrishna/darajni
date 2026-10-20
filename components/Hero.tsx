@@ -63,6 +63,17 @@ export default function Hero({
     return () => window.clearInterval(timer);
   }, [playing, heroProducts.length]);
 
+  // Preload upcoming hero slide image in the background for instant transitions
+  useEffect(() => {
+    if (heroProducts.length <= 1) return;
+    const nextIndex = (active + 1) % heroProducts.length;
+    const nextImgSrc = heroProducts[nextIndex]?.images[0];
+    if (nextImgSrc && typeof window !== "undefined") {
+      const preload = new window.Image();
+      preload.src = `https://wsrv.nl/?url=${encodeURIComponent(nextImgSrc)}&w=1200&q=80&output=webp`;
+    }
+  }, [active, heroProducts]);
+
   return (
     <>
       <section className="atelier-hero" aria-label="DARAJNI collection">

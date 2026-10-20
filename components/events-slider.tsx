@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+import { ProductImage } from "@/components/product/product-image";
 import type { EventBanner } from "@/types/commerce";
 
 export function EventsSlider({ eventBanners }: { eventBanners: EventBanner[] }) {
@@ -57,13 +57,11 @@ export function EventsSlider({ eventBanners }: { eventBanners: EventBanner[] }) 
                 aria-hidden={index !== activeIndex}
               >
                 <Link href={banner.linkUrl} className="block w-full h-full relative" aria-label={`View ${banner.title}`}>
-                  <Image
+                  <ProductImage
                     src={banner.imageUrl}
                     alt={banner.title}
-                    fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 90vw"
-                    priority={index === 0}
                   />
                   {/* Optional gradient overlay to make text more readable if we add text overlay later */}
                   <div className="absolute inset-0 bg-black/10 hover:bg-black/0 transition-colors duration-300" />

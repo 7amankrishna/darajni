@@ -11,7 +11,7 @@ const contentSecurityPolicy = [
   "form-action 'self' https://*.payu.in",
   "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://checkout-ui.shiprocket.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline' https://checkout-ui.shiprocket.com",
-  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in https://*.google-analytics.com https://www.googletagmanager.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://*.razorpay.com https://files.darajni.in https://wsrv.nl https://*.google-analytics.com https://www.googletagmanager.com",
   "media-src 'self' blob: https://*.supabase.co https://files.darajni.in",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.razorpay.com https://checkout-api.shiprocket.com https://checkout-ui.shiprocket.com https://*.google-analytics.com https://www.googletagmanager.com",
@@ -23,8 +23,8 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
-    unoptimized: true,
-    formats: ["image/avif", "image/webp"],
+    loader: "custom",
+    loaderFile: "./lib/image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
@@ -41,8 +41,12 @@ const nextConfig: NextConfig = {
         hostname: "files.darajni.in",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "wsrv.nl",
+        pathname: "/**",
+      },
     ],
-    
   },
   async headers() {
     const immutableAssetHeaders = [

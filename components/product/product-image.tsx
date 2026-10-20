@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 function normalizeSrc(src: string): string {
   if (!src) return "/logo.webp";
@@ -20,7 +22,7 @@ function canOptimize(src: string) {
 
   try {
     const hostname = new URL(src).hostname;
-    return hostname.endsWith(".supabase.co") || hostname === "files.darajni.in";
+    return hostname.endsWith(".supabase.co") || hostname === "files.darajni.in" || hostname === "wsrv.nl";
   } catch {
     return false;
   }
@@ -42,6 +44,11 @@ export function ProductImage({
   style?: CSSProperties;
 }) {
   const cleanSrc = normalizeSrc(src);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [cleanSrc]);
 
   if (canOptimize(cleanSrc)) {
     return (
@@ -51,9 +58,11 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
-        unoptimized
-        loading={priority ? "eager" : undefined}
+        unoptimized={hasError}
+        onError={() => setHasError(true)}
+        loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
+        decoding="async"
         className={className}
         style={style}
       />
